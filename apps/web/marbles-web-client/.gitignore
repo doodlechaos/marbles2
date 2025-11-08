@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#ignore this output from unity webgl build to prevent it from overriding the index.html in cloudflare
+/static/index.html
