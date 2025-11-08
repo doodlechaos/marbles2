@@ -1,0 +1,30 @@
+{
+	"name": "marbles2-client",
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2025-06-27",
+	"account_id": "1728ab02145e197308788f182d6a13c5",
+
+	"compatibility_flags": ["nodejs_compat"],
+	"build": {
+		"command": "npm run build",
+		"cwd": "."
+	},
+	"assets": {
+		"directory": ".svelte-kit/cloudflare",
+		"binding": "ASSETS"
+	},
+
+	"observability": {
+		"logs": { "enabled": true }
+	},
+
+	"r2_buckets": [
+		{
+			"binding": "MARBLES_BUCKET_BINDING",
+			"bucket_name": "marbles",
+			"preview_bucket_name": "marbles-dev"
+		}
+	],
+
+	"routes": [{ "pattern": "marbles.live", "custom_domain": true }]
+}
