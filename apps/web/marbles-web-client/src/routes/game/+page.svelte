@@ -5,21 +5,6 @@
   let unityInstance: any = null;
 
   onMount(() => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      // Mobile device style: fill the whole browser client area with the game canvas
-      const meta = document.createElement("meta");
-      meta.name = "viewport";
-      meta.content =
-        "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
-      document.getElementsByTagName("head")[0].appendChild(meta);
-
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
-      canvas.style.position = "fixed";
-    }
-
     // Load Unity loader script
     const script = document.createElement("script");
     script.src = "/Build/static.loader.js";
@@ -56,16 +41,14 @@
 
 <svelte:head>
   <title>Unity Web Player | MarblesUnityClient</title>
+  <meta
+    name="viewport"
+    content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes"
+  />
 </svelte:head>
 
 <div class="unity-container">
-  <canvas
-    id="unity-canvas"
-    bind:this={canvas}
-    width="960"
-    height="600"
-    tabindex="-1"
-  ></canvas>
+  <canvas id="unity-canvas" bind:this={canvas} tabindex="-1"></canvas>
 </div>
 
 <style>
