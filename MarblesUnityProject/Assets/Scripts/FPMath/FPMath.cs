@@ -169,6 +169,38 @@ namespace LockSim
         {
             return Floor(value + FP.Half);
         }
+
+        public static FP Acos(FP value)
+        {
+            // Clamp input to valid range [-1, 1]
+            if (value <= FP.MinusOne)
+                return FP.Pi;
+            if (value >= FP.One)
+                return FP.Zero;
+
+            // Use approximation: acos(x) ≈ sqrt(1-x) * (a0 + a1*x + a2*x^2 + a3*x^3)
+            // This is a polynomial approximation for acos
+            bool negative = value.RawValue < 0;
+            FP x = Abs(value);
+
+            FP ret = FP.FromFloat(-0.0187293f);
+            ret = ret * x;
+            ret = ret + FP.FromFloat(0.0742610f);
+            ret = ret * x;
+            ret = ret - FP.FromFloat(0.2121144f);
+            ret = ret * x;
+            ret = ret + FP.FromFloat(1.5707288f);
+            ret = ret * Sqrt(FP.One - x);
+
+            return negative ? FP.Pi - ret : ret;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FP Asin(FP value)
+        {
+            // asin(x) = π/2 - acos(x)
+            return FP.PiOver2 - Acos(value);
+        }
     }
 }
 

@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
 
+    public GameCore GameCore = new GameCore();
+
     private void Start()
     {
         Instance = this;
