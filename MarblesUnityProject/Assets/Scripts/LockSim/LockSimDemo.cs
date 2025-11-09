@@ -109,18 +109,23 @@ public class LockSimDemo : MonoBehaviour
         }
 
         // Set shape based on collider type
-        // Use bounds.size which gives us the actual world-space size (already scaled)
+        // Use local collider size scaled by transform (NOT bounds, which is axis-aligned and inflated for rotated objects)
         if (collider is BoxCollider2D boxCollider)
         {
-            Vector2 size = collider.bounds.size;
-            body.SetBoxShape(FP.FromFloat(size.x), FP.FromFloat(size.y));
+            // Get local size and apply transform scale
+            Vector2 localSize = boxCollider.size;
+            Vector2 worldSize = new Vector2(
+                localSize.x * Mathf.Abs(go.transform.lossyScale.x),
+                localSize.y * Mathf.Abs(go.transform.lossyScale.y)
+            );
+            body.SetBoxShape(FP.FromFloat(worldSize.x), FP.FromFloat(worldSize.y));
         }
         else if (collider is CircleCollider2D circleCollider)
         {
-            // For circles, bounds gives us the square that contains the circle
-            // So width/2 = height/2 = radius
-            float radius = collider.bounds.extents.x; // extents is half-size
-            body.SetCircleShape(FP.FromFloat(radius));
+            // Get local radius and apply transform scale (use max of x/y scale for circles)
+            float localRadius = circleCollider.radius;
+            float worldRadius = localRadius * Mathf.Max(Mathf.Abs(go.transform.lossyScale.x), Mathf.Abs(go.transform.lossyScale.y));
+            body.SetCircleShape(FP.FromFloat(worldRadius));
         }
         else
         {
