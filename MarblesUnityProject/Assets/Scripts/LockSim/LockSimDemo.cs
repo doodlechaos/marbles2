@@ -1,9 +1,10 @@
 using UnityEngine;
+using System.Collections.Generic;
 using LockSim;
 
 /// <summary>
 /// Unity demo for the LockSim deterministic physics engine
-/// Shows a stack of boxes falling onto a static ground box
+/// Scans the scene for GameObjects with Collider2D/Rigidbody2D and syncs them with LockSim
 /// </summary>
 public class LockSimDemo : MonoBehaviour
 {
@@ -11,76 +12,146 @@ public class LockSimDemo : MonoBehaviour
     [SerializeField] private bool runSimulation = true;
     [SerializeField] private float timeScale = 1f;
     [SerializeField] private int stepsPerFrame = 1;
+    [SerializeField] private float fixedTimeStep = 1f / 60f;
     
-    [Header("Demo Setup")]
-    [SerializeField] private int stackHeight = 5;
-    [SerializeField] private float boxSize = 1f;
-    [SerializeField] private float groundWidth = 20f;
-    [SerializeField] private float groundHeight = 1f;
+    [Header("World Settings")]
+    [SerializeField] private Vector2 gravity = new Vector2(0f, -9.81f);
+    [SerializeField] private int velocityIterations = 8;
+    [SerializeField] private int positionIterations = 3;
 
     [Header("Visualization")]
-    [SerializeField] private Color staticBodyColor = Color.gray;
-    [SerializeField] private Color dynamicBodyColor = Color.cyan;
     [SerializeField] private Color contactColor = Color.red;
     [SerializeField] private bool showContacts = true;
+    [SerializeField] private float contactPointSize = 0.1f;
 
     private World world;
-    private FP fixedDeltaTime = FP.FromFloat(1f / 60f);
+    private FP fixedDeltaTime;
     private float accumulator = 0f;
+    
+    // Mapping between Unity GameObjects and LockSim body IDs
+    private Dictionary<GameObject, int> gameObjectToBodyId = new Dictionary<GameObject, int>();
+    private Dictionary<int, GameObject> bodyIdToGameObject = new Dictionary<int, GameObject>();
 
     void Start()
     {
+        fixedDeltaTime = FP.FromFloat(fixedTimeStep);
         InitializeWorld();
     }
 
     void InitializeWorld()
     {
         world = new World();
-        world.Gravity = FPVector2.FromFloats(0f, -9.81f);
-        world.VelocityIterations = 8;
-        world.PositionIterations = 3;
+        world.Gravity = FPVector2.FromFloats(gravity.x, gravity.y);
+        world.VelocityIterations = velocityIterations;
+        world.PositionIterations = positionIterations;
 
-        // Create ground (static box)
-        RigidBody ground = RigidBody.CreateStatic(
-            0,
-            FPVector2.FromFloats(0f, -2f),
-            FP.Zero
-        );
-        ground.SetBoxShape(FP.FromFloat(groundWidth), FP.FromFloat(groundHeight));
-        ground.Friction = FP.FromFloat(0.5f);
-        ground.Restitution = FP.FromFloat(0.2f);
-        world.AddBody(ground);
+        // Clear previous mappings
+        gameObjectToBodyId.Clear();
+        bodyIdToGameObject.Clear();
 
-        // Create stack of dynamic boxes
-        FP cubeSize = FP.FromFloat(boxSize);
-        FP spacing = FP.FromFloat(0.01f); // Small gap to ensure they're not initially overlapping
-
-        for (int i = 0; i < stackHeight; i++)
+        // Scan scene for all GameObjects with physics components
+        Collider2D[] colliders = FindObjectsOfType<Collider2D>();
+        
+        int bodiesCreated = 0;
+        foreach (var collider in colliders)
         {
-            // Stack boxes vertically, slightly offset to create toppling effect
-            FP xOffset = FP.FromFloat((i % 2 == 0 ? 0.1f : -0.1f) * i * 0.1f);
-            FP yPos = FP.FromFloat(-1f) + cubeSize * FP.Half + (cubeSize + spacing) * FP.FromInt(i);
-
-            RigidBody box = RigidBody.CreateDynamic(
-                i + 1,
-                FPVector2.FromFloats(xOffset.ToFloat(), yPos.ToFloat()),
-                FP.FromFloat(Random.Range(-0.1f, 0.1f)), // Small random rotation
-                FP.One // Mass of 1
-            );
-            
-            box.SetBoxShape(cubeSize, cubeSize);
-            box.Friction = FP.FromFloat(0.5f);
-            box.Restitution = FP.FromFloat(0.2f);
-            
-            world.AddBody(box);
+            if (CreateBodyFromCollider(collider.gameObject))
+            {
+                bodiesCreated++;
+            }
         }
 
-        Debug.Log($"LockSim World initialized with {world.Bodies.Count} bodies");
+        Debug.Log($"LockSim World initialized with {bodiesCreated} bodies from scene");
+    }
+
+    private bool CreateBodyFromCollider(GameObject go)
+    {
+        // Skip if already added
+        if (gameObjectToBodyId.ContainsKey(go))
+            return false;
+
+        Collider2D collider = go.GetComponent<Collider2D>();
+        if (collider == null)
+            return false;
+
+        // CRITICAL: Use collider.bounds.center for the actual world-space center of the collider
+        // This automatically accounts for offset, scale, rotation, and any other transforms
+        Vector2 colliderCenter = collider.bounds.center;
+        float rotationZ = go.transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
+
+        // Determine if static or dynamic
+        Rigidbody2D rb2d = go.GetComponent<Rigidbody2D>();
+        bool isStatic = rb2d == null || rb2d.bodyType == RigidbodyType2D.Static;
+
+        RigidBodyLS body;
+        
+        if (isStatic)
+        {
+            body = RigidBodyLS.CreateStatic(
+                0, // ID will be assigned by world
+                FPVector2.FromFloats(colliderCenter.x, colliderCenter.y),
+                FP.FromFloat(rotationZ)
+            );
+        }
+        else
+        {
+            float mass = rb2d.mass;
+            body = RigidBodyLS.CreateDynamic(
+                0, // ID will be assigned by world
+                FPVector2.FromFloats(colliderCenter.x, colliderCenter.y),
+                FP.FromFloat(rotationZ),
+                FP.FromFloat(mass)
+            );
+
+            // Copy velocities if present
+            body.LinearVelocity = FPVector2.FromFloats(rb2d.linearVelocity.x, rb2d.linearVelocity.y);
+            body.AngularVelocity = FP.FromFloat(rb2d.angularVelocity * Mathf.Deg2Rad);
+        }
+
+        // Set shape based on collider type
+        // Use bounds.size which gives us the actual world-space size (already scaled)
+        if (collider is BoxCollider2D boxCollider)
+        {
+            Vector2 size = collider.bounds.size;
+            body.SetBoxShape(FP.FromFloat(size.x), FP.FromFloat(size.y));
+        }
+        else if (collider is CircleCollider2D circleCollider)
+        {
+            // For circles, bounds gives us the square that contains the circle
+            // So width/2 = height/2 = radius
+            float radius = collider.bounds.extents.x; // extents is half-size
+            body.SetCircleShape(FP.FromFloat(radius));
+        }
+        else
+        {
+            Debug.LogWarning($"Unsupported collider type on {go.name}: {collider.GetType().Name}");
+            return false;
+        }
+
+        // Set material properties
+        PhysicsMaterial2D material = collider.sharedMaterial;
+        if (material != null)
+        {
+            body.Friction = FP.FromFloat(material.friction);
+            body.Restitution = FP.FromFloat(material.bounciness);
+        }
+        else
+        {
+            body.Friction = FP.FromFloat(0.5f);
+            body.Restitution = FP.FromFloat(0.2f);
+        }
+
+        // Add body to world and store mapping
+        int bodyId = world.AddBody(body);
+        gameObjectToBodyId[go] = bodyId;
+        bodyIdToGameObject[bodyId] = go;
+
+        return true;
     }
 
     void Update()
     {
-        if (!runSimulation)
+        if (!runSimulation || world == null)
             return;
 
         // Fixed timestep accumulator
@@ -90,7 +161,7 @@ public class LockSimDemo : MonoBehaviour
         int steps = 0;
         while (accumulator >= fixedDt && steps < stepsPerFrame)
         {
-            PhysicsEngine.Step(world, fixedDeltaTime);
+            PhysicsPipeline.Step(world, fixedDeltaTime);
             accumulator -= fixedDt;
             steps++;
         }
@@ -100,98 +171,112 @@ public class LockSimDemo : MonoBehaviour
         {
             accumulator = 0;
         }
+
+        // Sync GameObject transforms from LockSim bodies
+        SyncTransforms();
     }
 
-    void OnDrawGizmos()
+    void SyncTransforms()
     {
-        if (world == null || world.Bodies == null)
-            return;
-
-        // Draw all bodies
         foreach (var body in world.Bodies)
         {
-            Gizmos.color = body.BodyType == BodyType.Static ? staticBodyColor : dynamicBodyColor;
-            DrawBody(body);
-        }
-
-        // Draw contacts
-        if (showContacts && world.Contacts != null)
-        {
-            Gizmos.color = contactColor;
-            foreach (var contact in world.Contacts)
+            if (bodyIdToGameObject.TryGetValue(body.Id, out GameObject go))
             {
-                for (int i = 0; i < contact.ContactCount; i++)
+                if (go != null && body.BodyType == BodyType.Dynamic)
                 {
-                    FPVector2 point = i == 0 ? contact.ContactPoint1 : contact.ContactPoint2;
-                    Vector3 worldPoint = new Vector3(point.X.ToFloat(), point.Y.ToFloat(), 0);
+                    Collider2D collider = go.GetComponent<Collider2D>();
+                    if (collider == null)
+                        continue;
+
+                    // Body position in LockSim is the collider's center
+                    // We need to compute what transform.position should be to achieve that collider center
+                    // Formula: collider.bounds.center = transform.position + RotatedOffset
+                    // So: transform.position = desiredColliderCenter - RotatedOffset
                     
-                    // Draw contact point
-                    Gizmos.DrawSphere(worldPoint, 0.1f);
+                    Vector2 desiredColliderCenter = new Vector2(body.Position.X.ToFloat(), body.Position.Y.ToFloat());
+                    float rotationRad = body.Rotation.ToFloat();
                     
-                    // Draw contact normal
-                    Vector3 normal = new Vector3(contact.Normal.X.ToFloat(), contact.Normal.Y.ToFloat(), 0);
-                    Gizmos.DrawRay(worldPoint, normal * 0.5f);
+                    // First update rotation (this affects how offset is computed)
+                    float rotationDegrees = rotationRad * Mathf.Rad2Deg;
+                    go.transform.rotation = Quaternion.Euler(0, 0, rotationDegrees);
+                    
+                    // Calculate the rotated offset from transform.position to collider.bounds.center
+                    Vector2 colliderOffset = collider.offset;
+                    Vector2 scaledOffset = new Vector2(
+                        colliderOffset.x * go.transform.lossyScale.x,
+                        colliderOffset.y * go.transform.lossyScale.y
+                    );
+                    
+                    float cos = Mathf.Cos(rotationRad);
+                    float sin = Mathf.Sin(rotationRad);
+                    Vector2 rotatedOffset = new Vector2(
+                        scaledOffset.x * cos - scaledOffset.y * sin,
+                        scaledOffset.x * sin + scaledOffset.y * cos
+                    );
+                    
+                    // Transform position = desired collider center - offset
+                    Vector2 transformPosition = desiredColliderCenter - rotatedOffset;
+                    
+                    // Update position
+                    Vector3 newPosition = new Vector3(
+                        transformPosition.x,
+                        transformPosition.y,
+                        go.transform.position.z // Preserve Z
+                    );
+                    go.transform.position = newPosition;
                 }
             }
         }
     }
 
-    private void DrawBody(RigidBody body)
+    void OnDrawGizmos()
     {
-        Vector3 position = new Vector3(body.Position.X.ToFloat(), body.Position.Y.ToFloat(), 0);
-        Quaternion rotation = Quaternion.Euler(0, 0, body.Rotation.ToFloat() * Mathf.Rad2Deg);
+        if (!showContacts || world == null || world.Contacts == null)
+            return;
 
-        if (body.ShapeType == ShapeType.Box)
+        // Draw contact points and normals
+        Gizmos.color = contactColor;
+        foreach (var contact in world.Contacts)
         {
-            Vector3 size = new Vector3(
-                body.BoxShape.HalfWidth.ToFloat() * 2,
-                body.BoxShape.HalfHeight.ToFloat() * 2,
-                0.5f
-            );
-            
-            // Draw box with rotation
-            Matrix4x4 rotationMatrix = Matrix4x4.TRS(position, rotation, Vector3.one);
-            Gizmos.matrix = rotationMatrix;
-            Gizmos.DrawWireCube(Vector3.zero, size);
-            Gizmos.matrix = Matrix4x4.identity;
-        }
-        else if (body.ShapeType == ShapeType.Circle)
-        {
-            DrawWireCircle(position, body.CircleShape.Radius.ToFloat());
-        }
-    }
-
-    private void DrawWireCircle(Vector3 center, float radius, int segments = 32)
-    {
-        float angle = 0f;
-        float angleStep = 360f / segments;
-        Vector3 prevPoint = center + new Vector3(Mathf.Cos(0), Mathf.Sin(0), 0) * radius;
-
-        for (int i = 1; i <= segments; i++)
-        {
-            angle = angleStep * i * Mathf.Deg2Rad;
-            Vector3 newPoint = center + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * radius;
-            Gizmos.DrawLine(prevPoint, newPoint);
-            prevPoint = newPoint;
+            for (int i = 0; i < contact.ContactCount; i++)
+            {
+                FPVector2 point = i == 0 ? contact.ContactPoint1 : contact.ContactPoint2;
+                Vector3 worldPoint = new Vector3(point.X.ToFloat(), point.Y.ToFloat(), 0);
+                
+                // Draw contact point
+                Gizmos.DrawSphere(worldPoint, contactPointSize);
+                
+                // Draw contact normal
+                Vector3 normal = new Vector3(contact.Normal.X.ToFloat(), contact.Normal.Y.ToFloat(), 0);
+                Gizmos.DrawRay(worldPoint, normal * 0.5f);
+            }
         }
     }
 
     void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(10, 10, 300, 200));
-        GUILayout.Label($"LockSim Demo - Deterministic 2D Physics", new GUIStyle(GUI.skin.label) { fontSize = 14, fontStyle = FontStyle.Bold });
+        if (world == null)
+            return;
+
+        GUILayout.BeginArea(new Rect(10, 10, 350, 200));
+        
+        GUIStyle headerStyle = new GUIStyle(GUI.skin.label) { fontSize = 14, fontStyle = FontStyle.Bold };
+        GUILayout.Label("LockSim Demo - Scene Sync", headerStyle);
+        
         GUILayout.Space(10);
-        GUILayout.Label($"Bodies: {world?.Bodies.Count ?? 0}");
-        GUILayout.Label($"Contacts: {world?.Contacts.Count ?? 0}");
-        GUILayout.Label($"Fixed DT: {fixedDeltaTime.ToFloat():F4}s");
+        GUILayout.Label($"Bodies: {world.Bodies.Count} (from scene)");
+        GUILayout.Label($"Contacts: {world.Contacts.Count}");
+        GUILayout.Label($"Fixed DT: {fixedTimeStep:F4}s");
+        GUILayout.Label($"Time Scale: {timeScale:F2}x");
+        
         GUILayout.Space(10);
         
-        if (GUILayout.Button(runSimulation ? "Pause" : "Resume"))
+        if (GUILayout.Button(runSimulation ? "Pause Simulation" : "Resume Simulation"))
         {
             runSimulation = !runSimulation;
         }
         
-        if (GUILayout.Button("Reset"))
+        if (GUILayout.Button("Reset Simulation"))
         {
             accumulator = 0f;
             InitializeWorld();

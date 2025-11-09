@@ -6,11 +6,11 @@ namespace LockSim
     {
         public static void IntegrateForces(World world, FP deltaTime)
         {
-            List<RigidBody> bodies = world.GetBodiesMutable();
+            List<RigidBodyLS> bodies = world.GetBodiesMutable();
 
             for (int i = 0; i < bodies.Count; i++)
             {
-                RigidBody body = bodies[i];
+                RigidBodyLS body = bodies[i];
 
                 if (body.BodyType != BodyType.Dynamic)
                     continue;
@@ -37,11 +37,11 @@ namespace LockSim
 
         public static void IntegrateVelocities(World world, FP deltaTime)
         {
-            List<RigidBody> bodies = world.GetBodiesMutable();
+            List<RigidBodyLS> bodies = world.GetBodiesMutable();
 
             for (int i = 0; i < bodies.Count; i++)
             {
-                RigidBody body = bodies[i];
+                RigidBodyLS body = bodies[i];
 
                 if (body.BodyType != BodyType.Dynamic)
                     continue;

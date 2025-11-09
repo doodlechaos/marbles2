@@ -88,12 +88,12 @@ public class LockSimTest : MonoBehaviour
         Debug.Log("Test: RigidBody Creation");
         
         // Static body
-        RigidBody staticBody = RigidBody.CreateStatic(0, FPVector2.Zero, FP.Zero);
+        RigidBodyLS staticBody = RigidBodyLS.CreateStatic(0, FPVector2.Zero, FP.Zero);
         Assert(staticBody.BodyType == BodyType.Static, "Static body type");
         Assert(staticBody.InverseMass == FP.Zero, "Static body has no inverse mass");
         
         // Dynamic body
-        RigidBody dynamicBody = RigidBody.CreateDynamic(1, FPVector2.One, FP.Zero, FP.FromInt(2));
+        RigidBodyLS dynamicBody = RigidBodyLS.CreateDynamic(1, FPVector2.One, FP.Zero, FP.FromInt(2));
         Assert(dynamicBody.BodyType == BodyType.Dynamic, "Dynamic body type");
         Assert(dynamicBody.Mass == FP.FromInt(2), "Dynamic body mass");
         Assert(dynamicBody.InverseMass == FP.Half, "Dynamic body inverse mass");
@@ -113,7 +113,7 @@ public class LockSimTest : MonoBehaviour
         World world = new World();
         
         // Add a body
-        RigidBody body = RigidBody.CreateDynamic(0, FPVector2.FromFloats(1f, 2f), FP.Zero, FP.One);
+        RigidBodyLS body = RigidBodyLS.CreateDynamic(0, FPVector2.FromFloats(1f, 2f), FP.Zero, FP.One);
         body.SetBoxShape(FP.One, FP.One);
         body.LinearVelocity = FPVector2.FromFloats(5f, 0f);
         world.AddBody(body);
@@ -150,7 +150,7 @@ public class LockSimTest : MonoBehaviour
         world.Gravity = FPVector2.FromFloats(0f, -10f);
         
         // Create falling box
-        RigidBody box = RigidBody.CreateDynamic(0, FPVector2.FromFloats(0f, 10f), FP.Zero, FP.One);
+        RigidBodyLS box = RigidBodyLS.CreateDynamic(0, FPVector2.FromFloats(0f, 10f), FP.Zero, FP.One);
         box.SetBoxShape(FP.One, FP.One);
         world.AddBody(box);
         
@@ -158,7 +158,7 @@ public class LockSimTest : MonoBehaviour
         FP dt = FP.FromFloat(1f / 60f);
         for (int i = 0; i < 60; i++) // 1 second
         {
-            PhysicsEngine.Step(world, dt);
+            PhysicsPipeline.Step(world, dt);
         }
         
         // Box should have fallen
@@ -182,15 +182,15 @@ public class LockSimTest : MonoBehaviour
         FP dt = FP.FromFloat(1f / 60f);
         for (int i = 0; i < 100; i++)
         {
-            PhysicsEngine.Step(world1, dt);
-            PhysicsEngine.Step(world2, dt);
+            PhysicsPipeline.Step(world1, dt);
+            PhysicsPipeline.Step(world2, dt);
         }
         
         // Compare results
         for (int i = 0; i < world1.Bodies.Count; i++)
         {
-            RigidBody body1 = world1.Bodies[i];
-            RigidBody body2 = world2.Bodies[i];
+            RigidBodyLS body1 = world1.Bodies[i];
+            RigidBodyLS body2 = world2.Bodies[i];
             
             Assert(body1.Position == body2.Position, $"Body {i} position deterministic");
             Assert(body1.Rotation == body2.Rotation, $"Body {i} rotation deterministic");
@@ -209,18 +209,18 @@ public class LockSimTest : MonoBehaviour
         
         // Create two clearly overlapping boxes
         // Box1: center at (0,0), size 2x2 -> bounds (-1,-1) to (1,1)
-        RigidBody box1 = RigidBody.CreateStatic(0, FPVector2.Zero, FP.Zero);
+        RigidBodyLS box1 = RigidBodyLS.CreateStatic(0, FPVector2.Zero, FP.Zero);
         box1.SetBoxShape(FP.Two, FP.Two);
         world.AddBody(box1);
         
         // Box2: center at (0,0), size 1x1 -> bounds (-0.5,-0.5) to (0.5,0.5)
         // This is completely inside box1
-        RigidBody box2 = RigidBody.CreateDynamic(1, FPVector2.Zero, FP.Zero, FP.One);
+        RigidBodyLS box2 = RigidBodyLS.CreateDynamic(1, FPVector2.Zero, FP.Zero, FP.One);
         box2.SetBoxShape(FP.One, FP.One);
         world.AddBody(box2);
         
         // Manually call collision detection (before physics step to check raw detection)
-        CollisionDetection.DetectCollisions(world);
+        NarrowPhase.DetectCollisions(world);
         
         // Should have at least one contact
         bool hasCollision = world.Contacts.Count > 0;
@@ -243,12 +243,12 @@ public class LockSimTest : MonoBehaviour
         world.Gravity = FPVector2.FromFloats(0f, -9.81f);
         
         // Ground
-        RigidBody ground = RigidBody.CreateStatic(0, FPVector2.FromFloats(0f, -5f), FP.Zero);
+        RigidBodyLS ground = RigidBodyLS.CreateStatic(0, FPVector2.FromFloats(0f, -5f), FP.Zero);
         ground.SetBoxShape(FP.FromInt(10), FP.One);
         world.AddBody(ground);
         
         // Falling box
-        RigidBody box = RigidBody.CreateDynamic(1, FPVector2.FromFloats(0f, 5f), FP.Zero, FP.One);
+        RigidBodyLS box = RigidBodyLS.CreateDynamic(1, FPVector2.FromFloats(0f, 5f), FP.Zero, FP.One);
         box.SetBoxShape(FP.One, FP.One);
         world.AddBody(box);
         

@@ -9,7 +9,7 @@ namespace LockSim
     }
 
     [Serializable]
-    public struct RigidBody
+    public struct RigidBodyLS
     {
         // Identification
         public int Id;
@@ -44,9 +44,9 @@ namespace LockSim
         public BoxShape BoxShape;
         public CircleShape CircleShape;
 
-        public static RigidBody CreateStatic(int id, FPVector2 position, FP rotation)
+        public static RigidBodyLS CreateStatic(int id, FPVector2 position, FP rotation)
         {
-            return new RigidBody
+            return new RigidBodyLS
             {
                 Id = id,
                 BodyType = BodyType.Static,
@@ -65,11 +65,11 @@ namespace LockSim
             };
         }
 
-        public static RigidBody CreateDynamic(int id, FPVector2 position, FP rotation, FP mass)
+        public static RigidBodyLS CreateDynamic(int id, FPVector2 position, FP rotation, FP mass)
         {
             FP invMass = mass > FP.Zero ? FP.One / mass : FP.Zero;
             
-            return new RigidBody
+            return new RigidBodyLS
             {
                 Id = id,
                 BodyType = BodyType.Dynamic,

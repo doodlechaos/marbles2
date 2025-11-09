@@ -6,7 +6,7 @@ namespace LockSim
     {
         public static void SolveContacts(World world, FP deltaTime)
         {
-            List<RigidBody> bodies = world.GetBodiesMutable();
+            List<RigidBodyLS> bodies = world.GetBodiesMutable();
             List<ContactManifold> contacts = world.GetContactsMutable();
 
             // Iterative impulse solver
@@ -16,8 +16,8 @@ namespace LockSim
                 {
                     ContactManifold contact = contacts[i];
                     
-                    RigidBody bodyA = GetBodyById(bodies, contact.BodyAId);
-                    RigidBody bodyB = GetBodyById(bodies, contact.BodyBId);
+                    RigidBodyLS bodyA = GetBodyById(bodies, contact.BodyAId);
+                    RigidBodyLS bodyB = GetBodyById(bodies, contact.BodyBId);
 
                     // Solve for each contact point
                     for (int cp = 0; cp < contact.ContactCount; cp++)
@@ -40,8 +40,8 @@ namespace LockSim
                 {
                     ContactManifold contact = contacts[i];
                     
-                    RigidBody bodyA = GetBodyById(bodies, contact.BodyAId);
-                    RigidBody bodyB = GetBodyById(bodies, contact.BodyBId);
+                    RigidBodyLS bodyA = GetBodyById(bodies, contact.BodyAId);
+                    RigidBodyLS bodyB = GetBodyById(bodies, contact.BodyBId);
 
                     PositionCorrection(ref bodyA, ref bodyB, contact.Normal, contact.Penetration);
 
@@ -51,7 +51,7 @@ namespace LockSim
             }
         }
 
-        private static void SolveContactPoint(ref RigidBody bodyA, ref RigidBody bodyB, 
+        private static void SolveContactPoint(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB, 
             FPVector2 contactPoint, FPVector2 normal)
         {
             // Contact vectors from center of mass to contact point
@@ -128,7 +128,7 @@ namespace LockSim
             }
         }
 
-        private static void PositionCorrection(ref RigidBody bodyA, ref RigidBody bodyB, 
+        private static void PositionCorrection(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB, 
             FPVector2 normal, FP penetration)
         {
             const float slop = 0.01f; // Penetration allowance
@@ -149,7 +149,7 @@ namespace LockSim
                 bodyB.Position = bodyB.Position + correction * bodyB.InverseMass;
         }
 
-        private static RigidBody GetBodyById(List<RigidBody> bodies, int id)
+        private static RigidBodyLS GetBodyById(List<RigidBodyLS> bodies, int id)
         {
             for (int i = 0; i < bodies.Count; i++)
             {
@@ -159,7 +159,7 @@ namespace LockSim
             throw new System.ArgumentException($"Body with ID {id} not found");
         }
 
-        private static void SetBodyById(List<RigidBody> bodies, int id, RigidBody body)
+        private static void SetBodyById(List<RigidBodyLS> bodies, int id, RigidBodyLS body)
         {
             for (int i = 0; i < bodies.Count; i++)
             {

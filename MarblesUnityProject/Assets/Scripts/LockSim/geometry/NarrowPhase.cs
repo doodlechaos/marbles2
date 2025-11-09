@@ -1,12 +1,28 @@
+/// The narrow-phase collision detector that computes precise contact points between colliders.
+///
+/// After the broad-phase quickly filters out distant object pairs, the narrow-phase performs
+/// detailed geometric computations to find exact:
+/// - Contact points (where surfaces touch)
+/// - Contact normals (which direction surfaces face)
+/// - Penetration depths (how much objects overlap)
+///
+/// You typically don't interact with this directly - it's managed by [`PhysicsPipeline::step`](crate::pipeline::PhysicsPipeline::step).
+/// However, you can access it to query contact information or intersection state between specific colliders.
+///
+/// **For spatial queries** (raycasts, shape casts), use [`QueryPipeline`](crate::pipeline::QueryPipeline) instead.
+
 using System.Collections.Generic;
 
 namespace LockSim
 {
-    public static class CollisionDetection
+    /// <summary>
+    /// Performs collision detection. For simplicity, this currently includes both broad-phase and narrow-phase.
+    /// </summary>
+    public static class NarrowPhase
     {
         public static void DetectCollisions(World world)
         {
-            List<RigidBody> bodies = world.GetBodiesMutable();
+            List<RigidBodyLS> bodies = world.GetBodiesMutable();
             List<ContactManifold> contacts = world.GetContactsMutable();
             contacts.Clear();
 
@@ -15,8 +31,8 @@ namespace LockSim
             {
                 for (int j = i + 1; j < bodies.Count; j++)
                 {
-                    RigidBody bodyA = bodies[i];
-                    RigidBody bodyB = bodies[j];
+                    RigidBodyLS bodyA = bodies[i];
+                    RigidBodyLS bodyB = bodies[j];
 
                     // Skip if both are static
                     if (bodyA.BodyType == BodyType.Static && bodyB.BodyType == BodyType.Static)
@@ -58,7 +74,7 @@ namespace LockSim
             }
         }
 
-        private static bool CircleVsCircle(ref RigidBody bodyA, ref RigidBody bodyB, ref ContactManifold manifold)
+        private static bool CircleVsCircle(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB, ref ContactManifold manifold)
         {
             FP radiusA = bodyA.CircleShape.Radius;
             FP radiusB = bodyB.CircleShape.Radius;
@@ -91,7 +107,7 @@ namespace LockSim
             return true;
         }
 
-        private static bool BoxVsBox(ref RigidBody bodyA, ref RigidBody bodyB, ref ContactManifold manifold)
+        private static bool BoxVsBox(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB, ref ContactManifold manifold)
         {
             // Separating Axis Theorem (SAT) for oriented boxes
             // Test axes: A's edges (2) and B's edges (2)
@@ -143,19 +159,23 @@ namespace LockSim
             // Generate a proper contact point on the reference edge instead of midpoint between centers.
             // Choose reference box based on which set of axes produced the minimum penetration.
             bool referenceIsA = (minAxisIndex >= 0 && minAxisIndex < 2);
-            RigidBody referenceBody = referenceIsA ? bodyA : bodyB;
-            RigidBody incidentBody = referenceIsA ? bodyB : bodyA;
+            RigidBodyLS referenceBody = referenceIsA ? bodyA : bodyB;
+            RigidBodyLS incidentBody = referenceIsA ? bodyB : bodyA;
+
+            // The normal for contact generation should point from reference to incident
+            // manifold.Normal always points from A to B, so flip it when reference is B
+            FPVector2 refToIncNormal = referenceIsA ? manifold.Normal : -manifold.Normal;
 
             // Get the reference edge (segment) whose outward normal best matches the collision normal.
-            GetReferenceEdge(ref referenceBody, manifold.Normal, out FPVector2 refP1, out FPVector2 refP2);
+            GetReferenceEdge(ref referenceBody, refToIncNormal, out FPVector2 refP1, out FPVector2 refP2);
 
-            // Find the incident support point deepest along -normal
+            // Find the incident support point deepest into reference (most negative along refToIncNormal)
             FPVector2[] incidentCorners = GetBoxCorners(ref incidentBody);
             FP bestDot = FP.MaxValue;
             FPVector2 incidentPoint = incidentCorners[0];
             for (int k = 0; k < 4; k++)
             {
-                FP d = FPVector2.Dot(incidentCorners[k], manifold.Normal);
+                FP d = FPVector2.Dot(incidentCorners[k], refToIncNormal);
                 if (d < bestDot)
                 {
                     bestDot = d;
@@ -184,7 +204,7 @@ namespace LockSim
             return true;
         }
 
-        private static FP ProjectAndCheckOverlap(ref RigidBody boxA, ref RigidBody boxB, FPVector2 axis)
+        private static FP ProjectAndCheckOverlap(ref RigidBodyLS boxA, ref RigidBodyLS boxB, FPVector2 axis)
         {
             // Get the corners of both boxes and project onto axis
             FPVector2[] cornersA = GetBoxCorners(ref boxA);
@@ -213,7 +233,7 @@ namespace LockSim
             return FPMath.Min(maxA - minB, maxB - minA);
         }
 
-        private static FPVector2[] GetBoxCorners(ref RigidBody body)
+        private static FPVector2[] GetBoxCorners(ref RigidBodyLS body)
         {
             FP cos = FPMath.Cos(body.Rotation);
             FP sin = FPMath.Sin(body.Rotation);
@@ -238,7 +258,7 @@ namespace LockSim
             return corners;
         }
 
-        private static void GetReferenceEdge(ref RigidBody body, FPVector2 normal, out FPVector2 p1, out FPVector2 p2)
+        private static void GetReferenceEdge(ref RigidBodyLS body, FPVector2 normal, out FPVector2 p1, out FPVector2 p2)
         {
             // Body axes in world space
             FP cos = FPMath.Cos(body.Rotation);
@@ -274,7 +294,7 @@ namespace LockSim
             }
         }
 
-        private static bool BoxVsCircle(ref RigidBody box, ref RigidBody circle, ref ContactManifold manifold)
+        private static bool BoxVsCircle(ref RigidBodyLS box, ref RigidBodyLS circle, ref ContactManifold manifold)
         {
             // Transform circle center to box's local space
             FPVector2 delta = circle.Position - box.Position;
@@ -325,7 +345,7 @@ namespace LockSim
             return true;
         }
 
-        private static bool CircleVsBox(ref RigidBody circle, ref RigidBody box, ref ContactManifold manifold)
+        private static bool CircleVsBox(ref RigidBodyLS circle, ref RigidBodyLS box, ref ContactManifold manifold)
         {
             bool result = BoxVsCircle(ref box, ref circle, ref manifold);
             if (result)
@@ -340,4 +360,3 @@ namespace LockSim
         }
     }
 }
-

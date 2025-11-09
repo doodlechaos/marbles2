@@ -25,9 +25,9 @@ LockSim provides:
 - `Contact.cs` - Contact manifolds for collision resolution
 
 ### Pipeline (`pipeline/`)
-- `PhysicsEngine.cs` - Main entry point for stepping simulation
+- `PhysicsPipeline.cs` - Main entry point for stepping simulation
 - `Integration.cs` - Force/velocity integration
-- `CollisionDetection.cs` - Broad and narrow phase collision detection
+- `NarrowPhase.cs` - Broad and narrow phase collision detection
 - `ConstraintSolver.cs` - Iterative impulse-based constraint solver
 
 ## Usage
@@ -64,7 +64,7 @@ world.AddBody(box);
 
 // Step simulation
 FP deltaTime = FP.FromFloat(1f / 60f);
-PhysicsEngine.Step(world, deltaTime);
+PhysicsPipeline.Step(world, deltaTime);
 ```
 
 ### Snapshot and Restore
@@ -74,7 +74,7 @@ PhysicsEngine.Step(world, deltaTime);
 World.Snapshot snapshot = world.TakeSnapshot();
 
 // Run simulation...
-PhysicsEngine.Step(world, deltaTime);
+PhysicsPipeline.Step(world, deltaTime);
 
 // Restore to previous state
 world.RestoreSnapshot(snapshot);
@@ -104,7 +104,7 @@ public static void StepPhysics(ReducerContext ctx)
     
     // Step simulation
     FP deltaTime = FP.FromFloat(1f / 20f);
-    PhysicsEngine.Step(world, deltaTime);
+    PhysicsPipeline.Step(world, deltaTime);
     
     // Save world state back to database
     SaveWorldToDB(world);

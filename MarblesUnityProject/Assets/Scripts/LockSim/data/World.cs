@@ -12,16 +12,16 @@ namespace LockSim
         public int PositionIterations = 3;
 
         // Bodies storage (using List for deterministic ordering)
-        private List<RigidBody> bodies = new List<RigidBody>();
+        private List<RigidBodyLS> bodies = new List<RigidBodyLS>();
         private int nextBodyId = 0;
 
         // Contacts from last step
         private List<ContactManifold> contacts = new List<ContactManifold>();
 
-        public IReadOnlyList<RigidBody> Bodies => bodies;
+        public IReadOnlyList<RigidBodyLS> Bodies => bodies;
         public IReadOnlyList<ContactManifold> Contacts => contacts;
 
-        public int AddBody(RigidBody body)
+        public int AddBody(RigidBodyLS body)
         {
             body.Id = nextBodyId++;
             bodies.Add(body);
@@ -40,7 +40,7 @@ namespace LockSim
             }
         }
 
-        public RigidBody GetBody(int bodyId)
+        public RigidBodyLS GetBody(int bodyId)
         {
             for (int i = 0; i < bodies.Count; i++)
             {
@@ -52,7 +52,7 @@ namespace LockSim
             throw new ArgumentException($"Body with ID {bodyId} not found");
         }
 
-        public void SetBody(int bodyId, RigidBody body)
+        public void SetBody(int bodyId, RigidBodyLS body)
         {
             for (int i = 0; i < bodies.Count; i++)
             {
@@ -73,14 +73,14 @@ namespace LockSim
         }
 
         // Internal access for physics pipeline
-        internal List<RigidBody> GetBodiesMutable() => bodies;
+        internal List<RigidBodyLS> GetBodiesMutable() => bodies;
         internal List<ContactManifold> GetContactsMutable() => contacts;
 
         // Snapshot and restore for deterministic replay
         [Serializable]
         public class Snapshot
         {
-            public RigidBody[] Bodies;
+            public RigidBodyLS[] Bodies;
             public int NextBodyId;
             public FPVector2 Gravity;
 
