@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
 
     public GameCore GameCore = new GameCore();
 
+    public GameObject GameTile1Prefab;
+    public GameObject GameTile2Prefab;
+
     private void Start()
     {
         Instance = this;
