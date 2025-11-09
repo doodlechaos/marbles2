@@ -1,25 +1,28 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text;
+
 
 namespace LockSim
 {
+    /// <summary>
+    /// Contains only the deterministic state of the physics simulation.
+    /// This is the minimal data that needs to be serialized for snapshots.
+    /// </summary>
     [Serializable]
     public class World
     {
         // Physics settings
         public FPVector2 Gravity = FPVector2.FromFloats(0f, -9.81f);
-        public int VelocityIterations = 8;
-        public int PositionIterations = 3;
 
         // Bodies storage (using List for deterministic ordering)
         private List<RigidBodyLS> bodies = new List<RigidBodyLS>();
         private int nextBodyId = 0;
 
-        // Contacts from last step
-        private List<ContactManifold> contacts = new List<ContactManifold>();
-
         public IReadOnlyList<RigidBodyLS> Bodies => bodies;
-        public IReadOnlyList<ContactManifold> Contacts => contacts;
 
         public int AddBody(RigidBodyLS body)
         {
@@ -68,13 +71,11 @@ namespace LockSim
         public void Clear()
         {
             bodies.Clear();
-            contacts.Clear();
             nextBodyId = 0;
         }
 
         // Internal access for physics pipeline
         internal List<RigidBodyLS> GetBodiesMutable() => bodies;
-        internal List<ContactManifold> GetContactsMutable() => contacts;
 
         // Snapshot and restore for deterministic replay
         [Serializable]
@@ -103,7 +104,32 @@ namespace LockSim
             bodies.AddRange(snapshot.Bodies);
             nextBodyId = snapshot.NextBodyId;
             Gravity = snapshot.Gravity;
-            contacts.Clear();
+        }
+
+        /// <summary>
+        /// Computes a SHA256 hash of the entire world state for determinism testing.
+        /// </summary>
+        public string GetWorldHash()
+        {
+            Snapshot snapshot = TakeSnapshot();
+
+            using (var memoryStream = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(memoryStream, snapshot);
+                byte[] serializedBytes = memoryStream.ToArray();
+
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    byte[] hashBytes = sha256.ComputeHash(serializedBytes);
+                    var hashString = new StringBuilder();
+                    foreach (byte b in hashBytes)
+                    {
+                        hashString.Append(b.ToString("x2"));
+                    }
+                    return hashString.ToString();
+                }
+            }
         }
     }
 }

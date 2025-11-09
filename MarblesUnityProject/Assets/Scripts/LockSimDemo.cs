@@ -25,6 +25,7 @@ public class LockSimDemo : MonoBehaviour
     [SerializeField] private float contactPointSize = 0.1f;
 
     private World world;
+    private WorldSimulationContext context;
     private FP fixedDeltaTime;
     private float accumulator = 0f;
     
@@ -42,8 +43,10 @@ public class LockSimDemo : MonoBehaviour
     {
         world = new World();
         world.Gravity = FPVector2.FromFloats(gravity.x, gravity.y);
-        world.VelocityIterations = velocityIterations;
-        world.PositionIterations = positionIterations;
+        
+        context = new WorldSimulationContext();
+        context.VelocityIterations = velocityIterations;
+        context.PositionIterations = positionIterations;
 
         // Clear previous mappings
         gameObjectToBodyId.Clear();
@@ -166,7 +169,7 @@ public class LockSimDemo : MonoBehaviour
         int steps = 0;
         while (accumulator >= fixedDt && steps < stepsPerFrame)
         {
-            PhysicsPipeline.Step(world, fixedDeltaTime);
+            PhysicsPipeline.Step(world, fixedDeltaTime, context);
             accumulator -= fixedDt;
             steps++;
         }
@@ -236,12 +239,12 @@ public class LockSimDemo : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (!showContacts || world == null || world.Contacts == null)
+        if (!showContacts || world == null || context == null || context.Contacts == null)
             return;
 
         // Draw contact points and normals
         Gizmos.color = contactColor;
-        foreach (var contact in world.Contacts)
+        foreach (var contact in context.Contacts)
         {
             for (int i = 0; i < contact.ContactCount; i++)
             {
@@ -270,7 +273,7 @@ public class LockSimDemo : MonoBehaviour
         
         GUILayout.Space(10);
         GUILayout.Label($"Bodies: {world.Bodies.Count} (from scene)");
-        GUILayout.Label($"Contacts: {world.Contacts.Count}");
+        GUILayout.Label($"Contacts: {(context != null ? context.Contacts.Count : 0)}");
         GUILayout.Label($"Fixed DT: {fixedTimeStep:F4}s");
         GUILayout.Label($"Time Scale: {timeScale:F2}x");
         

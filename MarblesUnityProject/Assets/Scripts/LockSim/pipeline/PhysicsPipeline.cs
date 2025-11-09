@@ -27,16 +27,22 @@ namespace LockSim
     /// </summary>
     public static class PhysicsPipeline
     {
-        public static void Step(World world, FP deltaTime)
+        public static void Step(World world, FP deltaTime, WorldSimulationContext context = null)
         {
+            // Create default context if none provided (for backwards compatibility)
+            if (context == null)
+            {
+                context = new WorldSimulationContext();
+            }
+
             // 1. Integrate forces (apply gravity and forces to velocities)
             Integration.IntegrateForces(world, deltaTime);
 
             // 2. Detect collisions (broad + narrow handled inside NarrowPhase)
-            NarrowPhase.DetectCollisions(world);
+            NarrowPhase.DetectCollisions(world, context);
 
             // 3. Solve collision constraints (resolve contacts)
-            ConstraintSolver.SolveContacts(world, deltaTime);
+            ConstraintSolver.SolveContacts(world, deltaTime, context);
 
             // 4. Integrate velocities (update positions based on velocities)
             Integration.IntegrateVelocities(world, deltaTime);

@@ -37,14 +37,17 @@ LockSim provides:
 ```csharp
 using LockSim;
 
-// Create world
+// Create world (contains only deterministic state)
 World world = new World();
 world.Gravity = FPVector2.FromFloats(0f, -9.81f);
-world.VelocityIterations = 8;
-world.PositionIterations = 3;
+
+// Create simulation context (contains runtime/non-serializable data)
+WorldSimulationContext context = new WorldSimulationContext();
+context.VelocityIterations = 8;
+context.PositionIterations = 3;
 
 // Create static ground
-RigidBody ground = RigidBody.CreateStatic(
+RigidBodyLS ground = RigidBodyLS.CreateStatic(
     0, 
     FPVector2.FromFloats(0f, -5f), 
     FP.Zero
@@ -53,7 +56,7 @@ ground.SetBoxShape(FP.FromFloat(10f), FP.FromFloat(1f));
 world.AddBody(ground);
 
 // Create dynamic box
-RigidBody box = RigidBody.CreateDynamic(
+RigidBodyLS box = RigidBodyLS.CreateDynamic(
     1, 
     FPVector2.FromFloats(0f, 5f), 
     FP.Zero, 
@@ -64,7 +67,7 @@ world.AddBody(box);
 
 // Step simulation
 FP deltaTime = FP.FromFloat(1f / 60f);
-PhysicsPipeline.Step(world, deltaTime);
+PhysicsPipeline.Step(world, deltaTime, context);
 ```
 
 ### Snapshot and Restore

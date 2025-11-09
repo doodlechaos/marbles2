@@ -1,12 +1,12 @@
 {
     "files.exclude": {
-      "**/*.cs.meta": true
+      "**/*.meta": true
     },
     "search.exclude": {
-      "**/*.cs.meta": true
+      "**/*.meta": true
     },
     "files.watcherExclude": {
-      "**/*.cs.meta": true
+      "**/*.meta": true
     }
   }
   

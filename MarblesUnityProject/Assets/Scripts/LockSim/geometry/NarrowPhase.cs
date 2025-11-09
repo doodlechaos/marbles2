@@ -20,10 +20,10 @@ namespace LockSim
     /// </summary>
     public static class NarrowPhase
     {
-        public static void DetectCollisions(World world)
+        public static void DetectCollisions(World world, WorldSimulationContext context)
         {
             List<RigidBodyLS> bodies = world.GetBodiesMutable();
-            List<ContactManifold> contacts = world.GetContactsMutable();
+            List<ContactManifold> contacts = context.GetContactsMutable();
             contacts.Clear();
 
             // Broad phase + narrow phase (O(n²) for simplicity)

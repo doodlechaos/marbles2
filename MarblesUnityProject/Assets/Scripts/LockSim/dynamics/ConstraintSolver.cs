@@ -4,13 +4,13 @@ namespace LockSim
 {
     public static class ConstraintSolver
     {
-        public static void SolveContacts(World world, FP deltaTime)
+        public static void SolveContacts(World world, FP deltaTime, WorldSimulationContext context)
         {
             List<RigidBodyLS> bodies = world.GetBodiesMutable();
-            List<ContactManifold> contacts = world.GetContactsMutable();
+            List<ContactManifold> contacts = context.GetContactsMutable();
 
             // Iterative impulse solver
-            for (int iteration = 0; iteration < world.VelocityIterations; iteration++)
+            for (int iteration = 0; iteration < context.VelocityIterations; iteration++)
             {
                 for (int i = 0; i < contacts.Count; i++)
                 {
@@ -34,7 +34,7 @@ namespace LockSim
             }
 
             // Position correction to prevent sinking
-            for (int iteration = 0; iteration < world.PositionIterations; iteration++)
+            for (int iteration = 0; iteration < context.PositionIterations; iteration++)
             {
                 for (int i = 0; i < contacts.Count; i++)
                 {
