@@ -37,6 +37,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/" | "/game" | "/game/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/Build/static.data.unityweb" | "/Build/static.framework.js.unityweb" | "/Build/static.loader.js" | "/Build/static.wasm.unityweb" | "/index.html" | "/TemplateData/webmemd-icon.png" | "/_headers" | string & {};
+		Asset(): "/Build/static.data.unityweb" | "/Build/static.framework.js.unityweb" | "/Build/static.loader.js" | "/Build/static.wasm.unityweb" | "/index.html" | "/TemplateData/webmemd-icon.png" | string & {};
 	}
 }

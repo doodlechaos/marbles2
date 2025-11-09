@@ -1,0 +1,12 @@
+{
+    "files.exclude": {
+      "**/*.cs.meta": true
+    },
+    "search.exclude": {
+      "**/*.cs.meta": true
+    },
+    "files.watcherExclude": {
+      "**/*.cs.meta": true
+    }
+  }
+  
