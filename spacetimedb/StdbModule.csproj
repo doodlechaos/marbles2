@@ -11,4 +11,9 @@
     <PackageReference Include="SpacetimeDB.Runtime" Version="1.7.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Include Shared scripts from Unity project (FPMath, GameCore, LockSim) -->
+    <Compile Include="..\MarblesUnityProject\Assets\Scripts\Shared\**\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
 </Project>

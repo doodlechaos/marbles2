@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace LockSim
+namespace FPMath
 {
     /// <summary>
     /// Deterministic fixed-point quaternion for 3D rotations

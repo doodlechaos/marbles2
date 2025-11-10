@@ -13,6 +13,8 @@
 
 using System.Collections.Generic;
 
+using FPMath;
+
 namespace LockSim
 {
     /// <summary>
