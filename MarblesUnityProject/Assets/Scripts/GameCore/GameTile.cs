@@ -17,7 +17,7 @@ public class GameTile
         WorldId = worldId;
     }
 
-    public void Load(string gameTileAuthYAML)
+    public void Load(string levelJSON)
     {
         //Create the TileRoot hierarchy from the gameobjects in the json
 
