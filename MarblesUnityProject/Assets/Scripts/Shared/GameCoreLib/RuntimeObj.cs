@@ -1,15 +1,17 @@
 using FPMathLib;
 using LockSim;
+using MemoryPack;
 using System;
 using System.Collections.Generic;
 
 namespace GameCoreLib
 {
-    [Serializable]
-    public class RuntimeObj 
+    [MemoryPackable]
+    public partial class RuntimeObj 
     {
         public string Name;
-        public RuntimeObj Parent;
+        //[MemoryPackIgnore]
+       // public RuntimeObj Parent;
         public List<RuntimeObj> Children;
 
         public FPTransform3D Transform;
@@ -26,8 +28,8 @@ namespace GameCoreLib
 
     }
 
-    [System.Serializable]
-    public class ComponentData
+    [MemoryPackable]
+    public partial class ComponentData
     {
         public string type;
         public bool enabled;

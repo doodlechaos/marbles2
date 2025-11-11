@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using MemoryPack;
 
 namespace FPMathLib
 {
@@ -8,7 +9,8 @@ namespace FPMathLib
     /// Deterministic fixed-point quaternion for 3D rotations
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public struct FPQuaternion : IEquatable<FPQuaternion>
+    [MemoryPackable]
+    public partial struct FPQuaternion : IEquatable<FPQuaternion>
     {
         [JsonProperty("x")]
         public FP X;

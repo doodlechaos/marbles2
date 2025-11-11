@@ -3,6 +3,7 @@ namespace LockSim
 {
     using FPMathLib;
     using System;
+    using MemoryPack;
 
     public enum BodyType : byte
     {
@@ -11,7 +12,8 @@ namespace LockSim
     }
 
     [Serializable]
-    public struct RigidBodyLS
+    [MemoryPackable]
+    public partial struct RigidBodyLS
     {
         // Identification
         public int Id;

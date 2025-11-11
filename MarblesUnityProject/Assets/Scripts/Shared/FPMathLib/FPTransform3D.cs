@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using MemoryPack;
 using Newtonsoft.Json;
 
 namespace FPMathLib
@@ -10,7 +11,8 @@ namespace FPMathLib
     /// </summary>
    
     [JsonObject(MemberSerialization.OptIn)]
-    public class FPTransform3D
+    [MemoryPackable(SerializeLayout.Explicit)]
+    public partial class FPTransform3D
     {
         // Local space properties
         private FPVector3 _localPosition;
@@ -26,6 +28,7 @@ namespace FPMathLib
         // Hierarchy
         private FPTransform3D _parent;
 
+        [MemoryPackConstructor]
         public FPTransform3D()
         {
             _localPosition = FPVector3.Zero;
@@ -52,6 +55,7 @@ namespace FPMathLib
 
         #region Local Space Properties
         [JsonProperty("localPosition")]
+        [MemoryPackOrder(0)]
         public FPVector3 LocalPosition
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,6 +67,7 @@ namespace FPMathLib
             }
         }
         [JsonProperty("localRotation")]
+        [MemoryPackOrder(1)]
         public FPQuaternion LocalRotation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,6 +79,7 @@ namespace FPMathLib
             }
         }
         [JsonProperty("localScale")]
+        [MemoryPackOrder(2)]
         public FPVector3 LocalScale
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -85,6 +91,7 @@ namespace FPMathLib
             }
         }
 
+        [MemoryPackIgnore]
         public FPVector3 LocalEulerAngles
         {
             get => QuaternionToEuler(_localRotation);
@@ -94,7 +101,7 @@ namespace FPMathLib
         #endregion
 
         #region World Space Properties
-
+        [MemoryPackIgnore]
         public FPVector3 Position
         {
             get
@@ -120,7 +127,7 @@ namespace FPMathLib
                 MarkWorldDirty();
             }
         }
-
+        [MemoryPackIgnore]
         public FPQuaternion Rotation
         {
             get
@@ -143,7 +150,7 @@ namespace FPMathLib
                 MarkWorldDirty();
             }
         }
-
+        [MemoryPackIgnore]
         public FPVector3 LossyScale
         {
             get
@@ -152,7 +159,7 @@ namespace FPMathLib
                 return _worldScale;
             }
         }
-
+        [MemoryPackIgnore]
         public FPVector3 EulerAngles
         {
             get => QuaternionToEuler(Rotation);
@@ -162,37 +169,42 @@ namespace FPMathLib
         #endregion
 
         #region Direction Vectors
-
+        [MemoryPackIgnore]
         public FPVector3 Forward
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Rotation * FPVector3.Forward;
         }
 
+        [MemoryPackIgnore]
         public FPVector3 Back
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Rotation * FPVector3.Back;
         }
 
+        [MemoryPackIgnore]
         public FPVector3 Up
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Rotation * FPVector3.Up;
         }
 
+        [MemoryPackIgnore]
         public FPVector3 Down
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Rotation * FPVector3.Down;
         }
 
+        [MemoryPackIgnore]
         public FPVector3 Right
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Rotation * FPVector3.Right;
         }
 
+        [MemoryPackIgnore]
         public FPVector3 Left
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -203,6 +215,7 @@ namespace FPMathLib
 
         #region Hierarchy
 
+        [MemoryPackIgnore]
         public FPTransform3D Parent
         {
             get => _parent;

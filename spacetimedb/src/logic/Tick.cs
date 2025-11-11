@@ -47,7 +47,7 @@ public static partial class Module
             
 
             double expectedIntervalSec = (double)cfg.stepsPerAuthFrame / (double)cfg.targetStepsPerSecond;
-            double actualIntervalSec = elapsed.Microseconds / 1000000.0;
+            double actualIntervalSec = elapsed.ToSeconds(); 
             double errorSec = Math.Abs(actualIntervalSec - expectedIntervalSec);
 
             if (cfg.logAuthFrameTimeDiffs)
@@ -116,7 +116,7 @@ public static partial class Module
             {
                 Id = 0,
                 Seq = batchStartSeq,
-                BinaryData = SerializeGameManager()
+                BinaryData = SerializeGameCore()
             };
         }
 
@@ -130,7 +130,7 @@ public static partial class Module
         }
 
         // Step it by the batch number of physics steps
-        DeserializeGameManager(snapshot.BinaryData);
+        DeserializeGameCore(snapshot.BinaryData);
 
         // TODO: Implement proper deserialization and processing of input events
         var batchEvents = new List<byte[]>();
@@ -152,11 +152,11 @@ public static partial class Module
             batchEvents.Add(events);
         }
 
-        var outputEvents = BatchStepGameManager(batchEvents);
+        var outputEvents = BatchStepGameCore(batchEvents);
         ProcessOutputEvents(ctx, outputEvents);
 
         // Verify seq consistency
-        var gameManagerSeq = GetGameManagerSeq();
+        var gameManagerSeq = GetGameCoreSeq();
         var currentSeq = GetSeq(ctx);
         if (gameManagerSeq != currentSeq)
         {
@@ -167,8 +167,8 @@ public static partial class Module
         var simulatedSnap = new GameCoreSnap
         {
             Id = 0,
-            Seq = GetGameManagerSeq(),
-            BinaryData = SerializeGameManager()
+            Seq = GetGameCoreSeq(),
+            BinaryData = SerializeGameCore()
         };
 
         ctx.Db.GameCoreSnap.Id.Delete(0);
@@ -304,24 +304,24 @@ public static partial class Module
 
     // Placeholder for game manager operations
     // These should be implemented based on your actual game logic
-    private static byte[] SerializeGameManager()
+    private static byte[] SerializeGameCore()
     {
         // TODO: Implement actual serialization from GameManager
         return Array.Empty<byte>();
     }
 
-    private static void DeserializeGameManager(byte[] data)
+    private static void DeserializeGameCore(byte[] data)
     {
         // TODO: Implement actual deserialization to GameManager
     }
 
-    private static ushort GetGameManagerSeq()
+    private static ushort GetGameCoreSeq()
     {
         // TODO: Get the current sequence number from GameManager
         return 0;
     }
 
-    private static List<OutputToSTDB> BatchStepGameManager(List<byte[]> batchEvents)
+    private static List<OutputToSTDB> BatchStepGameCore(List<byte[]> batchEvents)
     {
         // TODO: Implement batch stepping through game simulation
         return new List<OutputToSTDB>();

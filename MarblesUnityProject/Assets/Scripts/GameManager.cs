@@ -5,6 +5,7 @@ using UnityEngine;
 using GameCoreLib;
 using com.cyborgAssets.inspectorButtonPro;
 using System.IO;
+using MemoryPack;
 
 
 public class GameManager : MonoBehaviour
@@ -166,5 +167,35 @@ public class GameManager : MonoBehaviour
     {
         Conn.Reducers.TestReducer();
         Debug.Log("Calling test reducer"); 
+    }
+
+    [ProButton]
+    public void TestSerializeGameCore()
+    {
+        byte[] data = MemoryPackSerializer.Serialize(GameCore, new MemoryPackSerializerOptions { });
+        //Write this to file
+        string tempDir = "Temp";
+        if (!Directory.Exists(tempDir))
+        {
+            Directory.CreateDirectory(tempDir);
+        }
+        string filePath = Path.Combine(tempDir, "GameCore.bin");
+        File.WriteAllBytes(filePath, data);
+        Debug.Log($"Serialized GameCore and wrote to {filePath}");
+    }
+    [ProButton]
+    public void TestDeserializeGameCore()
+    {
+        string filePath = "Temp/GameCore.bin";
+        if (!File.Exists(filePath))
+        {
+            Debug.LogError($"File not found: {filePath}");
+            return;
+        }
+        byte[] data = File.ReadAllBytes(filePath);
+        GameCore = MemoryPackSerializer.Deserialize<GameCore>(data, new MemoryPackSerializerOptions { });
+        Debug.Log("Deserialized GameCore successfully");
+        // For testing, you can assign it back or compare, but for now, just log success
+        // Example: GameCore = deserialized; (uncomment if needed)
     }
 }

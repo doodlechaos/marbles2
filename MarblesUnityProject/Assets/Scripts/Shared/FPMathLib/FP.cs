@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using MemoryPack;
 
 namespace FPMathLib
 {
@@ -7,7 +8,8 @@ namespace FPMathLib
     /// Deterministic fixed-point number using Q16.16 format (16 bits integer, 16 bits fractional)
     /// </summary>
     [Serializable]
-    public struct FP : IEquatable<FP>, IComparable<FP>
+    [MemoryPackable]
+    public partial struct FP : IEquatable<FP>, IComparable<FP>
     {
         public const int SHIFT = 16;
         public const int FRACTIONAL_BITS = 16;

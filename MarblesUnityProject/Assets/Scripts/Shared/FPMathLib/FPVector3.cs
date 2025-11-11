@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using MemoryPack; 
 
 namespace FPMathLib
 {
@@ -8,7 +9,8 @@ namespace FPMathLib
     /// Deterministic fixed-point 3D vector
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public struct FPVector3 : IEquatable<FPVector3>
+    [MemoryPackable]
+    public partial struct FPVector3 : IEquatable<FPVector3>
     {
         [JsonProperty("x")]
         public FP X;

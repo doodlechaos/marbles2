@@ -1,16 +1,17 @@
     using FPMathLib;
     using LockSim;
+using MemoryPack;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
 using System.Diagnostics;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace GameCoreLib
     {
-        
-        [Serializable]
-        public class GameTile
+
+        [MemoryPackable]
+        public partial class GameTile
         {
             public int WorldId;
 
@@ -57,7 +58,7 @@ namespace GameCoreLib
             private void ProcessRuntimeObjHierarchy(RuntimeObj obj, RuntimeObj parent)
             {
                 // Set up parent reference
-                obj.Parent = parent;
+              //  obj.Parent = parent;
 
                 // Process components to create physics bodies
                 ProcessComponents(obj);

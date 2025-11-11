@@ -97,7 +97,6 @@ public class GameTileExporter : EditorWindow
         RuntimeObj runtimeObj = new RuntimeObj
         {
             Name = go.name,
-            Parent = null, // Don't serialize parent reference to avoid circular dependencies
             Children = new List<RuntimeObj>(),
             Transform = ConvertToFPTransform(go.transform),
             Components = SerializeComponents(go),

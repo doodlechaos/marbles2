@@ -1,11 +1,12 @@
 using FPMathLib;
+using MemoryPack;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
-using Newtonsoft.Json;
 
 
 namespace LockSim
@@ -14,8 +15,8 @@ namespace LockSim
     /// Contains only the deterministic state of the physics simulation.
     /// This is the minimal data that needs to be serialized for snapshots.
     /// </summary>
-    [Serializable]
-    public class World
+    [MemoryPackable]
+    public partial class World
     {
         // Physics settings
         public FPVector2 Gravity = FPVector2.FromFloats(0f, -9.81f);

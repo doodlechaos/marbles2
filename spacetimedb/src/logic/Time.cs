@@ -9,18 +9,6 @@ public static partial class Module
     [Reducer]
     public static void ClockUpdate(ReducerContext ctx, ClockSchedule schedule)
     {
-        try
-        {
-            OnClockUpdate(ctx);
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"Clock update failed: {ex.Message}");
-        }
-    }
-
-    private static void OnClockUpdate(ReducerContext ctx)
-    {
         var baseCfg = GetBaseCfg(ctx);
         var clock = GetClock(ctx);
 
@@ -29,7 +17,7 @@ public static partial class Module
         TimeDuration deltaTime = ctx.Timestamp.TimeDurationSince(clock.PrevClockUpdate);
         
         // Clamp the max delta time to 1 second (crucial to avoid a long catchup if stopping and starting locally)
-        var deltaSeconds = deltaTime.Microseconds / 1000000.0;
+        var deltaSeconds = deltaTime.ToSeconds();
         if (deltaSeconds > 1.0)
         {
             Log.Warn("Clock delta time is greater than 1 second, clamping to 1 second");
@@ -49,6 +37,7 @@ public static partial class Module
         clock.PrevClockUpdate = ctx.Timestamp;
         SetClock(ctx, clock);
     }
+
 
     // Day calculation constants
     private const long DAY_US = 86_400_000_000L; // 24h in microseconds
