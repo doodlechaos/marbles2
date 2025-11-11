@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace FPMath
+namespace FPMathLib
 {
     /// <summary>
     /// Deterministic fixed-point number using Q16.16 format (16 bits integer, 16 bits fractional)

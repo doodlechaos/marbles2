@@ -3,7 +3,8 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using LockSim; // Uses your FP, FPVector2, World, RigidBodyLS, PhysicsPipeline, NarrowPhase, etc.
+using LockSim;
+using FPMathLib;
 
 public class LockSimTestWindow : EditorWindow
 {

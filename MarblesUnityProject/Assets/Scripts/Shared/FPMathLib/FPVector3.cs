@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace FPMath
+namespace FPMathLib
 {
     /// <summary>
     /// Deterministic fixed-point 3D vector

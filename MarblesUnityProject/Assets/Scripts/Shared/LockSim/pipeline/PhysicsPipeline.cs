@@ -19,7 +19,7 @@
 /// 4. **Position correction**: Fix any remaining overlaps that might have occurred
 // NOTE: this contains only workspace data, so there is no point in making this serializable.
 
-using FPMath;
+using FPMathLib;
 
 namespace LockSim
 {

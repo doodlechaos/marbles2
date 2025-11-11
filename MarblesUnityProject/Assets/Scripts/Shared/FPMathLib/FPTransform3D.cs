@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace FPMath
+namespace FPMathLib
 {
     /// <summary>
     /// Deterministic fixed-point 3D transform similar to Unity's Transform component
@@ -10,18 +10,21 @@ namespace FPMath
     [Serializable]
     public class FPTransform3D
     {
-        // Local space properties
+        // Local space properties (serializable for JSON export)
+        [UnityEngine.SerializeField]
         private FPVector3 _localPosition;
+        [UnityEngine.SerializeField]
         private FPQuaternion _localRotation;
+        [UnityEngine.SerializeField]
         private FPVector3 _localScale;
 
-        // Cached world space values
+        // Cached world space values (not serialized)
         private FPVector3 _worldPosition;
         private FPQuaternion _worldRotation;
         private FPVector3 _worldScale;
         private bool _worldDirty;
 
-        // Hierarchy
+        // Hierarchy (not serialized to avoid circular dependencies)
         private FPTransform3D _parent;
 
         public FPTransform3D()

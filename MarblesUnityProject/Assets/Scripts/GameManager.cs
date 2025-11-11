@@ -2,6 +2,9 @@ using SpacetimeDB.Types;
 using SpacetimeDB;
 using System;
 using UnityEngine;
+using GameCoreLib;
+using com.cyborgAssets.inspectorButtonPro;
+using System.IO;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,9 +20,13 @@ public class GameManager : MonoBehaviour
 
     public GameCore GameCore = new GameCore();
 
-    public GameObject GameTile1Prefab;
-    public GameObject GameTile2Prefab;
+    public string Game1JSON_PATH; 
 
+    private void Awake()
+    {
+        GameCoreLib.Logger.Log = Debug.Log;
+        GameCoreLib.Logger.Error = Debug.LogError;
+    }
     private void Start()
     {
         Instance = this;
@@ -44,6 +51,18 @@ public class GameManager : MonoBehaviour
         // Building the connection will establish a connection to the SpacetimeDB
         // server.
         Conn = builder.Build();
+    }
+
+    [ProButton]
+    public void LoadTile1()
+    {
+        GameCoreLib.Logger.Log = Debug.Log;
+        GameCoreLib.Logger.Error = Debug.LogError;
+
+        string json = File.ReadAllText(Game1JSON_PATH);
+
+        GameCore.GameTile1.Load(json);
+        Debug.Log("Done Loading Tile1 Test"); 
     }
 
     // Called when we connect to SpacetimeDB and receive our client identity

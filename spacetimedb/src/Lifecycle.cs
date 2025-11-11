@@ -6,6 +6,8 @@ public static partial class Module
     public static void Init(ReducerContext ctx)
     {
         Log.Info($"[Init] Server Starting!");
+
+        ctx.Db.Admin.Insert(new Admin { AdminIdentity = ctx.Identity });
     }
 
     [Reducer]

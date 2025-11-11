@@ -1,8 +1,9 @@
-using FPMath;
-using System;
 
 namespace LockSim
 {
+    using FPMathLib;
+    using System;
+
     public enum BodyType : byte
     {
         Static = 0,

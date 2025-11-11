@@ -1,8 +1,7 @@
-using FPMath;
-using System.Collections.Generic;
-
 namespace LockSim
 {
+    using FPMathLib;
+    using System.Collections.Generic;
     public static class ConstraintSolver
     {
         public static void SolveContacts(World world, FP deltaTime, WorldSimulationContext context)

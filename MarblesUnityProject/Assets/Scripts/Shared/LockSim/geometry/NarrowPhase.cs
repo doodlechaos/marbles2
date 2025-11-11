@@ -11,12 +11,13 @@
 ///
 /// **For spatial queries** (raycasts, shape casts), use [`QueryPipeline`](crate::pipeline::QueryPipeline) instead.
 
-using System.Collections.Generic;
 
-using FPMath;
 
 namespace LockSim
 {
+    using System.Collections.Generic;
+    using FPMathLib;
+
     /// <summary>
     /// Performs collision detection. For simplicity, this currently includes both broad-phase and narrow-phase.
     /// </summary>

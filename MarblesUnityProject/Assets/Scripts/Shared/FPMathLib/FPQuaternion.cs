@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace FPMath
+namespace FPMathLib
 {
     /// <summary>
     /// Deterministic fixed-point quaternion for 3D rotations

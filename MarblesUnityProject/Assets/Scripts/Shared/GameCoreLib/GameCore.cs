@@ -1,4 +1,4 @@
-namespace GameCore
+namespace GameCoreLib
 {
     public class GameCore
     {
