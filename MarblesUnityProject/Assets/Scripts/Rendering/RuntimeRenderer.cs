@@ -139,6 +139,8 @@ public class RuntimeRenderer : MonoBehaviour
             // Instantiate the prefab
             visualObj = Instantiate(prefabToInstantiate, parentTransform);
             visualObj.name = runtimeObj.Name; // Keep original RuntimeObj name
+
+            //If the prefab contained any authored data components that affect visuals, we can set them here. 
         }
         else
         {
