@@ -3,12 +3,11 @@ using SpacetimeDB;
 public static partial class Module
 {
         [Table(Public = false)]
-        public partial struct Clock
+        public partial struct LastAuthFrameTimestamp
         {
             [PrimaryKey]
             public byte Id; //u8
-            public Timestamp PrevClockUpdate;
-            public float TickTimeAccumulatorSec; //f32
+            public Timestamp LastAuthFrameTime;
 
         }
 }

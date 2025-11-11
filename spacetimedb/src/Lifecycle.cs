@@ -14,17 +14,12 @@ public static partial class Module
 
     private static void InitSchedules(ReducerContext ctx)
     {
-        ctx.Db.clock_schedule.Insert(
+        var baseCfg = GetBaseCfg(ctx);
+        
+        ctx.Db.ClockSchedule.Insert(
             new ClockSchedule {
                 Id = 0,
-                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(1))
-            }
-        );
-        
-        ctx.Db.determinism_check_schedule.Insert(
-            new DeterminismCheckSchedule {
-                Id = 0,
-                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(1))
+                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(baseCfg.ClockIntervalSec))
             }
         );
     }

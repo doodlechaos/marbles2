@@ -2,7 +2,7 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-        [SpacetimeDB.Table(Public = true)]
+        [Table(Public = true)]
         public partial struct DynamicSPS
         {
             [PrimaryKey]
@@ -11,7 +11,7 @@ public static partial class Module
             public Timestamp LastBatchStartTime;
 
             public float ActualTPS;
-            
+
         }
 }
 

@@ -2,13 +2,13 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-        [SpacetimeDB.Table(Public = true)]
+        [Table(Public = true)]
         public partial struct LevelFile
         {
             [PrimaryKey]
-            public string LevelName;
+            public byte Id;
 
-            public string LevelJSON;
+            public string Json;
         }
 }
 
