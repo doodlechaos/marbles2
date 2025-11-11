@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 
 
 namespace LockSim
@@ -110,27 +111,28 @@ namespace LockSim
         /// <summary>
         /// Computes a SHA256 hash of the entire world state for determinism testing.
         /// </summary>
+        /// 
+        static readonly JsonSerializerSettings HashJsonSettings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.None,
+            NullValueHandling = NullValueHandling.Include,
+            DefaultValueHandling = DefaultValueHandling.Include,
+            TypeNameHandling = TypeNameHandling.None,
+            ReferenceLoopHandling = ReferenceLoopHandling.Error,
+            // If you don't want to add attributes to your types, see Option B below for a resolver.
+            // ContractResolver = new FieldsOnlyContractResolver()  // optional (see below)
+        };
+
         public string GetWorldHash()
         {
-            Snapshot snapshot = TakeSnapshot();
+            var snapshot = TakeSnapshot();
 
-            using (var memoryStream = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(memoryStream, snapshot);
-                byte[] serializedBytes = memoryStream.ToArray();
+            string json = JsonConvert.SerializeObject(snapshot, HashJsonSettings);
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
 
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    byte[] hashBytes = sha256.ComputeHash(serializedBytes);
-                    var hashString = new StringBuilder();
-                    foreach (byte b in hashBytes)
-                    {
-                        hashString.Append(b.ToString("x2"));
-                    }
-                    return hashString.ToString();
-                }
-            }
+            using var sha = SHA256.Create();
+            byte[] hash = sha.ComputeHash(bytes);
+            return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }
     }
 }

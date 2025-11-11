@@ -1,16 +1,20 @@
 using System;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace FPMathLib
 {
     /// <summary>
     /// Deterministic fixed-point 3D vector
     /// </summary>
-    [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct FPVector3 : IEquatable<FPVector3>
     {
+        [JsonProperty("x")]
         public FP X;
+        [JsonProperty("y")]
         public FP Y;
+        [JsonProperty("z")]
         public FP Z;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

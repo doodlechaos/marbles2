@@ -1,17 +1,22 @@
 using System;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace FPMathLib
 {
     /// <summary>
     /// Deterministic fixed-point quaternion for 3D rotations
     /// </summary>
-    [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct FPQuaternion : IEquatable<FPQuaternion>
     {
+        [JsonProperty("x")]
         public FP X;
+        [JsonProperty("y")]
         public FP Y;
+        [JsonProperty("z")]
         public FP Z;
+        [JsonProperty("w")]
         public FP W;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

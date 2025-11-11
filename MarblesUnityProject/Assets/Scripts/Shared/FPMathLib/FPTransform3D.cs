@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace FPMathLib
 {
@@ -7,24 +8,22 @@ namespace FPMathLib
     /// Deterministic fixed-point 3D transform similar to Unity's Transform component
     /// Supports position, rotation (quaternion), and scale with parent-child hierarchy
     /// </summary>
-    [Serializable]
+   
+    [JsonObject(MemberSerialization.OptIn)]
     public class FPTransform3D
     {
-        // Local space properties (serializable for JSON export)
-        [UnityEngine.SerializeField]
+        // Local space properties
         private FPVector3 _localPosition;
-        [UnityEngine.SerializeField]
         private FPQuaternion _localRotation;
-        [UnityEngine.SerializeField]
         private FPVector3 _localScale;
 
-        // Cached world space values (not serialized)
+        // Cached world space values
         private FPVector3 _worldPosition;
         private FPQuaternion _worldRotation;
         private FPVector3 _worldScale;
         private bool _worldDirty;
 
-        // Hierarchy (not serialized to avoid circular dependencies)
+        // Hierarchy
         private FPTransform3D _parent;
 
         public FPTransform3D()
@@ -52,7 +51,7 @@ namespace FPMathLib
         }
 
         #region Local Space Properties
-
+        [JsonProperty("localPosition")]
         public FPVector3 LocalPosition
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,7 +62,7 @@ namespace FPMathLib
                 MarkWorldDirty();
             }
         }
-
+        [JsonProperty("localRotation")]
         public FPQuaternion LocalRotation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -74,7 +73,7 @@ namespace FPMathLib
                 MarkWorldDirty();
             }
         }
-
+        [JsonProperty("localScale")]
         public FPVector3 LocalScale
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

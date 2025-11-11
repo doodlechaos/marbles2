@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameCoreLib;
 using FPMathLib;
+using Newtonsoft.Json;
 
 public class GameTileExporter : EditorWindow
 {
@@ -62,7 +63,7 @@ public class GameTileExporter : EditorWindow
             {
                 // Serialize the entire prefab hierarchy to RuntimeObj
                 RuntimeObj runtimeObj = SerializeGameObject(prefab, null);
-                string json = JsonUtility.ToJson(runtimeObj, true);
+                string json = JsonConvert.SerializeObject(runtimeObj, Formatting.Indented); //JsonUtility.ToJson(runtimeObj, true);
 
                 // Save to file
                 string fileName = Path.GetFileNameWithoutExtension(assetPath);

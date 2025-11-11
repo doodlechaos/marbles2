@@ -23,10 +23,10 @@ namespace GameCoreLib
 
             public void Load(string levelJSON)
             {
-                Logger.Log("Loading: " +  levelJSON); //TODO: This isn't printing out in unity. What is the best way to make it print console logs to unity console from here?
-                //Create the TileRoot hierarchy from the gameobjects in the json
+                Logger.Log("Loading: " +  levelJSON); 
+                //Deserialize the leveljson into a RuntimeObj hierarchy which mirrors the gameobject hierarchy in unity
 
-                //Spawn the necessary bodies into the simulation if they have collider or rigidbody component
+                //Handle authoring components. I.E. colliders or rigidbodies must create LockSim bodies
             }
 
             public void Clear()
