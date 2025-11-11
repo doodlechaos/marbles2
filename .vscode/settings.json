@@ -7,6 +7,7 @@
     },
     "files.watcherExclude": {
       "**/*.meta": true
-    }
+    },
+    "dotnet.defaultSolution": "marbles2.sln"
   }
   

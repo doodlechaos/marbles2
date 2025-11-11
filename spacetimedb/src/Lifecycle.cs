@@ -8,6 +8,25 @@ public static partial class Module
         Log.Info($"[Init] Server Starting!");
 
         ctx.Db.Admin.Insert(new Admin { AdminIdentity = ctx.Identity });
+
+        InitSchedules(ctx);
+    }
+
+    private static void InitSchedules(ReducerContext ctx)
+    {
+        ctx.Db.clock_schedule.Insert(
+            new ClockSchedule {
+                Id = 0,
+                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(1))
+            }
+        );
+        
+        ctx.Db.determinism_check_schedule.Insert(
+            new DeterminismCheckSchedule {
+                Id = 0,
+                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(1))
+            }
+        );
     }
 
     [Reducer]
@@ -24,9 +43,4 @@ public static partial class Module
 
     }
 
-    [Reducer]
-    public static void TestReducer(ReducerContext ctx)
-    {
-        Log.Info("Test reducer called"); 
-    }
 }
