@@ -9,6 +9,9 @@ using Newtonsoft.Json;
 
 public class GameTileExporter : EditorWindow
 {
+    private RuntimeRenderer cachedRuntimeRenderer;
+    private List<GameObject> cachedRenderPrefabs;
+
     [MenuItem("Window/LockSim/GameTileExporter")]
     public static void ShowWindow()
     {
@@ -35,6 +38,15 @@ public class GameTileExporter : EditorWindow
     // Step 1 & 2: Export prefabs to JSON
     private void ExportLevelsToJSON()
     {
+        // Find RuntimeRenderer in scene to get the render prefabs list
+        if (!CacheRuntimeRendererPrefabs())
+        {
+            Debug.LogError("Could not find RuntimeRenderer in scene. Please make sure there's a RuntimeRenderer component in the scene.");
+            return;
+        }
+
+        Debug.Log($"Found RuntimeRenderer with {cachedRenderPrefabs.Count} render prefabs configured.");
+
         // Create output directory if it doesn't exist
         string outputDir = "Temp/LevelJSONs";
         if (!Directory.Exists(outputDir))
@@ -88,7 +100,8 @@ public class GameTileExporter : EditorWindow
             Parent = null, // Don't serialize parent reference to avoid circular dependencies
             Children = new List<RuntimeObj>(),
             Transform = ConvertToFPTransform(go.transform),
-            Components = SerializeComponents(go)
+            Components = SerializeComponents(go),
+            RenderPrefabID = GetRenderPrefabID(go)
         };
 
         // Recursively serialize all children
@@ -99,6 +112,70 @@ public class GameTileExporter : EditorWindow
         }
 
         return runtimeObj;
+    }
+
+    /// <summary>
+    /// Find and cache the RuntimeRenderer's render prefabs list from the scene
+    /// </summary>
+    private bool CacheRuntimeRendererPrefabs()
+    {
+        // Find RuntimeRenderer in the scene
+        cachedRuntimeRenderer = FindFirstObjectByType<RuntimeRenderer>();
+        
+        if (cachedRuntimeRenderer == null)
+        {
+            return false;
+        }
+
+        // Use reflection to access the private renderPrefabs field
+        var renderPrefabsField = typeof(RuntimeRenderer).GetField("renderPrefabs", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (renderPrefabsField != null)
+        {
+            cachedRenderPrefabs = renderPrefabsField.GetValue(cachedRuntimeRenderer) as List<GameObject>;
+            return cachedRenderPrefabs != null;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Get the RenderPrefabID for a GameObject by checking if it matches any prefab in the RuntimeRenderer's list
+    /// </summary>
+    private int GetRenderPrefabID(GameObject go)
+    {
+        if (cachedRenderPrefabs == null || cachedRenderPrefabs.Count == 0)
+        {
+            return -1;
+        }
+
+        // Get the source prefab of this GameObject (if it's a prefab instance)
+        GameObject sourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(go);
+        
+        // If no source prefab, check if the GameObject itself is a prefab asset
+        if (sourcePrefab == null)
+        {
+            sourcePrefab = PrefabUtility.IsPartOfPrefabAsset(go) ? go : null;
+        }
+
+        // If we found a source prefab, check if it matches any in our render prefabs list
+        if (sourcePrefab != null)
+        {
+            for (int i = 0; i < cachedRenderPrefabs.Count; i++)
+            {
+                if (cachedRenderPrefabs[i] != null && 
+                    (cachedRenderPrefabs[i] == sourcePrefab || 
+                     PrefabUtility.GetCorrespondingObjectFromSource(cachedRenderPrefabs[i]) == sourcePrefab))
+                {
+                    // Return 0-based index
+                    return i;
+                }
+            }
+        }
+        
+        // Default to -1 (no prefab / empty GameObject)
+        return -1;
     }
 
     private FPTransform3D ConvertToFPTransform(Transform t)

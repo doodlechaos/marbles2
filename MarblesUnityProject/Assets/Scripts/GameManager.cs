@@ -21,7 +21,9 @@ public class GameManager : MonoBehaviour
 
     public GameCore GameCore = new GameCore();
 
-    public string Game1JSON_PATH; 
+    public string Game1JSON_PATH;
+    
+    public RuntimeRenderer RuntimeRenderer; 
 
     private void Awake()
     {
@@ -63,7 +65,55 @@ public class GameManager : MonoBehaviour
         string json = File.ReadAllText(Game1JSON_PATH);
 
         GameCore.GameTile1.Load(json);
-        Debug.Log("Done Loading Tile1 Test"); 
+        Debug.Log("Done Loading Tile1 Test");
+        
+        // Automatically render the loaded tile if renderer is assigned
+        if (RuntimeRenderer != null)
+        {
+            RuntimeRenderer.RenderGameTile(GameCore.GameTile1);
+            Debug.Log("Rendered Tile1");
+        }
+    }
+
+    [ProButton]
+    public void RenderTile1()
+    {
+        if (RuntimeRenderer != null)
+        {
+            RuntimeRenderer.RenderGameTile(GameCore.GameTile1);
+            Debug.Log("Rendered Tile1");
+        }
+        else
+        {
+            Debug.LogError("RuntimeRenderer not assigned!");
+        }
+    }
+
+    [ProButton]
+    public void ClearRendering()
+    {
+        if (RuntimeRenderer != null)
+        {
+            RuntimeRenderer.ClearRendering();
+            Debug.Log("Cleared rendering");
+        }
+    }
+
+    [ProButton]
+    public void StepPhysics()
+    {
+        GameCore.GameTile1.Step();
+        Debug.Log("Stepped physics simulation");
+    }
+
+    [ProButton]
+    public void StepPhysicsMultiple()
+    {
+        for (int i = 0; i < 60; i++)
+        {
+            GameCore.GameTile1.Step();
+        }
+        Debug.Log("Stepped physics simulation 60 times (1 second)");
     }
 
     // Called when we connect to SpacetimeDB and receive our client identity
