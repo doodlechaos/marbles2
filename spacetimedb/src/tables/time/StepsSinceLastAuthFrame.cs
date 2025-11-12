@@ -6,21 +6,26 @@ public static partial class Module
     public partial struct StepsSinceLastAuthFrame
     {
         [PrimaryKey]
-        public byte Id; //u8
+        private byte Id; //u8
         public ushort Value; //u16
 
-        public static void SetSingleton(ReducerContext ctx, ushort value)
+        public static void Set(ReducerContext ctx, ushort value)
+        {
+            ctx.Db.StepsSinceLastAuthFrame.Id.Delete(0);
+            ctx.Db.StepsSinceLastAuthFrame.Insert(new StepsSinceLastAuthFrame { Id = 0, Value = value });
+        }
+
+        public static StepsSinceLastAuthFrame GetSingleton(ReducerContext ctx)
         {
             var opt = ctx.Db.StepsSinceLastAuthFrame.Id.Find(0);
             if (opt.HasValue)
             {
-                var updated = opt.Value;
-                updated.Value = value;
-                ctx.Db.StepsSinceLastAuthFrame.Id.Update(updated);
+                return opt.Value;
             }
             else
             {
-                ctx.Db.StepsSinceLastAuthFrame.Insert(new StepsSinceLastAuthFrame { Id = 0, Value = value });
+                Set(ctx, 0);
+                return new StepsSinceLastAuthFrame { Id = 0, Value = 0 };
             }
         }
 

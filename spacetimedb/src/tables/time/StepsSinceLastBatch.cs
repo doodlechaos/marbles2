@@ -6,21 +6,26 @@ public static partial class Module
     public partial struct StepsSinceLastBatch
     {
         [PrimaryKey]
-        public byte Id; //u8
+        private byte Id; //u8
         public ushort Value; //u16
 
-        public static void SetSingleton(ReducerContext ctx, ushort value)
+        public static void Set(ReducerContext ctx, ushort value)
+        {
+            ctx.Db.StepsSinceLastBatch.Id.Delete(0);
+            ctx.Db.StepsSinceLastBatch.Insert(new StepsSinceLastBatch { Id = 0, Value = value });
+        }
+
+        public static StepsSinceLastBatch Get(ReducerContext ctx)
         {
             var opt = ctx.Db.StepsSinceLastBatch.Id.Find(0);
             if (opt.HasValue)
             {
-                var updated = opt.Value;
-                updated.Value = value;
-                ctx.Db.StepsSinceLastBatch.Id.Update(updated);
+                return opt.Value;
             }
             else
             {
-                ctx.Db.StepsSinceLastBatch.Insert(new StepsSinceLastBatch { Id = 0, Value = value });
+                Set(ctx, 0);
+                return new StepsSinceLastBatch { Id = 0, Value = 0 };
             }
         }
 

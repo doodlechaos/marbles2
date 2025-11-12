@@ -18,6 +18,29 @@ public static partial class Module
         public bool logInputFrameTimes;
         public bool logAuthFrameTimeDiffs;
         public double gcCacheAccountTimeoutMinutes;
+
+
+        public static void SetSingleton(ReducerContext ctx, BaseCfg baseCfg)
+        {
+            baseCfg.Id = 0;
+            ctx.Db.BaseCfg.Id.Delete(0);
+            ctx.Db.BaseCfg.Insert(baseCfg);
+        }
+
+        public static BaseCfg GetSingleton(ReducerContext ctx)
+        {
+            var opt = ctx.Db.BaseCfg.Id.Find(0);
+            if (opt.HasValue)
+            {
+                return opt.Value;
+            }
+            else
+            {
+                BaseCfg baseCfg = new BaseCfg { Id = 0, ClockIntervalSec = 0, targetStepsPerSecond = 0, physicsStepsPerBatch = 0, stepsPerAuthFrame = 0, authFrameTimeErrorThresholdSec = 0, logInputFrameTimes = false, logAuthFrameTimeDiffs = false, gcCacheAccountTimeoutMinutes = 0 };
+                SetSingleton(ctx, baseCfg);
+                return baseCfg;
+            }
+        }
     }
 
     [Reducer]

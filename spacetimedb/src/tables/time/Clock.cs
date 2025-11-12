@@ -6,23 +6,29 @@ public static partial class Module
     public partial struct Clock
     {
         [PrimaryKey]
-        public byte Id; //u8
+        private byte Id; //u8
         public Timestamp PrevClockUpdate;
         public float TickTimeAccumulatorSec; //f32
 
-        public static void SetSingleton(ReducerContext ctx, Timestamp prevClockUpdate, float tickTimeAccumulatorSec)
+
+        public static void Set(ReducerContext ctx, Timestamp prevClockUpdate, float tickTimeAccumulatorSec)
+        {
+            ctx.Db.Clock.Id.Delete(0);
+            ctx.Db.Clock.Insert(new Clock { Id = 0, PrevClockUpdate = prevClockUpdate, TickTimeAccumulatorSec = tickTimeAccumulatorSec });
+        }
+
+        public static Clock GetSingleton(ReducerContext ctx)
         {
             var opt = ctx.Db.Clock.Id.Find(0);
             if (opt.HasValue)
             {
-                Clock updated = opt.Value;
-                updated.PrevClockUpdate = prevClockUpdate;
-                updated.TickTimeAccumulatorSec = tickTimeAccumulatorSec;
-                ctx.Db.Clock.Id.Update(updated);
+                return opt.Value;
             }
             else
             {
-                ctx.Db.Clock.Insert(new Clock { Id = 0, PrevClockUpdate = prevClockUpdate, TickTimeAccumulatorSec = tickTimeAccumulatorSec });
+                Clock clock = new Clock { Id = 0, PrevClockUpdate = default, TickTimeAccumulatorSec = 0 };
+                Set(ctx, default, 0);
+                return clock;
             }
         }
 

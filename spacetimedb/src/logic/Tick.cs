@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameCoreLib;
 using SpacetimeDB;
+using MemoryPack;
 
 public static partial class Module
 {
@@ -13,15 +15,15 @@ public static partial class Module
     {
         StepServer(ctx);
 
-        var baseCfg = GetBaseCfg(ctx);
-        var stepsSinceLastBatch = GetStepsSinceLastBatch(ctx);
+        BaseCfg baseCfg = BaseCfg.GetSingleton(ctx);
+        ushort stepsSinceLastBatch = StepsSinceLastBatch.Get(ctx).Value;
 
         if (stepsSinceLastBatch >= baseCfg.physicsStepsPerBatch)
         {
             OnBatchStepInterval(ctx, stepsSinceLastBatch);
         }
 
-        var stepsSinceLastAuthFrame = GetStepsSinceLastAuthFrame(ctx);
+        ushort stepsSinceLastAuthFrame = StepsSinceLastAuthFrame.GetSingleton(ctx).Value;
         if (stepsSinceLastAuthFrame >= baseCfg.stepsPerAuthFrame)
         {
             BroadcastAuthFrame(ctx);
@@ -33,43 +35,41 @@ public static partial class Module
     /// </summary>
     private static void BroadcastAuthFrame(ReducerContext ctx)
     {
-        var cfg = GetBaseCfg(ctx);
-        var lastTimestamp = GetLastAuthFrameTimestamp(ctx);
+        BaseCfg cfg = BaseCfg.GetSingleton(ctx);
+        Timestamp lastTimestamp = LastAuthFrameTimestamp.GetSingleton(ctx).LastAuthFrameTime;
 
         if (cfg.targetStepsPerSecond <= 0)
         {
             throw new Exception("targetStepsPerSecond must be > 0");
         }
 
-        if (lastTimestamp.HasValue)
+
+        var elapsed = ctx.Timestamp.TimeDurationSince(lastTimestamp);
+
+
+        double expectedIntervalSec = (double)cfg.stepsPerAuthFrame / (double)cfg.targetStepsPerSecond;
+        double actualIntervalSec = elapsed.ToSeconds();
+        double errorSec = Math.Abs(actualIntervalSec - expectedIntervalSec);
+
+        if (cfg.logAuthFrameTimeDiffs)
         {
-            var elapsed = ctx.Timestamp.TimeDurationSince(lastTimestamp.Value);
+            Log.Info($"Auth frame interval {actualIntervalSec:F6}s (expected {expectedIntervalSec:F6}s, error {errorSec:F6}s)");
+        }
 
-
-            double expectedIntervalSec = (double)cfg.stepsPerAuthFrame / (double)cfg.targetStepsPerSecond;
-            double actualIntervalSec = elapsed.ToSeconds();
-            double errorSec = Math.Abs(actualIntervalSec - expectedIntervalSec);
-
-            if (cfg.logAuthFrameTimeDiffs)
-            {
-                Log.Info($"Auth frame interval {actualIntervalSec:F6}s (expected {expectedIntervalSec:F6}s, error {errorSec:F6}s)");
-            }
-
-            if (errorSec >= cfg.authFrameTimeErrorThresholdSec)
-            {
-                Log.Error($"Auth frame interval deviated by {errorSec:F6}s (actual {actualIntervalSec:F6}s, expected {expectedIntervalSec:F6}s, threshold {cfg.authFrameTimeErrorThresholdSec:F6}s). last_timestamp: {lastTimestamp.Value}, ctx.timestamp: {ctx.Timestamp}");
-            }
+        if (errorSec >= cfg.authFrameTimeErrorThresholdSec)
+        {
+            Log.Error($"Auth frame interval deviated by {errorSec:F6}s (actual {actualIntervalSec:F6}s, expected {expectedIntervalSec:F6}s, threshold {cfg.authFrameTimeErrorThresholdSec:F6}s). last_timestamp: {lastTimestamp}, ctx.timestamp: {ctx.Timestamp}");
         }
 
 
-        SetLastAuthFrameTimestamp(ctx, ctx.Timestamp);
+        LastAuthFrameTimestamp.Set(ctx, ctx.Timestamp);
 
         // Collect and delete all the pending input frames and insert them into a single auth frame
         var inputFrames = ctx.Db.InputFrame.Iter().ToList();
         // TODO: Implement proper serialization of input frames
         var authFrame = new AuthFrame
         {
-            Seq = GetSeq(ctx),
+            Seq = Seq.GetSingleton(ctx).Value,
             Frames = inputFrames
         };
 
@@ -83,15 +83,15 @@ public static partial class Module
             var allAuthFrames = ctx.Db.AuthFrame.Iter().ToList();
             foreach (var frame in allAuthFrames)
             {
-                var threshold = WrappingSub(publicSnapshot.Value.Seq, (ushort)(cfg.physicsStepsPerBatch * 2));
-                if (IsBehind(frame.Seq, threshold))
+                ushort threshold = publicSnapshot.Value.Seq.WrappingSub((ushort)(cfg.physicsStepsPerBatch * 2));
+                if (frame.Seq.IsBehind(threshold))
                 {
                     ctx.Db.AuthFrame.Seq.Delete(frame.Seq);
                 }
             }
         }
 
-        SetStepsSinceLastAuthFrame(ctx, 0);
+        StepsSinceLastAuthFrame.Set(ctx, 0);
     }
 
     /// <summary>
@@ -99,8 +99,9 @@ public static partial class Module
     /// </summary>
     private static void OnBatchStepInterval(ReducerContext ctx, ushort stepsSinceLastBatch)
     {
-        var batchStartSeq = WrappingSub(GetSeq(ctx), stepsSinceLastBatch);
-        Log.Info($"Running batch sim from [{batchStartSeq}-{WrappingAdd(batchStartSeq, stepsSinceLastBatch)}]");
+        ushort seq = Seq.GetSingleton(ctx).Value;
+        ushort batchStartSeq = seq.WrappingSub(stepsSinceLastBatch);
+        Log.Info($"Running batch sim from [{batchStartSeq}-{seq.WrappingAdd(stepsSinceLastBatch)}]");
 
         // Get or create the most recent snapshot
         var snapshotOpt = ctx.Db.GameCoreSnap.Id.Find(0);
@@ -116,33 +117,38 @@ public static partial class Module
             {
                 Id = 0,
                 Seq = batchStartSeq,
-                BinaryData = SerializeGameCore()
+                BinaryData = MemoryPackSerializer.Serialize(new GameCore())
             };
         }
 
         if (snapshot.Seq != batchStartSeq)
         {
             Log.Warn($"snapshot seq [{snapshot.Seq}] did not match expected batch start [{batchStartSeq}]; resetting counters");
-            SetSeq(ctx, snapshot.Seq);
-            StepsSinceLastBatch.SetSingleton(ctx, 0);
-            SetStepsSinceLastAuthFrame(ctx, 0);
+            Seq.Set(ctx, snapshot.Seq);
+            StepsSinceLastBatch.Set(ctx, 0);
+            StepsSinceLastAuthFrame.Set(ctx, 0);
             return;
         }
 
         // Step it by the batch number of physics steps
-        DeserializeGameCore(snapshot.BinaryData);
+        GameCore? core = MemoryPackSerializer.Deserialize<GameCore>(snapshot.BinaryData);
+        if (core == null)
+        {
+            Log.Error("Failed to deserialize GameCore");
+            return;
+        }
 
         // TODO: Implement proper deserialization and processing of input events
         var batchEvents = new List<byte[]>();
         for (ushort s = 0; s < stepsSinceLastBatch; s++)
         {
-            var simSeq = WrappingAdd(batchStartSeq, s);
+            var simSeq = batchStartSeq.WrappingAdd(s);
             var inputFrameOpt = ctx.Db.InputFrame.Seq.Find(simSeq);
 
             byte[] events;
             if (inputFrameOpt.HasValue)
             {
-                events = inputFrameOpt.Value.InputEvents;
+                events = inputFrameOpt.Value.InputEventsList;
             }
             else
             {
@@ -156,8 +162,8 @@ public static partial class Module
         ProcessOutputEvents(ctx, outputEvents);
 
         // Verify seq consistency
-        var gameManagerSeq = GetGameCoreSeq();
-        var currentSeq = GetSeq(ctx);
+        var gameManagerSeq = core.Seq;
+        var currentSeq = Seq.GetSingleton(ctx).Value;
         if (gameManagerSeq != currentSeq)
         {
             Log.Error($"GameManager seq {gameManagerSeq} does not match current seq {currentSeq}");
@@ -167,14 +173,14 @@ public static partial class Module
         var simulatedSnap = new GameCoreSnap
         {
             Id = 0,
-            Seq = GetGameCoreSeq(),
-            BinaryData = SerializeGameCore()
+            Seq = core.Seq,
+            BinaryData = MemoryPackSerializer.Serialize(core)
         };
 
         ctx.Db.GameCoreSnap.Id.Delete(0);
         ctx.Db.GameCoreSnap.Insert(simulatedSnap);
 
-        StepsSinceLastBatch.SetSingleton(ctx, 0);
+        StepsSinceLastBatch.Set(ctx, 0);
     }
 
     /// <summary>
@@ -233,22 +239,26 @@ public static partial class Module
     /// </summary>
     private static void StepServer(ReducerContext ctx)
     {
-        StepSeq(ctx);
+        Seq.Step(ctx);
 
-        var cfg = GetBaseCfg(ctx);
+        var cfg = BaseCfg.GetSingleton(ctx);
 
         // Move all the collected inputs into the public input chain table
         var rows = ctx.Db.InputCollector.Iter().ToList();
 
-        // TODO: Implement proper serialization of input events
-        var eventsList = new List<byte[]>();
-        foreach (var row in rows)
+        var eventsList = new List<InputEvent>();
+        foreach (InputCollector row in rows)
         {
             ctx.Db.InputCollector.Delete(row);
 
             if (row.delaySeqs <= 0)
             {
-                eventsList.Add(row.inputEventData);
+                InputEvent? inputEvent = MemoryPackSerializer.Deserialize<InputEvent>(row.inputEventData);
+                if (inputEvent != null)
+                {
+                    eventsList.Add(inputEvent);
+                }
+
             }
             else
             {
@@ -261,12 +271,12 @@ public static partial class Module
         }
 
         // Serialize all events into a single byte array
-        var serializedEvents = SerializeEventsList(eventsList);
+        byte[] eventsListData = MemoryPackSerializer.Serialize(eventsList);
 
         var newInputFrame = new InputFrame
         {
-            Seq = GetSeq(ctx),
-            InputEvents = serializedEvents
+            Seq = Seq.GetSingleton(ctx).Value,
+            InputEventsList = eventsListData
         };
 
         if (cfg.logInputFrameTimes)
@@ -291,60 +301,30 @@ public static partial class Module
 
             foreach (var frame in allInputFrames)
             {
-                if (IsBehind(frame.Seq, publicSnapshot.Seq))
+                if (frame.Seq.IsBehind(publicSnapshot.Seq))
                 {
                     ctx.Db.InputFrame.Seq.Delete(frame.Seq);
                 }
             }
         }
 
-        StepsSinceLastBatch.SetSingleton(ctx, GetStepsSinceLastBatch(ctx).WrappingAdd(1));
-        StepsSinceLastAuthFrame.SetSingleton(ctx, GetStepsSinceLastAuthFrame(ctx).WrappingAdd(1));
+        ushort stepsSinceLastBatch = StepsSinceLastBatch.Get(ctx).Value;
+        ushort stepsSinceLastAuthFrame = StepsSinceLastAuthFrame.GetSingleton(ctx).Value;
+        StepsSinceLastBatch.Set(ctx, stepsSinceLastBatch.WrappingAdd(1));
+        StepsSinceLastAuthFrame.Set(ctx, stepsSinceLastAuthFrame.WrappingAdd(1));
     }
 
-    // Placeholder for game manager operations
-    // These should be implemented based on your actual game logic
-    private static byte[] SerializeGameCore()
-    {
-        // TODO: Implement actual serialization from GameManager
-        return Array.Empty<byte>();
-    }
 
-    private static void DeserializeGameCore(byte[] data)
-    {
-        // TODO: Implement actual deserialization to GameManager
-    }
 
-    private static ushort GetGameCoreSeq()
-    {
-        // TODO: Get the current sequence number from GameManager
-        return 0;
-    }
 
     private static List<OutputToSTDB> BatchStepGameCore(List<byte[]> batchEvents)
     {
+        //Deserialize the GameCore from the snapshot singleton
+
         // TODO: Implement batch stepping through game simulation
         return new List<OutputToSTDB>();
     }
 
-    private static byte[] SerializeEventsList(List<byte[]> events)
-    {
-        // TODO: Implement proper serialization
-        // For now, just concatenate or return empty
-        if (events.Count == 0)
-            return Array.Empty<byte>();
-
-        // Simple concatenation (replace with proper serialization)
-        var totalLength = events.Sum(e => e.Length);
-        var result = new byte[totalLength];
-        var offset = 0;
-        foreach (var evt in events)
-        {
-            Array.Copy(evt, 0, result, offset, evt.Length);
-            offset += evt.Length;
-        }
-        return result;
-    }
 
     // Placeholder for game tile operations
     private static void CloseAndCycleGameTile(ReducerContext ctx, byte worldId)

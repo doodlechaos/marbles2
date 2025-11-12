@@ -10,7 +10,7 @@ public static partial class Module
         public ushort Seq;
 
         // Serialized input events as bytes - should be replaced with actual InputEvent type when available
-        public byte[] InputEvents;
+        public byte[] InputEventsList;
     }
 
     [Reducer]

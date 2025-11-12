@@ -1,10 +1,10 @@
 using GameCoreLib;
 using SpacetimeDB.Types;
 using UnityEngine;
-
+using MemoryPack;
+using System.Collections.Generic;
 public class Synchronizer : MonoBehaviour
 {
-
     [SerializeField] private ushort safeSeqEdge;
     [SerializeField] private ushort latestServerSeq;
 
@@ -29,6 +29,9 @@ public class Synchronizer : MonoBehaviour
                 break;
             }
 
+            List<InputEvent> inputEvents = MemoryPackSerializer.Deserialize<List<InputEvent>>(inputFrame.InputEventsList);
+
+            GameManager.Inst.GameCore.Step(inputEvents);
 
         }
     }

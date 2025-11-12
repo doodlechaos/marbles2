@@ -1,5 +1,5 @@
 using SpacetimeDB;
-
+using GameCoreLib;
 public static partial class Module
 {
     [Table(Public = false)]

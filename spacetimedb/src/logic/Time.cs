@@ -9,8 +9,8 @@ public static partial class Module
     [Reducer]
     public static void ClockUpdate(ReducerContext ctx, ClockSchedule schedule)
     {
-        var baseCfg = GetBaseCfg(ctx);
-        var clock = GetClock(ctx);
+        var baseCfg = BaseCfg.GetSingleton(ctx);
+        var clock = Clock.GetSingleton(ctx);
 
         // Calculate delta time since last update
 
@@ -35,7 +35,7 @@ public static partial class Module
         }
 
         clock.PrevClockUpdate = ctx.Timestamp;
-        SetClock(ctx, clock);
+        Clock.Set(ctx, clock.PrevClockUpdate, clock.TickTimeAccumulatorSec);
     }
 
 
@@ -78,191 +78,6 @@ public static partial class Module
         return (long)(minutes * 60.0 * 1_000_000.0);
     }
 
-    // Clock helper methods
-    private static Clock GetClock(ReducerContext ctx)
-    {
-        var clockOpt = ctx.Db.Clock.Id.Find(0);
-        if (clockOpt.HasValue)
-        {
-            return clockOpt.Value;
-        }
-
-        // Initialize with default values
-        var newClock = new Clock
-        {
-            Id = 0,
-            PrevClockUpdate = ctx.Timestamp,
-            TickTimeAccumulatorSec = 0.0f
-        };
-        ctx.Db.Clock.Insert(newClock);
-        return newClock;
-    }
-
-    private static void SetClock(ReducerContext ctx, Clock clock)
-    {
-        ctx.Db.Clock.Id.Update(clock);
-    }
-
-    // Seq helper methods
-    private static ushort GetSeq(ReducerContext ctx)
-    {
-        var seqOpt = ctx.Db.Seq.Id.Find(0);
-        if (seqOpt.HasValue)
-        {
-            return seqOpt.Value.Value;
-        }
-
-        // Initialize with default value
-        var newSeq = new Seq { Id = 0, Value = 0 };
-        ctx.Db.Seq.Insert(newSeq);
-        return 0;
-    }
-
-    private static void SetSeq(ReducerContext ctx, ushort value)
-    {
-        var seq = ctx.Db.Seq.Id.Find(0);
-        if (seq.HasValue)
-        {
-            var updated = seq.Value;
-            updated.Value = value;
-            ctx.Db.Seq.Id.Update(updated);
-        }
-        else
-        {
-            ctx.Db.Seq.Insert(new Seq { Id = 0, Value = value });
-        }
-    }
-
-    private static void StepSeq(ReducerContext ctx)
-    {
-        var current = GetSeq(ctx);
-        SetSeq(ctx, unchecked((ushort)(current + 1)));
-    }
-
-    // Seq extension methods
-    private static ushort WrappingSub(ushort a, ushort b)
-    {
-        return unchecked((ushort)(a - b));
-    }
-
-    private static ushort WrappingAdd(ushort a, ushort b)
-    {
-        return unchecked((ushort)(a + b));
-    }
-
-    // Check if a sequence number is behind another (with wrapping)
-    private static bool IsBehind(ushort seq, ushort other)
-    {
-        // Use wrapping subtraction to handle overflow
-        ushort diff = unchecked((ushort)(other - seq));
-        // If difference is less than half the range, seq is behind
-        return diff > 0 && diff < 32768;
-    }
-
-    // StepsSinceLastBatch helper methods
-    private static ushort GetStepsSinceLastBatch(ReducerContext ctx)
-    {
-        var opt = ctx.Db.StepsSinceLastBatch.Id.Find(0);
-        if (opt.HasValue)
-        {
-            return opt.Value.Value;
-        }
-
-        var newVal = new StepsSinceLastBatch { Id = 0, Value = 0 };
-        ctx.Db.StepsSinceLastBatch.Insert(newVal);
-        return 0;
-    }
-
-    // StepsSinceLastAuthFrame helper methods
-    private static ushort GetStepsSinceLastAuthFrame(ReducerContext ctx)
-    {
-        var opt = ctx.Db.StepsSinceLastAuthFrame.Id.Find(0);
-        if (opt.HasValue)
-        {
-            return opt.Value.Value;
-        }
-
-        var newVal = new StepsSinceLastAuthFrame { Id = 0, Value = 0 };
-        ctx.Db.StepsSinceLastAuthFrame.Insert(newVal);
-        return 0;
-    }
-
-    private static void SetStepsSinceLastAuthFrame(ReducerContext ctx, ushort value)
-    {
-        var opt = ctx.Db.StepsSinceLastAuthFrame.Id.Find(0);
-        if (opt.HasValue)
-        {
-            var updated = opt.Value;
-            updated.Value = value;
-            ctx.Db.StepsSinceLastAuthFrame.Id.Update(updated);
-        }
-        else
-        {
-            ctx.Db.StepsSinceLastAuthFrame.Insert(new StepsSinceLastAuthFrame { Id = 0, Value = value });
-        }
-    }
-
-    // LastAuthFrameTimestamp helper methods
-    private static Timestamp? GetLastAuthFrameTimestamp(ReducerContext ctx)
-    {
-        var opt = ctx.Db.LastAuthFrameTimestamp.Id.Find(0);
-        if (opt.HasValue)
-        {
-            return opt.Value.LastAuthFrameTime;
-        }
-        return null;
-    }
-
-    private static void SetLastAuthFrameTimestamp(ReducerContext ctx, Timestamp? timestamp)
-    {
-        var opt = ctx.Db.LastAuthFrameTimestamp.Id.Find(0);
-        if (opt.HasValue)
-        {
-            var updated = opt.Value;
-            updated.LastAuthFrameTime = timestamp ?? default;
-            ctx.Db.LastAuthFrameTimestamp.Id.Update(updated);
-        }
-        else
-        {
-            ctx.Db.LastAuthFrameTimestamp.Insert(new LastAuthFrameTimestamp
-            {
-                Id = 0,
-                LastAuthFrameTime = timestamp ?? default
-            });
-        }
-    }
-
-    // BaseCfg helper methods
-    private static BaseCfg GetBaseCfg(ReducerContext ctx)
-    {
-        var opt = ctx.Db.BaseCfg.Id.Find(0);
-        if (opt.HasValue)
-        {
-            return opt.Value;
-        }
-
-        // Return default configuration
-        var defaultCfg = new BaseCfg
-        {
-            Id = 0,
-            ClockIntervalSec = 1.0 / 60.0,
-            targetStepsPerSecond = 60,
-            physicsStepsPerBatch = 60,
-            stepsPerAuthFrame = 3,
-            authFrameTimeErrorThresholdSec = 2.0 / 60.0,
-            logInputFrameTimes = false,
-            logAuthFrameTimeDiffs = false,
-            gcCacheAccountTimeoutMinutes = 2.0
-        };
-        ctx.Db.BaseCfg.Insert(defaultCfg);
-        return defaultCfg;
-    }
-
-    private static void SetBaseCfg(ReducerContext ctx, BaseCfg baseCfg)
-    {
-        ctx.Db.BaseCfg.Id.Delete(0);
-        ctx.Db.BaseCfg.Insert(baseCfg);
-    }
 
 
 }
