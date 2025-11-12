@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using com.cyborgAssets.inspectorButtonPro;
 using GameCoreLib;
@@ -21,9 +22,12 @@ public class GameManager : MonoBehaviour
 
     public GameCore GameCore = new GameCore();
 
+    [SerializeField]
+    private bool _forceStepping;
+
     public string Game1JSON_PATH;
 
-    public RuntimeRenderer RuntimeRenderer;
+    public GameCoreRenderer GameCoreRenderer;
 
     private void Awake()
     {
@@ -58,6 +62,14 @@ public class GameManager : MonoBehaviour
         Conn = builder.Build();
     }
 
+    private void FixedUpdate()
+    {
+        if (_forceStepping)
+        {
+            GameCore.Step(new List<InputEvent>());
+        }
+    }
+
     [ProButton]
     public void LoadTile1()
     {
@@ -70,34 +82,10 @@ public class GameManager : MonoBehaviour
         Debug.Log("Done Loading Tile1 Test");
 
         // Automatically render the loaded tile if renderer is assigned
-        if (RuntimeRenderer != null)
+        if (GameCoreRenderer != null)
         {
-            RuntimeRenderer.RenderGameTile(GameCore.GameTile1);
+            GameCoreRenderer.UpdateRendering();
             Debug.Log("Rendered Tile1");
-        }
-    }
-
-    [ProButton]
-    public void RenderTile1()
-    {
-        if (RuntimeRenderer != null)
-        {
-            RuntimeRenderer.RenderGameTile(GameCore.GameTile1);
-            Debug.Log("Rendered Tile1");
-        }
-        else
-        {
-            Debug.LogError("RuntimeRenderer not assigned!");
-        }
-    }
-
-    [ProButton]
-    public void ClearRendering()
-    {
-        if (RuntimeRenderer != null)
-        {
-            RuntimeRenderer.ClearRendering();
-            Debug.Log("Cleared rendering");
         }
     }
 
@@ -195,5 +183,12 @@ public class GameManager : MonoBehaviour
         );
         Debug.Log("Deserialized GameCore successfully");
         Debug.Log($"Deserialized GameCore hash: {GameCore.GetHash()}");
+
+/*         // Re-render to sync with the new GameCore
+        if (GameCoreRenderer != null)
+        {
+            GameCoreRenderer.UpdateRendering();
+            Debug.Log("Re-rendered both tiles after deserialization");
+        } */
     }
 }

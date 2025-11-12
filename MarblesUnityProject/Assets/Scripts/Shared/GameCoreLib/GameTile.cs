@@ -29,6 +29,7 @@ namespace GameCoreLib
         public GameTile(int worldId)
         {
             WorldId = worldId;
+            Sim = new World();
         }
 
         public void Load(string levelJSON, GameCore gameCore)

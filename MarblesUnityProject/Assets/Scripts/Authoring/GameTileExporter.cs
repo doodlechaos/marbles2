@@ -9,7 +9,7 @@ using UnityEngine;
 
 public class GameTileExporter : EditorWindow
 {
-    private RuntimeRenderer cachedRuntimeRenderer;
+    private GameCoreRenderer cachedRuntimeRenderer;
     private List<GameObject> cachedRenderPrefabs;
 
     [MenuItem("Window/LockSim/GameTileExporter")]
@@ -119,7 +119,7 @@ public class GameTileExporter : EditorWindow
     private bool CacheRuntimeRendererPrefabs()
     {
         // Find RuntimeRenderer in the scene
-        cachedRuntimeRenderer = FindFirstObjectByType<RuntimeRenderer>();
+        cachedRuntimeRenderer = FindFirstObjectByType<GameCoreRenderer>();
 
         if (cachedRuntimeRenderer == null)
         {
@@ -127,7 +127,7 @@ public class GameTileExporter : EditorWindow
         }
 
         // Use reflection to access the private renderPrefabs field
-        var renderPrefabsField = typeof(RuntimeRenderer).GetField("renderPrefabs",
+        var renderPrefabsField = typeof(GameCoreRenderer).GetField("renderPrefabs",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         if (renderPrefabsField != null)

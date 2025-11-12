@@ -26,8 +26,8 @@ namespace GameCoreLib
 
         public void Step(List<InputEvent> inputEvents)
         {
-            //GameTile1.Step();
-            //GameTile2.Step();
+            GameTile1.Step();
+            GameTile2.Step();
 
             Seq = Seq.WrappingAdd(1);
         }
