@@ -68,7 +68,7 @@ public static partial class Module
 
         // Collect and delete all the pending input frames and insert them into a single auth frame
         var inputFrames = ctx.Db.InputFrame.Iter().ToList();
-        
+
         var authFrame = new AuthFrame { Seq = Seq.Get(ctx), Frames = inputFrames };
 
         ctx.Db.AuthFrame.Seq.Delete(authFrame.Seq);
@@ -115,11 +115,14 @@ public static partial class Module
         }
         else
         {
+            GameCore gameCore = new GameCore();
+            gameCore.GameTile1.Load(GetRandomLevelFile(ctx).Json, gameCore);
+            gameCore.GameTile2.Load(GetRandomLevelFile(ctx).Json, gameCore);
             snapshot = new GameCoreSnap
             {
                 Id = 0,
                 Seq = batchStartSeq,
-                BinaryData = MemoryPackSerializer.Serialize(new GameCore()),
+                BinaryData = MemoryPackSerializer.Serialize(gameCore),
             };
         }
 
@@ -189,56 +192,56 @@ public static partial class Module
     /// <summary>
     /// Processes output events from the game simulation
     /// </summary>
-    private static void ProcessOutputEvents(ReducerContext ctx, List<OutputToSTDB> outputEvents)
-    {
-        foreach (var outputEvent in outputEvents)
+    /*     private static void ProcessOutputEvents(ReducerContext ctx, List<OutputToSTDB> outputEvents)
         {
-            Log.Info($"Processing output event in server: {outputEvent.EventType}");
-
-            switch (outputEvent.EventType)
+            foreach (var outputEvent in outputEvents)
             {
-                case OutputToSTDBEventType.AddPointsToAccount:
+                Log.Info($"Processing output event in server: {outputEvent.EventType}");
+    
+                switch (outputEvent.EventType)
                 {
-                    var accountOpt = ctx.Db.Account.Id.Find(outputEvent.AccountId);
-                    if (!accountOpt.HasValue)
+                    case OutputToSTDBEventType.AddPointsToAccount:
                     {
-                        throw new Exception($"Account {outputEvent.AccountId} not found");
-                    }
-
-                    var account = accountOpt.Value;
-                    account.Points = account.Points.SaturatingAdd(outputEvent.Points);
-                    ctx.Db.Account.Id.Update(account);
-                    break;
-                }
-
-                case OutputToSTDBEventType.NewKing:
-                    // Handle new king event
-                    break;
-
-                case OutputToSTDBEventType.DeterminismHash:
-                {
-                    Log.Info($"Determinism hash: {outputEvent.HashString}");
-                    ctx.Db.DeterminismCheck.Id.Delete(0);
-                    ctx.Db.DeterminismCheck.Insert(
-                        new DeterminismCheck
+                        var accountOpt = ctx.Db.Account.Id.Find(outputEvent.AccountId);
+                        if (!accountOpt.HasValue)
                         {
-                            Id = 0,
-                            Seq = outputEvent.Seq,
-                            HashString = outputEvent.HashString,
+                            throw new Exception($"Account {outputEvent.AccountId} not found");
                         }
-                    );
-                    break;
-                }
-
-                case OutputToSTDBEventType.GameTileFinished:
-                {
-                    CloseAndCycleGameTile(ctx, outputEvent.WorldId);
-                    break;
+    
+                        var account = accountOpt.Value;
+                        account.Points = account.Points.SaturatingAdd(outputEvent.Points);
+                        ctx.Db.Account.Id.Update(account);
+                        break;
+                    }
+    
+                    case OutputToSTDBEventType.NewKing:
+                        // Handle new king event
+                        break;
+    
+                    case OutputToSTDBEventType.DeterminismHash:
+                    {
+                        Log.Info($"Determinism hash: {outputEvent.HashString}");
+                        ctx.Db.DeterminismCheck.Id.Delete(0);
+                        ctx.Db.DeterminismCheck.Insert(
+                            new DeterminismCheck
+                            {
+                                Id = 0,
+                                Seq = outputEvent.Seq,
+                                HashString = outputEvent.HashString,
+                            }
+                        );
+                        break;
+                    }
+    
+                    case OutputToSTDBEventType.GameTileFinished:
+                    {
+                        CloseAndCycleGameTile(ctx, outputEvent.WorldId);
+                        break;
+                    }
                 }
             }
         }
-    }
-
+     */
     /// <summary>
     /// Insert an input frame no matter what
     /// </summary>
@@ -251,19 +254,30 @@ public static partial class Module
         // Move all the collected inputs into the public input chain table
         var rows = ctx.Db.InputCollector.Iter().ToList();
 
-        var eventsList = new List<InputEvent>();
+        List<InputEvent> eventsList = new List<InputEvent>();
         foreach (InputCollector row in rows)
         {
             ctx.Db.InputCollector.Delete(row);
 
             if (row.delaySeqs <= 0)
             {
-                InputEvent? inputEvent = MemoryPackSerializer.Deserialize<InputEvent>(
-                    row.inputEventData
-                );
-                if (inputEvent != null)
+                try
                 {
-                    eventsList.Add(inputEvent);
+                    Log.Info($"Deserializing InputEvent from {row.inputEventData.Length} bytes");
+                    InputEvent? inputEvent = MemoryPackSerializer.Deserialize<InputEvent>(
+                        row.inputEventData
+                    );
+
+                    if (inputEvent != null)
+                    {
+                        eventsList.Add(inputEvent);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(
+                        $"Failed to deserialize InputEvent: {e.Message}. Skipping this input."
+                    );
                 }
             }
             else
@@ -279,13 +293,9 @@ public static partial class Module
         }
 
         // Serialize all events into a single byte array
-        byte[] eventsListData = MemoryPackSerializer.Serialize(eventsList);
+        byte[] eventsListData = InputEventSerialization.SerializeList(eventsList);
 
-        var newInputFrame = new InputFrame
-        {
-            Seq = Seq.Get(ctx),
-            InputEventsList = eventsListData,
-        };
+        var newInputFrame = new InputFrame { Seq = Seq.Get(ctx), InputEventsList = eventsListData };
 
         if (cfg.logInputFrameTimes)
         {
@@ -319,7 +329,6 @@ public static partial class Module
         StepsSinceLastBatch.Inc(ctx);
         StepsSinceLastAuthFrame.Inc(ctx);
     }
-
 }
 
 // Placeholder structs - these should be properly defined based on your game logic

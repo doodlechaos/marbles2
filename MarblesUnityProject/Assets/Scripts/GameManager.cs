@@ -164,7 +164,7 @@ public class GameManager : MonoBehaviour
         string filePath = Path.Combine(tempDir, "GameCore.bin");
         File.WriteAllBytes(filePath, data);
         Debug.Log($"Serialized GameCore and wrote to {filePath}");
-        Debug.Log($"Serialized GameCore hash: {GameCore.GetHash()}");
+        Debug.Log($"Serialized GameCore hash: {GameCore.GetDeterministicHashHex()}");
     }
 
     [ProButton]
@@ -182,13 +182,13 @@ public class GameManager : MonoBehaviour
             new MemoryPackSerializerOptions { }
         );
         Debug.Log("Deserialized GameCore successfully");
-        Debug.Log($"Deserialized GameCore hash: {GameCore.GetHash()}");
+        Debug.Log($"Deserialized GameCore hash: {GameCore.GetDeterministicHashHex()}");
 
-/*         // Re-render to sync with the new GameCore
-        if (GameCoreRenderer != null)
-        {
-            GameCoreRenderer.UpdateRendering();
-            Debug.Log("Re-rendered both tiles after deserialization");
-        } */
+        /*         // Re-render to sync with the new GameCore
+                if (GameCoreRenderer != null)
+                {
+                    GameCoreRenderer.UpdateRendering();
+                    Debug.Log("Re-rendered both tiles after deserialization");
+                } */
     }
 }

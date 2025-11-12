@@ -1,3 +1,4 @@
+using MemoryPack;
 using SpacetimeDB;
 
 public static partial class Module
@@ -11,4 +12,3 @@ public static partial class Module
         public string Json;
     }
 }
-

@@ -305,7 +305,7 @@ public class LockSimTestWindow : EditorWindow
         }
 
         // Get hash of the entire world state
-        string hash1 = world.GetHash();
+        string hash1 = world.GetDeterministicHashHex();
 
         // Restore from the snapshot
         world = MemoryPackSerializer.Deserialize<World>(snapshotData);
@@ -317,7 +317,7 @@ public class LockSimTestWindow : EditorWindow
         }
 
         // Check if this hash of the world state matches the previous
-        string hash2 = world.GetHash();
+        string hash2 = world.GetDeterministicHashHex();
 
         t.Expect(
             hash1 == hash2,

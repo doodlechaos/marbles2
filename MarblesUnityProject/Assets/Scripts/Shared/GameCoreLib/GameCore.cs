@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using MemoryPack;
 
 namespace GameCoreLib
@@ -32,13 +31,10 @@ namespace GameCoreLib
             Seq = Seq.WrappingAdd(1);
         }
 
-        public string GetHash()
+        public string GetDeterministicHashHex()
         {
             byte[] data = MemoryPackSerializer.Serialize(this);
-
-            using var sha = SHA256.Create();
-            byte[] hash = sha.ComputeHash(data);
-            return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            return data.GetDeterministicHashHex();
         }
     }
 }

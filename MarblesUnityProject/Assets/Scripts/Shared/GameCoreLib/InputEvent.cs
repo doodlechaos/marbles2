@@ -4,7 +4,7 @@ using MemoryPack;
 namespace GameCoreLib
 {
     // Base of the union
-    [MemoryPackable]
+    [MemoryPackable(SerializeLayout.Explicit)]
     [MemoryPackUnion(0, typeof(Attack))]
     [MemoryPackUnion(1, typeof(SpawnMarble))]
     [MemoryPackUnion(2, typeof(Dhash))]
@@ -13,12 +13,19 @@ namespace GameCoreLib
     [MemoryPackUnion(5, typeof(LoadTileFile))]
     public abstract partial class InputEvent
     {
+        protected InputEvent() { }
 
-        [MemoryPackable]
+        [MemoryPackable(SerializeLayout.Explicit)]
         public partial class Attack : InputEvent
         {
-            public ulong AccountId { get; set; }   // u64
-            public uint Points { get; set; }       // u32
+            [MemoryPackOrder(0)]
+            public ulong AccountId { get; set; } // u64
+
+            [MemoryPackOrder(1)]
+            public uint Points { get; set; } // u32
+
+            [MemoryPackConstructor]
+            public Attack() { }
 
             public Attack(ulong accountId, uint points)
             {
@@ -27,12 +34,20 @@ namespace GameCoreLib
             }
         }
 
-        [MemoryPackable]
+        [MemoryPackable(SerializeLayout.Explicit)]
         public partial class SpawnMarble : InputEvent
         {
-            public byte WorldId { get; set; }             // u8
-            public ulong AccountId { get; set; }          // u64
-            public ulong SpawnerRuntimeId { get; set; }   // u64
+            [MemoryPackOrder(0)]
+            public byte WorldId { get; set; } // u8
+
+            [MemoryPackOrder(1)]
+            public ulong AccountId { get; set; } // u64
+
+            [MemoryPackOrder(2)]
+            public ulong SpawnerRuntimeId { get; set; } // u64
+
+            [MemoryPackConstructor]
+            public SpawnMarble() { }
 
             public SpawnMarble(byte worldId, ulong accountId, ulong spawnerRuntimeId)
             {
@@ -42,34 +57,51 @@ namespace GameCoreLib
             }
         }
 
-        [MemoryPackable]
+        [MemoryPackable(SerializeLayout.Explicit)]
         public partial class Dhash : InputEvent
         {
             public Dhash() { }
         }
 
-        [MemoryPackable]
+        [MemoryPackable(SerializeLayout.Explicit)]
         public partial class SetIntegrationParameter : InputEvent
         {
+            [MemoryPackOrder(0)]
             public string Value { get; set; } = string.Empty;
+
+            [MemoryPackConstructor]
+            public SetIntegrationParameter() { }
 
             public SetIntegrationParameter(string value) => Value = value;
         }
 
-        [MemoryPackable]
+        [MemoryPackable(SerializeLayout.Explicit)]
         public partial class StartCloseDoorAnimation : InputEvent
         {
+            [MemoryPackOrder(0)]
             public byte WorldId { get; set; } // u8
+
+            [MemoryPackConstructor]
+            public StartCloseDoorAnimation() { }
 
             public StartCloseDoorAnimation(byte worldId) => WorldId = worldId;
         }
 
-        [MemoryPackable]
+        [MemoryPackable(SerializeLayout.Explicit)]
         public partial class LoadTileFile : InputEvent
         {
-            public byte WorldId { get; set; }                 // u8
-            public ulong NextTileId { get; set; }             // u64
+            [MemoryPackOrder(0)]
+            public byte WorldId { get; set; } // u8
+
+            [MemoryPackOrder(1)]
+            public ulong NextTileId { get; set; } // u64
+
+            [MemoryPackOrder(2)]
             public string? HydratedNextTileJson { get; set; } // Option<String> → string?
+
+            [MemoryPackConstructor]
+            public LoadTileFile() { }
+
             public LoadTileFile(byte worldId, ulong nextTileId, string? hydratedNextTileJson)
             {
                 WorldId = worldId;
@@ -77,6 +109,5 @@ namespace GameCoreLib
                 HydratedNextTileJson = hydratedNextTileJson;
             }
         }
-
     }
 }

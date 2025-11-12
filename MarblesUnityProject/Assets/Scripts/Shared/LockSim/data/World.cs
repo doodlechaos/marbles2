@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using FPMathLib;
 using MemoryPack;
 
@@ -84,13 +83,11 @@ namespace LockSim
         {
             return MemoryPackSerializer.Serialize(this);
         }
-        public string GetHash()
+
+        public string GetDeterministicHashHex()
         {
             byte[] snapshotData = ToSnapshot();
-
-            using var sha = SHA256.Create();
-            byte[] hash = sha.ComputeHash(snapshotData);
-            return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            return snapshotData.GetDeterministicHashHex();
         }
     }
 }

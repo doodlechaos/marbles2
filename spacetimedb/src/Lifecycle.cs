@@ -21,7 +21,9 @@ public static partial class Module
             new ClockSchedule
             {
                 Id = 0,
-                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(cfg.ClockIntervalSec))
+                ScheduledAt = new ScheduleAt.Interval(
+                    TimeDuration.FromSeconds(cfg.ClockIntervalSec)
+                ),
             }
         );
     }
@@ -30,14 +32,11 @@ public static partial class Module
     public static void Connect(ReducerContext ctx)
     {
         Log.Info($"[Init] Client Connecting");
-
     }
 
     [Reducer(ReducerKind.ClientDisconnected)]
     public static void Disconnect(ReducerContext ctx)
     {
         Log.Info($"[Init] Client Disconnecting");
-
     }
-
 }
