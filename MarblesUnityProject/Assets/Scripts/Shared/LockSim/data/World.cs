@@ -1,13 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
-using System.Text;
 using FPMathLib;
 using MemoryPack;
-using Newtonsoft.Json;
-
 
 namespace LockSim
 {
@@ -15,16 +10,21 @@ namespace LockSim
     /// Contains only the deterministic state of the physics simulation.
     /// This is the minimal data that needs to be serialized for snapshots.
     /// </summary>
-    [MemoryPackable]
+    [MemoryPackable(SerializeLayout.Explicit)]
     public partial class World
     {
         // Physics settings
+        [MemoryPackOrder(0)]
         public FPVector2 Gravity = FPVector2.FromFloats(0f, -9.81f);
 
         // Bodies storage (using List for deterministic ordering)
+        [MemoryPackOrder(1), MemoryPackInclude]
         private List<RigidBodyLS> bodies = new List<RigidBodyLS>();
+
+        [MemoryPackOrder(2), MemoryPackInclude]
         private int nextBodyId = 0;
 
+        [MemoryPackIgnore]
         public IReadOnlyList<RigidBodyLS> Bodies => bodies;
 
         public int AddBody(RigidBodyLS body)
@@ -80,59 +80,16 @@ namespace LockSim
         // Internal access for physics pipeline
         internal List<RigidBodyLS> GetBodiesMutable() => bodies;
 
-        // Snapshot and restore for deterministic replay
-        [Serializable]
-        public class Snapshot
+        public byte[] ToSnapshot()
         {
-            public RigidBodyLS[] Bodies;
-            public int NextBodyId;
-            public FPVector2 Gravity;
-
-            public Snapshot(World world)
-            {
-                Bodies = world.bodies.ToArray();
-                NextBodyId = world.nextBodyId;
-                Gravity = world.Gravity;
-            }
+            return MemoryPackSerializer.Serialize(this);
         }
-
-        public Snapshot TakeSnapshot()
+        public string GetHash()
         {
-            return new Snapshot(this);
-        }
-
-        public void RestoreSnapshot(Snapshot snapshot)
-        {
-            bodies.Clear();
-            bodies.AddRange(snapshot.Bodies);
-            nextBodyId = snapshot.NextBodyId;
-            Gravity = snapshot.Gravity;
-        }
-
-        /// <summary>
-        /// Computes a SHA256 hash of the entire world state for determinism testing.
-        /// </summary>
-        /// 
-        static readonly JsonSerializerSettings HashJsonSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.None,
-            NullValueHandling = NullValueHandling.Include,
-            DefaultValueHandling = DefaultValueHandling.Include,
-            TypeNameHandling = TypeNameHandling.None,
-            ReferenceLoopHandling = ReferenceLoopHandling.Error,
-            // If you don't want to add attributes to your types, see Option B below for a resolver.
-            // ContractResolver = new FieldsOnlyContractResolver()  // optional (see below)
-        };
-
-        public string GetWorldHash()
-        {
-            var snapshot = TakeSnapshot();
-
-            string json = JsonConvert.SerializeObject(snapshot, HashJsonSettings);
-            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            byte[] snapshotData = ToSnapshot();
 
             using var sha = SHA256.Create();
-            byte[] hash = sha.ComputeHash(bytes);
+            byte[] hash = sha.ComputeHash(snapshotData);
             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }
     }

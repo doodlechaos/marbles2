@@ -9,25 +9,29 @@ using Newtonsoft.Json.Linq;
 
 namespace GameCoreLib
 {
-
-    [MemoryPackable]
+    [MemoryPackable(SerializeLayout.Explicit)]
     public partial class GameTile
     {
+        [MemoryPackOrder(0)]
         public int WorldId;
 
+        [MemoryPackOrder(1)]
         public RuntimeObj TileRoot;
 
+        [MemoryPackOrder(2)]
         public World Sim;
 
-        // Track mapping between RuntimeObj and their physics body IDs
-        private Dictionary<RuntimeObj, int> runtimeObjToBodyId = new Dictionary<RuntimeObj, int>();
+        // Track mapping between RuntimeId and their physics body IDs
+        // Uses stable IDs instead of object references, so it survives serialization
+        [MemoryPackOrder(3), MemoryPackInclude]
+        private Dictionary<ulong, int> runtimeIdToBodyId = new Dictionary<ulong, int>();
 
         public GameTile(int worldId)
         {
             WorldId = worldId;
         }
 
-        public void Load(string levelJSON)
+        public void Load(string levelJSON, GameCore gameCore)
         {
             Logger.Log("Loading level JSON...");
 
@@ -49,10 +53,33 @@ namespace GameCoreLib
                 return;
             }
 
+            // Assign stable RuntimeIds to all objects in the hierarchy
+            AssignRuntimeIds(TileRoot, gameCore);
+
             // Process the hierarchy recursively to set up parent references and physics
             ProcessRuntimeObjHierarchy(TileRoot, null);
 
             Logger.Log($"Level loaded successfully. Bodies in simulation: {Sim.Bodies.Count}");
+        }
+
+        /// <summary>
+        /// Recursively assign unique RuntimeIds to all RuntimeObjs in the hierarchy.
+        /// This ensures stable IDs that persist through serialization.
+        /// </summary>
+        private void AssignRuntimeIds(RuntimeObj obj, GameCore gameCore)
+        {
+            // Assign ID and increment counter
+            obj.RuntimeId = gameCore.NextRuntimeId;
+            gameCore.NextRuntimeId++;
+
+            // Recursively assign IDs to children
+            if (obj.Children != null)
+            {
+                foreach (var child in obj.Children)
+                {
+                    AssignRuntimeIds(child, gameCore);
+                }
+            }
         }
 
         private void ProcessRuntimeObjHierarchy(RuntimeObj obj, RuntimeObj parent)
@@ -86,7 +113,10 @@ namespace GameCoreLib
 
             foreach (var component in obj.Components)
             {
-                if (component.type.Contains("BoxCollider2D") || component.type.Contains("CircleCollider2D"))
+                if (
+                    component.type.Contains("BoxCollider2D")
+                    || component.type.Contains("CircleCollider2D")
+                )
                 {
                     hasCollider = true;
                     colliderComponent = component;
@@ -105,7 +135,12 @@ namespace GameCoreLib
             }
         }
 
-        private void CreatePhysicsBody(RuntimeObj obj, ComponentData colliderComponent, ComponentData rigidbodyComponent, bool hasRigidbody)
+        private void CreatePhysicsBody(
+            RuntimeObj obj,
+            ComponentData colliderComponent,
+            ComponentData rigidbodyComponent,
+            bool hasRigidbody
+        )
         {
             // Get world position and rotation from transform
             FPVector2 position = new FPVector2(obj.Transform.Position.X, obj.Transform.Position.Y);
@@ -210,16 +245,20 @@ namespace GameCoreLib
 
             // Add body to world
             int bodyId = Sim.AddBody(body);
-            runtimeObjToBodyId[obj] = bodyId;
 
-            Logger.Log($"Created physics body for {obj.Name}: ID={bodyId}, Type={body.BodyType}, Shape={body.ShapeType}");
+            // Store mapping by RuntimeId (not by reference!)
+            runtimeIdToBodyId[obj.RuntimeId] = bodyId;
+
+            Logger.Log(
+                $"Created physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, Type={body.BodyType}, Shape={body.ShapeType}"
+            );
         }
 
         public void Clear()
         {
             // Clear the Runtime Objects
             TileRoot = null;
-            runtimeObjToBodyId.Clear();
+            runtimeIdToBodyId.Clear();
 
             // Clear the physics simulation world
             if (Sim != null)
@@ -238,15 +277,27 @@ namespace GameCoreLib
         }
 
         /// <summary>
-        /// Update RuntimeObj transforms from physics body positions/rotations
+        /// Update RuntimeObj transforms from physics body positions/rotations.
+        /// This method traverses the RuntimeObj tree and syncs physics by RuntimeId,
+        /// making it robust across serialization/deserialization.
         /// </summary>
         private void SyncPhysicsToRuntimeObjs()
         {
-            foreach (var kvp in runtimeObjToBodyId)
-            {
-                RuntimeObj runtimeObj = kvp.Key;
-                int bodyId = kvp.Value;
+            if (TileRoot == null)
+                return;
 
+            // Recursively sync all RuntimeObjs that have physics bodies
+            SyncPhysicsRecursive(TileRoot);
+        }
+
+        /// <summary>
+        /// Recursively sync physics for a RuntimeObj and its children
+        /// </summary>
+        private void SyncPhysicsRecursive(RuntimeObj runtimeObj)
+        {
+            // Check if this RuntimeObj has a physics body (by RuntimeId)
+            if (runtimeIdToBodyId.TryGetValue(runtimeObj.RuntimeId, out int bodyId))
+            {
                 try
                 {
                     var body = Sim.GetBody(bodyId);
@@ -261,15 +312,27 @@ namespace GameCoreLib
 
                     // Update rotation (convert 2D rotation to quaternion around Z axis)
                     FP angle = body.Rotation;
-                    runtimeObj.Transform.LocalRotation = FPQuaternion.AngleAxis(angle, FPVector3.Forward);
+                    runtimeObj.Transform.LocalRotation = FPQuaternion.AngleAxis(
+                        angle,
+                        FPVector3.Forward
+                    );
                 }
                 catch (System.Exception e)
                 {
-                    Logger.Error($"Failed to sync physics for {runtimeObj.Name}: {e.Message}");
+                    Logger.Error(
+                        $"Failed to sync physics for RuntimeId {runtimeObj.RuntimeId}: {e.Message}"
+                    );
+                }
+            }
+
+            // Recursively sync children
+            if (runtimeObj.Children != null)
+            {
+                foreach (var child in runtimeObj.Children)
+                {
+                    SyncPhysicsRecursive(child);
                 }
             }
         }
     }
-
 }
-

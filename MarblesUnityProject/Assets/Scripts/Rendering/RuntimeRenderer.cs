@@ -13,20 +13,27 @@ public class RuntimeRenderer : MonoBehaviour
     public bool AutoUpdate = true;
 
     [Header("Prefab Configuration")]
-    [Tooltip("List of prefabs for rendering. RenderPrefabID uses 0-based indexing (0 = first prefab, 1 = second, etc). ID -1 = no prefab.")]
-    [SerializeField] private List<GameObject> renderPrefabs = new List<GameObject>();
+    [Tooltip(
+        "List of prefabs for rendering. RenderPrefabID uses 0-based indexing (0 = first prefab, 1 = second, etc). ID -1 = no prefab."
+    )]
+    [SerializeField]
+    private List<GameObject> renderPrefabs = new List<GameObject>();
 
     [Header("Debug")]
     public bool ShowDebugInfo = false;
 
-    // Track mapping between RuntimeObj and their visual GameObject representations
-    private Dictionary<RuntimeObj, GameObject> runtimeObjToGameObject = new Dictionary<RuntimeObj, GameObject>();
+    // Track mapping between RuntimeId and their visual GameObject representations
+    // This uses stable IDs instead of object references, so it survives serialization
+    private Dictionary<ulong, GameObject> idToGameObject = new Dictionary<ulong, GameObject>();
 
     // Reference to the GameTile we're rendering
     private GameTile gameTile;
 
     // Root GameObject for this tile's visual hierarchy
     private GameObject renderRoot;
+
+    // Track which IDs were seen during the last UpdateRendering pass
+    private HashSet<ulong> seenIds = new HashSet<ulong>();
 
     private void Update()
     {
@@ -73,7 +80,9 @@ public class RuntimeRenderer : MonoBehaviour
 
         if (ShowDebugInfo)
         {
-            Debug.Log($"RuntimeRenderer: Rendered GameTile {gameTile.WorldId} with {runtimeObjToGameObject.Count} objects");
+            Debug.Log(
+                $"RuntimeRenderer: Rendered GameTile {gameTile.WorldId} with {idToGameObject.Count} objects"
+            );
         }
     }
 
@@ -140,7 +149,7 @@ public class RuntimeRenderer : MonoBehaviour
             visualObj = Instantiate(prefabToInstantiate, parentTransform);
             visualObj.name = runtimeObj.Name; // Keep original RuntimeObj name
 
-            //If the prefab contained any authored data components that affect visuals, we can set them here. 
+            //If the prefab contained any authored data components that affect visuals, we can set them here.
         }
         else
         {
@@ -150,15 +159,21 @@ public class RuntimeRenderer : MonoBehaviour
 
             if (ShowDebugInfo && runtimeObj.RenderPrefabID >= 0)
             {
-                Debug.LogWarning($"RenderPrefabID {runtimeObj.RenderPrefabID} is invalid for '{runtimeObj.Name}'. Creating empty GameObject.");
+                Debug.LogWarning(
+                    $"RenderPrefabID {runtimeObj.RenderPrefabID} is invalid for '{runtimeObj.Name}'. Creating empty GameObject."
+                );
             }
         }
 
         // Set transform from RuntimeObj's FPTransform3D
         UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
 
-        // Store mapping
-        runtimeObjToGameObject[runtimeObj] = visualObj;
+        // Add RuntimeBinding component to track the stable ID
+        var binding = visualObj.AddComponent<RuntimeBinding>();
+        binding.RuntimeId = runtimeObj.RuntimeId;
+
+        // Store mapping by ID (not by reference!)
+        idToGameObject[runtimeObj.RuntimeId] = visualObj;
 
         // Recursively create children
         if (runtimeObj.Children != null)
@@ -240,22 +255,171 @@ public class RuntimeRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// Update all visual GameObjects from their RuntimeObj transforms
-    /// Call this after physics simulation steps to update visuals
+    /// Update all visual GameObjects from their RuntimeObj transforms.
+    /// This method is robust across serialization - it diffs the current RuntimeObj tree
+    /// against existing GameObjects by ID, creating/updating/destroying as needed.
+    /// Call this after physics simulation steps to update visuals.
     /// </summary>
     public void UpdateRendering()
     {
         if (gameTile == null || gameTile.TileRoot == null)
             return;
 
-        foreach (var kvp in runtimeObjToGameObject)
+        // Ensure we have a render root
+        if (renderRoot == null)
         {
-            RuntimeObj runtimeObj = kvp.Key;
-            GameObject visualObj = kvp.Value;
+            renderRoot = new GameObject($"RenderRoot_Tile{gameTile.WorldId}");
+            renderRoot.transform.SetParent(transform);
+            renderRoot.transform.localPosition = Vector3.zero;
+            renderRoot.transform.localRotation = Quaternion.identity;
+            renderRoot.transform.localScale = Vector3.one;
+        }
 
-            if (visualObj != null && runtimeObj.Transform != null)
+        // Clear the "seen" set from previous frame
+        seenIds.Clear();
+
+        // Traverse the RuntimeObj tree and create/update GameObjects as needed
+        UpdateRuntimeObjRecursive(gameTile.TileRoot, renderRoot.transform);
+
+        // Destroy any GameObjects whose RuntimeIds were not seen (they've been removed from the tree)
+        List<ulong> idsToRemove = new List<ulong>();
+        foreach (var kvp in idToGameObject)
+        {
+            ulong id = kvp.Key;
+            if (!seenIds.Contains(id))
+            {
+                GameObject go = kvp.Value;
+                if (go != null)
+                {
+                    if (Application.isPlaying)
+                    {
+                        Destroy(go);
+                    }
+                    else
+                    {
+                        DestroyImmediate(go);
+                    }
+                }
+                idsToRemove.Add(id);
+            }
+        }
+
+        // Remove destroyed objects from the mapping
+        foreach (var id in idsToRemove)
+        {
+            idToGameObject.Remove(id);
+        }
+    }
+
+    /// <summary>
+    /// Recursively update or create GameObjects for RuntimeObjs in the hierarchy.
+    /// This is called during UpdateRendering to sync the visual representation.
+    /// </summary>
+    private void UpdateRuntimeObjRecursive(RuntimeObj runtimeObj, Transform parentTransform)
+    {
+        // Skip GameTileAuth components (they're authoring-only)
+        if (HasGameTileAuthComponent(runtimeObj))
+        {
+            // Still process children, but don't render this object
+            if (runtimeObj.Children != null)
+            {
+                foreach (var child in runtimeObj.Children)
+                {
+                    UpdateRuntimeObjRecursive(child, parentTransform);
+                }
+            }
+            return;
+        }
+
+        // Mark this ID as seen
+        seenIds.Add(runtimeObj.RuntimeId);
+
+        GameObject visualObj;
+
+        // Check if we already have a GameObject for this RuntimeId
+        if (idToGameObject.TryGetValue(runtimeObj.RuntimeId, out visualObj))
+        {
+            // GameObject exists - just update its transform
+            if (visualObj != null)
             {
                 UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
+
+                // Process children with this GameObject as parent
+                if (runtimeObj.Children != null)
+                {
+                    foreach (var child in runtimeObj.Children)
+                    {
+                        UpdateRuntimeObjRecursive(child, visualObj.transform);
+                    }
+                }
+            }
+            else
+            {
+                // GameObject was destroyed externally - recreate it
+                CreateGameObjectForRuntimeObj(runtimeObj, parentTransform);
+            }
+        }
+        else
+        {
+            // GameObject doesn't exist yet - create it
+            CreateGameObjectForRuntimeObj(runtimeObj, parentTransform);
+        }
+    }
+
+    /// <summary>
+    /// Create a new GameObject for a RuntimeObj that doesn't have one yet.
+    /// This can happen after deserialization or when new objects are added to the tree.
+    /// </summary>
+    private void CreateGameObjectForRuntimeObj(RuntimeObj runtimeObj, Transform parentTransform)
+    {
+        GameObject visualObj = null;
+
+        // Look up prefab by RenderPrefabID
+        GameObject prefabToInstantiate = GetPrefabByID(runtimeObj.RenderPrefabID);
+
+        if (prefabToInstantiate != null)
+        {
+            // Instantiate the prefab
+            visualObj = Instantiate(prefabToInstantiate, parentTransform);
+            visualObj.name = runtimeObj.Name;
+        }
+        else
+        {
+            // No prefab (ID -1 or invalid ID), create empty GameObject
+            visualObj = new GameObject(runtimeObj.Name);
+            visualObj.transform.SetParent(parentTransform);
+
+            if (ShowDebugInfo && runtimeObj.RenderPrefabID >= 0)
+            {
+                Debug.LogWarning(
+                    $"RenderPrefabID {runtimeObj.RenderPrefabID} is invalid for '{runtimeObj.Name}'. Creating empty GameObject."
+                );
+            }
+        }
+
+        // Set transform
+        UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
+
+        // Add RuntimeBinding component
+        var binding = visualObj.AddComponent<RuntimeBinding>();
+        binding.RuntimeId = runtimeObj.RuntimeId;
+
+        // Store in mapping
+        idToGameObject[runtimeObj.RuntimeId] = visualObj;
+
+        if (ShowDebugInfo)
+        {
+            Debug.Log(
+                $"Created GameObject for RuntimeObj '{runtimeObj.Name}' (ID: {runtimeObj.RuntimeId})"
+            );
+        }
+
+        // Recursively create children
+        if (runtimeObj.Children != null)
+        {
+            foreach (var child in runtimeObj.Children)
+            {
+                UpdateRuntimeObjRecursive(child, visualObj.transform);
             }
         }
     }
@@ -278,7 +442,8 @@ public class RuntimeRenderer : MonoBehaviour
             renderRoot = null;
         }
 
-        runtimeObjToGameObject.Clear();
+        idToGameObject.Clear();
+        seenIds.Clear();
         gameTile = null;
     }
 
@@ -297,11 +462,7 @@ public class RuntimeRenderer : MonoBehaviour
 
         foreach (var body in gameTile.Sim.Bodies)
         {
-            Vector3 pos = new Vector3(
-                body.Position.X.ToFloat(),
-                body.Position.Y.ToFloat(),
-                0f
-            );
+            Vector3 pos = new Vector3(body.Position.X.ToFloat(), body.Position.Y.ToFloat(), 0f);
 
             if (body.ShapeType == LockSim.ShapeType.Box)
             {

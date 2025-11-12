@@ -7,7 +7,6 @@ using SpacetimeDB;
 using SpacetimeDB.Types;
 using UnityEngine;
 
-
 public class GameManager : MonoBehaviour
 {
     const string SERVER_URL = "http://127.0.0.1:3000";
@@ -31,6 +30,7 @@ public class GameManager : MonoBehaviour
         GameCoreLib.Logger.Log = Debug.Log;
         GameCoreLib.Logger.Error = Debug.LogError;
     }
+
     private void Start()
     {
         Inst = this;
@@ -38,7 +38,8 @@ public class GameManager : MonoBehaviour
 
         // In order to build a connection to SpacetimeDB we need to register
         // our callbacks and specify a SpacetimeDB server URI and module name.
-        var builder = DbConnection.Builder()
+        var builder = DbConnection
+            .Builder()
             .OnConnect(HandleConnect)
             .OnConnectError(HandleConnectError)
             .OnDisconnect(HandleDisconnect)
@@ -65,7 +66,7 @@ public class GameManager : MonoBehaviour
 
         string json = File.ReadAllText(Game1JSON_PATH);
 
-        GameCore.GameTile1.Load(json);
+        GameCore.GameTile1.Load(json, GameCore);
         Debug.Log("Done Loading Tile1 Test");
 
         // Automatically render the loaded tile if renderer is assigned
@@ -103,6 +104,7 @@ public class GameManager : MonoBehaviour
     [ProButton]
     public void StepPhysics()
     {
+        Debug.Log("GameTile1 Bodies: " + GameCore.GameTile1.Sim.Bodies.Count);
         GameCore.GameTile1.Step();
         Debug.Log("Stepped physics simulation");
     }
@@ -127,9 +129,7 @@ public class GameManager : MonoBehaviour
         OnConnected?.Invoke();
 
         // Request all tables
-        Conn.SubscriptionBuilder()
-            .OnApplied(HandleSubscriptionApplied)
-            .SubscribeToAllTables();
+        Conn.SubscriptionBuilder().OnApplied(HandleSubscriptionApplied).SubscribeToAllTables();
     }
 
     void HandleConnectError(Exception ex)
@@ -163,8 +163,6 @@ public class GameManager : MonoBehaviour
         Conn = null;
     }
 
-
-
     [ProButton]
     public void TestSerializeGameCore()
     {
@@ -178,7 +176,9 @@ public class GameManager : MonoBehaviour
         string filePath = Path.Combine(tempDir, "GameCore.bin");
         File.WriteAllBytes(filePath, data);
         Debug.Log($"Serialized GameCore and wrote to {filePath}");
+        Debug.Log($"Serialized GameCore hash: {GameCore.GetHash()}");
     }
+
     [ProButton]
     public void TestDeserializeGameCore()
     {
@@ -189,9 +189,11 @@ public class GameManager : MonoBehaviour
             return;
         }
         byte[] data = File.ReadAllBytes(filePath);
-        GameCore = MemoryPackSerializer.Deserialize<GameCore>(data, new MemoryPackSerializerOptions { });
+        GameCore = MemoryPackSerializer.Deserialize<GameCore>(
+            data,
+            new MemoryPackSerializerOptions { }
+        );
         Debug.Log("Deserialized GameCore successfully");
-        // For testing, you can assign it back or compare, but for now, just log success
-        // Example: GameCore = deserialized; (uncomment if needed)
+        Debug.Log($"Deserialized GameCore hash: {GameCore.GetHash()}");
     }
 }

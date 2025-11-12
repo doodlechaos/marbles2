@@ -5,6 +5,7 @@ using FPMathLib;
 using LockSim;
 using UnityEditor;
 using UnityEngine;
+using MemoryPack;
 
 public class LockSimTestWindow : EditorWindow
 {
@@ -73,7 +74,10 @@ public class LockSimTestWindow : EditorWindow
         }
         else if (_results.Count == 0)
         {
-            GUILayout.Label("Click 'Run All Tests' to execute the suite.", EditorStyles.wordWrappedMiniLabel);
+            GUILayout.Label(
+                "Click 'Run All Tests' to execute the suite.",
+                EditorStyles.wordWrappedMiniLabel
+            );
         }
         else
         {
@@ -113,7 +117,11 @@ public class LockSimTestWindow : EditorWindow
         {
             var iconLabel = passed ? "✅" : "❌";
             var color = passed ? new Color(0.2f, 0.7f, 0.2f) : new Color(0.85f, 0.25f, 0.25f);
-            var iconStyle = new GUIStyle(EditorStyles.label) { fontSize = 16, alignment = TextAnchor.MiddleCenter };
+            var iconStyle = new GUIStyle(EditorStyles.label)
+            {
+                fontSize = 16,
+                alignment = TextAnchor.MiddleCenter,
+            };
             var nameStyle = new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.Bold };
 
             var prev = GUI.color;
@@ -124,10 +132,12 @@ public class LockSimTestWindow : EditorWindow
             GUILayout.Label(name, nameStyle);
             GUILayout.FlexibleSpace();
 
-            var detailStyle = passed ? EditorStyles.miniLabel : new GUIStyle(EditorStyles.miniLabel)
-            {
-                normal = { textColor = new Color(0.85f, 0.25f, 0.25f) }
-            };
+            var detailStyle = passed
+                ? EditorStyles.miniLabel
+                : new GUIStyle(EditorStyles.miniLabel)
+                {
+                    normal = { textColor = new Color(0.85f, 0.25f, 0.25f) },
+                };
             GUILayout.Label(details, detailStyle, GUILayout.Width(220));
         }
     }
@@ -189,10 +199,16 @@ public class LockSimTestWindow : EditorWindow
         FPVector2 v2 = FPVector2.FromFloats(1f, 2f);
 
         var sum = v1 + v2;
-        t.Expect(sum.X == FP.FromInt(4) && sum.Y == FP.FromInt(6), "Vector addition (3,4)+(1,2)=(4,6)");
+        t.Expect(
+            sum.X == FP.FromInt(4) && sum.Y == FP.FromInt(6),
+            "Vector addition (3,4)+(1,2)=(4,6)"
+        );
 
         var diff = v1 - v2;
-        t.Expect(diff.X == FP.FromInt(2) && diff.Y == FP.FromInt(2), "Vector subtraction (3,4)-(1,2)=(2,2)");
+        t.Expect(
+            diff.X == FP.FromInt(2) && diff.Y == FP.FromInt(2),
+            "Vector subtraction (3,4)-(1,2)=(2,2)"
+        );
 
         t.ExpectNear(v1.Magnitude, FP.FromInt(5), 0.01f, "|(3,4)|=5");
 
@@ -251,7 +267,12 @@ public class LockSimTestWindow : EditorWindow
             FP rotation = FP.FromFloat((float)(random.NextDouble() * 6.28));
             FP mass = FP.FromFloat((float)(random.NextDouble() * 2 + 0.5));
 
-            var body = RigidBodyLS.CreateDynamic(0, FPVector2.FromFloats(x.ToFloat(), y.ToFloat()), rotation, mass);
+            var body = RigidBodyLS.CreateDynamic(
+                0,
+                FPVector2.FromFloats(x.ToFloat(), y.ToFloat()),
+                rotation,
+                mass
+            );
 
             if (random.Next(2) == 0)
             {
@@ -275,7 +296,7 @@ public class LockSimTestWindow : EditorWindow
         }
 
         // Take snapshot
-        var snapshot = world.TakeSnapshot();
+        byte[] snapshotData = world.ToSnapshot();
 
         // Simulate 100 more steps
         for (int i = 0; i < 100; i++)
@@ -284,10 +305,10 @@ public class LockSimTestWindow : EditorWindow
         }
 
         // Get hash of the entire world state
-        string hash1 = world.GetWorldHash();
+        string hash1 = world.GetHash();
 
         // Restore from the snapshot
-        world.RestoreSnapshot(snapshot);
+        world = MemoryPackSerializer.Deserialize<World>(snapshotData);
 
         // Simulate 100 more steps
         for (int i = 0; i < 100; i++)
@@ -296,9 +317,12 @@ public class LockSimTestWindow : EditorWindow
         }
 
         // Check if this hash of the world state matches the previous
-        string hash2 = world.GetWorldHash();
+        string hash2 = world.GetHash();
 
-        t.Expect(hash1 == hash2, $"World state after snapshot restore should match (hash1: {hash1.Substring(0, 16)}..., hash2: {hash2.Substring(0, 16)}...)");
+        t.Expect(
+            hash1 == hash2,
+            $"World state after snapshot restore should match (hash1: {hash1.Substring(0, 16)}..., hash2: {hash2.Substring(0, 16)}...)"
+        );
     }
 
     private static void TestSimpleFall(TestContext t)
@@ -363,7 +387,9 @@ public class LockSimTestWindow : EditorWindow
         {
             var aabb1 = box1.ComputeAABB();
             var aabb2 = box2.ComputeAABB();
-            t.Fail($"No collision detected. Box1 AABB: {aabb1.Min}..{aabb1.Max}, Box2 AABB: {aabb2.Min}..{aabb2.Max}");
+            t.Fail(
+                $"No collision detected. Box1 AABB: {aabb1.Min}..{aabb1.Max}, Box2 AABB: {aabb2.Min}..{aabb2.Max}"
+            );
         }
         else
         {
@@ -393,7 +419,12 @@ public class LockSimTestWindow : EditorWindow
     {
         public string Name { get; }
         public Action<TestContext> Run { get; }
-        public TestCase(string name, Action<TestContext> run) { Name = name; Run = run; }
+
+        public TestCase(string name, Action<TestContext> run)
+        {
+            Name = name;
+            Run = run;
+        }
     }
 
     private sealed class TestResult
@@ -411,7 +442,10 @@ public class LockSimTestWindow : EditorWindow
         public string Name { get; }
         public double DurationMs;
 
-        public TestContext(string name) { Name = name; }
+        public TestContext(string name)
+        {
+            Name = name;
+        }
 
         public void Section(string title) => _section = title;
 
@@ -425,7 +459,9 @@ public class LockSimTestWindow : EditorWindow
         {
             float diff = Mathf.Abs(a.ToFloat() - b.ToFloat());
             if (diff > tolerance)
-                Fail($"{message} (expected {b.ToFloat():F4}, got {a.ToFloat():F4}, tol {tolerance})");
+                Fail(
+                    $"{message} (expected {b.ToFloat():F4}, got {a.ToFloat():F4}, tol {tolerance})"
+                );
         }
 
         public void Fail(string message)
@@ -441,7 +477,7 @@ public class LockSimTestWindow : EditorWindow
                 Name = Name,
                 Passed = _errors.Count == 0,
                 FirstError = _errors.Count > 0 ? _errors[0] : "",
-                DurationMs = DurationMs
+                DurationMs = DurationMs,
             };
         }
     }
