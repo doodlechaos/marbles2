@@ -1,14 +1,47 @@
 {
-    "files.exclude": {
-      "**/*.meta": true
-    },
-    "search.exclude": {
-      "**/*.meta": true
-    },
-    "files.watcherExclude": {
-      "**/*.meta": true
-    },
-    "dotnet.defaultSolution": "marbles2.sln",
-    "dotnet.server.useOmnisharp": false,
-  }
+  "files.exclude": {
+    "**/*.meta": true
+  },
+  "search.exclude": {
+    "**/*.meta": true
+  },
+  "files.watcherExclude": {
+    "**/*.meta": true
+  },
+  "dotnet.defaultSolution": "marbles2.sln",
+  "dotnet.server.useOmnisharp": false,
+  
+  // Auto-formatting settings
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": null,
+  
+  // TypeScript/JavaScript formatting with Prettier
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  
+  // C# formatting
+  "[csharp]": {
+    "editor.defaultFormatter": "anysphere.csharp",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  
+  // Prettier settings for web client
+  "prettier.configPath": "apps/web/marbles-web-client/.prettierrc",
+  
+  // C# formatting settings
+  "csharp.format.enable": true
+}
   

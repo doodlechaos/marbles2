@@ -173,21 +173,6 @@ public static partial class Module
         return 0;
     }
 
-    private static void SetStepsSinceLastBatch(ReducerContext ctx, ushort value)
-    {
-        var opt = ctx.Db.StepsSinceLastBatch.Id.Find(0);
-        if (opt.HasValue)
-        {
-            var updated = opt.Value;
-            updated.Value = value;
-            ctx.Db.StepsSinceLastBatch.Id.Update(updated);
-        }
-        else
-        {
-            ctx.Db.StepsSinceLastBatch.Insert(new StepsSinceLastBatch { Id = 0, Value = value });
-        }
-    }
-
     // StepsSinceLastAuthFrame helper methods
     private static ushort GetStepsSinceLastAuthFrame(ReducerContext ctx)
     {

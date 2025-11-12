@@ -124,7 +124,7 @@ public static partial class Module
         {
             Log.Warn($"snapshot seq [{snapshot.Seq}] did not match expected batch start [{batchStartSeq}]; resetting counters");
             SetSeq(ctx, snapshot.Seq);
-            SetStepsSinceLastBatch(ctx, 0);
+            StepsSinceLastBatch.SetSingleton(ctx, 0);
             SetStepsSinceLastAuthFrame(ctx, 0);
             return;
         }
@@ -174,7 +174,7 @@ public static partial class Module
         ctx.Db.GameCoreSnap.Id.Delete(0);
         ctx.Db.GameCoreSnap.Insert(simulatedSnap);
 
-        SetStepsSinceLastBatch(ctx, 0);
+        StepsSinceLastBatch.SetSingleton(ctx, 0);
     }
 
     /// <summary>
@@ -298,8 +298,8 @@ public static partial class Module
             }
         }
 
-        SetStepsSinceLastBatch(ctx, GetStepsSinceLastBatch(ctx).WrappingAdd(1));
-        SetStepsSinceLastAuthFrame(ctx, GetStepsSinceLastAuthFrame(ctx).WrappingAdd(1));
+        StepsSinceLastBatch.SetSingleton(ctx, GetStepsSinceLastBatch(ctx).WrappingAdd(1));
+        StepsSinceLastAuthFrame.SetSingleton(ctx, GetStepsSinceLastAuthFrame(ctx).WrappingAdd(1));
     }
 
     // Placeholder for game manager operations
