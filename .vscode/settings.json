@@ -31,7 +31,7 @@
   
   // C# formatting
   "[csharp]": {
-    "editor.defaultFormatter": "anysphere.csharp",
+    "editor.defaultFormatter": "csharpier.csharpier-vscode",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.organizeImports": "explicit"

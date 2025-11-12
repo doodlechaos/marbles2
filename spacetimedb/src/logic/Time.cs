@@ -38,7 +38,6 @@ public static partial class Module
         Clock.Set(ctx, clock.PrevClockUpdate, clock.TickTimeAccumulatorSec);
     }
 
-
     // Day calculation constants
     private const long DAY_US = 86_400_000_000L; // 24h in microseconds
 
@@ -48,9 +47,7 @@ public static partial class Module
     public static long DayIndexUtcMidnight(long microsUtc)
     {
         // Use Math.DivRem for proper Euclidean division
-        return microsUtc >= 0
-            ? microsUtc / DAY_US
-            : (microsUtc - DAY_US + 1) / DAY_US;
+        return microsUtc >= 0 ? microsUtc / DAY_US : (microsUtc - DAY_US + 1) / DAY_US;
     }
 
     /// <summary>
@@ -77,7 +74,4 @@ public static partial class Module
     {
         return (long)(minutes * 60.0 * 1_000_000.0);
     }
-
-
-
 }

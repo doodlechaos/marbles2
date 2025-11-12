@@ -7,7 +7,5 @@ public static partial class Module
     {
         [PrimaryKey]
         public Identity AdminIdentity;
-
     }
 }
-

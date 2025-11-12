@@ -19,7 +19,6 @@ public static partial class Module
         public bool logAuthFrameTimeDiffs;
         public double gcCacheAccountTimeoutMinutes;
 
-
         public static void SetSingleton(ReducerContext ctx, BaseCfg baseCfg)
         {
             baseCfg.Id = 0;
@@ -36,7 +35,18 @@ public static partial class Module
             }
             else
             {
-                BaseCfg baseCfg = new BaseCfg { Id = 0, ClockIntervalSec = 0, targetStepsPerSecond = 0, physicsStepsPerBatch = 0, stepsPerAuthFrame = 0, authFrameTimeErrorThresholdSec = 0, logInputFrameTimes = false, logAuthFrameTimeDiffs = false, gcCacheAccountTimeoutMinutes = 0 };
+                BaseCfg baseCfg = new BaseCfg
+                {
+                    Id = 0,
+                    ClockIntervalSec = 1f / 60f,
+                    targetStepsPerSecond = 60,
+                    physicsStepsPerBatch = 60,
+                    stepsPerAuthFrame = 3,
+                    authFrameTimeErrorThresholdSec = 2.0 / 60.0,
+                    logInputFrameTimes = false,
+                    logAuthFrameTimeDiffs = false,
+                    gcCacheAccountTimeoutMinutes = 2.0,
+                };
                 SetSingleton(ctx, baseCfg);
                 return baseCfg;
             }
@@ -50,4 +60,3 @@ public static partial class Module
         ctx.Db.BaseCfg.Insert(row);
     }
 }
-

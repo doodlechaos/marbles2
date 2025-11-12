@@ -14,13 +14,13 @@ public static partial class Module
 
     private static void InitSchedules(ReducerContext ctx)
     {
-        var baseCfg = GetBaseCfg(ctx);
+        BaseCfg cfg = BaseCfg.GetSingleton(ctx);
 
         ctx.Db.ClockSchedule.Insert(
             new ClockSchedule
             {
                 Id = 0,
-                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(baseCfg.ClockIntervalSec))
+                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(cfg.ClockIntervalSec))
             }
         );
     }

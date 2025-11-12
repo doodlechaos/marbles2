@@ -1,5 +1,6 @@
-using SpacetimeDB;
 using GameCoreLib;
+using SpacetimeDB;
+
 public static partial class Module
 {
     [Table(Public = false)]
@@ -16,4 +17,3 @@ public static partial class Module
         ctx.Db.InputCollector.Insert(row);
     }
 }
-

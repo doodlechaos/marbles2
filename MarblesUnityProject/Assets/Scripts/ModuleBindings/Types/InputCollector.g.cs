@@ -15,21 +15,21 @@ namespace SpacetimeDB.Types
     {
         [DataMember(Name = "delaySeqs")]
         public ushort DelaySeqs;
-        [DataMember(Name = "inputEvent")]
-        public System.Collections.Generic.List<byte> InputEvent;
+        [DataMember(Name = "inputEventData")]
+        public System.Collections.Generic.List<byte> InputEventData;
 
         public InputCollector(
             ushort DelaySeqs,
-            System.Collections.Generic.List<byte> InputEvent
+            System.Collections.Generic.List<byte> InputEventData
         )
         {
             this.DelaySeqs = DelaySeqs;
-            this.InputEvent = InputEvent;
+            this.InputEventData = InputEventData;
         }
 
         public InputCollector()
         {
-            this.InputEvent = new();
+            this.InputEventData = new();
         }
     }
 }

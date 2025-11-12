@@ -11,9 +11,9 @@ public static partial class Module
 
         public static void Step(ReducerContext ctx)
         {
-            Seq seq = GetSingleton(ctx);
-            seq.Value = seq.Value.WrappingAdd(1);
-            Set(ctx, seq.Value);
+            ushort value = Get(ctx);
+            value = value.WrappingAdd(1);
+            Set(ctx, value);
         }
 
         public static void Set(ReducerContext ctx, ushort value)
@@ -22,19 +22,18 @@ public static partial class Module
             ctx.Db.Seq.Insert(new Seq { Id = 0, Value = value });
         }
 
-        public static Seq GetSingleton(ReducerContext ctx)
+        public static ushort Get(ReducerContext ctx)
         {
             var opt = ctx.Db.Seq.Id.Find(0);
             if (opt.HasValue)
             {
-                return opt.Value;
+                return opt.Value.Value;
             }
             else
             {
                 Set(ctx, 0);
-                return new Seq { Id = 0, Value = 0 };
+                return 0;
             }
         }
     }
 }
-

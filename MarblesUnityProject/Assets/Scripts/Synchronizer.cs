@@ -1,15 +1,22 @@
+using System.Collections.Generic;
 using GameCoreLib;
+using MemoryPack;
 using SpacetimeDB.Types;
 using UnityEngine;
-using MemoryPack;
-using System.Collections.Generic;
+
 public class Synchronizer : MonoBehaviour
 {
-    [SerializeField] private ushort safeSeqEdge;
-    [SerializeField] private ushort latestServerSeq;
+    [SerializeField]
+    private ushort safeSeqEdge;
 
-    [SerializeField] private ushort clientTargetSeq;
-    [SerializeField] private short targetToSafeEdgeDist;
+    [SerializeField]
+    private ushort latestServerSeq;
+
+    [SerializeField]
+    private ushort clientTargetSeq;
+
+    [SerializeField]
+    private short targetToSafeEdgeDist;
 
     private void FixedUpdate()
     {
@@ -18,21 +25,20 @@ public class Synchronizer : MonoBehaviour
         clientTargetSeq = clientTargetSeq.LerpTo(safeSeqEdge, 0.1f);
         targetToSafeEdgeDist = clientTargetSeq.ClosestDiffTo(safeSeqEdge);
 
-        ushort clientSeq = GameManager.Inst.GameCore.Seq;
-
-        while (clientSeq.IsBehind(clientTargetSeq))
+        while (GameManager.Inst.GameCore.Seq.IsBehind(clientTargetSeq))
         {
-            InputFrame inputFrame = FindInputFrame(clientSeq);
+            InputFrame inputFrame = FindInputFrame(GameManager.Inst.GameCore.Seq);
             if (inputFrame == null)
             {
-                Debug.LogError("No input frame found for seq " + clientSeq);
+                Debug.LogError("No input frame found for seq " + GameManager.Inst.GameCore.Seq);
                 break;
             }
 
-            List<InputEvent> inputEvents = MemoryPackSerializer.Deserialize<List<InputEvent>>(inputFrame.InputEventsList);
+            List<InputEvent> inputEvents = MemoryPackSerializer.Deserialize<List<InputEvent>>(
+                inputFrame.InputEventsList.ToArray()
+            );
 
             GameManager.Inst.GameCore.Step(inputEvents);
-
         }
     }
 
@@ -61,5 +67,4 @@ public class Synchronizer : MonoBehaviour
         }
         return null;
     }
-
 }
