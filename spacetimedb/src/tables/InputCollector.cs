@@ -6,8 +6,7 @@ public static partial class Module
     public partial struct InputCollector
     {
         public ushort delaySeqs;
-        // Serialized input event as bytes - should be replaced with actual InputEvent type when available
-        public byte[] inputEvent;
+        public byte[] inputEventData;
     }
 
     [Reducer]

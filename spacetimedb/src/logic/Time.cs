@@ -279,18 +279,5 @@ public static partial class Module
         ctx.Db.BaseCfg.Insert(baseCfg);
     }
 
-    // Utility methods
-    private static uint SaturatingAdd(uint a, uint b)
-    {
-        if (uint.MaxValue - a < b)
-            return uint.MaxValue;
-        return a + b;
-    }
 
-    private static ushort SaturatingAdd(ushort a, ushort b)
-    {
-        if (ushort.MaxValue - a < b)
-            return ushort.MaxValue;
-        return (ushort)(a + b);
-    }
 }

@@ -197,7 +197,7 @@ public static partial class Module
                         }
                         
                         var account = accountOpt.Value;
-                        account.Points = SaturatingAdd(account.Points, outputEvent.Points);
+                        account.Points = account.Points.SaturatingAdd(outputEvent.Points);
                         ctx.Db.Account.Id.Update(account);
                         break;
                     }
@@ -248,14 +248,14 @@ public static partial class Module
             
             if (row.delaySeqs <= 0)
             {
-                eventsList.Add(row.inputEvent);
+                eventsList.Add(row.inputEventData);
             }
             else
             {
                 ctx.Db.InputCollector.Insert(new InputCollector
                 {
                     delaySeqs = (ushort)Math.Max(0, row.delaySeqs - 1),
-                    inputEvent = row.inputEvent
+                    inputEventData = row.inputEventData
                 });
             }
         }
@@ -298,8 +298,8 @@ public static partial class Module
             }
         }
 
-        SetStepsSinceLastBatch(ctx, SaturatingAdd(GetStepsSinceLastBatch(ctx), 1));
-        SetStepsSinceLastAuthFrame(ctx, SaturatingAdd(GetStepsSinceLastAuthFrame(ctx), 1));
+        SetStepsSinceLastBatch(ctx, GetStepsSinceLastBatch(ctx).WrappingAdd(1));
+        SetStepsSinceLastAuthFrame(ctx, GetStepsSinceLastAuthFrame(ctx).WrappingAdd(1));
     }
 
     // Placeholder for game manager operations

@@ -82,7 +82,7 @@ public class RuntimeRenderer : MonoBehaviour
     /// </summary>
     public void RenderFromGameManager()
     {
-        if (GameManager.Instance == null)
+        if (GameManager.Inst == null)
         {
             Debug.LogError("GameManager.Instance is null");
             return;
@@ -92,11 +92,11 @@ public class RuntimeRenderer : MonoBehaviour
         
         if (GameTileId == 1)
         {
-            tile = GameManager.Instance.GameCore.GameTile1;
+            tile = GameManager.Inst.GameCore.GameTile1;
         }
         else if (GameTileId == 2)
         {
-            tile = GameManager.Instance.GameCore.GameTile2;
+            tile = GameManager.Inst.GameCore.GameTile2;
         }
 
         if (tile != null)

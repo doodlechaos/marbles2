@@ -1,19 +1,24 @@
 
 
 using MemoryPack;
+using System.Collections.Generic;
 
 namespace GameCoreLib
 {
     [MemoryPackable]
     public partial class GameCore
     {
+        public ushort Seq;
+
         public GameTile GameTile1 = new GameTile(1);
         public GameTile GameTile2 = new GameTile(2);
 
 
-        private void Step(){
+        public void Step(List<InputEvent> inputEvents){
             GameTile1.Step();
             GameTile2.Step();
+
+            Seq = Seq.WrappingAdd(1);
         }
     }
 }

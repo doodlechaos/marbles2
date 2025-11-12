@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     public static event Action OnConnected;
     public static event Action OnSubscriptionApplied;
 
-    public static GameManager Instance { get; private set; }
+    public static GameManager Inst { get; private set; }
     public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
 
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
-        Instance = this;
+        Inst = this;
         Application.targetFrameRate = 60;
 
         // In order to build a connection to SpacetimeDB we need to register
@@ -163,11 +163,7 @@ public class GameManager : MonoBehaviour
         Conn = null;
     }
 
-    public void CallTestMethod()
-    {
-        Conn.Reducers.TestReducer();
-        Debug.Log("Calling test reducer"); 
-    }
+
 
     [ProButton]
     public void TestSerializeGameCore()
