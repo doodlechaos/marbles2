@@ -320,12 +320,6 @@ public static partial class Module
         StepsSinceLastAuthFrame.Inc(ctx);
     }
 
-    // Placeholder for game tile operations
-    private static void CloseAndCycleGameTile(ReducerContext ctx, byte worldId)
-    {
-        // TODO: Implement game tile closing and cycling logic
-        Log.Info($"Closing and cycling game tile for world {worldId}");
-    }
 }
 
 // Placeholder structs - these should be properly defined based on your game logic
