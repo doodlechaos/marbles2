@@ -1,7 +1,7 @@
-using UnityEngine;
-using GameCoreLib;
 using System.Collections.Generic;
 using FPMathLib;
+using GameCoreLib;
+using UnityEngine;
 
 public class RuntimeRenderer : MonoBehaviour
 {
@@ -89,7 +89,7 @@ public class RuntimeRenderer : MonoBehaviour
         }
 
         GameTile tile = null;
-        
+
         if (GameTileId == 1)
         {
             tile = GameManager.Inst.GameCore.GameTile1;
@@ -133,7 +133,7 @@ public class RuntimeRenderer : MonoBehaviour
 
         // Look up prefab by RenderPrefabID
         GameObject prefabToInstantiate = GetPrefabByID(runtimeObj.RenderPrefabID);
-        
+
         if (prefabToInstantiate != null)
         {
             // Instantiate the prefab
@@ -147,7 +147,7 @@ public class RuntimeRenderer : MonoBehaviour
             // No prefab (ID -1 or invalid ID), create empty GameObject
             visualObj = new GameObject(runtimeObj.Name);
             visualObj.transform.SetParent(parentTransform);
-            
+
             if (ShowDebugInfo && runtimeObj.RenderPrefabID >= 0)
             {
                 Debug.LogWarning($"RenderPrefabID {runtimeObj.RenderPrefabID} is invalid for '{runtimeObj.Name}'. Creating empty GameObject.");
@@ -294,7 +294,7 @@ public class RuntimeRenderer : MonoBehaviour
 
         // Draw physics bodies for debugging
         Gizmos.color = Color.green;
-        
+
         foreach (var body in gameTile.Sim.Bodies)
         {
             Vector3 pos = new Vector3(
@@ -310,7 +310,7 @@ public class RuntimeRenderer : MonoBehaviour
                     (body.BoxShape.HalfHeight * FP.Two).ToFloat(),
                     0.1f
                 );
-                
+
                 Quaternion rot = Quaternion.Euler(0, 0, body.Rotation.ToFloat() * Mathf.Rad2Deg);
                 Matrix4x4 matrix = Matrix4x4.TRS(pos, rot, Vector3.one);
                 Gizmos.matrix = matrix;

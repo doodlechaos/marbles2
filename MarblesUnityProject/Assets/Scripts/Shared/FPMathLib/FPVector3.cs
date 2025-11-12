@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
+using MemoryPack;
 using Newtonsoft.Json;
-using MemoryPack; 
 
 namespace FPMathLib
 {

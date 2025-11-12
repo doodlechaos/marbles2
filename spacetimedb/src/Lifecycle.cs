@@ -15,9 +15,10 @@ public static partial class Module
     private static void InitSchedules(ReducerContext ctx)
     {
         var baseCfg = GetBaseCfg(ctx);
-        
+
         ctx.Db.ClockSchedule.Insert(
-            new ClockSchedule {
+            new ClockSchedule
+            {
                 Id = 0,
                 ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(baseCfg.ClockIntervalSec))
             }

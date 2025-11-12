@@ -25,7 +25,7 @@ public static class AccountSeqHelper
     {
         var accountSeqOpt = ctx.Db.AccountSeq.IdS.Find(0);
         Module.AccountSeq accountSeq;
-        
+
         if (accountSeqOpt.HasValue)
         {
             accountSeq = accountSeqOpt.Value;

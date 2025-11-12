@@ -1,10 +1,10 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
-using UnityEngine;
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using LockSim;
 using FPMathLib;
+using LockSim;
+using UnityEditor;
+using UnityEngine;
 
 public class LockSimTestWindow : EditorWindow
 {
@@ -25,13 +25,14 @@ public class LockSimTestWindow : EditorWindow
     }
 
     private void OnEnable()
-    { 
+    {
         InitTests();
     }
 
     private void InitTests()
     {
-        if (_tests.Count > 0) return;
+        if (_tests.Count > 0)
+            return;
 
         _tests.Add(new TestCase("Fixed-Point Math", TestFixedPointMath));
         _tests.Add(new TestCase("Vector2 Math", TestVector2Math));
@@ -95,7 +96,9 @@ public class LockSimTestWindow : EditorWindow
             if (_ranOnce)
             {
                 int passed = 0;
-                foreach (var r in _results) if (r.Passed) passed++;
+                foreach (var r in _results)
+                    if (r.Passed)
+                        passed++;
                 GUILayout.Label($"Last run: {_lastRunUtc.ToLocalTime():G}", EditorStyles.miniLabel);
                 GUILayout.FlexibleSpace();
                 GUILayout.Label($"{passed}/{_results.Count} passed", EditorStyles.miniBoldLabel);
@@ -153,7 +156,10 @@ public class LockSimTestWindow : EditorWindow
         }
 
         // Optionally also log a compact summary to the Console:
-        int pass = 0; foreach (var r in _results) if (r.Passed) pass++;
+        int pass = 0;
+        foreach (var r in _results)
+            if (r.Passed)
+                pass++;
         Debug.Log($"[LockSim] Test run complete: {pass}/{_results.Count} passed.");
         Repaint();
     }
@@ -237,16 +243,16 @@ public class LockSimTestWindow : EditorWindow
         // Spawn 20 random rigid bodies inside
         int seed = 12345;
         System.Random random = new System.Random(seed);
-        
+
         for (int i = 0; i < 20; i++)
         {
             FP x = FP.FromFloat((float)(random.NextDouble() * 16 - 8));
             FP y = FP.FromFloat((float)(random.NextDouble() * 16 - 8));
             FP rotation = FP.FromFloat((float)(random.NextDouble() * 6.28));
             FP mass = FP.FromFloat((float)(random.NextDouble() * 2 + 0.5));
-            
+
             var body = RigidBodyLS.CreateDynamic(0, FPVector2.FromFloats(x.ToFloat(), y.ToFloat()), rotation, mass);
-            
+
             if (random.Next(2) == 0)
             {
                 FP size = FP.FromFloat((float)(random.NextDouble() * 0.5 + 0.3));
@@ -257,7 +263,7 @@ public class LockSimTestWindow : EditorWindow
                 FP radius = FP.FromFloat((float)(random.NextDouble() * 0.5 + 0.3));
                 body.SetCircleShape(radius);
             }
-            
+
             world.AddBody(body);
         }
 
@@ -291,7 +297,7 @@ public class LockSimTestWindow : EditorWindow
 
         // Check if this hash of the world state matches the previous
         string hash2 = world.GetWorldHash();
-        
+
         t.Expect(hash1 == hash2, $"World state after snapshot restore should match (hash1: {hash1.Substring(0, 16)}..., hash2: {hash2.Substring(0, 16)}...)");
     }
 
@@ -411,13 +417,15 @@ public class LockSimTestWindow : EditorWindow
 
         public void Expect(bool condition, string message)
         {
-            if (!condition) Fail(message);
+            if (!condition)
+                Fail(message);
         }
 
         public void ExpectNear(FP a, FP b, float tolerance, string message)
         {
             float diff = Mathf.Abs(a.ToFloat() - b.ToFloat());
-            if (diff > tolerance) Fail($"{message} (expected {b.ToFloat():F4}, got {a.ToFloat():F4}, tol {tolerance})");
+            if (diff > tolerance)
+                Fail($"{message} (expected {b.ToFloat():F4}, got {a.ToFloat():F4}, tol {tolerance})");
         }
 
         public void Fail(string message)

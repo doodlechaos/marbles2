@@ -1,7 +1,7 @@
 namespace LockSim
 {
-    using FPMathLib;
     using System.Collections.Generic;
+    using FPMathLib;
     public static class ConstraintSolver
     {
         public static void SolveContacts(World world, FP deltaTime, WorldSimulationContext context)
@@ -15,7 +15,7 @@ namespace LockSim
                 for (int i = 0; i < contacts.Count; i++)
                 {
                     ContactManifold contact = contacts[i];
-                    
+
                     RigidBodyLS bodyA = GetBodyById(bodies, contact.BodyAId);
                     RigidBodyLS bodyB = GetBodyById(bodies, contact.BodyBId);
 
@@ -23,7 +23,7 @@ namespace LockSim
                     for (int cp = 0; cp < contact.ContactCount; cp++)
                     {
                         FPVector2 contactPoint = cp == 0 ? contact.ContactPoint1 : contact.ContactPoint2;
-                        
+
                         SolveContactPoint(ref bodyA, ref bodyB, contactPoint, contact.Normal);
                     }
 
@@ -39,7 +39,7 @@ namespace LockSim
                 for (int i = 0; i < contacts.Count; i++)
                 {
                     ContactManifold contact = contacts[i];
-                    
+
                     RigidBodyLS bodyA = GetBodyById(bodies, contact.BodyAId);
                     RigidBodyLS bodyB = GetBodyById(bodies, contact.BodyBId);
 
@@ -51,7 +51,7 @@ namespace LockSim
             }
         }
 
-        private static void SolveContactPoint(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB, 
+        private static void SolveContactPoint(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB,
             FPVector2 contactPoint, FPVector2 normal)
         {
             // Contact vectors from center of mass to contact point
@@ -76,7 +76,7 @@ namespace LockSim
             // Calculate impulse scalar
             FP rAcrossN = FPVector2.Cross(rA, normal);
             FP rBcrossN = FPVector2.Cross(rB, normal);
-            
+
             FP invMassSum = bodyA.InverseMass + bodyB.InverseMass +
                            rAcrossN * rAcrossN * bodyA.InverseInertia +
                            rBcrossN * rBcrossN * bodyB.InverseInertia;
@@ -128,14 +128,14 @@ namespace LockSim
             }
         }
 
-        private static void PositionCorrection(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB, 
+        private static void PositionCorrection(ref RigidBodyLS bodyA, ref RigidBodyLS bodyB,
             FPVector2 normal, FP penetration)
         {
             const float slop = 0.01f; // Penetration allowance
             const float percent = 0.4f; // Penetration correction percentage
 
             FP correctionAmount = FPMath.Max(penetration - FP.FromFloat(slop), FP.Zero) * FP.FromFloat(percent);
-            
+
             FP totalInverseMass = bodyA.InverseMass + bodyB.InverseMass;
             if (totalInverseMass <= FP.Epsilon)
                 return;
@@ -144,7 +144,7 @@ namespace LockSim
 
             if (bodyA.BodyType == BodyType.Dynamic)
                 bodyA.Position = bodyA.Position - correction * bodyA.InverseMass;
-            
+
             if (bodyB.BodyType == BodyType.Dynamic)
                 bodyB.Position = bodyB.Position + correction * bodyB.InverseMass;
         }

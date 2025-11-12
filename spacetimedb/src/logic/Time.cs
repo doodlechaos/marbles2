@@ -1,5 +1,5 @@
-using SpacetimeDB;
 using System;
+using SpacetimeDB;
 
 public static partial class Module
 {
@@ -15,7 +15,7 @@ public static partial class Module
         // Calculate delta time since last update
 
         TimeDuration deltaTime = ctx.Timestamp.TimeDurationSince(clock.PrevClockUpdate);
-        
+
         // Clamp the max delta time to 1 second (crucial to avoid a long catchup if stopping and starting locally)
         var deltaSeconds = deltaTime.ToSeconds();
         if (deltaSeconds > 1.0)
@@ -48,8 +48,8 @@ public static partial class Module
     public static long DayIndexUtcMidnight(long microsUtc)
     {
         // Use Math.DivRem for proper Euclidean division
-        return microsUtc >= 0 
-            ? microsUtc / DAY_US 
+        return microsUtc >= 0
+            ? microsUtc / DAY_US
             : (microsUtc - DAY_US + 1) / DAY_US;
     }
 
@@ -224,10 +224,10 @@ public static partial class Module
         }
         else
         {
-            ctx.Db.LastAuthFrameTimestamp.Insert(new LastAuthFrameTimestamp 
-            { 
-                Id = 0, 
-                LastAuthFrameTime = timestamp ?? default 
+            ctx.Db.LastAuthFrameTimestamp.Insert(new LastAuthFrameTimestamp
+            {
+                Id = 0,
+                LastAuthFrameTime = timestamp ?? default
             });
         }
     }

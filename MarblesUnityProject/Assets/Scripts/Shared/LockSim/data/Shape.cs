@@ -1,5 +1,5 @@
-using FPMathLib;
 using System;
+using FPMathLib;
 
 namespace LockSim
 {

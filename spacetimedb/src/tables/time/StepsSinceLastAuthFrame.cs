@@ -9,7 +9,8 @@ public static partial class Module
         public byte Id; //u8
         public ushort Value; //u16
 
-        public static void SetSingleton(ReducerContext ctx, ushort value){
+        public static void SetSingleton(ReducerContext ctx, ushort value)
+        {
             var opt = ctx.Db.StepsSinceLastAuthFrame.Id.Find(0);
             if (opt.HasValue)
             {

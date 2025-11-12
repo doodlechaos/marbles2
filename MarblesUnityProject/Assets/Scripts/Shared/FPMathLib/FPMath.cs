@@ -29,8 +29,10 @@ namespace FPMathLib
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FP Clamp(FP value, FP min, FP max)
         {
-            if (value.RawValue < min.RawValue) return min;
-            if (value.RawValue > max.RawValue) return max;
+            if (value.RawValue < min.RawValue)
+                return min;
+            if (value.RawValue > max.RawValue)
+                return max;
             return value;
         }
 
@@ -38,14 +40,15 @@ namespace FPMathLib
         {
             if (value.RawValue < 0)
                 return FP.Zero;
-            
+
             if (value.RawValue == 0)
                 return FP.Zero;
 
             // Newton-Raphson method for fixed-point square root
             long x = value.RawValue;
             long guess = x >> 1;
-            if (guess == 0) guess = 1;
+            if (guess == 0)
+                guess = 1;
 
             for (int i = 0; i < 10; i++)
             {
@@ -75,8 +78,10 @@ namespace FPMathLib
         {
             // Normalize angle to 0-2PI range
             FP twoPi = FP.Pi * FP.Two;
-            while (angle.RawValue < 0) angle = angle + twoPi;
-            while (angle >= twoPi) angle = angle - twoPi;
+            while (angle.RawValue < 0)
+                angle = angle + twoPi;
+            while (angle >= twoPi)
+                angle = angle - twoPi;
 
             // Convert to lookup table index (0-255 for full circle)
             FP normalized = angle * FP.FromInt(256) / twoPi;
@@ -112,8 +117,10 @@ namespace FPMathLib
             // Simple approximation for atan2
             if (x == FP.Zero)
             {
-                if (y > FP.Zero) return FP.PiOver2;
-                if (y < FP.Zero) return -FP.PiOver2;
+                if (y > FP.Zero)
+                    return FP.PiOver2;
+                if (y < FP.Zero)
+                    return -FP.PiOver2;
                 return FP.Zero;
             }
 
@@ -144,8 +151,10 @@ namespace FPMathLib
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FP Sign(FP value)
         {
-            if (value.RawValue > 0) return FP.One;
-            if (value.RawValue < 0) return FP.MinusOne;
+            if (value.RawValue > 0)
+                return FP.One;
+            if (value.RawValue < 0)
+                return FP.MinusOne;
             return FP.Zero;
         }
 

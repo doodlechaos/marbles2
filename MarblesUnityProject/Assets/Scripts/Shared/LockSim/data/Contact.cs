@@ -1,5 +1,5 @@
-using FPMathLib;
 using System;
+using FPMathLib;
 
 namespace LockSim
 {
@@ -30,7 +30,7 @@ namespace LockSim
         public FPVector2 Normal; // Points from A to B
         public FP Penetration;
         public int ContactCount;
-        
+
         // Support up to 2 contact points (common for box-box)
         public FPVector2 ContactPoint1;
         public FPVector2 ContactPoint2;

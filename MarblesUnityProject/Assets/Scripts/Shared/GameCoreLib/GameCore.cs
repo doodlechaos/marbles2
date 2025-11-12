@@ -1,7 +1,7 @@
 
 
-using MemoryPack;
 using System.Collections.Generic;
+using MemoryPack;
 
 namespace GameCoreLib
 {
@@ -14,7 +14,8 @@ namespace GameCoreLib
         public GameTile GameTile2 = new GameTile(2);
 
 
-        public void Step(List<InputEvent> inputEvents){
+        public void Step(List<InputEvent> inputEvents)
+        {
             GameTile1.Step();
             GameTile2.Step();
 

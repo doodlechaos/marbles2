@@ -36,7 +36,8 @@ public static class UShortExtensions
         int s = self & 0xFFFF;
         int o = other & 0xFFFF;
         int diff = (o - s) & 0xFFFF;
-        if (diff > 0x7FFF) diff -= 0x10000;
+        if (diff > 0x7FFF)
+            diff -= 0x10000;
         return (short)diff;
     }
 

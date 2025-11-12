@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
 using MemoryPack;
+using Newtonsoft.Json;
 
 namespace FPMathLib
 {
@@ -171,7 +171,7 @@ namespace FPMathLib
         public static FPQuaternion Slerp(FPQuaternion a, FPQuaternion b, FP t)
         {
             t = FPMath.Clamp(t, FP.Zero, FP.One);
-            
+
             FP dot = Dot(a, b);
 
             // If the dot product is negative, slerp won't take the shorter path

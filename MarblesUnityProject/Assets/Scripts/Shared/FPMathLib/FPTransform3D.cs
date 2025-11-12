@@ -9,7 +9,7 @@ namespace FPMathLib
     /// Deterministic fixed-point 3D transform similar to Unity's Transform component
     /// Supports position, rotation (quaternion), and scale with parent-child hierarchy
     /// </summary>
-   
+
     [JsonObject(MemberSerialization.OptIn)]
     [MemoryPackable(SerializeLayout.Explicit)]
     public partial class FPTransform3D
@@ -366,9 +366,9 @@ namespace FPMathLib
         public FP[] GetMatrix()
         {
             UpdateWorldTransform();
-            
+
             FP[] matrix = new FP[16];
-            
+
             // Extract rotation components
             FP x = _worldRotation.X;
             FP y = _worldRotation.Y;

@@ -1,5 +1,5 @@
-using FPMathLib;
 using System.Collections.Generic;
+using FPMathLib;
 
 namespace LockSim
 {

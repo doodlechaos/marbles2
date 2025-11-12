@@ -1,7 +1,7 @@
-using SpacetimeDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SpacetimeDB;
 
 public static partial class Module
 {
@@ -44,10 +44,10 @@ public static partial class Module
         if (lastTimestamp.HasValue)
         {
             var elapsed = ctx.Timestamp.TimeDurationSince(lastTimestamp.Value);
-            
+
 
             double expectedIntervalSec = (double)cfg.stepsPerAuthFrame / (double)cfg.targetStepsPerSecond;
-            double actualIntervalSec = elapsed.ToSeconds(); 
+            double actualIntervalSec = elapsed.ToSeconds();
             double errorSec = Math.Abs(actualIntervalSec - expectedIntervalSec);
 
             if (cfg.logAuthFrameTimeDiffs)
@@ -60,7 +60,7 @@ public static partial class Module
                 Log.Error($"Auth frame interval deviated by {errorSec:F6}s (actual {actualIntervalSec:F6}s, expected {expectedIntervalSec:F6}s, threshold {cfg.authFrameTimeErrorThresholdSec:F6}s). last_timestamp: {lastTimestamp.Value}, ctx.timestamp: {ctx.Timestamp}");
             }
         }
-        
+
 
         SetLastAuthFrameTimestamp(ctx, ctx.Timestamp);
 
@@ -72,7 +72,7 @@ public static partial class Module
             Seq = GetSeq(ctx),
             Frames = inputFrames
         };
-        
+
         ctx.Db.AuthFrame.Seq.Delete(authFrame.Seq);
         ctx.Db.AuthFrame.Insert(authFrame);
 
@@ -138,7 +138,7 @@ public static partial class Module
         {
             var simSeq = WrappingAdd(batchStartSeq, s);
             var inputFrameOpt = ctx.Db.InputFrame.Seq.Find(simSeq);
-            
+
             byte[] events;
             if (inputFrameOpt.HasValue)
             {
@@ -148,7 +148,7 @@ public static partial class Module
             {
                 events = Array.Empty<byte>();
             }
-            
+
             batchEvents.Add(events);
         }
 
@@ -185,7 +185,7 @@ public static partial class Module
         foreach (var outputEvent in outputEvents)
         {
             Log.Info($"Processing output event in server: {outputEvent.EventType}");
-            
+
             switch (outputEvent.EventType)
             {
                 case OutputToSTDBEventType.AddPointsToAccount:
@@ -195,7 +195,7 @@ public static partial class Module
                         {
                             throw new Exception($"Account {outputEvent.AccountId} not found");
                         }
-                        
+
                         var account = accountOpt.Value;
                         account.Points = account.Points.SaturatingAdd(outputEvent.Points);
                         ctx.Db.Account.Id.Update(account);
@@ -236,7 +236,7 @@ public static partial class Module
         StepSeq(ctx);
 
         var cfg = GetBaseCfg(ctx);
-        
+
         // Move all the collected inputs into the public input chain table
         var rows = ctx.Db.InputCollector.Iter().ToList();
 
@@ -245,7 +245,7 @@ public static partial class Module
         foreach (var row in rows)
         {
             ctx.Db.InputCollector.Delete(row);
-            
+
             if (row.delaySeqs <= 0)
             {
                 eventsList.Add(row.inputEventData);
@@ -262,7 +262,7 @@ public static partial class Module
 
         // Serialize all events into a single byte array
         var serializedEvents = SerializeEventsList(eventsList);
-        
+
         var newInputFrame = new InputFrame
         {
             Seq = GetSeq(ctx),
@@ -288,7 +288,7 @@ public static partial class Module
         {
             var publicSnapshot = publicSnapshotOpt.Value;
             var allInputFrames = ctx.Db.InputFrame.Iter().ToList();
-            
+
             foreach (var frame in allInputFrames)
             {
                 if (IsBehind(frame.Seq, publicSnapshot.Seq))
@@ -333,7 +333,7 @@ public static partial class Module
         // For now, just concatenate or return empty
         if (events.Count == 0)
             return Array.Empty<byte>();
-        
+
         // Simple concatenation (replace with proper serialization)
         var totalLength = events.Sum(e => e.Length);
         var result = new byte[totalLength];

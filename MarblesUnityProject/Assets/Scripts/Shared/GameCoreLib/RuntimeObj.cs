@@ -1,17 +1,17 @@
+using System;
+using System.Collections.Generic;
 using FPMathLib;
 using LockSim;
 using MemoryPack;
-using System;
-using System.Collections.Generic;
 
 namespace GameCoreLib
 {
     [MemoryPackable]
-    public partial class RuntimeObj 
+    public partial class RuntimeObj
     {
         public string Name;
         //[MemoryPackIgnore]
-       // public RuntimeObj Parent;
+        // public RuntimeObj Parent;
         public List<RuntimeObj> Children;
 
         public FPTransform3D Transform;

@@ -15,7 +15,7 @@ public class Synchronizer : MonoBehaviour
     {
         RefreshSafeSeqEdge();
 
-        clientTargetSeq = clientTargetSeq.LerpTo(safeSeqEdge, 0.1f); 
+        clientTargetSeq = clientTargetSeq.LerpTo(safeSeqEdge, 0.1f);
         targetToSafeEdgeDist = clientTargetSeq.ClosestDiffTo(safeSeqEdge);
 
         ushort clientSeq = GameManager.Inst.GameCore.Seq;
@@ -25,7 +25,7 @@ public class Synchronizer : MonoBehaviour
             InputFrame inputFrame = FindInputFrame(clientSeq);
             if (inputFrame == null)
             {
-                Debug.LogError("No input frame found for seq " +  clientSeq);
+                Debug.LogError("No input frame found for seq " + clientSeq);
                 break;
             }
 
@@ -35,7 +35,8 @@ public class Synchronizer : MonoBehaviour
 
     private void RefreshSafeSeqEdge()
     {
-        while(true){
+        while (true)
+        {
             ushort nextSeq = safeSeqEdge.WrappingAdd(1);
             if (FindInputFrame(nextSeq) == null)
             {
@@ -49,13 +50,13 @@ public class Synchronizer : MonoBehaviour
     {
         foreach (AuthFrame authFrame in GameManager.Conn.Db.AuthFrame.Iter())
         {
-            foreach(InputFrame inputFrame in authFrame.Frames)
+            foreach (InputFrame inputFrame in authFrame.Frames)
             {
-                if(inputFrame.Seq == seq)
+                if (inputFrame.Seq == seq)
                     return inputFrame;
             }
         }
-        return null; 
+        return null;
     }
 
 }

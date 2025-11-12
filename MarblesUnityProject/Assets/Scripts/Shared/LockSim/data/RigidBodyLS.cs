@@ -1,8 +1,8 @@
 
 namespace LockSim
 {
-    using FPMathLib;
     using System;
+    using FPMathLib;
     using MemoryPack;
 
     public enum BodyType : byte
@@ -72,7 +72,7 @@ namespace LockSim
         public static RigidBodyLS CreateDynamic(int id, FPVector2 position, FP rotation, FP mass)
         {
             FP invMass = mass > FP.Zero ? FP.One / mass : FP.Zero;
-            
+
             return new RigidBodyLS
             {
                 Id = id,

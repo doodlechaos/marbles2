@@ -52,7 +52,7 @@ public static class AccountHelper
             DailyRewardClaimStreak = 0,
             LastDailyRewardClaimDay = 0
         };
-        
+
         return ctx.Db.Account.Insert(newAccount);
     }
 

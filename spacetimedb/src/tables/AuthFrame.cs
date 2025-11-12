@@ -1,5 +1,5 @@
-using SpacetimeDB;
 using System.Collections.Generic;
+using SpacetimeDB;
 
 public static partial class Module
 {

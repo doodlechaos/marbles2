@@ -9,7 +9,7 @@ public static partial class Module
         public byte Id;
 
         public double ClockIntervalSec; // Seconds between clock ticks
-        
+
         // Physics
         public ushort targetStepsPerSecond;
         public ushort physicsStepsPerBatch;

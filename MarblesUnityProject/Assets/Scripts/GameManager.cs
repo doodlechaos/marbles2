@@ -1,11 +1,11 @@
-using SpacetimeDB.Types;
-using SpacetimeDB;
 using System;
-using UnityEngine;
-using GameCoreLib;
-using com.cyborgAssets.inspectorButtonPro;
 using System.IO;
+using com.cyborgAssets.inspectorButtonPro;
+using GameCoreLib;
 using MemoryPack;
+using SpacetimeDB;
+using SpacetimeDB.Types;
+using UnityEngine;
 
 
 public class GameManager : MonoBehaviour
@@ -23,8 +23,8 @@ public class GameManager : MonoBehaviour
     public GameCore GameCore = new GameCore();
 
     public string Game1JSON_PATH;
-    
-    public RuntimeRenderer RuntimeRenderer; 
+
+    public RuntimeRenderer RuntimeRenderer;
 
     private void Awake()
     {
@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
 
         GameCore.GameTile1.Load(json);
         Debug.Log("Done Loading Tile1 Test");
-        
+
         // Automatically render the loaded tile if renderer is assigned
         if (RuntimeRenderer != null)
         {

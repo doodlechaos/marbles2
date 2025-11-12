@@ -10,9 +10,9 @@ namespace com.cyborgAssets.inspectorButtonPro
     /// </summary>
     public class ButtonScriptableObject : ScriptableObject
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [SerializeField, HideInInspector]
         private SerializedMethod[] serializedMethods;
-        #endif
+#endif
     }
 }

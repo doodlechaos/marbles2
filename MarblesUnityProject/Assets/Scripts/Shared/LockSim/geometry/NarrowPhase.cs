@@ -90,7 +90,7 @@ namespace LockSim
                 return false;
 
             FP dist = FPMath.Sqrt(distSqr);
-            
+
             if (dist > FP.Epsilon)
             {
                 manifold.Normal = delta / dist;
@@ -102,7 +102,7 @@ namespace LockSim
             }
 
             manifold.Penetration = radiusSum - dist;
-            
+
             // Contact point is on the line between centers
             FPVector2 contactPoint = bodyA.Position + manifold.Normal * radiusA;
             manifold.AddContact(contactPoint);
@@ -134,10 +134,10 @@ namespace LockSim
             for (int i = 0; i < 4; i++)
             {
                 FPVector2 axis = axes[i];
-                
+
                 // Project boxes onto axis
                 FP penetration = ProjectAndCheckOverlap(ref bodyA, ref bodyB, axis);
-                
+
                 if (penetration <= FP.Zero)
                     return false; // Separating axis found
 
@@ -245,7 +245,7 @@ namespace LockSim
             FP hh = body.BoxShape.HalfHeight;
 
             FPVector2[] corners = new FPVector2[4];
-            
+
             // Local corners
             FPVector2 c0 = new FPVector2(-hw, -hh);
             FPVector2 c1 = new FPVector2(hw, -hh);

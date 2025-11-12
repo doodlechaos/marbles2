@@ -14,7 +14,7 @@ namespace FPMathLib
         public const int SHIFT = 16;
         public const int FRACTIONAL_BITS = 16;
         public const long ONE_RAW = 1L << SHIFT;
-        
+
         public long RawValue;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

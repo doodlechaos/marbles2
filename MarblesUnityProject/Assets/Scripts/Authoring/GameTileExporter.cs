@@ -1,11 +1,11 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using FPMathLib;
+using GameCoreLib;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using GameCoreLib;
-using FPMathLib;
-using Newtonsoft.Json;
 
 public class GameTileExporter : EditorWindow
 {
@@ -120,16 +120,16 @@ public class GameTileExporter : EditorWindow
     {
         // Find RuntimeRenderer in the scene
         cachedRuntimeRenderer = FindFirstObjectByType<RuntimeRenderer>();
-        
+
         if (cachedRuntimeRenderer == null)
         {
             return false;
         }
 
         // Use reflection to access the private renderPrefabs field
-        var renderPrefabsField = typeof(RuntimeRenderer).GetField("renderPrefabs", 
+        var renderPrefabsField = typeof(RuntimeRenderer).GetField("renderPrefabs",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        
+
         if (renderPrefabsField != null)
         {
             cachedRenderPrefabs = renderPrefabsField.GetValue(cachedRuntimeRenderer) as List<GameObject>;
@@ -151,7 +151,7 @@ public class GameTileExporter : EditorWindow
 
         // Get the source prefab of this GameObject (if it's a prefab instance)
         GameObject sourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(go);
-        
+
         // If no source prefab, check if the GameObject itself is a prefab asset
         if (sourcePrefab == null)
         {
@@ -163,8 +163,8 @@ public class GameTileExporter : EditorWindow
         {
             for (int i = 0; i < cachedRenderPrefabs.Count; i++)
             {
-                if (cachedRenderPrefabs[i] != null && 
-                    (cachedRenderPrefabs[i] == sourcePrefab || 
+                if (cachedRenderPrefabs[i] != null &&
+                    (cachedRenderPrefabs[i] == sourcePrefab ||
                      PrefabUtility.GetCorrespondingObjectFromSource(cachedRenderPrefabs[i]) == sourcePrefab))
                 {
                     // Return 0-based index
@@ -172,7 +172,7 @@ public class GameTileExporter : EditorWindow
                 }
             }
         }
-        
+
         // Default to -1 (no prefab / empty GameObject)
         return -1;
     }
@@ -210,7 +210,8 @@ public class GameTileExporter : EditorWindow
         foreach (Component component in allComponents)
         {
             // Skip Transform component as we handle it separately
-            if (component is Transform) continue;
+            if (component is Transform)
+                continue;
 
             GameCoreLib.ComponentData compData = new GameCoreLib.ComponentData
             {
