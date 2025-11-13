@@ -14,6 +14,9 @@ public class Synchronizer : MonoBehaviour
     private ushort latestServerSeq;
 
     [SerializeField]
+    private ushort oldestSeq;
+
+    [SerializeField]
     private ushort clientTargetSeq;
 
     [SerializeField]
@@ -26,11 +29,15 @@ public class Synchronizer : MonoBehaviour
     {
         GameManager.Conn.Db.GameCoreSnap.OnInsert += (EventContext ctx, GameCoreSnap row) =>
         {
-            GameManager.Inst.GameCore = MemoryPackSerializer.Deserialize<GameCore>(
-                row.BinaryData.ToArray()
-            );
-            Debug.Log("GameCoreSnap inserted! Deserializing and restoring game core.");
-            restoreRequestedFlag = false;
+            ApplySnapshot(row.BinaryData.ToArray());
+        };
+        GameManager.Conn.Db.GameCoreSnap.OnUpdate += (
+            EventContext ctx,
+            GameCoreSnap oldRow,
+            GameCoreSnap newRow
+        ) =>
+        {
+            ApplySnapshot(newRow.BinaryData.ToArray());
         };
         GameManager.Conn.Db.AuthFrame.OnInsert += (EventContext ctx, AuthFrame row) =>
         {
@@ -38,15 +45,27 @@ public class Synchronizer : MonoBehaviour
             {
                 if (inputFrame.Seq.IsAhead(latestServerSeq))
                     latestServerSeq = inputFrame.Seq;
-                else
-                    Debug.Log(
-                        "AuthFrame inserted! Skipping input frame "
-                            + inputFrame.Seq
-                            + " because it's behind the latest server seq "
-                            + latestServerSeq
-                    );
+                /*                 else
+                                    Debug.Log(
+                                        "AuthFrame inserted! Skipping input frame "
+                                            + inputFrame.Seq
+                                            + " because it's behind the latest server seq "
+                                            + latestServerSeq
+                                    ); */
             }
         };
+        RequestRestore();
+    }
+
+    private void ApplySnapshot(byte[] gameCoreData)
+    {
+        if (!restoreRequestedFlag)
+            return;
+
+        GameManager.Inst.GameCore = MemoryPackSerializer.Deserialize<GameCore>(gameCoreData);
+        safeSeqEdge = GameManager.Inst.GameCore.Seq;
+        restoreRequestedFlag = false;
+        Debug.Log("RESTORED FROM SNAPSHOT TO SEQ: " + GameManager.Inst.GameCore.Seq);
     }
 
     private void FixedUpdate()
@@ -105,16 +124,27 @@ public class Synchronizer : MonoBehaviour
     private bool EnsureClientHasntFallenTooFarBehind()
     {
         ushort? oldestSeq = GetOldestSeq();
-        if (oldestSeq == null)
-            return true;
 
-        if (GameManager.Inst.GameCore.Seq.IsBehind(oldestSeq.Value))
+        if (oldestSeq == null)
+        {
+            Debug.LogError("No oldest seq found!");
+            return true;
+        }
+
+        if (
+            GameManager.Inst.GameCore.Seq.IsBehind(oldestSeq.Value)
+            || GameManager.Inst.GameCore.Seq.IsAhead(latestServerSeq)
+        )
         {
             if (!restoreRequestedFlag)
             {
                 RequestRestore();
                 return false;
             }
+        }
+        else
+        {
+            Debug.Log(GameManager.Inst.GameCore.Seq + " is not behind " + oldestSeq.Value);
         }
 
         return true;
@@ -127,7 +157,7 @@ public class Synchronizer : MonoBehaviour
         GameManager
             .Conn.SubscriptionBuilder()
             .OnError(
-                (ErrorContext ctx, System.Exception ex) =>
+                (ErrorContext ctx, Exception ex) =>
                 {
                     Debug.LogError($"Subscription error: {ex}");
                 }
@@ -152,8 +182,18 @@ public class Synchronizer : MonoBehaviour
                 {
                     oldestSeq = inputFrame.Seq;
                 }
+                else
+                {
+                    /*                     Debug.Log(
+                                            "AuthFrame inserted! Skipping input frame "
+                                                + inputFrame.Seq
+                                                + " because it's ahead of the oldest seq "
+                                                + oldestSeq.Value
+                                        ); */
+                }
             }
         }
+        oldestSeq = oldestSeq ?? GameManager.Inst.GameCore.Seq;
         return oldestSeq;
     }
 }

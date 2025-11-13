@@ -11,20 +11,16 @@ public static class UShortExtensions
     private static ushort Wrap16(uint v) => (ushort)(v & 0xFFFF);
 
     /// <summary> (a + b) mod 2^16 </summary>
-    public static ushort WrappingAdd(this ushort a, ushort b) =>
-        Wrap16((uint)a + (uint)b);
+    public static ushort WrappingAdd(this ushort a, ushort b) => Wrap16((uint)a + (uint)b);
 
     /// <summary> (a - b) mod 2^16 </summary>
-    public static ushort WrappingSub(this ushort a, ushort b) =>
-        Wrap16((uint)a - (uint)b);
+    public static ushort WrappingSub(this ushort a, ushort b) => Wrap16((uint)a - (uint)b);
 
     /// <summary> (a + delta) mod 2^16 — signed delta overload for convenience </summary>
-    public static ushort WrappingAdd(this ushort a, int delta) =>
-        Wrap16((int)a + delta);
+    public static ushort WrappingAdd(this ushort a, int delta) => Wrap16((int)a + delta);
 
     /// <summary> (a - delta) mod 2^16 — signed delta overload for convenience </summary>
-    public static ushort WrappingSub(this ushort a, int delta) =>
-        Wrap16((int)a - delta);
+    public static ushort WrappingSub(this ushort a, int delta) => Wrap16((int)a - delta);
 
     /// <summary>
     /// Shortest signed difference from self to other on the u16 ring.
@@ -41,11 +37,9 @@ public static class UShortExtensions
         return (short)diff;
     }
 
-    public static bool IsAhead(this ushort self, ushort other) =>
-        self.ClosestDiffTo(other) < 0;
+    public static bool IsAhead(this ushort self, ushort other) => self.ClosestDiffTo(other) < 0;
 
-    public static bool IsBehind(this ushort self, ushort other) =>
-        self.ClosestDiffTo(other) > 0;
+    public static bool IsBehind(this ushort self, ushort other) => self.ClosestDiffTo(other) > 0;
 
     public static bool IsBehindOrEqual(this ushort self, ushort other) =>
         self.ClosestDiffTo(other) >= 0;
