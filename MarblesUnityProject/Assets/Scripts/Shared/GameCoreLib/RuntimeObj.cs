@@ -17,18 +17,18 @@ namespace GameCoreLib
         public ulong RuntimeId;
 
         [MemoryPackOrder(1)]
-        public string Name;
+        public string Name = "";
 
         //[MemoryPackIgnore]
         // public RuntimeObj Parent;
         [MemoryPackOrder(2)]
-        public List<RuntimeObj> Children;
+        public List<RuntimeObj> Children = new List<RuntimeObj>();
 
         [MemoryPackOrder(3)]
-        public FPTransform3D Transform;
+        public FPTransform3D Transform = new FPTransform3D();
 
         [MemoryPackOrder(4)]
-        public List<ComponentData> Components;
+        public List<ComponentData> Components = new List<ComponentData>();
 
         /// <summary>
         /// ID referencing which prefab to use for rendering.

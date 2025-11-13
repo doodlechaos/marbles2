@@ -8,14 +8,17 @@ namespace FPMathLib
     /// <summary>
     /// Deterministic fixed-point 3D vector
     /// </summary>
+    [Serializable]
     [JsonObject(MemberSerialization.OptIn)]
     [MemoryPackable]
     public partial struct FPVector3 : IEquatable<FPVector3>
     {
         [JsonProperty("x")]
         public FP X;
+
         [JsonProperty("y")]
         public FP Y;
+
         [JsonProperty("z")]
         public FP Z;
 
@@ -94,21 +97,13 @@ namespace FPMathLib
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FPVector3 Min(FPVector3 a, FPVector3 b)
         {
-            return new FPVector3(
-                FPMath.Min(a.X, b.X),
-                FPMath.Min(a.Y, b.Y),
-                FPMath.Min(a.Z, b.Z)
-            );
+            return new FPVector3(FPMath.Min(a.X, b.X), FPMath.Min(a.Y, b.Y), FPMath.Min(a.Z, b.Z));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FPVector3 Max(FPVector3 a, FPVector3 b)
         {
-            return new FPVector3(
-                FPMath.Max(a.X, b.X),
-                FPMath.Max(a.Y, b.Y),
-                FPMath.Max(a.Z, b.Z)
-            );
+            return new FPVector3(FPMath.Max(a.X, b.X), FPMath.Max(a.Y, b.Y), FPMath.Max(a.Z, b.Z));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -235,4 +230,3 @@ namespace FPMathLib
         }
     }
 }
-

@@ -4,6 +4,7 @@ using MemoryPack;
 
 namespace GameCoreLib
 {
+    [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
     public partial class GameCore
     {

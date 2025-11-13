@@ -27,11 +27,11 @@ public class Synchronizer : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Conn.Db.GameCoreSnap.OnInsert += (EventContext ctx, GameCoreSnap row) =>
+        STDB.Conn.Db.GameCoreSnap.OnInsert += (EventContext ctx, GameCoreSnap row) =>
         {
             ApplySnapshot(row.BinaryData.ToArray());
         };
-        GameManager.Conn.Db.GameCoreSnap.OnUpdate += (
+        STDB.Conn.Db.GameCoreSnap.OnUpdate += (
             EventContext ctx,
             GameCoreSnap oldRow,
             GameCoreSnap newRow
@@ -39,7 +39,7 @@ public class Synchronizer : MonoBehaviour
         {
             ApplySnapshot(newRow.BinaryData.ToArray());
         };
-        GameManager.Conn.Db.AuthFrame.OnInsert += (EventContext ctx, AuthFrame row) =>
+        STDB.Conn.Db.AuthFrame.OnInsert += (EventContext ctx, AuthFrame row) =>
         {
             foreach (InputFrame inputFrame in row.Frames)
             {
@@ -110,7 +110,7 @@ public class Synchronizer : MonoBehaviour
 
     private InputFrame FindInputFrame(ushort seq)
     {
-        foreach (AuthFrame authFrame in GameManager.Conn.Db.AuthFrame.Iter())
+        foreach (AuthFrame authFrame in STDB.Conn.Db.AuthFrame.Iter())
         {
             foreach (InputFrame inputFrame in authFrame.Frames)
             {
@@ -154,7 +154,7 @@ public class Synchronizer : MonoBehaviour
     {
         Debug.LogWarning("Client has fallen too far behind, requesting restore");
         restoreRequestedFlag = true;
-        GameManager
+        STDB
             .Conn.SubscriptionBuilder()
             .OnError(
                 (ErrorContext ctx, Exception ex) =>
@@ -174,7 +174,7 @@ public class Synchronizer : MonoBehaviour
     private ushort? GetOldestSeq()
     {
         ushort? oldestSeq = null;
-        foreach (AuthFrame authFrame in GameManager.Conn.Db.AuthFrame.Iter())
+        foreach (AuthFrame authFrame in STDB.Conn.Db.AuthFrame.Iter())
         {
             foreach (InputFrame inputFrame in authFrame.Frames)
             {

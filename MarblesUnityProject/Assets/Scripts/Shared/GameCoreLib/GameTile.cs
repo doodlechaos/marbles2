@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GameCoreLib
 {
+    [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
     public partial class GameTile
     {

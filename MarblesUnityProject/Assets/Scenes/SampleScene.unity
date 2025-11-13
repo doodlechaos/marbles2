@@ -586,6 +586,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   _synchronizer: {fileID: 460967032}
+  GameCore:
+    Seq: 0
+    GameTile1:
+      WorldId: 1
+    GameTile2:
+      WorldId: 2
+    NextRuntimeId: 1
   _forceStepping: 0
   Game1JSON_PATH: C:\Users\merob\Desktop\CurrentProjects\marbles2\MarblesUnityProject\Temp\LevelJSONs\TestAuthoringWorld.json
   GameCoreRenderer: {fileID: 1098268961}
