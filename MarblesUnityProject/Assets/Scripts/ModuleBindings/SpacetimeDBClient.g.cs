@@ -31,7 +31,6 @@ namespace SpacetimeDB.Types
             AddTable(Clock = new(conn));
             AddTable(ClockSchedule = new(conn));
             AddTable(DeterminismCheck = new(conn));
-            AddTable(DynamicSps = new(conn));
             AddTable(GameCoreSnap = new(conn));
             AddTable(InputCollector = new(conn));
             AddTable(InputFrame = new(conn));
@@ -484,8 +483,10 @@ namespace SpacetimeDB.Types
             return update.ReducerCall.ReducerName switch
             {
                 "ClockUpdate" => BSATNHelpers.Decode<Reducer.ClockUpdate>(encodedArgs),
+                "CloseAndCycleGameTile" => BSATNHelpers.Decode<Reducer.CloseAndCycleGameTile>(encodedArgs),
                 "Connect" => BSATNHelpers.Decode<Reducer.Connect>(encodedArgs),
                 "Disconnect" => BSATNHelpers.Decode<Reducer.Disconnect>(encodedArgs),
+                "TestSerialization" => BSATNHelpers.Decode<Reducer.TestSerialization>(encodedArgs),
                 "UpsertAccount" => BSATNHelpers.Decode<Reducer.UpsertAccount>(encodedArgs),
                 "UpsertAccountSeq" => BSATNHelpers.Decode<Reducer.UpsertAccountSeq>(encodedArgs),
                 "UpsertAuthFrame" => BSATNHelpers.Decode<Reducer.UpsertAuthFrame>(encodedArgs),
@@ -515,8 +516,10 @@ namespace SpacetimeDB.Types
             return reducer switch
             {
                 Reducer.ClockUpdate args => Reducers.InvokeClockUpdate(eventContext, args),
+                Reducer.CloseAndCycleGameTile args => Reducers.InvokeCloseAndCycleGameTile(eventContext, args),
                 Reducer.Connect args => Reducers.InvokeConnect(eventContext, args),
                 Reducer.Disconnect args => Reducers.InvokeDisconnect(eventContext, args),
+                Reducer.TestSerialization args => Reducers.InvokeTestSerialization(eventContext, args),
                 Reducer.UpsertAccount args => Reducers.InvokeUpsertAccount(eventContext, args),
                 Reducer.UpsertAccountSeq args => Reducers.InvokeUpsertAccountSeq(eventContext, args),
                 Reducer.UpsertAuthFrame args => Reducers.InvokeUpsertAuthFrame(eventContext, args),

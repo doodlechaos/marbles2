@@ -13,9 +13,6 @@ public class GameManager : MonoBehaviour
     const string SERVER_URL = "http://127.0.0.1:3000";
     const string MODULE_NAME = "marbles2";
 
-    public static event Action OnConnected;
-    public static event Action OnSubscriptionApplied;
-
     public static GameManager Inst { get; private set; }
     public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
@@ -33,10 +30,7 @@ public class GameManager : MonoBehaviour
     {
         GameCoreLib.Logger.Log = Debug.Log;
         GameCoreLib.Logger.Error = Debug.LogError;
-    }
 
-    private void Start()
-    {
         Inst = this;
         Application.targetFrameRate = 60;
 
@@ -97,16 +91,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("Stepped physics simulation");
     }
 
-    [ProButton]
-    public void StepPhysicsMultiple()
-    {
-        for (int i = 0; i < 60; i++)
-        {
-            GameCore.GameTile1.Step();
-        }
-        Debug.Log("Stepped physics simulation 60 times (1 second)");
-    }
-
     // Called when we connect to SpacetimeDB and receive our client identity
     void HandleConnect(DbConnection _conn, Identity identity, string token)
     {
@@ -114,10 +98,28 @@ public class GameManager : MonoBehaviour
         AuthToken.SaveToken(token);
         LocalIdentity = identity;
 
-        OnConnected?.Invoke();
-
         // Request all tables
-        Conn.SubscriptionBuilder().OnApplied(HandleSubscriptionApplied).SubscribeToAllTables();
+        Conn.SubscriptionBuilder()
+            .OnApplied(
+                (SubscriptionEventContext ctx) =>
+                {
+                    Debug.Log("Subscription applied!");
+                }
+            )
+            .OnError(
+                (ErrorContext ctx, Exception ex) =>
+                {
+                    Debug.LogError($"Subscription error: {ex}");
+                }
+            )
+            .Subscribe(
+                new string[]
+                {
+                    "SELECT * FROM AuthFrame",
+                    "SELECT * FROM Account",
+                    "SELECT * FROM BaseCfg",
+                }
+            );
     }
 
     void HandleConnectError(Exception ex)
@@ -132,12 +134,6 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogException(ex);
         }
-    }
-
-    private void HandleSubscriptionApplied(SubscriptionEventContext ctx)
-    {
-        Debug.Log("Subscription applied!");
-        OnSubscriptionApplied?.Invoke();
     }
 
     public static bool IsConnected()
