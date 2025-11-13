@@ -7,15 +7,15 @@ using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
-public class GameTileExporter : EditorWindow
+public class LevelFileExporter : EditorWindow
 {
     private GameCoreRenderer cachedRuntimeRenderer;
     private List<GameObject> cachedRenderPrefabs;
 
-    [MenuItem("Window/LockSim/GameTileExporter")]
+    [MenuItem("Window/LockSim/LevelFileExporter")]
     public static void ShowWindow()
     {
-        GetWindow<GameTileExporter>("Game Tile Exporter");
+        GetWindow<LevelFileExporter>("Level File Exporter");
     }
 
     void OnGUI()
@@ -29,7 +29,7 @@ public class GameTileExporter : EditorWindow
 
         GUILayout.Space(20);
 
-        if (GUILayout.Button("Upload Levels to SpacetimeDB"))
+        if (GUILayout.Button("Upload Level Files to SpacetimeDB"))
         {
             UploadLevelsToSpacetimeDB();
         }
@@ -41,11 +41,15 @@ public class GameTileExporter : EditorWindow
         // Find RuntimeRenderer in scene to get the render prefabs list
         if (!CacheRuntimeRendererPrefabs())
         {
-            Debug.LogError("Could not find RuntimeRenderer in scene. Please make sure there's a RuntimeRenderer component in the scene.");
+            Debug.LogError(
+                "Could not find RuntimeRenderer in scene. Please make sure there's a RuntimeRenderer component in the scene."
+            );
             return;
         }
 
-        Debug.Log($"Found RuntimeRenderer with {cachedRenderPrefabs.Count} render prefabs configured.");
+        Debug.Log(
+            $"Found RuntimeRenderer with {cachedRenderPrefabs.Count} render prefabs configured."
+        );
 
         // Create output directory if it doesn't exist
         string outputDir = "Temp/LevelJSONs";
@@ -69,9 +73,9 @@ public class GameTileExporter : EditorWindow
                 continue;
             }
 
-            // Check if the root has GameTileAuth component
-            GameTileAuth gameTileAuth = prefab.GetComponent<GameTileAuth>();
-            if (gameTileAuth != null)
+            // Check if the root has LevelFileAuth component
+            LevelFileAuth levelFileAuth = prefab.GetComponent<LevelFileAuth>();
+            if (levelFileAuth != null)
             {
                 // Serialize the entire prefab hierarchy to RuntimeObj
                 RuntimeObj runtimeObj = SerializeGameObject(prefab, null);
@@ -94,13 +98,14 @@ public class GameTileExporter : EditorWindow
     // Recursively serialize a GameObject and all its children into RuntimeObj
     private RuntimeObj SerializeGameObject(GameObject go, RuntimeObj parent)
     {
+        Debug.Log($"Serializing GameObject: {go.name}. Children: {go.transform.childCount}");
         RuntimeObj runtimeObj = new RuntimeObj
         {
             Name = go.name,
             Children = new List<RuntimeObj>(),
             Transform = ConvertToFPTransform(go.transform),
             Components = SerializeComponents(go),
-            RenderPrefabID = GetRenderPrefabID(go)
+            RenderPrefabID = GetRenderPrefabID(go),
         };
 
         // Recursively serialize all children
@@ -127,12 +132,15 @@ public class GameTileExporter : EditorWindow
         }
 
         // Use reflection to access the private renderPrefabs field
-        var renderPrefabsField = typeof(GameCoreRenderer).GetField("renderPrefabs",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var renderPrefabsField = typeof(GameCoreRenderer).GetField(
+            "renderPrefabs",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+        );
 
         if (renderPrefabsField != null)
         {
-            cachedRenderPrefabs = renderPrefabsField.GetValue(cachedRuntimeRenderer) as List<GameObject>;
+            cachedRenderPrefabs =
+                renderPrefabsField.GetValue(cachedRuntimeRenderer) as List<GameObject>;
             return cachedRenderPrefabs != null;
         }
 
@@ -163,14 +171,23 @@ public class GameTileExporter : EditorWindow
         {
             for (int i = 0; i < cachedRenderPrefabs.Count; i++)
             {
-                if (cachedRenderPrefabs[i] != null &&
-                    (cachedRenderPrefabs[i] == sourcePrefab ||
-                     PrefabUtility.GetCorrespondingObjectFromSource(cachedRenderPrefabs[i]) == sourcePrefab))
+                if (
+                    cachedRenderPrefabs[i] != null
+                    && (
+                        cachedRenderPrefabs[i] == sourcePrefab
+                        || PrefabUtility.GetCorrespondingObjectFromSource(cachedRenderPrefabs[i])
+                            == sourcePrefab
+                    )
+                )
                 {
                     // Return 0-based index
                     return i;
                 }
             }
+        }
+        else
+        {
+            Debug.LogError($"No source prefab found for {go.name}");
         }
 
         // Default to -1 (no prefab / empty GameObject)
@@ -193,11 +210,7 @@ public class GameTileExporter : EditorWindow
             t.localRotation.w
         );
 
-        FPVector3 localScale = FPVector3.FromFloats(
-            t.localScale.x,
-            t.localScale.y,
-            t.localScale.z
-        );
+        FPVector3 localScale = FPVector3.FromFloats(t.localScale.x, t.localScale.y, t.localScale.z);
 
         return new FPTransform3D(localPos, localRot, localScale);
     }
@@ -217,7 +230,7 @@ public class GameTileExporter : EditorWindow
             {
                 type = component.GetType().FullName,
                 enabled = true,
-                data = SerializeComponentFields(component)
+                data = SerializeComponentFields(component),
             };
 
             // Check if component has enabled property
@@ -243,7 +256,9 @@ public class GameTileExporter : EditorWindow
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"Failed to serialize component {component.GetType().Name}: {e.Message}");
+            Debug.LogWarning(
+                $"Failed to serialize component {component.GetType().Name}: {e.Message}"
+            );
             return "{}";
         }
     }
@@ -252,6 +267,6 @@ public class GameTileExporter : EditorWindow
     private void UploadLevelsToSpacetimeDB()
     {
         Debug.Log("Upload to SpacetimeDB - To be implemented");
-        // TODO: Implement steps 3-5
+        // TODO: Upload the level files to spacetimedb via http api. I think we can do a direct insert.
     }
 }

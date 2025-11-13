@@ -237,7 +237,7 @@ public class GameCoreRenderer : MonoBehaviour
 
         // Add RuntimeBinding component
         var binding = visualObj.AddComponent<RuntimeBinding>();
-        binding.RuntimeId = runtimeObj.RuntimeId;
+        binding.RuntimeObj = runtimeObj;
 
         // Store in mapping
         idToGameObject[runtimeObj.RuntimeId] = visualObj;

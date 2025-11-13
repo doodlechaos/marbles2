@@ -4,11 +4,10 @@ using SpacetimeDB;
 public static partial class Module
 {
     [Table(Public = true)]
-    public partial struct LevelFile
+    public partial struct LevelFileData
     {
         [PrimaryKey]
-        public byte Id;
-
-        public string Json;
+        public string UnityPrefabGUID;
+        public byte[] LevelFileBinary;
     }
 }

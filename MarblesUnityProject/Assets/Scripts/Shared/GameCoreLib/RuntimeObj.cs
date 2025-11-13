@@ -7,6 +7,7 @@ using MemoryPack;
 namespace GameCoreLib
 {
     [MemoryPackable(SerializeLayout.Explicit)]
+    [Serializable]
     public partial class RuntimeObj
     {
         /// <summary>

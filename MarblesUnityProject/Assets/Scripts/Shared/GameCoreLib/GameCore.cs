@@ -39,15 +39,15 @@ namespace GameCoreLib
             foreach (InputEvent inputEvent in inputEvents)
             {
                 Logger.Log($"[{Seq}] Stepping with input event: " + inputEvent.GetType().Name);
-                if (inputEvent is InputEvent.LoadTileFile loadTileFile)
+                if (inputEvent is InputEvent.LoadLevelFile loadTileFile)
                 {
                     if (loadTileFile.WorldId == 1)
                     {
-                        GameTile1.Load(loadTileFile.HydratedNextTileJson, this);
+                        GameTile1.Load(loadTileFile.LevelFile, this);
                     }
                     else if (loadTileFile.WorldId == 2)
                     {
-                        GameTile2.Load(loadTileFile.HydratedNextTileJson, this);
+                        GameTile2.Load(loadTileFile.LevelFile, this);
                     }
                     else
                     {

@@ -33,7 +33,7 @@ namespace GameCoreLib
             Sim = new World();
         }
 
-        public void Load(string levelJSON, GameCore gameCore)
+        public void Load(LevelFile levelFile, GameCore gameCore)
         {
             Logger.Log("Loading level JSON...");
 
@@ -47,7 +47,7 @@ namespace GameCoreLib
             }
 
             // Deserialize the JSON into a RuntimeObj hierarchy
-            TileRoot = JsonConvert.DeserializeObject<RuntimeObj>(levelJSON);
+            TileRoot = JsonConvert.DeserializeObject<RuntimeObj>(levelFile.ObjHierarchyJson);
 
             if (TileRoot == null)
             {

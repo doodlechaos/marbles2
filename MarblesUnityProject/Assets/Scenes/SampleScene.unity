@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &223063759
+--- !u!1 &211776907
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,40 +127,29 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 223063761}
-  - component: {fileID: 223063760}
+  - component: {fileID: 211776908}
   m_Layer: 0
-  m_Name: STDBNetworkManager
+  m_Name: Scripts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &223063760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223063759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e016ef92e52934343857fd26e55140c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: com.clockworklabs.spacetimedbsdk::SpacetimeDB.SpacetimeDBNetworkManager
---- !u!4 &223063761
+--- !u!4 &211776908
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 223063759}
+  m_GameObject: {fileID: 211776907}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0.35, z: 0.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 736164842}
+  - {fileID: 1423701284}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
@@ -250,7 +239,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -18.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -475,7 +464,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1423701284}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &563775509
 GameObject:
@@ -585,13 +574,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9710eb47497de854c8323606db556464, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _synchronizer: {fileID: 460967032}
   GameCore:
     Seq: 0
     GameTile1:
       WorldId: 1
+      TileRoot:
+        RuntimeId: 0
+        Name: 
+        RenderPrefabID: 0
     GameTile2:
       WorldId: 2
+      TileRoot:
+        RuntimeId: 0
+        Name: 
+        RenderPrefabID: 0
     NextRuntimeId: 1
   _forceStepping: 0
   Game1JSON_PATH: C:\Users\merob\Desktop\CurrentProjects\marbles2\MarblesUnityProject\Temp\LevelJSONs\TestAuthoringWorld.json
@@ -604,12 +600,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 736164840}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.5, y: 0.35, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 211776908}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1098268958
 GameObject:
@@ -659,7 +655,9 @@ MonoBehaviour:
   renderPrefabs:
   - {fileID: 5728080844889452456, guid: 9f2fab90907ffea44800bf48d971cc47, type: 3}
   - {fileID: 1073688982425294196, guid: 0965a81b8e02e27439aa19b46271ab33, type: 3}
-  ShowDebugInfo: 0
+  - {fileID: 6795843947873832426, guid: 03d597c05dc5274408125f36079def78, type: 3}
+  - {fileID: 8627050739790726732, guid: 27407d322ea4b9948a9ed629475944e8, type: 3}
+  ShowDebugInfo: 1
 --- !u!1 &1307670093
 GameObject:
   m_ObjectHideFlags: 0
@@ -796,6 +794,97 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1307670093}
   m_CullTransparentMesh: 1
+--- !u!1 &1423701283
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1423701284}
+  - component: {fileID: 1423701285}
+  m_Layer: 0
+  m_Name: STDB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1423701284
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423701283}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1503107464}
+  - {fileID: 460967034}
+  m_Father: {fileID: 211776908}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1423701285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423701283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d133b75282795840b7f884568f96e56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::STDB
+  _synchronizer: {fileID: 460967032}
+--- !u!1 &1503107462
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1503107464}
+  - component: {fileID: 1503107463}
+  m_Layer: 0
+  m_Name: SpacetimeDBNetworkManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1503107463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1503107462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e016ef92e52934343857fd26e55140c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: com.clockworklabs.spacetimedbsdk::SpacetimeDB.SpacetimeDBNetworkManager
+--- !u!4 &1503107464
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1503107462}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1423701284}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1733902738
 GameObject:
   m_ObjectHideFlags: 0
@@ -934,7 +1023,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -219, y: -14}
+  m_AnchoredPosition: {x: -502.12, y: 385.7}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1971556518
@@ -1037,9 +1126,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 330585546}
   - {fileID: 410087041}
-  - {fileID: 223063761}
-  - {fileID: 736164842}
-  - {fileID: 460967034}
   - {fileID: 1733902742}
   - {fileID: 563775512}
+  - {fileID: 211776908}
   - {fileID: 1098268960}

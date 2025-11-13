@@ -36,6 +36,7 @@ public class STDB : MonoBehaviour
         // Building the connection will establish a connection to the SpacetimeDB
         // server.
         Conn = builder.Build();
+        Debug.Log("Building stdb connection");
     }
 
     // Called when we connect to SpacetimeDB and receive our client identity
@@ -83,5 +84,10 @@ public class STDB : MonoBehaviour
         {
             Debug.LogException(ex);
         }
+    }
+
+    void OnDestroy()
+    {
+        Conn.Disconnect();
     }
 }

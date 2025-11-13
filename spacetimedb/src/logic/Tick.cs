@@ -116,8 +116,8 @@ public static partial class Module
         else
         {
             GameCore gameCore = new GameCore();
-            gameCore.GameTile1.Load(GetRandomLevelFile(ctx).Json, gameCore);
-            gameCore.GameTile2.Load(GetRandomLevelFile(ctx).Json, gameCore);
+            gameCore.GameTile1.Load(GetRandomLevelFile(ctx), gameCore);
+            gameCore.GameTile2.Load(GetRandomLevelFile(ctx), gameCore);
             snapshot = new GameCoreSnap
             {
                 Id = 0,

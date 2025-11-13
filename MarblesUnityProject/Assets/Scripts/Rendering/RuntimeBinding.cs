@@ -1,3 +1,4 @@
+using GameCoreLib;
 using UnityEngine;
 
 /// <summary>
@@ -11,5 +12,7 @@ public sealed class RuntimeBinding : MonoBehaviour
     /// The stable ID of the RuntimeObj this GameObject represents.
     /// This ID persists through save/load cycles.
     /// </summary>
-    public ulong RuntimeId;
+    //public ulong RuntimeId;
+    [SerializeField]
+    public RuntimeObj RuntimeObj;
 }

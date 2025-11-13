@@ -10,7 +10,7 @@ namespace GameCoreLib
     [MemoryPackUnion(2, typeof(Dhash))]
     [MemoryPackUnion(3, typeof(SetIntegrationParameter))]
     [MemoryPackUnion(4, typeof(StartCloseDoorAnimation))]
-    [MemoryPackUnion(5, typeof(LoadTileFile))]
+    [MemoryPackUnion(5, typeof(LoadLevelFile))]
     public abstract partial class InputEvent
     {
         protected InputEvent() { }
@@ -88,25 +88,21 @@ namespace GameCoreLib
         }
 
         [MemoryPackable(SerializeLayout.Explicit)]
-        public partial class LoadTileFile : InputEvent
+        public partial class LoadLevelFile : InputEvent
         {
             [MemoryPackOrder(0)]
             public byte WorldId { get; set; } // u8
 
             [MemoryPackOrder(1)]
-            public ulong NextTileId { get; set; } // u64
-
-            [MemoryPackOrder(2)]
-            public string? HydratedNextTileJson { get; set; } // Option<String> → string?
+            public LevelFile LevelFile { get; set; }
 
             [MemoryPackConstructor]
-            public LoadTileFile() { }
+            public LoadLevelFile() { }
 
-            public LoadTileFile(byte worldId, ulong nextTileId, string? hydratedNextTileJson)
+            public LoadLevelFile(byte worldId, LevelFile levelFile)
             {
                 WorldId = worldId;
-                NextTileId = nextTileId;
-                HydratedNextTileJson = hydratedNextTileJson;
+                LevelFile = levelFile;
             }
         }
     }

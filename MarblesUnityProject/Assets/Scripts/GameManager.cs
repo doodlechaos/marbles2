@@ -40,25 +40,6 @@ public class GameManager : MonoBehaviour
     }
 
     [ProButton]
-    public void LoadTile1()
-    {
-        GameCoreLib.Logger.Log = Debug.Log;
-        GameCoreLib.Logger.Error = Debug.LogError;
-
-        string json = File.ReadAllText(Game1JSON_PATH);
-
-        GameCore.GameTile1.Load(json, GameCore);
-        Debug.Log("Done Loading Tile1 Test");
-
-        // Automatically render the loaded tile if renderer is assigned
-        /*         if (GameCoreRenderer != null)
-                {
-                    GameCoreRenderer.UpdateRendering();
-                    Debug.Log("Rendered Tile1");
-                } */
-    }
-
-    [ProButton]
     public void StepPhysics()
     {
         Debug.Log("GameTile1 Bodies: " + GameCore.GameTile1.Sim.Bodies.Count);
