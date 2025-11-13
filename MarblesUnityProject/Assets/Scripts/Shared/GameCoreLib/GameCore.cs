@@ -25,10 +25,35 @@ namespace GameCoreLib
 
         public void Step(List<InputEvent> inputEvents)
         {
+            HandleInputEvents(inputEvents);
+
             GameTile1.Step();
             GameTile2.Step();
 
             Seq = Seq.WrappingAdd(1);
+        }
+
+        private void HandleInputEvents(List<InputEvent> inputEvents)
+        {
+            foreach (InputEvent inputEvent in inputEvents)
+            {
+                Logger.Log($"[{Seq}] Stepping with input event: " + inputEvent.GetType().Name);
+                if (inputEvent is InputEvent.LoadTileFile loadTileFile)
+                {
+                    if (loadTileFile.WorldId == 1)
+                    {
+                        GameTile1.Load(loadTileFile.HydratedNextTileJson, this);
+                    }
+                    else if (loadTileFile.WorldId == 2)
+                    {
+                        GameTile2.Load(loadTileFile.HydratedNextTileJson, this);
+                    }
+                    else
+                    {
+                        Logger.Error("Invalid world id: " + loadTileFile.WorldId);
+                    }
+                }
+            }
         }
 
         public string GetDeterministicHashHex()

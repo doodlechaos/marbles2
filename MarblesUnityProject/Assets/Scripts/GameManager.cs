@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
 
+    [SerializeField] private GameObject _synchronizer;
+
     public GameCore GameCore = new GameCore();
 
     [SerializeField]
@@ -97,6 +99,8 @@ public class GameManager : MonoBehaviour
         Debug.Log("Connected.");
         AuthToken.SaveToken(token);
         LocalIdentity = identity;
+
+        _synchronizer.SetActive(true); 
 
         // Request all tables
         Conn.SubscriptionBuilder()

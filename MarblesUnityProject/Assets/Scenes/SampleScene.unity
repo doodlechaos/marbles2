@@ -443,7 +443,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &460967033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -458,8 +458,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Synchronizer
   safeSeqEdge: 0
   latestServerSeq: 0
+  oldestSeq: 0
   clientTargetSeq: 0
   targetToSafeEdgeDist: 0
+  restoreRequestedFlag: 0
 --- !u!4 &460967034
 Transform:
   m_ObjectHideFlags: 0
@@ -583,6 +585,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9710eb47497de854c8323606db556464, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _synchronizer: {fileID: 460967032}
   _forceStepping: 0
   Game1JSON_PATH: C:\Users\merob\Desktop\CurrentProjects\marbles2\MarblesUnityProject\Temp\LevelJSONs\TestAuthoringWorld.json
   GameCoreRenderer: {fileID: 1098268961}
