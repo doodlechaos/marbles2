@@ -1,16 +1,27 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using FPMathLib;
 using GameCoreLib;
+using MemoryPack;
 using Newtonsoft.Json;
+using SpacetimeDB;
+using SpacetimeDB.Types;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class LevelFileExporter : EditorWindow
 {
     private GameCoreRenderer cachedRuntimeRenderer;
     private List<GameObject> cachedRenderPrefabs;
+
+    private const string SERVER_URL = "http://127.0.0.1:3000";
+    private const string MODULE_NAME = "marbles2";
 
     [MenuItem("Window/LockSim/LevelFileExporter")]
     public static void ShowWindow()
@@ -22,77 +33,91 @@ public class LevelFileExporter : EditorWindow
     {
         GUILayout.Label("Level Export Tools", EditorStyles.boldLabel);
 
-        if (GUILayout.Button("Export Levels to JSON Files"))
+        if (GUILayout.Button("Export and Upload Levels to SpacetimeDB"))
         {
-            ExportLevelsToJSON();
-        }
-
-        GUILayout.Space(20);
-
-        if (GUILayout.Button("Upload Level Files to SpacetimeDB"))
-        {
-            UploadLevelsToSpacetimeDB();
+            // Fire and forget pattern for async method in editor
+            ExportAndUploadLevelsToSpacetimeDBAsync();
         }
     }
 
-    // Step 1 & 2: Export prefabs to JSON
-    private void ExportLevelsToJSON()
+    // Export and upload level files directly to SpacetimeDB
+    private async void ExportAndUploadLevelsToSpacetimeDBAsync()
     {
-        // Find RuntimeRenderer in scene to get the render prefabs list
-        if (!CacheRuntimeRendererPrefabs())
+        DbConnection adminConn = null;
+
+        try
         {
-            Debug.LogError(
-                "Could not find RuntimeRenderer in scene. Please make sure there's a RuntimeRenderer component in the scene."
+            // Find RuntimeRenderer in scene to get the render prefabs list
+            if (!CacheRuntimeRendererPrefabs())
+            {
+                Debug.LogError(
+                    "Could not find RuntimeRenderer in scene. Please make sure there's a RuntimeRenderer component in the scene."
+                );
+                return;
+            }
+
+            Debug.Log(
+                $"Found RuntimeRenderer with {cachedRenderPrefabs.Count} render prefabs configured."
             );
-            return;
-        }
 
-        Debug.Log(
-            $"Found RuntimeRenderer with {cachedRenderPrefabs.Count} render prefabs configured."
-        );
+            // Create a temporary admin connection
+            Debug.Log("Creating temporary admin connection...");
+            adminConn = await STDB.GetTempAdminConnection();
+            Debug.Log("Admin connection established!");
 
-        // Create output directory if it doesn't exist
-        string outputDir = "Temp/LevelJSONs";
-        if (!Directory.Exists(outputDir))
-        {
-            Directory.CreateDirectory(outputDir);
-        }
+            // Find all prefabs in Assets/Prefabs folder
+            string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs" });
+            int uploadedCount = 0;
 
-        // Find all prefabs in Assets/Prefabs folder
-        string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs" });
-        int exportedCount = 0;
-
-        foreach (string guid in prefabGuids)
-        {
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-
-            if (prefab == null)
+            foreach (string guid in prefabGuids)
             {
-                Debug.LogWarning($"Failed to load prefab at {assetPath}");
-                continue;
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+                if (prefab == null)
+                {
+                    Debug.LogWarning($"Failed to load prefab at {assetPath}");
+                    continue;
+                }
+
+                // Check if the root has LevelFileAuth component
+                LevelFileAuth levelFileAuth = prefab.GetComponent<LevelFileAuth>();
+                if (levelFileAuth != null)
+                {
+                    // Serialize the entire prefab hierarchy to RuntimeObj
+                    RuntimeObj runtimeObj = SerializeGameObject(prefab, null);
+                    string objHierarchyJson = JsonConvert.SerializeObject(runtimeObj);
+
+                    // Create LevelFile object
+                    string levelName = Path.GetFileNameWithoutExtension(assetPath);
+                    LevelFile levelFile = new LevelFile(guid, levelName, objHierarchyJson);
+
+                    // Serialize to binary
+                    byte[] levelFileBinary = levelFile.ToBinary();
+
+                    // Upload to SpacetimeDB using the reducer
+                    UploadLevelFileToSpacetimeDB(adminConn, guid, levelFileBinary);
+
+                    Debug.Log($"✓ Uploaded: {levelName} (GUID: {guid})");
+                    uploadedCount++;
+                }
             }
 
-            // Check if the root has LevelFileAuth component
-            LevelFileAuth levelFileAuth = prefab.GetComponent<LevelFileAuth>();
-            if (levelFileAuth != null)
+            Debug.Log($"Upload complete! {uploadedCount} level(s) uploaded successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error during export/upload: {ex}");
+        }
+        finally
+        {
+            // Always disconnect the temporary connection
+            if (adminConn != null)
             {
-                // Serialize the entire prefab hierarchy to RuntimeObj
-                RuntimeObj runtimeObj = SerializeGameObject(prefab, null);
-                string json = JsonConvert.SerializeObject(runtimeObj, Formatting.Indented); //JsonUtility.ToJson(runtimeObj, true);
-
-                // Save to file
-                string fileName = Path.GetFileNameWithoutExtension(assetPath);
-                string outputPath = Path.Combine(outputDir, fileName + ".json");
-                File.WriteAllText(outputPath, json);
-
-                Debug.Log($"Exported: {fileName} -> {outputPath}");
-                exportedCount++;
+                Debug.Log("Disconnecting temporary admin connection...");
+                adminConn.Disconnect();
             }
         }
-
-        Debug.Log($"Export complete! {exportedCount} level(s) exported to {outputDir}");
-        EditorUtility.RevealInFinder(outputDir);
     }
 
     // Recursively serialize a GameObject and all its children into RuntimeObj
@@ -263,10 +288,24 @@ public class LevelFileExporter : EditorWindow
         }
     }
 
-    // Step 3-5: Upload to SpacetimeDB (placeholder for now)
-    private void UploadLevelsToSpacetimeDB()
+    /// <summary>
+    /// Upload a single level file to SpacetimeDB using the module bindings
+    /// Calls the UpsertLevelFileData reducer to add/replace the level data
+    /// </summary>
+    private void UploadLevelFileToSpacetimeDB(
+        DbConnection conn,
+        string unityPrefabGUID,
+        byte[] levelFileBinary
+    )
     {
-        Debug.Log("Upload to SpacetimeDB - To be implemented");
-        // TODO: Upload the level files to spacetimedb via http api. I think we can do a direct insert.
+        // Create the LevelFileData struct
+        var levelFileData = new LevelFileData
+        {
+            UnityPrefabGuid = unityPrefabGUID,
+            LevelFileBinary = levelFileBinary.ToList(),
+        };
+
+        // Call the reducer through the generated bindings
+        conn.Reducers.UpsertLevelFileData(levelFileData);
     }
 }

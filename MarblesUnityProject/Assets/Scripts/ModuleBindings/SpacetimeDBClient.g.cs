@@ -35,7 +35,7 @@ namespace SpacetimeDB.Types
             AddTable(InputCollector = new(conn));
             AddTable(InputFrame = new(conn));
             AddTable(LastAuthFrameTimestamp = new(conn));
-            AddTable(LevelFile = new(conn));
+            AddTable(LevelFileData = new(conn));
             AddTable(Seq = new(conn));
             AddTable(StepsSinceLastAuthFrame = new(conn));
             AddTable(StepsSinceLastBatch = new(conn));
@@ -492,6 +492,7 @@ namespace SpacetimeDB.Types
                 "UpsertBaseCfg" => BSATNHelpers.Decode<Reducer.UpsertBaseCfg>(encodedArgs),
                 "UpsertInputCollector" => BSATNHelpers.Decode<Reducer.UpsertInputCollector>(encodedArgs),
                 "UpsertInputFrame" => BSATNHelpers.Decode<Reducer.UpsertInputFrame>(encodedArgs),
+                "UpsertLevelFileData" => BSATNHelpers.Decode<Reducer.UpsertLevelFileData>(encodedArgs),
                 "" => throw new SpacetimeDBEmptyReducerNameException("Reducer name is empty"),
                 var reducer => throw new ArgumentOutOfRangeException("Reducer", $"Unknown reducer {reducer}")
             };
@@ -524,6 +525,7 @@ namespace SpacetimeDB.Types
                 Reducer.UpsertBaseCfg args => Reducers.InvokeUpsertBaseCfg(eventContext, args),
                 Reducer.UpsertInputCollector args => Reducers.InvokeUpsertInputCollector(eventContext, args),
                 Reducer.UpsertInputFrame args => Reducers.InvokeUpsertInputFrame(eventContext, args),
+                Reducer.UpsertLevelFileData args => Reducers.InvokeUpsertLevelFileData(eventContext, args),
                 _ => throw new ArgumentOutOfRangeException("Reducer", $"Unknown reducer {reducer}")
             };
         }

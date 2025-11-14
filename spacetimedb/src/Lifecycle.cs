@@ -10,7 +10,6 @@ public static partial class Module
         ctx.Db.Admin.Insert(new Admin { AdminIdentity = ctx.Identity });
 
         InitSchedules(ctx);
-        InitDefaultGameTiles(ctx);
     }
 
     private static void InitSchedules(ReducerContext ctx)

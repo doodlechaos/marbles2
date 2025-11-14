@@ -1,6 +1,8 @@
 using System;
+using System.Threading.Tasks;
 using SpacetimeDB;
 using SpacetimeDB.Types;
+using UnityEditor;
 using UnityEngine;
 
 public class STDB : MonoBehaviour
@@ -42,7 +44,7 @@ public class STDB : MonoBehaviour
     // Called when we connect to SpacetimeDB and receive our client identity
     void HandleConnect(DbConnection _conn, Identity identity, string token)
     {
-        Debug.Log("Connected.");
+        Debug.Log("Connected. Token: " + token);
         AuthToken.SaveToken(token);
         LocalIdentity = identity;
 
@@ -90,4 +92,108 @@ public class STDB : MonoBehaviour
     {
         Conn.Disconnect();
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// Creates a temporary admin connection for editor scripts to use.
+    /// The caller is responsible for calling Disconnect() on the returned connection.
+    /// </summary>
+    public static Task<DbConnection> GetTempAdminConnection()
+    {
+        // Read admin token from secrets.json
+        string secretsJson = System.IO.File.ReadAllText("Assets/secrets.json");
+        var secrets =
+            Newtonsoft.Json.JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<
+                string,
+                string
+            >>(secretsJson);
+
+        if (
+            !secrets.TryGetValue("adminToken", out string adminToken)
+            || string.IsNullOrEmpty(adminToken)
+        )
+        {
+            throw new Exception("Admin token not found in Assets/secrets.json");
+        }
+
+        var tcs = new TaskCompletionSource<DbConnection>(
+            TaskCreationOptions.RunContinuationsAsynchronously
+        );
+
+        DbConnection tempConn = null;
+
+        tempConn = DbConnection
+            .Builder()
+            .OnConnect(
+                (conn, identity, token) =>
+                {
+                    Debug.Log("Temp admin connection established");
+                    tcs.TrySetResult(conn);
+                }
+            )
+            .OnConnectError(
+                (ex) =>
+                {
+                    Debug.LogError($"Temp admin connection error: {ex}");
+                    tcs.TrySetException(ex);
+                }
+            )
+            .OnDisconnect(
+                (ctx, ex) =>
+                {
+                    if (!tcs.Task.IsCompleted)
+                    {
+                        tcs.TrySetException(
+                            ex
+                                ?? new Exception(
+                                    "Temp admin connection disconnected before connect."
+                                )
+                        );
+                    }
+                }
+            )
+            .WithUri(SERVER_URL)
+            .WithModuleName(MODULE_NAME)
+            .WithToken(adminToken)
+            .Build();
+
+        double startTime = EditorApplication.timeSinceStartup;
+        const double timeoutSeconds = 10.0;
+
+        void Pump()
+        {
+            // If already done (success or failure), stop pumping
+            if (tcs.Task.IsCompleted)
+            {
+                EditorApplication.update -= Pump;
+                Debug.Log("Pumping temp admin connection stopped (task completed)");
+                return;
+            }
+
+            // Advance the connection so callbacks can run
+            Debug.Log(
+                $"Pumping temp admin connection advancing frame (IsActive={tempConn.IsActive})"
+            );
+            tempConn.FrameTick();
+
+            // Optional: timeout so we don't hang forever if the server is down
+            if (EditorApplication.timeSinceStartup - startTime > timeoutSeconds)
+            {
+                EditorApplication.update -= Pump;
+                tempConn.Disconnect();
+                if (!tcs.Task.IsCompleted)
+                {
+                    tcs.TrySetException(new TimeoutException("Timed out connecting temp admin."));
+                }
+                Debug.Log("Pumping temp admin connection stopped (timeout)");
+            }
+        }
+
+        // Start pumping on the editor main thread
+        EditorApplication.update += Pump;
+        Debug.Log("Pumping temp admin connection");
+
+        return tcs.Task;
+    }
+#endif
 }
