@@ -1,20 +1,26 @@
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using SpacetimeDB;
 using SpacetimeDB.Types;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class STDB : MonoBehaviour
 {
     const string SERVER_URL = "http://127.0.0.1:3000";
     const string MODULE_NAME = "marbles2";
+    const string PROFILE_PICTURE_API_URL = "http://127.0.0.1:5173/api/profile-picture";
 
     public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
 
     [SerializeField]
     private GameObject _synchronizer;
+
+    [SerializeField]
+    private AuthManager _authManager;
 
     private void Awake()
     {
@@ -56,6 +62,24 @@ public class STDB : MonoBehaviour
                 (SubscriptionEventContext ctx) =>
                 {
                     Debug.Log("Subscription applied!");
+                    // Here we should have the account and account customization for the local account loaded.
+                    // If the pfp version of the local account is 0, and the user profile in the auth manager
+                    // has a picture url, call the api endpoint to upload the picture to the cloudflare r2 bucket
+                    Account localAccount = ctx.Db.Account.Identity.Find(identity);
+                    AccountCustomization localAccountCustomization =
+                        ctx.Db.AccountCustomization.AccountId.Find(localAccount.Id);
+                    if (
+                        localAccountCustomization.PfpVersion == 0
+                        && !string.IsNullOrEmpty(_authManager.userProfile?.picture)
+                    )
+                    {
+                        Debug.Log(
+                            $"[STDB] Account has no profile picture, uploading from OAuth: {_authManager.userProfile.picture}"
+                        );
+                        StartCoroutine(
+                            UploadProfilePictureFromUrl(_authManager.userProfile.picture, token)
+                        );
+                    }
                 }
             )
             .OnError(
@@ -86,6 +110,50 @@ public class STDB : MonoBehaviour
         if (ex != null)
         {
             Debug.LogException(ex);
+        }
+    }
+
+    /// <summary>
+    /// Uploads a profile picture to the R2 bucket by providing an image URL.
+    /// The server will download the image from the URL and store it.
+    /// </summary>
+    private System.Collections.IEnumerator UploadProfilePictureFromUrl(
+        string imageUrl,
+        string authToken
+    )
+    {
+        Debug.Log($"[STDB] Starting profile picture upload from URL: {imageUrl}");
+
+        // Create JSON payload
+        string jsonPayload = $"{{\"imageUrl\":\"{imageUrl}\"}}";
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
+
+        using (
+            UnityWebRequest request = new UnityWebRequest(
+                PROFILE_PICTURE_API_URL,
+                UnityWebRequest.kHttpVerbPOST
+            )
+        )
+        {
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", $"Bearer {authToken}");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log(
+                    $"[STDB] Profile picture uploaded successfully: {request.downloadHandler.text}"
+                );
+            }
+            else
+            {
+                Debug.LogError(
+                    $"[STDB] Failed to upload profile picture: {request.error} - {request.downloadHandler.text}"
+                );
+            }
         }
     }
 

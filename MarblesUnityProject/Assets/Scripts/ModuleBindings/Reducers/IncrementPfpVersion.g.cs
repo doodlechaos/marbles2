@@ -12,17 +12,17 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void ConnectHandler(ReducerEventContext ctx);
-        public event ConnectHandler? OnConnect;
+        public delegate void IncrementPfpVersionHandler(ReducerEventContext ctx);
+        public event IncrementPfpVersionHandler? OnIncrementPfpVersion;
 
-        public void Connect()
+        public void IncrementPfpVersion()
         {
-            conn.InternalCallReducer(new Reducer.Connect(), this.SetCallReducerFlags.ConnectFlags);
+            conn.InternalCallReducer(new Reducer.IncrementPfpVersion(), this.SetCallReducerFlags.IncrementPfpVersionFlags);
         }
 
-        public bool InvokeConnect(ReducerEventContext ctx, Reducer.Connect args)
+        public bool InvokeIncrementPfpVersion(ReducerEventContext ctx, Reducer.IncrementPfpVersion args)
         {
-            if (OnConnect == null)
+            if (OnIncrementPfpVersion == null)
             {
                 if (InternalOnUnhandledReducerError != null)
                 {
@@ -34,7 +34,7 @@ namespace SpacetimeDB.Types
                 }
                 return false;
             }
-            OnConnect(
+            OnIncrementPfpVersion(
                 ctx
             );
             return true;
@@ -45,15 +45,15 @@ namespace SpacetimeDB.Types
     {
         [SpacetimeDB.Type]
         [DataContract]
-        public sealed partial class Connect : Reducer, IReducerArgs
+        public sealed partial class IncrementPfpVersion : Reducer, IReducerArgs
         {
-            string IReducerArgs.ReducerName => "Connect";
+            string IReducerArgs.ReducerName => "IncrementPfpVersion";
         }
     }
 
     public sealed partial class SetReducerFlags
     {
-        internal CallReducerFlags ConnectFlags;
-        public void Connect(CallReducerFlags flags) => ConnectFlags = flags;
+        internal CallReducerFlags IncrementPfpVersionFlags;
+        public void IncrementPfpVersion(CallReducerFlags flags) => IncrementPfpVersionFlags = flags;
     }
 }

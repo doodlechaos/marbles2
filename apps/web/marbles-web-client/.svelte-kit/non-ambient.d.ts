@@ -27,18 +27,18 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/auth" | "/auth/callback" | "/auth/silent-callback" | "/game";
+		RouteId(): "/" | "/api" | "/api/profile-picture" | "/api/stripe-webhook" | "/game";
 		RouteParams(): {
 			
 		};
 		LayoutParams(): {
 			"/": Record<string, never>;
-			"/auth": Record<string, never>;
-			"/auth/callback": Record<string, never>;
-			"/auth/silent-callback": Record<string, never>;
+			"/api": Record<string, never>;
+			"/api/profile-picture": Record<string, never>;
+			"/api/stripe-webhook": Record<string, never>;
 			"/game": Record<string, never>
 		};
-		Pathname(): "/" | "/auth" | "/auth/" | "/auth/callback" | "/auth/callback/" | "/auth/silent-callback" | "/auth/silent-callback/" | "/game" | "/game/";
+		Pathname(): "/" | "/api" | "/api/" | "/api/profile-picture" | "/api/profile-picture/" | "/api/stripe-webhook" | "/api/stripe-webhook/" | "/game" | "/game/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/Build/static.data.unityweb" | "/Build/static.framework.js.unityweb" | "/Build/static.loader.js" | "/Build/static.wasm.unityweb" | "/index.html" | "/TemplateData/webmemd-icon.png" | string & {};
 	}

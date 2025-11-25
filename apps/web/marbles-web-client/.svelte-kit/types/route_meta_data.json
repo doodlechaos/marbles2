@@ -1,4 +1,7 @@
 {
 	"/": [],
+	"/api/profile-picture": [
+		"src/routes/api/profile-picture/+server.ts"
+	],
 	"/game": []
 }

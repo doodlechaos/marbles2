@@ -7,7 +7,6 @@ public static partial class Module
     {
         [PrimaryKey]
         public ulong AccountId;
-
         public string Username;
         public byte PfpVersion;
 

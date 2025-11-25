@@ -50,7 +50,7 @@ public static class AccountHelper
             FirstLoginBonusClaimed = false,
             IsMember = false,
             DailyRewardClaimStreak = 0,
-            LastDailyRewardClaimDay = 0
+            LastDailyRewardClaimDay = 0,
         };
 
         return ctx.Db.Account.Insert(newAccount);

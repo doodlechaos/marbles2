@@ -31,4 +31,12 @@ public static partial class Module
             ctx.Db.AccountCustomization.Insert(newAccountCustomization);
         }
     }
+
+    [Reducer]
+    public static void IncrementPfpVersion(ReducerContext ctx)
+    {
+        AccountCustomization accountCustomization = AccountCustomization.GetOrCreate(ctx);
+        accountCustomization.PfpVersion = (byte)(accountCustomization.PfpVersion + 1);
+        ctx.Db.AccountCustomization.AccountId.Update(accountCustomization);
+    }
 }
