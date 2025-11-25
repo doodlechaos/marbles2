@@ -69,6 +69,7 @@ public class STDB : MonoBehaviour
                 {
                     "SELECT * FROM AuthFrame",
                     "SELECT * FROM Account",
+                    "SELECT * FROM AccountCustomization",
                     "SELECT * FROM BaseCfg",
                 }
             );
