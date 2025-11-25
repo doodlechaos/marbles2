@@ -22,6 +22,12 @@ public class GameManager : MonoBehaviour
 
     public GameCoreRenderer GameCoreRenderer;
 
+    [SerializeField]
+    private AuthManager _authManager;
+
+    [SerializeField]
+    private STDB _stdb;
+
     private void Awake()
     {
         GameCoreLib.Logger.Log = Debug.Log;
@@ -29,6 +35,14 @@ public class GameManager : MonoBehaviour
 
         Inst = this;
         Application.targetFrameRate = 60;
+
+        _authManager.InitAndTryRestoreSession();
+    }
+
+    private void Start()
+    {
+        _authManager.CheckForOAuthCallback();
+        _stdb.InitStdbConnection();
     }
 
     private void FixedUpdate()

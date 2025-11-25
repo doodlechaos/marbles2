@@ -17,6 +17,8 @@ namespace SpacetimeDB.Types
         public SpacetimeDB.Identity Identity;
         [DataMember(Name = "Id")]
         public ulong Id;
+        [DataMember(Name = "IsConnected")]
+        public bool IsConnected;
         [DataMember(Name = "Marbles")]
         public uint Marbles;
         [DataMember(Name = "Points")]
@@ -35,6 +37,7 @@ namespace SpacetimeDB.Types
         public Account(
             SpacetimeDB.Identity Identity,
             ulong Id,
+            bool IsConnected,
             uint Marbles,
             uint Points,
             uint Gold,
@@ -46,6 +49,7 @@ namespace SpacetimeDB.Types
         {
             this.Identity = Identity;
             this.Id = Id;
+            this.IsConnected = IsConnected;
             this.Marbles = Marbles;
             this.Points = Points;
             this.Gold = Gold;

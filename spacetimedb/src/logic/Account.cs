@@ -11,7 +11,7 @@ public static partial class Module
         bool overwriteExisting = false
     )
     {
-        Account account = AccountHelper.GetOrCreate(ctx);
+        Account account = Account.GetOrCreate(ctx);
         AccountCustomization? accountCustomization = ctx.Db.AccountCustomization.AccountId.Find(
             account.Id
         );
@@ -35,7 +35,11 @@ public static partial class Module
     [Reducer]
     public static void IncrementPfpVersion(ReducerContext ctx)
     {
-        AccountCustomization accountCustomization = AccountCustomization.GetOrCreate(ctx);
+        Account account = Account.GetOrCreate(ctx);
+        AccountCustomization accountCustomization = AccountCustomization.GetOrCreate(
+            ctx,
+            account.Id
+        );
         accountCustomization.PfpVersion = (byte)(accountCustomization.PfpVersion + 1);
         ctx.Db.AccountCustomization.AccountId.Update(accountCustomization);
     }

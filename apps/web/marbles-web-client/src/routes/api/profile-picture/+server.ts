@@ -201,7 +201,7 @@ interface AccountData {
 
 async function resolveAccountData(config: SpacetimeDBConfig, token: string): Promise<AccountData> {
 	// Query the account table - RLS (Row-Level Security) will filter to the caller's account
-	const accountResults = await executeSpacetimeDBSql(config, token, 'SELECT * FROM account');
+	const accountResults = await executeSpacetimeDBSql(config, token, 'SELECT * FROM Account');
 
 	if (!accountResults || accountResults.length === 0 || accountResults[0].rows.length === 0) {
 		console.error('[Profile] No account found for this identity');
@@ -228,7 +228,7 @@ async function resolveAccountData(config: SpacetimeDBConfig, token: string): Pro
 	const customizationResults = await executeSpacetimeDBSql(
 		config,
 		token,
-		'SELECT * FROM account_customization'
+		'SELECT * FROM AccountCustomization'
 	);
 
 	let currentVersion = 0;

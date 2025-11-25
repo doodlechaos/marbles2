@@ -27,15 +27,21 @@ public static partial class Module
         );
     }
 
-    [Reducer]
+    [Reducer(ReducerKind.ClientConnected)]
     public static void Connect(ReducerContext ctx)
     {
         Log.Info($"[Init] Client Connecting");
+        Account account = Account.GetOrCreate(ctx);
+        account.IsConnected = true;
+        ctx.Db.Account.Identity.Update(account);
     }
 
     [Reducer(ReducerKind.ClientDisconnected)]
     public static void Disconnect(ReducerContext ctx)
     {
         Log.Info($"[Init] Client Disconnecting");
+        Account account = Account.GetOrCreate(ctx);
+        account.IsConnected = false;
+        ctx.Db.Account.Identity.Update(account);
     }
 }

@@ -66,7 +66,7 @@ public class AuthManager : MonoBehaviour
         public string error_description;
     }
 
-    void Awake()
+    public void InitAndTryRestoreSession()
     {
         // Set redirect URI based on current page (without query parameters)
         redirectUri = GetCurrentPageUrlWithoutQuery();
@@ -75,12 +75,6 @@ public class AuthManager : MonoBehaviour
 
         // Try to restore previous session
         RestoreSession();
-    }
-
-    void Start()
-    {
-        // Check if we're returning from an OAuth callback
-        CheckForOAuthCallback();
     }
 
     void Update()
@@ -167,9 +161,7 @@ public class AuthManager : MonoBehaviour
         return isAuthenticated && !string.IsNullOrEmpty(idToken);
     }
 
-    #region Private Methods
-
-    private void CheckForOAuthCallback()
+    public void CheckForOAuthCallback()
     {
         string currentUrl = GetCurrentPageUrl();
 
@@ -182,6 +174,15 @@ public class AuthManager : MonoBehaviour
             ProcessOAuthCallback(currentUrl);
         }
     }
+
+    public void ClearPlayerPrefs()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        Debug.Log("[AuthManager] PlayerPrefs cleared");
+    }
+
+    #region Private Methods
 
     private void ProcessOAuthCallback(string url)
     {
@@ -502,70 +503,13 @@ public class AuthManager : MonoBehaviour
         return result;
     }
 
-    private string GetCurrentPageUrl()
-    {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        return GetPageUrl();
-#else
-        return "http://localhost:8080"; // Fallback for editor testing
-#endif
-    }
+    private string GetCurrentPageUrl() => WebGLBrowser.GetCurrentPageUrl();
 
-    private string GetCurrentPageUrlWithoutQuery()
-    {
-        string fullUrl = GetCurrentPageUrl();
+    private string GetCurrentPageUrlWithoutQuery() => WebGLBrowser.GetCurrentPageUrlWithoutQuery();
 
-        // Remove query parameters and hash fragments
-        int queryIndex = fullUrl.IndexOf('?');
-        int hashIndex = fullUrl.IndexOf('#');
+    private void RedirectToUrl(string url) => WebGLBrowser.RedirectTo(url);
 
-        int cutoffIndex = -1;
-        if (queryIndex >= 0 && hashIndex >= 0)
-        {
-            cutoffIndex = Math.Min(queryIndex, hashIndex);
-        }
-        else if (queryIndex >= 0)
-        {
-            cutoffIndex = queryIndex;
-        }
-        else if (hashIndex >= 0)
-        {
-            cutoffIndex = hashIndex;
-        }
-
-        if (cutoffIndex >= 0)
-        {
-            return fullUrl.Substring(0, cutoffIndex);
-        }
-
-        return fullUrl;
-    }
-
-    private void RedirectToUrl(string url)
-    {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        Application.ExternalEval($"window.location.href = '{url}';");
-#else
-        Debug.Log($"[AuthManager] Would redirect to: {url}");
-        Application.OpenURL(url);
-#endif
-    }
-
-    private void CleanUrlParameters()
-    {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        // Clean the URL by removing query parameters (but keep the same page)
-        Application.ExternalEval(
-            "window.history.replaceState({}, document.title, window.location.pathname);"
-        );
-#endif
-    }
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [System.Runtime.InteropServices.DllImport("__Internal")]
-    private static extern string GetPageUrl();
-#endif
+    private void CleanUrlParameters() => WebGLBrowser.CleanUrlParameters();
 
     #endregion
 }
-

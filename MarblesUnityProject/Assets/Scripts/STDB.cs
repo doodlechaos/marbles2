@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpacetimeDB;
 using SpacetimeDB.Types;
+using Unity.Properties;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -11,7 +13,12 @@ public class STDB : MonoBehaviour
 {
     const string SERVER_URL = "http://127.0.0.1:3000";
     const string MODULE_NAME = "marbles2";
-    const string PROFILE_PICTURE_API_URL = "http://127.0.0.1:5173/api/profile-picture";
+
+    /// <summary>
+    /// Gets the profile picture API URL using the consolidated WebGLBrowser utility.
+    /// </summary>
+    private static string GetProfilePictureApiUrl() =>
+        WebGLBrowser.GetApiUrl("/api/profile-picture");
 
     public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
@@ -22,7 +29,10 @@ public class STDB : MonoBehaviour
     [SerializeField]
     private AuthManager _authManager;
 
-    private void Awake()
+    [SerializeField]
+    private string _tokenConnectedWith;
+
+    public void InitStdbConnection()
     {
         // In order to build a connection to SpacetimeDB we need to register
         // our callbacks and specify a SpacetimeDB server URI and module name.
@@ -34,24 +44,77 @@ public class STDB : MonoBehaviour
             .WithUri(SERVER_URL)
             .WithModuleName(MODULE_NAME);
 
+        _tokenConnectedWith = SessionToken.Token;
         // If the user has a SpacetimeDB auth token stored in the Unity PlayerPrefs,
         // we can use it to authenticate the connection.
-        if (AuthToken.Token != "")
+        if (SessionToken.HasToken())
         {
-            builder = builder.WithToken(AuthToken.Token);
+            builder = builder.WithToken(SessionToken.Token);
         }
 
         // Building the connection will establish a connection to the SpacetimeDB
         // server.
         Conn = builder.Build();
-        Debug.Log("Building stdb connection");
+
+        CreateTableCallbacks(Conn);
+
+        Debug.Log($"Building stdb connection with token: [{SessionToken.Token}]");
+    }
+
+    private void CreateTableCallbacks(DbConnection conn)
+    {
+        try
+        {
+            conn.Db.Account.OnInsert += (EventContext ctx, Account row) =>
+            {
+                Debug.Log($"Account inserted: {row.Id}. Checking if it needs to upload pfp");
+                AccountCustomization localAccountCustomization = ctx
+                    .Db.AccountCustomization.Iter()
+                    .Where(ac => ac.AccountId == row.Id)
+                    .FirstOrDefault();
+
+                if (localAccountCustomization == null)
+                {
+                    Debug.LogError("Local Account Customization is null");
+                    return;
+                }
+
+                if (
+                    localAccountCustomization.PfpVersion == 0
+                    && !string.IsNullOrEmpty(_authManager.userProfile?.picture)
+                )
+                {
+                    Debug.Log(
+                        $"[STDB] Account has no profile picture, uploading from OAuth: {_authManager.userProfile.picture}"
+                    );
+                    StartCoroutine(
+                        UploadProfilePictureFromUrl(
+                            _authManager.userProfile?.picture,
+                            SessionToken.Token
+                        )
+                    );
+                }
+                else
+                {
+                    Debug.Log(
+                        $"Local Account {row} {localAccountCustomization} doesn't need to upload profile picture from auth"
+                    );
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error creating table callbacks: {ex}");
+        }
+
+        Debug.Log("Initialized table callbacks.");
     }
 
     // Called when we connect to SpacetimeDB and receive our client identity
     void HandleConnect(DbConnection _conn, Identity identity, string token)
     {
         Debug.Log("Connected. Token: " + token);
-        AuthToken.SaveToken(token);
+        SessionToken.SaveToken(token);
         LocalIdentity = identity;
 
         _synchronizer.SetActive(true);
@@ -62,24 +125,6 @@ public class STDB : MonoBehaviour
                 (SubscriptionEventContext ctx) =>
                 {
                     Debug.Log("Subscription applied!");
-                    // Here we should have the account and account customization for the local account loaded.
-                    // If the pfp version of the local account is 0, and the user profile in the auth manager
-                    // has a picture url, call the api endpoint to upload the picture to the cloudflare r2 bucket
-                    Account localAccount = ctx.Db.Account.Identity.Find(identity);
-                    AccountCustomization localAccountCustomization =
-                        ctx.Db.AccountCustomization.AccountId.Find(localAccount.Id);
-                    if (
-                        localAccountCustomization.PfpVersion == 0
-                        && !string.IsNullOrEmpty(_authManager.userProfile?.picture)
-                    )
-                    {
-                        Debug.Log(
-                            $"[STDB] Account has no profile picture, uploading from OAuth: {_authManager.userProfile.picture}"
-                        );
-                        StartCoroutine(
-                            UploadProfilePictureFromUrl(_authManager.userProfile.picture, token)
-                        );
-                    }
                 }
             )
             .OnError(
@@ -122,18 +167,14 @@ public class STDB : MonoBehaviour
         string authToken
     )
     {
-        Debug.Log($"[STDB] Starting profile picture upload from URL: {imageUrl}");
+        string apiUrl = GetProfilePictureApiUrl();
+        Debug.Log($"[STDB] Starting profile picture upload from URL: {imageUrl} to API: {apiUrl}");
 
         // Create JSON payload
         string jsonPayload = $"{{\"imageUrl\":\"{imageUrl}\"}}";
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
 
-        using (
-            UnityWebRequest request = new UnityWebRequest(
-                PROFILE_PICTURE_API_URL,
-                UnityWebRequest.kHttpVerbPOST
-            )
-        )
+        using (UnityWebRequest request = new UnityWebRequest(apiUrl, UnityWebRequest.kHttpVerbPOST))
         {
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();

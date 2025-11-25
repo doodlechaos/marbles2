@@ -10,10 +10,9 @@ public static partial class Module
         public string Username;
         public byte PfpVersion;
 
-        public static AccountCustomization GetOrCreate(ReducerContext ctx)
+        public static AccountCustomization GetOrCreate(ReducerContext ctx, ulong accountId)
         {
-            Account account = AccountHelper.GetOrCreate(ctx);
-            var accountCustomizationOpt = ctx.Db.AccountCustomization.AccountId.Find(account.Id);
+            var accountCustomizationOpt = ctx.Db.AccountCustomization.AccountId.Find(accountId);
             if (accountCustomizationOpt.HasValue)
             {
                 return accountCustomizationOpt.Value;
@@ -22,7 +21,7 @@ public static partial class Module
             {
                 var newAccountCustomization = new AccountCustomization
                 {
-                    AccountId = account.Id,
+                    AccountId = accountId,
                     Username = "",
                     PfpVersion = 0,
                 };
