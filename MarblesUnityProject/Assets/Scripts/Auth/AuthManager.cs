@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class AuthManager : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class AuthManager : MonoBehaviour
 
     [Header("Runtime State")]
     public bool isAuthenticated = false;
+
+    public Toggle isAuthenticatedVisualToggle;
     public string idToken = null;
     public UserProfile userProfile = null;
 
@@ -65,8 +68,10 @@ public class AuthManager : MonoBehaviour
 
     void Awake()
     {
-        // Set redirect URI based on current page
-        redirectUri = GetCurrentPageUrl();
+        // Set redirect URI based on current page (without query parameters)
+        redirectUri = GetCurrentPageUrlWithoutQuery();
+
+        Debug.Log("redirectUri: " + redirectUri);
 
         // Try to restore previous session
         RestoreSession();
@@ -76,6 +81,11 @@ public class AuthManager : MonoBehaviour
     {
         // Check if we're returning from an OAuth callback
         CheckForOAuthCallback();
+    }
+
+    void Update()
+    {
+        isAuthenticatedVisualToggle.isOn = isAuthenticated;
     }
 
     /// <summary>
@@ -134,11 +144,11 @@ public class AuthManager : MonoBehaviour
 
         OnLogout?.Invoke();
 
-        // Optionally redirect to post-logout URI
-        string postLogoutUri = GetCurrentPageUrl();
-        string logoutUrl =
-            $"{authority}/logout?post_logout_redirect_uri={Uri.EscapeDataString(postLogoutUri)}";
-        RedirectToUrl(logoutUrl);
+        // Perform local logout by refreshing the page (clears any in-memory state)
+        // SpacetimeAuth doesn't support a server-side logout endpoint,
+        // so we just clear local session and refresh
+        string currentPage = GetCurrentPageUrlWithoutQuery();
+        RedirectToUrl(currentPage);
     }
 
     /// <summary>
@@ -162,6 +172,8 @@ public class AuthManager : MonoBehaviour
     private void CheckForOAuthCallback()
     {
         string currentUrl = GetCurrentPageUrl();
+
+        Debug.Log("currentUrl: " + currentUrl);
 
         // Check if URL contains OAuth callback parameters
         if (currentUrl.Contains("?code=") || currentUrl.Contains("&code="))
@@ -228,6 +240,9 @@ public class AuthManager : MonoBehaviour
     private IEnumerator ExchangeCodeForTokens(string code)
     {
         Debug.Log("[AuthManager] Exchanging authorization code for tokens...");
+        Debug.Log($"[AuthManager] Token endpoint: {authority}/token");
+        Debug.Log($"[AuthManager] Redirect URI: {redirectUri}");
+        Debug.Log($"[AuthManager] Client ID: {clientId}");
 
         string tokenEndpoint = $"{authority}/token";
 
@@ -396,6 +411,7 @@ public class AuthManager : MonoBehaviour
             { "response_type", "code" },
             { "client_id", clientId },
             { "redirect_uri", redirectUri },
+            { "post_logout_redirect_uri", redirectUri },
             { "scope", scopes },
             { "state", state },
             { "code_challenge", codeChallenge },
@@ -495,6 +511,36 @@ public class AuthManager : MonoBehaviour
 #endif
     }
 
+    private string GetCurrentPageUrlWithoutQuery()
+    {
+        string fullUrl = GetCurrentPageUrl();
+
+        // Remove query parameters and hash fragments
+        int queryIndex = fullUrl.IndexOf('?');
+        int hashIndex = fullUrl.IndexOf('#');
+
+        int cutoffIndex = -1;
+        if (queryIndex >= 0 && hashIndex >= 0)
+        {
+            cutoffIndex = Math.Min(queryIndex, hashIndex);
+        }
+        else if (queryIndex >= 0)
+        {
+            cutoffIndex = queryIndex;
+        }
+        else if (hashIndex >= 0)
+        {
+            cutoffIndex = hashIndex;
+        }
+
+        if (cutoffIndex >= 0)
+        {
+            return fullUrl.Substring(0, cutoffIndex);
+        }
+
+        return fullUrl;
+    }
+
     private void RedirectToUrl(string url)
     {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -522,3 +568,4 @@ public class AuthManager : MonoBehaviour
 
     #endregion
 }
+
