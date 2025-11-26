@@ -2,5 +2,8 @@ using UnityEngine;
 
 public class LevelFileAuth : MonoBehaviour
 {
-    public float MinutesUntilCycle = 1.0f;
+    public GameCoreLib.Rarity Rarity;
+    public int MinAuctionSpots = 0;
+    public int MaxAuctionSpots = 10;
+    public int MaxRaffleDraws = 10;
 }

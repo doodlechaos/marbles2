@@ -24,13 +24,17 @@ namespace SpacetimeDB.Types
         public RemoteTables(DbConnection conn)
         {
             AddTable(Account = new(conn));
+            AddTable(AccountBid = new(conn));
             AddTable(AccountCustomization = new(conn));
             AddTable(AccountSeq = new(conn));
             AddTable(Admin = new(conn));
             AddTable(AuthFrame = new(conn));
             AddTable(BaseCfg = new(conn));
+            AddTable(BidConfigS = new(conn));
+            AddTable(BidTimeS = new(conn));
             AddTable(Clock = new(conn));
             AddTable(ClockSchedule = new(conn));
+            AddTable(CurrentBid = new(conn));
             AddTable(DeterminismCheck = new(conn));
             AddTable(GameCoreSnap = new(conn));
             AddTable(InputCollector = new(conn));

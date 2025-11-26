@@ -61,6 +61,8 @@ export { UpsertLevelFileData };
 // Import and reexport all table handle types
 import { AccountTableHandle } from "./account_table.ts";
 export { AccountTableHandle };
+import { AccountBidTableHandle } from "./account_bid_table.ts";
+export { AccountBidTableHandle };
 import { AccountCustomizationTableHandle } from "./account_customization_table.ts";
 export { AccountCustomizationTableHandle };
 import { AccountSeqTableHandle } from "./account_seq_table.ts";
@@ -71,10 +73,16 @@ import { AuthFrameTableHandle } from "./auth_frame_table.ts";
 export { AuthFrameTableHandle };
 import { BaseCfgTableHandle } from "./base_cfg_table.ts";
 export { BaseCfgTableHandle };
+import { BidConfigSTableHandle } from "./bid_config_s_table.ts";
+export { BidConfigSTableHandle };
+import { BidTimeSTableHandle } from "./bid_time_s_table.ts";
+export { BidTimeSTableHandle };
 import { ClockTableHandle } from "./clock_table.ts";
 export { ClockTableHandle };
 import { ClockScheduleTableHandle } from "./clock_schedule_table.ts";
 export { ClockScheduleTableHandle };
+import { CurrentBidTableHandle } from "./current_bid_table.ts";
+export { CurrentBidTableHandle };
 import { DeterminismCheckTableHandle } from "./determinism_check_table.ts";
 export { DeterminismCheckTableHandle };
 import { GameCoreSnapTableHandle } from "./game_core_snap_table.ts";
@@ -97,6 +105,8 @@ export { StepsSinceLastBatchTableHandle };
 // Import and reexport all types
 import { Account } from "./account_type.ts";
 export { Account };
+import { AccountBid } from "./account_bid_type.ts";
+export { AccountBid };
 import { AccountCustomization } from "./account_customization_type.ts";
 export { AccountCustomization };
 import { AccountSeq } from "./account_seq_type.ts";
@@ -107,10 +117,16 @@ import { AuthFrame } from "./auth_frame_type.ts";
 export { AuthFrame };
 import { BaseCfg } from "./base_cfg_type.ts";
 export { BaseCfg };
+import { BidConfigS } from "./bid_config_s_type.ts";
+export { BidConfigS };
+import { BidTimeS } from "./bid_time_s_type.ts";
+export { BidTimeS };
 import { Clock } from "./clock_type.ts";
 export { Clock };
 import { ClockSchedule } from "./clock_schedule_type.ts";
 export { ClockSchedule };
+import { CurrentBid } from "./current_bid_type.ts";
+export { CurrentBid };
 import { DeterminismCheck } from "./determinism_check_type.ts";
 export { DeterminismCheck };
 import { GameCoreSnap } from "./game_core_snap_type.ts";
@@ -139,6 +155,15 @@ const REMOTE_MODULE = {
       primaryKeyInfo: {
         colName: "identity",
         colType: (Account.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
+      },
+    },
+    AccountBid: {
+      tableName: "AccountBid" as const,
+      rowType: AccountBid.getTypeScriptAlgebraicType(),
+      primaryKey: "accountId",
+      primaryKeyInfo: {
+        colName: "accountId",
+        colType: (AccountBid.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
     AccountCustomization: {
@@ -186,6 +211,14 @@ const REMOTE_MODULE = {
         colType: (BaseCfg.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
+    BidConfigS: {
+      tableName: "BidConfigS" as const,
+      rowType: BidConfigS.getTypeScriptAlgebraicType(),
+    },
+    BidTimeS: {
+      tableName: "BidTimeS" as const,
+      rowType: BidTimeS.getTypeScriptAlgebraicType(),
+    },
     Clock: {
       tableName: "Clock" as const,
       rowType: Clock.getTypeScriptAlgebraicType(),
@@ -203,6 +236,10 @@ const REMOTE_MODULE = {
         colName: "id",
         colType: (ClockSchedule.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
+    },
+    CurrentBid: {
+      tableName: "CurrentBid" as const,
+      rowType: CurrentBid.getTypeScriptAlgebraicType(),
     },
     DeterminismCheck: {
       tableName: "DeterminismCheck" as const,
@@ -638,6 +675,11 @@ export class RemoteTables {
     return new AccountTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<Account>(REMOTE_MODULE.tables.Account));
   }
 
+  get accountBid(): AccountBidTableHandle<'AccountBid'> {
+    // clientCache is a private property
+    return new AccountBidTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<AccountBid>(REMOTE_MODULE.tables.AccountBid));
+  }
+
   get accountCustomization(): AccountCustomizationTableHandle<'AccountCustomization'> {
     // clientCache is a private property
     return new AccountCustomizationTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<AccountCustomization>(REMOTE_MODULE.tables.AccountCustomization));
@@ -663,6 +705,16 @@ export class RemoteTables {
     return new BaseCfgTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<BaseCfg>(REMOTE_MODULE.tables.BaseCfg));
   }
 
+  get bidConfigS(): BidConfigSTableHandle<'BidConfigS'> {
+    // clientCache is a private property
+    return new BidConfigSTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<BidConfigS>(REMOTE_MODULE.tables.BidConfigS));
+  }
+
+  get bidTimeS(): BidTimeSTableHandle<'BidTimeS'> {
+    // clientCache is a private property
+    return new BidTimeSTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<BidTimeS>(REMOTE_MODULE.tables.BidTimeS));
+  }
+
   get clock(): ClockTableHandle<'Clock'> {
     // clientCache is a private property
     return new ClockTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<Clock>(REMOTE_MODULE.tables.Clock));
@@ -671,6 +723,11 @@ export class RemoteTables {
   get clockSchedule(): ClockScheduleTableHandle<'ClockSchedule'> {
     // clientCache is a private property
     return new ClockScheduleTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<ClockSchedule>(REMOTE_MODULE.tables.ClockSchedule));
+  }
+
+  get currentBid(): CurrentBidTableHandle<'CurrentBid'> {
+    // clientCache is a private property
+    return new CurrentBidTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<CurrentBid>(REMOTE_MODULE.tables.CurrentBid));
   }
 
   get determinismCheck(): DeterminismCheckTableHandle<'DeterminismCheck'> {

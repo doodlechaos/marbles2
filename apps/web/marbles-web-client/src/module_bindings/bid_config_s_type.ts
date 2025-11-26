@@ -28,42 +28,42 @@ import {
   type TableHandle as __TableHandle,
 } from "spacetimedb";
 
-export type LevelFileData = {
-  unityPrefabGuid: string,
-  rarity: number,
-  levelFileBinary: Uint8Array,
+export type BidConfigS = {
+  minAuctionSpots: number,
+  maxAcutionSpots: number,
+  maxRaffleDraws: number,
 };
-let _cached_LevelFileData_type_value: __AlgebraicTypeType | null = null;
+let _cached_BidConfigS_type_value: __AlgebraicTypeType | null = null;
 
 /**
  * An object for generated helper functions.
  */
-export const LevelFileData = {
+export const BidConfigS = {
   /**
   * A function which returns this type represented as an AlgebraicType.
   * This function is derived from the AlgebraicType used to generate this type.
   */
   getTypeScriptAlgebraicType(): __AlgebraicTypeType {
-    if (_cached_LevelFileData_type_value) return _cached_LevelFileData_type_value;
-    _cached_LevelFileData_type_value = __AlgebraicTypeValue.Product({ elements: [] });
-    _cached_LevelFileData_type_value.value.elements.push(
-      { name: "unityPrefabGuid", algebraicType: __AlgebraicTypeValue.String },
-      { name: "rarity", algebraicType: __AlgebraicTypeValue.I32 },
-      { name: "levelFileBinary", algebraicType: __AlgebraicTypeValue.Array(__AlgebraicTypeValue.U8) },
+    if (_cached_BidConfigS_type_value) return _cached_BidConfigS_type_value;
+    _cached_BidConfigS_type_value = __AlgebraicTypeValue.Product({ elements: [] });
+    _cached_BidConfigS_type_value.value.elements.push(
+      { name: "minAuctionSpots", algebraicType: __AlgebraicTypeValue.I32 },
+      { name: "maxAcutionSpots", algebraicType: __AlgebraicTypeValue.I32 },
+      { name: "maxRaffleDraws", algebraicType: __AlgebraicTypeValue.I32 },
     );
-    return _cached_LevelFileData_type_value;
+    return _cached_BidConfigS_type_value;
   },
 
-  serialize(writer: __BinaryWriter, value: LevelFileData): void {
-    __AlgebraicTypeValue.serializeValue(writer, LevelFileData.getTypeScriptAlgebraicType(), value);
+  serialize(writer: __BinaryWriter, value: BidConfigS): void {
+    __AlgebraicTypeValue.serializeValue(writer, BidConfigS.getTypeScriptAlgebraicType(), value);
   },
 
-  deserialize(reader: __BinaryReader): LevelFileData {
-    return __AlgebraicTypeValue.deserializeValue(reader, LevelFileData.getTypeScriptAlgebraicType());
+  deserialize(reader: __BinaryReader): BidConfigS {
+    return __AlgebraicTypeValue.deserializeValue(reader, BidConfigS.getTypeScriptAlgebraicType());
   },
 
 }
 
-export default LevelFileData;
+export default BidConfigS;
 
 

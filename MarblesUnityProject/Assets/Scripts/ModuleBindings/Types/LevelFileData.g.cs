@@ -15,15 +15,19 @@ namespace SpacetimeDB.Types
     {
         [DataMember(Name = "UnityPrefabGUID")]
         public string UnityPrefabGuid;
+        [DataMember(Name = "Rarity")]
+        public int Rarity;
         [DataMember(Name = "LevelFileBinary")]
         public System.Collections.Generic.List<byte> LevelFileBinary;
 
         public LevelFileData(
             string UnityPrefabGuid,
+            int Rarity,
             System.Collections.Generic.List<byte> LevelFileBinary
         )
         {
             this.UnityPrefabGuid = UnityPrefabGuid;
+            this.Rarity = Rarity;
             this.LevelFileBinary = LevelFileBinary;
         }
 

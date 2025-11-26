@@ -90,7 +90,18 @@ public class LevelFileExporter : EditorWindow
 
                     // Create LevelFile object
                     string levelName = Path.GetFileNameWithoutExtension(assetPath);
-                    LevelFile levelFile = new LevelFile(guid, levelName, objHierarchyJson);
+                    LevelFile levelFile = new LevelFile(
+                        guid,
+                        new LevelMetadata
+                        {
+                            LevelName = levelName,
+                            Rarity = levelFileAuth.Rarity,
+                            MinAuctionSpots = levelFileAuth.MinAuctionSpots,
+                            MaxAuctionSpots = levelFileAuth.MaxAuctionSpots,
+                            MaxRaffleDraws = levelFileAuth.MaxRaffleDraws,
+                        },
+                        objHierarchyJson
+                    );
 
                     // Serialize to binary
                     byte[] levelFileBinary = levelFile.ToBinary();

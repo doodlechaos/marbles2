@@ -8,6 +8,9 @@ public static partial class Module
     {
         [PrimaryKey]
         public string UnityPrefabGUID;
+
+        public int Rarity;
+
         public byte[] LevelFileBinary; //<< Serialized LevelFile
     }
 
@@ -16,6 +19,7 @@ public static partial class Module
     {
         // Delete existing entry if it exists, then insert the new one (upsert behavior)
         ctx.Db.LevelFileData.UnityPrefabGUID.Delete(levelFileData.UnityPrefabGUID);
+
         ctx.Db.LevelFileData.Insert(levelFileData);
     }
 }

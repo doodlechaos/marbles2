@@ -28,42 +28,40 @@ import {
   type TableHandle as __TableHandle,
 } from "spacetimedb";
 
-export type LevelFileData = {
-  unityPrefabGuid: string,
-  rarity: number,
-  levelFileBinary: Uint8Array,
+export type AccountBid = {
+  accountId: bigint,
+  totalBid: number,
 };
-let _cached_LevelFileData_type_value: __AlgebraicTypeType | null = null;
+let _cached_AccountBid_type_value: __AlgebraicTypeType | null = null;
 
 /**
  * An object for generated helper functions.
  */
-export const LevelFileData = {
+export const AccountBid = {
   /**
   * A function which returns this type represented as an AlgebraicType.
   * This function is derived from the AlgebraicType used to generate this type.
   */
   getTypeScriptAlgebraicType(): __AlgebraicTypeType {
-    if (_cached_LevelFileData_type_value) return _cached_LevelFileData_type_value;
-    _cached_LevelFileData_type_value = __AlgebraicTypeValue.Product({ elements: [] });
-    _cached_LevelFileData_type_value.value.elements.push(
-      { name: "unityPrefabGuid", algebraicType: __AlgebraicTypeValue.String },
-      { name: "rarity", algebraicType: __AlgebraicTypeValue.I32 },
-      { name: "levelFileBinary", algebraicType: __AlgebraicTypeValue.Array(__AlgebraicTypeValue.U8) },
+    if (_cached_AccountBid_type_value) return _cached_AccountBid_type_value;
+    _cached_AccountBid_type_value = __AlgebraicTypeValue.Product({ elements: [] });
+    _cached_AccountBid_type_value.value.elements.push(
+      { name: "accountId", algebraicType: __AlgebraicTypeValue.U64 },
+      { name: "totalBid", algebraicType: __AlgebraicTypeValue.U32 },
     );
-    return _cached_LevelFileData_type_value;
+    return _cached_AccountBid_type_value;
   },
 
-  serialize(writer: __BinaryWriter, value: LevelFileData): void {
-    __AlgebraicTypeValue.serializeValue(writer, LevelFileData.getTypeScriptAlgebraicType(), value);
+  serialize(writer: __BinaryWriter, value: AccountBid): void {
+    __AlgebraicTypeValue.serializeValue(writer, AccountBid.getTypeScriptAlgebraicType(), value);
   },
 
-  deserialize(reader: __BinaryReader): LevelFileData {
-    return __AlgebraicTypeValue.deserializeValue(reader, LevelFileData.getTypeScriptAlgebraicType());
+  deserialize(reader: __BinaryReader): AccountBid {
+    return __AlgebraicTypeValue.deserializeValue(reader, AccountBid.getTypeScriptAlgebraicType());
   },
 
 }
 
-export default LevelFileData;
+export default AccountBid;
 
 
