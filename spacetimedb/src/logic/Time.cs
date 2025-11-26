@@ -13,7 +13,6 @@ public static partial class Module
         var clock = Clock.GetSingleton(ctx);
 
         // Calculate delta time since last update
-
         TimeDuration deltaTime = ctx.Timestamp.TimeDurationSince(clock.PrevClockUpdate);
 
         // Clamp the max delta time to 1 second (crucial to avoid a long catchup if stopping and starting locally)
@@ -31,6 +30,7 @@ public static partial class Module
         while (clock.TickTimeAccumulatorSec >= secPerStep)
         {
             clock.TickTimeAccumulatorSec -= secPerStep;
+            UpdateBidManager(ctx, secPerStep);
             OnSeqTick(ctx);
         }
 

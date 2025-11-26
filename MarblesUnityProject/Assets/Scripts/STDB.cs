@@ -34,7 +34,6 @@ public class STDB : MonoBehaviour
     private static string GetProfilePictureApiUrl() =>
         WebGLBrowser.GetApiUrl("/api/profile-picture");
 
-    //public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
 
     [SerializeField]
