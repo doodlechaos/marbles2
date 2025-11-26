@@ -1,11 +1,6 @@
-using FPMathLib;    // Fixed-point math types (FP, FPVector2, FPVector3, etc.)
-using GameCoreLib;  // Game logic (GameCore, GameTile, RuntimeObj)
-using LockSim;   // Physics simulation (World, RigidBodyLS, PhysicsPipeline, etc.)
+using FPMathLib; // Fixed-point math types (FP, FPVector2, FPVector3, etc.)
+using GameCoreLib; // Game logic (GameCore, GameTile, RuntimeObj)
+using LockSim; // Physics simulation (World, RigidBodyLS, PhysicsPipeline, etc.)
 using SpacetimeDB;
 
-
-public static partial class Module
-{
-
-
-}
+public static partial class Module { }
