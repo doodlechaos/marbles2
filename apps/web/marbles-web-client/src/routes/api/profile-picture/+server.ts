@@ -5,107 +5,23 @@ import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { AccountCustomization, DbConnection, type ErrorContext } from "../../../module_bindings";
 import { Identity } from "spacetimedb";
+import { Jimp } from "jimp";
 
 // Configuration constants
 const PROFILE_STORAGE_PREFIX = "pfp/";
 const MAX_PROFILE_VERSION = 255;
-const PFP_MIME = "image/webp";
-const PFP_MAX_BYTES = 512 * 1024; // 512KB
-const PFP_IMAGE_SIZE = 256; // 256x256 pixels
+const PFP_MAX_BYTES = 2 * 1024 * 1024; // 2MB
 
-// WebP parsing types and utilities
-type WebpDimensions = { width: number; height: number };
-
-function readUint32LE(data: Uint8Array, offset: number): number {
-    return (
-        (data[offset] |
-            (data[offset + 1] << 8) |
-            (data[offset + 2] << 16) |
-            (data[offset + 3] << 24)) >>>
-        0
-    );
-}
-
-function getFourCC(data: Uint8Array, offset: number): string {
-    return String.fromCharCode(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
-}
-
-function parseLossyDimensions(
-    data: Uint8Array,
-    offset: number,
-    size: number
-): WebpDimensions | null {
-    if (size < 10) return null;
-    const frameStart = offset;
-    // Check for start code 0x9d012a
-    if (
-        data[frameStart + 3] !== 0x9d ||
-        data[frameStart + 4] !== 0x01 ||
-        data[frameStart + 5] !== 0x2a
-    ) {
-        return null;
-    }
-    const rawWidth = data[frameStart + 6] | ((data[frameStart + 7] & 0x3f) << 8);
-    const rawHeight = data[frameStart + 8] | ((data[frameStart + 9] & 0x3f) << 8);
-    return { width: rawWidth + 1, height: rawHeight + 1 };
-}
-
-function parseLosslessDimensions(
-    data: Uint8Array,
-    offset: number,
-    size: number
-): WebpDimensions | null {
-    if (size < 5) return null;
-    if (data[offset] !== 0x2f) {
-        return null;
-    }
-    const widthMinusOne = ((data[offset + 2] & 0x3f) << 8) | data[offset + 1];
-    const heightMinusOne =
-        ((data[offset + 4] & 0x0f) << 10) |
-        (data[offset + 3] << 2) |
-        ((data[offset + 2] & 0xc0) >> 6);
-    return { width: widthMinusOne + 1, height: heightMinusOne + 1 };
-}
-
-function parseExtendedDimensions(
-    data: Uint8Array,
-    offset: number,
-    size: number
-): WebpDimensions | null {
-    if (size < 10) return null;
-    const widthMinusOne = data[offset + 4] | (data[offset + 5] << 8) | (data[offset + 6] << 16);
-    const heightMinusOne = data[offset + 7] | (data[offset + 8] << 8) | (data[offset + 9] << 16);
-    return { width: widthMinusOne + 1, height: heightMinusOne + 1 };
-}
-
-function parseWebpDimensions(data: Uint8Array): WebpDimensions | null {
-    if (data.length < 30) {
-        return null;
-    }
-    if (getFourCC(data, 0) !== "RIFF" || getFourCC(data, 8) !== "WEBP") {
-        return null;
-    }
-    let offset = 12;
-    while (offset + 8 <= data.length) {
-        const chunkId = getFourCC(data, offset);
-        const chunkSize = readUint32LE(data, offset + 4);
-        const chunkDataOffset = offset + 8;
-        if (chunkDataOffset + chunkSize > data.length) {
-            return null;
-        }
-        if (chunkId === "VP8 ") {
-            return parseLossyDimensions(data, chunkDataOffset, chunkSize);
-        }
-        if (chunkId === "VP8L") {
-            return parseLosslessDimensions(data, chunkDataOffset, chunkSize);
-        }
-        if (chunkId === "VP8X") {
-            return parseExtendedDimensions(data, chunkDataOffset, chunkSize);
-        }
-        offset = chunkDataOffset + chunkSize + (chunkSize & 1);
-    }
-    return null;
-}
+// Accepted image types for upload (will be converted to PNG)
+const ACCEPTED_IMAGE_TYPES = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+    "image/gif",
+    "image/bmp",
+    "image/tiff",
+];
 
 async function subscribeAndWait(connection: DbConnection, queries: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -134,7 +50,6 @@ async function subscribeAndWait(connection: DbConnection, queries: string[]): Pr
 async function connectToSpacetimeDb(
     env: App.Platform["env"]
 ): Promise<{ connection: DbConnection; identity: Identity }> {
-    // Use platform.env from wrangler (works with wrangler dev and production)
     const host = env.SPACETIMEDB_HOST;
     const moduleName = env.SPACETIMEDB_DB_NAME;
     const token = env.SPACETIMEDB_ADMIN_TOKEN;
@@ -190,15 +105,12 @@ async function connectToSpacetimeDb(
 
 async function resolveAccountData(
     connection: DbConnection,
-    identity: Identity //identityU256
+    identity: Identity
 ): Promise<{ accountId: bigint; currentVersion: number }> {
     console.log(`[Profile] Starting resolve account data for identity: ${identity.toHexString()}`);
-    await subscribeAndWait(connection, [
-        `SELECT * FROM Account`, // WHERE identity = 0x${identity.toHexString()}`
-    ]);
+    await subscribeAndWait(connection, [`SELECT * FROM Account`]);
     console.log("[Profile] After subscribe and wait");
 
-    // Debug: Log all accounts in the cache
     const allAccounts = Array.from(connection.db.account.iter());
     console.log(`[Profile] Accounts in cache: ${allAccounts.length}`);
     for (const acc of allAccounts) {
@@ -214,7 +126,7 @@ async function resolveAccountData(
     }
 
     const accountId = accountRow.id;
-    const query = `SELECT * FROM AccountCustomization`; //Don't filter by WHERE, RLS takes care of it
+    const query = `SELECT * FROM AccountCustomization`;
     console.log("Starting subscribe for account_customization with Query: ", query);
     await subscribeAndWait(connection, [query]);
     console.log("After subscribe and wait for account_customization");
@@ -226,7 +138,6 @@ async function resolveAccountData(
     return { accountId, currentVersion };
 }
 
-// R2 upload using bucket binding (no S3 credentials needed!)
 async function uploadProfilePictureToR2(
     bucket: R2Bucket,
     objectKey: string,
@@ -265,14 +176,80 @@ function buildProfilePictureUrl(
     return `${normalizedBase}/pfp/${accountId.toString()}.${extension}?v=${version}`;
 }
 
-// Download image from URL and return as bytes
-async function downloadImageFromUrl(imageUrl: string): Promise<Uint8Array> {
+/**
+ * Download image from URL and return as bytes with detected content type
+ */
+async function downloadImageFromUrl(
+    imageUrl: string
+): Promise<{ bytes: Uint8Array; contentType: string }> {
+    console.log(`[Profile] Downloading image from URL: ${imageUrl}`);
     const response = await fetch(imageUrl);
     if (!response.ok) {
-        throw new Error(`Failed to download image from URL: ${response.status}`);
+        throw new Error(`Failed to download image: ${response.status}`);
     }
+    const contentType = response.headers.get("content-type") ?? "image/jpeg";
     const buffer = await response.arrayBuffer();
-    return new Uint8Array(buffer);
+    console.log(`[Profile] Downloaded ${buffer.byteLength} bytes, content-type: ${contentType}`);
+    return { bytes: new Uint8Array(buffer), contentType };
+}
+
+/**
+ * Detect image type from magic bytes (for logging/validation purposes)
+ */
+function detectImageType(bytes: Uint8Array): string {
+    // Check magic bytes
+    if (bytes.length >= 8) {
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
+        if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
+            return "png";
+        }
+        // JPEG: FF D8 FF
+        if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+            return "jpeg";
+        }
+        // GIF: 47 49 46 38
+        if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) {
+            return "gif";
+        }
+        // WebP: RIFF....WEBP
+        if (
+            bytes[0] === 0x52 &&
+            bytes[1] === 0x49 &&
+            bytes[2] === 0x46 &&
+            bytes[3] === 0x46 &&
+            bytes[8] === 0x57 &&
+            bytes[9] === 0x45 &&
+            bytes[10] === 0x42 &&
+            bytes[11] === 0x50
+        ) {
+            return "webp";
+        }
+        // BMP: 42 4D
+        if (bytes[0] === 0x42 && bytes[1] === 0x4d) {
+            return "bmp";
+        }
+        // TIFF: 49 49 2A 00 or 4D 4D 00 2A
+        if (
+            (bytes[0] === 0x49 && bytes[1] === 0x49 && bytes[2] === 0x2a && bytes[3] === 0x00) ||
+            (bytes[0] === 0x4d && bytes[1] === 0x4d && bytes[2] === 0x00 && bytes[3] === 0x2a)
+        ) {
+            return "tiff";
+        }
+    }
+    return "unknown";
+}
+
+/**
+ * Convert image bytes to PNG format using jimp
+ */
+async function convertToPng(imageBytes: Uint8Array): Promise<Uint8Array> {
+    console.log(`[Profile] Converting image (${imageBytes.length} bytes) to PNG`);
+
+    const image = await Jimp.read(Buffer.from(imageBytes));
+    const pngBuffer = await image.getBuffer("image/png");
+
+    console.log(`[Profile] Converted to PNG: ${pngBuffer.length} bytes`);
+    return new Uint8Array(pngBuffer);
 }
 
 // Main request handler
@@ -305,11 +282,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
     // Parse the request - supports both form-data with image OR JSON with imageUrl
     const contentType = request.headers.get("content-type") ?? "";
-    let bytes: Uint8Array;
+    let imageBytes: Uint8Array;
+    let imageMimeType: string;
     let userIdentity: Identity | null = null;
 
     if (contentType.includes("multipart/form-data")) {
-        // Traditional form upload with WebP image
+        // Form upload - accept any common image format
         const formData = await request.formData();
         const image = formData.get("image");
         const identityField = formData.get("identity");
@@ -328,28 +306,21 @@ export const POST: RequestHandler = async ({ request, platform }) => {
             throw error(400, "Invalid identity format");
         }
 
-        if (image.type !== PFP_MIME) {
-            throw error(400, `Profile pictures must be uploaded as ${PFP_MIME}`);
+        // Accept common image formats
+        if (!ACCEPTED_IMAGE_TYPES.includes(image.type)) {
+            throw error(400, `Profile pictures must be one of: ${ACCEPTED_IMAGE_TYPES.join(", ")}`);
         }
 
         if (image.size > PFP_MAX_BYTES) {
-            throw error(400, `Profile pictures must be smaller than ${PFP_MAX_BYTES} bytes`);
-        }
-
-        bytes = new Uint8Array(await image.arrayBuffer());
-
-        const dimensions = parseWebpDimensions(bytes);
-
-        if (!dimensions) {
-            throw error(400, "The uploaded image is not a valid WebP file");
-        }
-
-        if (dimensions.width !== PFP_IMAGE_SIZE || dimensions.height !== PFP_IMAGE_SIZE) {
             throw error(
                 400,
-                `Profile pictures must be exactly ${PFP_IMAGE_SIZE}×${PFP_IMAGE_SIZE} pixels`
+                `Profile pictures must be smaller than ${PFP_MAX_BYTES / 1024 / 1024}MB`
             );
         }
+
+        imageBytes = new Uint8Array(await image.arrayBuffer());
+        imageMimeType = image.type;
+        console.log(`[Profile] Received ${imageBytes.length} bytes ${imageMimeType} upload`);
     } else if (contentType.includes("application/json")) {
         // JSON body with imageUrl and identity - download from OAuth provider
         const body = (await request.json()) as { imageUrl?: string; identity?: string };
@@ -362,14 +333,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
             throw error(400, "Request must include an identity");
         }
 
-        // Validate URL
         try {
             new URL(body.imageUrl);
         } catch {
             throw error(400, "Invalid imageUrl provided");
         }
 
-        // Parse identity from request
         try {
             userIdentity = Identity.fromString(body.identity);
         } catch {
@@ -379,13 +348,13 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         console.log("[Profile] Downloading image from URL:", body.imageUrl);
 
         try {
-            bytes = await downloadImageFromUrl(body.imageUrl);
+            const downloaded = await downloadImageFromUrl(body.imageUrl);
+            imageBytes = downloaded.bytes;
+            imageMimeType = downloaded.contentType;
         } catch (err) {
             console.error("[Profile] Failed to download image:", err);
             throw error(400, "Failed to download image from URL");
         }
-
-        console.log(`[Profile] Downloaded ${bytes.length} bytes from URL`);
     } else {
         throw error(400, "Request must be multipart/form-data or application/json");
     }
@@ -394,6 +363,19 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         throw error(400, "Identity is required");
     }
     console.log(`[Profile] User identity: ${userIdentity.toHexString()}`);
+
+    // Detect original image type for logging
+    const detectedType = detectImageType(imageBytes);
+    console.log(`[Profile] Detected original image type: ${detectedType}`);
+
+    // Convert image to PNG format
+    let pngBytes: Uint8Array;
+    try {
+        pngBytes = await convertToPng(imageBytes);
+    } catch (err) {
+        console.error("[Profile] Failed to convert image to PNG:", err);
+        throw error(400, "Failed to process image. Please ensure it's a valid image file.");
+    }
 
     // Resolve account data via SpacetimeDB connection using admin token
     let connection: DbConnection | null = null;
@@ -408,8 +390,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
             connectionResult.identity.toHexString()
         );
         connection = connectionResult.connection;
-        // Use the USER's identity (from their request), not the admin identity
-        const accountData = await resolveAccountData(connection, userIdentity!); // userIdentity is validated above
+        const accountData = await resolveAccountData(connection, userIdentity!);
         accountId = accountData.accountId;
         currentVersion = accountData.currentVersion;
         console.log(`[Profile] Resolved account ${accountId} with pfp version ${currentVersion}`);
@@ -420,7 +401,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         console.error("[Profile] Error stack:", errorStack);
         connection?.disconnect();
         if (err && typeof err === "object" && "status" in err) {
-            throw err; // Re-throw SvelteKit errors
+            throw err;
         }
         throw error(401, `Unable to verify your SpacetimeDB account: ${errorMessage}`);
     }
@@ -437,18 +418,13 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         throw error(500, "Profile picture storage is not configured");
     }
 
-    // Upload the image to R2
-    // Use appropriate extension based on content type
-    const isWebp = bytes.length >= 12 && getFourCC(bytes, 8) === "WEBP";
-    const extension = isWebp ? "webp" : "jpg"; // Default to jpg for OAuth images
-    const mimeType = isWebp ? "image/webp" : "image/jpeg";
-
-    const objectKey = `${PROFILE_STORAGE_PREFIX}${accountId.toString()}.${extension}`;
+    // Upload the PNG image to R2
+    const objectKey = `${PROFILE_STORAGE_PREFIX}${accountId.toString()}.png`;
     const nextVersion = Math.min(currentVersion + 1, MAX_PROFILE_VERSION);
 
     try {
-        console.log(`[Profile] Uploading ${bytes.length} bytes to R2 as ${objectKey}`);
-        await uploadProfilePictureToR2(bucket, objectKey, bytes, mimeType);
+        console.log(`[Profile] Uploading ${pngBytes.length} bytes PNG to R2 as ${objectKey}`);
+        await uploadProfilePictureToR2(bucket, objectKey, pngBytes, "image/png");
         console.log("[Profile] Upload successful");
 
         console.log("[Profile] Calling IncrementPfpVersion reducer");
@@ -462,12 +438,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     }
 
     // Build the profile picture URL
-    const url = buildProfilePictureUrl(
-        env.VITE_PFP_CDN_BASE_URL,
-        accountId,
-        nextVersion,
-        extension
-    );
+    const url = buildProfilePictureUrl(env.VITE_PFP_CDN_BASE_URL, accountId, nextVersion, "png");
 
     console.log("[Profile] Returning profile picture URL:", url);
 

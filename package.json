@@ -6,7 +6,8 @@
         "stdb:pub:dev":"spacetime publish --project-path ./spacetimedb marbles2 -y",
         "stdb:pubClear:dev":"spacetime publish --project-path ./spacetimedb marbles2 -c -y",
         "stdb:pub:prod": "npm run stdb:gen && spacetime publish --project-path ./spacetimedb -s maincloud marbles2dev -y",
-        "stdb:pubClear:prod": "npm run stdb:gen && spacetime publish --project-path ./spacetimedb -s maincloud marbles2dev -c -y "
+        "stdb:pubClear:prod": "npm run stdb:gen && spacetime publish --project-path ./spacetimedb -s maincloud marbles2dev -c -y ",
+        "stdb:delete:prod": "spacetime delete --server maincloud marbles2dev"
 
     }
 }

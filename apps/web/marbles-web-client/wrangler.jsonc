@@ -28,9 +28,11 @@
 
 	// Server-side vars for wrangler dev and production
 	// SPACETIMEDB_ADMIN_TOKEN should be in .dev.vars (local) or `wrangler secret put` (production)
+	// VITE_PFP_CDN_BASE_URL should point to your R2 bucket's public URL (e.g., https://cdn.marbles.live)
 	"vars": {
 		"SPACETIMEDB_HOST": "wss://maincloud.spacetimedb.com", //http://localhost:3000
-		"SPACETIMEDB_DB_NAME": "marbles2dev" //marbles2
+		"SPACETIMEDB_DB_NAME": "marbles2dev", //marbles2
+		"VITE_PFP_CDN_BASE_URL": "https://cdn-dev.marbles.live" // Set to your R2 bucket's public URL
 	},
 
 	"routes": [{ "pattern": "marbles.live", "custom_domain": true }]
