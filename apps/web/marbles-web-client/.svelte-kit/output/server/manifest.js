@@ -7,10 +7,10 @@ function __memo(fn) {
 return {
 	appDir: "_app",
 	appPath: "_app",
-	assets: new Set(["Build/static.data.unityweb","Build/static.framework.js.unityweb","Build/static.loader.js","Build/static.wasm.unityweb","index.html","TemplateData/webmemd-icon.png"]),
-	mimeTypes: {".js":"text/javascript",".html":"text/html",".png":"image/png"},
+	assets: new Set(["unity-webgl/Build/unity-webgl.data.unityweb","unity-webgl/Build/unity-webgl.framework.js.unityweb","unity-webgl/Build/unity-webgl.loader.js","unity-webgl/Build/unity-webgl.wasm.unityweb","unity-webgl/TemplateData/webmemd-icon.png"]),
+	mimeTypes: {".js":"text/javascript",".png":"image/png"},
 	_: {
-		client: {start:"_app/immutable/entry/start.CLkRPflt.js",app:"_app/immutable/entry/app.B-bYZ_s8.js",imports:["_app/immutable/entry/start.CLkRPflt.js","_app/immutable/chunks/DUWyi8Xa.js","_app/immutable/chunks/CAOkcYHl.js","_app/immutable/chunks/CF5fhvwK.js","_app/immutable/entry/app.B-bYZ_s8.js","_app/immutable/chunks/CAOkcYHl.js","_app/immutable/chunks/ED71nHoW.js","_app/immutable/chunks/lZzistH4.js","_app/immutable/chunks/CF5fhvwK.js","_app/immutable/chunks/B2ZQOyCO.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.COquKCCi.js",app:"_app/immutable/entry/app.CfW62mSe.js",imports:["_app/immutable/entry/start.COquKCCi.js","_app/immutable/chunks/CligCAuS.js","_app/immutable/chunks/H8HRPmpP.js","_app/immutable/chunks/C_Sh5Hij.js","_app/immutable/entry/app.CfW62mSe.js","_app/immutable/chunks/H8HRPmpP.js","_app/immutable/chunks/DWDlLD0t.js","_app/immutable/chunks/DFqY95ai.js","_app/immutable/chunks/C_Sh5Hij.js","_app/immutable/chunks/yg97jW04.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),

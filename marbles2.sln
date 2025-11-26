@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StdbModule", "spacetimedb\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "MarblesUnityProject\Assembly-CSharp.csproj", "{5F3200AC-51F0-13F6-8051-121CCC80F9C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "MarblesUnityProject\Assembly-CSharp-Editor.csproj", "{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,18 @@ Global
 		{5F3200AC-51F0-13F6-8051-121CCC80F9C4}.Release|x64.Build.0 = Release|Any CPU
 		{5F3200AC-51F0-13F6-8051-121CCC80F9C4}.Release|x86.ActiveCfg = Release|Any CPU
 		{5F3200AC-51F0-13F6-8051-121CCC80F9C4}.Release|x86.Build.0 = Release|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Debug|x64.Build.0 = Debug|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Debug|x86.Build.0 = Debug|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Release|x64.ActiveCfg = Release|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Release|x64.Build.0 = Release|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Release|x86.ActiveCfg = Release|Any CPU
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +64,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7EC5005D-69BF-4DFB-BF8E-DAAE725CEE14} = {01DB78B5-D7F7-4422-8E8B-4F2431CB7153}
 		{5F3200AC-51F0-13F6-8051-121CCC80F9C4} = {01DB78B5-D7F7-4422-8E8B-4F2431CB7153}
+		{8E0F597B-BC86-4F33-A0E5-E391E5FC8D43} = {01DB78B5-D7F7-4422-8E8B-4F2431CB7153}
 	EndGlobalSection
 EndGlobal

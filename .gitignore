@@ -1,2 +1,3 @@
 MarblesUnityProject/Assets/secrets.json
 *.env
+apps/web/marbles-web-client/.dev.vars

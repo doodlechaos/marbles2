@@ -1,6 +1,5 @@
-import { AwsClient } from "aws4fetch";
 import { error, json } from "@sveltejs/kit";
-import { AlgebraicType, deepEqual, DbConnectionImpl, DbConnectionBuilder, SubscriptionBuilderImpl, BinaryWriter } from "spacetimedb";
+import { AlgebraicType, deepEqual, DbConnectionImpl, DbConnectionBuilder, SubscriptionBuilderImpl, BinaryWriter, Identity } from "spacetimedb";
 let _cached_ClockSchedule_type_value = null;
 const ClockSchedule = {
   /**
@@ -2169,9 +2168,19 @@ async function subscribeAndWait(connection, queries) {
     }).subscribe(queries);
   });
 }
-async function connectToSpacetimeDb(token) {
-  const host = "ws://localhost:3000";
-  const moduleName = "marbles2";
+async function connectToSpacetimeDb(env) {
+  const host = env.SPACETIMEDB_HOST;
+  const moduleName = env.SPACETIMEDB_DB_NAME;
+  const token = env.SPACETIMEDB_ADMIN_TOKEN;
+  if (!host || !moduleName) {
+    console.error("[Profile] SpacetimeDB connection is not configured:", host, moduleName);
+    throw error(500, "SpacetimeDB connection is not configured");
+  }
+  if (!token) {
+    console.error("[Profile] No admin token available for server-side SpacetimeDB connection");
+    throw error(500, "SpacetimeDB admin token is not configured");
+  }
+  console.log("[Profile] Connecting to SpacetimeDB:", host, moduleName, "(using admin token)");
   return new Promise((resolve, reject) => {
     let settled = false;
     const builder = DbConnection.builder().withUri(host).withModuleName(moduleName).withToken(token).onConnect((connection, identity) => {
@@ -2228,59 +2237,28 @@ async function resolveAccountData(connection, identity) {
   const currentVersion = customization ? Number(customization.pfpVersion) : 0;
   return { accountId, currentVersion };
 }
-function buildR2TargetUrl(endpoint, bucket, objectKey) {
-  const u = new URL(endpoint);
-  const key = objectKey.replace(/^\/+/, "");
-  const pathSegs = u.pathname.split("/").filter(Boolean);
-  const hasBucketInPath = pathSegs.length > 0 && pathSegs[0] === bucket;
-  const hasBucketInHost = u.hostname.startsWith(`${bucket}.`);
-  if (hasBucketInPath) {
-    u.pathname = `/${pathSegs.join("/")}/${key}`.replace(/\/{2,}/g, "/");
-  } else if (hasBucketInHost) {
-    u.pathname = `/${key}`;
-  } else {
-    u.pathname = `/${bucket}/${key}`;
-  }
-  return u.toString();
-}
-async function uploadProfilePictureToR2(body, objectKey, contentType, env) {
-  const endpoint = env.PROFILE_PICTURE_S3_ENDPOINT;
-  const bucket = env.PROFILE_PICTURE_S3_BUCKET;
-  const accessKeyId = env.PROFILE_PICTURE_S3_ACCESS_KEY_ID;
-  const secretAccessKey = env.PROFILE_PICTURE_S3_SECRET_ACCESS_KEY;
-  if (!endpoint || !bucket || !accessKeyId || !secretAccessKey) {
-    throw error(500, "Profile picture storage is not fully configured");
-  }
-  const awsClient = new AwsClient({
-    accessKeyId,
-    secretAccessKey,
-    service: "s3",
-    region: "auto"
-  });
-  const targetUrl = buildR2TargetUrl(endpoint, bucket, objectKey);
-  console.log("[Profile] Uploading to R2:", targetUrl);
-  const res = await awsClient.fetch(targetUrl, {
-    method: "PUT",
-    body,
-    headers: {
-      "Content-Type": contentType,
-      "Cache-Control": "public, max-age=31536000, immutable"
+async function uploadProfilePictureToR2(bucket, objectKey, body, contentType) {
+  console.log(
+    `[Profile] Uploading to R2 bucket, key: ${objectKey}, size: ${body.byteLength} bytes`
+  );
+  const result = await bucket.put(objectKey, body, {
+    httpMetadata: {
+      contentType,
+      cacheControl: "public, max-age=31536000, immutable"
     }
   });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `Failed to upload profile picture to R2 (${res.status}): ${text || "No response body"}`
-    );
+  if (!result) {
+    throw new Error("R2 put returned null - upload may have failed");
   }
+  console.log(`[Profile] R2 upload successful, etag: ${result.etag}`);
 }
-function buildProfilePictureUrl(accountId, version, env) {
-  const baseUrl = env.PROFILE_PICTURE_BASE_URL?.trim();
-  if (!baseUrl || version <= 0) {
+function buildProfilePictureUrl(baseUrl, accountId, version, extension) {
+  console.log("[PFP] Base URL:", baseUrl);
+  if (!baseUrl?.trim() || version <= 0) {
     return null;
   }
-  const normalizedBase = baseUrl.replace(/\/$/, "");
-  return `${normalizedBase}/pfp/${accountId.toString()}.webp?v=${version}`;
+  const normalizedBase = baseUrl.trim().replace(/\/$/, "");
+  return `${normalizedBase}/pfp/${accountId.toString()}.${extension}?v=${version}`;
 }
 async function downloadImageFromUrl(imageUrl) {
   const response = await fetch(imageUrl);
@@ -2294,24 +2272,40 @@ const POST = async ({ request, platform }) => {
   console.log("[Profile] Starting POST request");
   const env = platform?.env;
   if (!env) {
+    console.error("[Profile] Platform environment is not available");
     throw error(500, "Platform environment is not available");
   }
   const authHeader = request.headers.get("authorization") ?? request.headers.get("Authorization");
+  console.log(
+    `[Profile] Auth header present: ${!!authHeader}, starts with Bearer: ${authHeader?.startsWith("Bearer ")}`
+  );
   if (!authHeader?.startsWith("Bearer ")) {
+    console.error("[Profile] Missing or invalid auth header");
     throw error(401, "An ID token is required to upload profile pictures");
   }
   const token = authHeader.slice(7).trim();
   if (!token) {
+    console.error("[Profile] Token is empty after extracting from header");
     throw error(401, "An ID token is required to upload profile pictures");
   }
   console.log(`[Profile] Received token (first 20 chars): ${token.substring(0, 20)}...`);
   const contentType = request.headers.get("content-type") ?? "";
   let bytes;
+  let userIdentity = null;
   if (contentType.includes("multipart/form-data")) {
     const formData = await request.formData();
     const image = formData.get("image");
+    const identityField = formData.get("identity");
     if (!(image instanceof File)) {
       throw error(400, "The request must include an image file");
+    }
+    if (!identityField || typeof identityField !== "string") {
+      throw error(400, "The request must include an identity");
+    }
+    try {
+      userIdentity = Identity.fromString(identityField);
+    } catch {
+      throw error(400, "Invalid identity format");
     }
     if (image.type !== PFP_MIME) {
       throw error(400, `Profile pictures must be uploaded as ${PFP_MIME}`);
@@ -2335,10 +2329,18 @@ const POST = async ({ request, platform }) => {
     if (!body.imageUrl || typeof body.imageUrl !== "string") {
       throw error(400, "Request must include an imageUrl");
     }
+    if (!body.identity || typeof body.identity !== "string") {
+      throw error(400, "Request must include an identity");
+    }
     try {
       new URL(body.imageUrl);
     } catch {
       throw error(400, "Invalid imageUrl provided");
+    }
+    try {
+      userIdentity = Identity.fromString(body.identity);
+    } catch {
+      throw error(400, "Invalid identity format");
     }
     console.log("[Profile] Downloading image from URL:", body.imageUrl);
     try {
@@ -2351,28 +2353,45 @@ const POST = async ({ request, platform }) => {
   } else {
     throw error(400, "Request must be multipart/form-data or application/json");
   }
+  if (!userIdentity) {
+    throw error(400, "Identity is required");
+  }
+  console.log(`[Profile] User identity: ${userIdentity.toHexString()}`);
   let connection = null;
   let accountId = 0n;
   let currentVersion = 0;
   try {
-    const connectionResult = await connectToSpacetimeDb(token);
+    console.log("[Profile] Attempting to connect to SpacetimeDB with admin token...");
+    const connectionResult = await connectToSpacetimeDb(env);
+    console.log(
+      "[Profile] Connected to SpacetimeDB as admin, identity:",
+      connectionResult.identity.toHexString()
+    );
     connection = connectionResult.connection;
-    const accountData = await resolveAccountData(connection, connectionResult.identity);
+    const accountData = await resolveAccountData(connection, userIdentity);
     accountId = accountData.accountId;
     currentVersion = accountData.currentVersion;
     console.log(`[Profile] Resolved account ${accountId} with pfp version ${currentVersion}`);
   } catch (err) {
-    console.error("[Profile] Failed to resolve account data:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorStack = err instanceof Error ? err.stack : void 0;
+    console.error("[Profile] Failed to resolve account data:", errorMessage);
+    console.error("[Profile] Error stack:", errorStack);
     connection?.disconnect();
     if (err && typeof err === "object" && "status" in err) {
       throw err;
     }
-    throw error(401, "Unable to verify your SpacetimeDB account");
+    throw error(401, `Unable to verify your SpacetimeDB account: ${errorMessage}`);
   }
   if (!connection) {
     throw error(500, "SpacetimeDB connection is not available");
   }
   const activeConnection = connection;
+  const bucket = env.MARBLES_BUCKET_BINDING;
+  if (!bucket) {
+    console.error("[Profile] R2 bucket binding not available");
+    throw error(500, "Profile picture storage is not configured");
+  }
   const isWebp = bytes.length >= 12 && getFourCC(bytes, 8) === "WEBP";
   const extension = isWebp ? "webp" : "jpg";
   const mimeType = isWebp ? "image/webp" : "image/jpeg";
@@ -2380,7 +2399,7 @@ const POST = async ({ request, platform }) => {
   const nextVersion = Math.min(currentVersion + 1, MAX_PROFILE_VERSION);
   try {
     console.log(`[Profile] Uploading ${bytes.length} bytes to R2 as ${objectKey}`);
-    await uploadProfilePictureToR2(bytes.buffer, objectKey, mimeType, env);
+    await uploadProfilePictureToR2(bucket, objectKey, bytes, mimeType);
     console.log("[Profile] Upload successful");
     console.log("[Profile] Calling IncrementPfpVersion reducer");
     await activeConnection.reducers.incrementPfpVersion();
@@ -2391,7 +2410,12 @@ const POST = async ({ request, platform }) => {
   } finally {
     activeConnection.disconnect();
   }
-  const url = buildProfilePictureUrl(accountId, nextVersion, env);
+  const url = buildProfilePictureUrl(
+    env.VITE_PFP_CDN_BASE_URL,
+    accountId,
+    nextVersion,
+    extension
+  );
   console.log("[Profile] Returning profile picture URL:", url);
   return json({
     accountId: accountId.toString(),

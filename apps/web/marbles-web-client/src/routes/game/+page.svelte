@@ -1,20 +1,32 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  // Receive SpacetimeDB config from server
+  let { data } = $props();
+
   let canvas: HTMLCanvasElement;
   let unityInstance: any = null;
 
   onMount(() => {
+    // Inject SpacetimeDB config into window BEFORE Unity loads
+    // This allows the Unity jslib plugin to read the config
+    (window as any).SPACETIMEDB_CONFIG = {
+      host: data.spacetimedbConfig.host,
+      moduleName: data.spacetimedbConfig.moduleName,
+    };
+
+    console.log("[Game] SpacetimeDB config injected:", (window as any).SPACETIMEDB_CONFIG);
+
     // Load Unity loader script
     const script = document.createElement("script");
-    script.src = "/Build/static.loader.js";
+    script.src = "/unity-webgl/Build/unity-webgl.loader.js";
     script.onload = () => {
       // @ts-ignore - createUnityInstance is loaded from the Unity loader
       createUnityInstance(canvas, {
         arguments: [],
-        dataUrl: "/Build/static.data.unityweb",
-        frameworkUrl: "/Build/static.framework.js.unityweb",
-        codeUrl: "/Build/static.wasm.unityweb",
+        dataUrl: "/unity-webgl/Build/unity-webgl.data.unityweb",
+        frameworkUrl: "/unity-webgl/Build/unity-webgl.framework.js.unityweb",
+        codeUrl: "/unity-webgl/Build/unity-webgl.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "MarblesUnityClient",

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using SpacetimeDB;
@@ -11,8 +12,23 @@ using UnityEngine.Networking;
 
 public class STDB : MonoBehaviour
 {
-    const string SERVER_URL = "http://127.0.0.1:3000";
-    const string MODULE_NAME = "marbles2";
+    // Fallback values for non-WebGL builds (Editor, standalone)
+    const string DEFAULT_SERVER_URL = "http://127.0.0.1:3000";
+    const string DEFAULT_MODULE_NAME = "marbles2";
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern string GetSpacetimeDBHost();
+
+    [DllImport("__Internal")]
+    private static extern string GetSpacetimeDBModuleName();
+
+    private static string ServerUrl => GetSpacetimeDBHost();
+    private static string ModuleName => GetSpacetimeDBModuleName();
+#else
+    private static string ServerUrl => DEFAULT_SERVER_URL;
+    private static string ModuleName => DEFAULT_MODULE_NAME;
+#endif
 
     /// <summary>
     /// Gets the profile picture API URL using the consolidated WebGLBrowser utility.
@@ -34,6 +50,9 @@ public class STDB : MonoBehaviour
 
     public void InitStdbConnection()
     {
+        // Log the resolved config (useful for debugging WebGL builds)
+        Debug.Log($"[STDB] Connecting to SpacetimeDB - Host: {ServerUrl}, Module: {ModuleName}");
+
         // In order to build a connection to SpacetimeDB we need to register
         // our callbacks and specify a SpacetimeDB server URI and module name.
         var builder = DbConnection
@@ -41,8 +60,8 @@ public class STDB : MonoBehaviour
             .OnConnect(HandleConnect)
             .OnConnectError(HandleConnectError)
             .OnDisconnect(HandleDisconnect)
-            .WithUri(SERVER_URL)
-            .WithModuleName(MODULE_NAME);
+            .WithUri(ServerUrl)
+            .WithModuleName(ModuleName);
 
         _tokenConnectedWith = SessionToken.Token;
 
@@ -114,7 +133,11 @@ public class STDB : MonoBehaviour
                 $"[STDB] Account has no profile picture, uploading from OAuth: {_authManager.userProfile.picture}"
             );
             StartCoroutine(
-                UploadProfilePictureFromUrl(_authManager.userProfile?.picture, SessionToken.Token)
+                UploadProfilePictureFromUrl(
+                    _authManager.userProfile?.picture,
+                    SessionToken.Token,
+                    localAccount.Identity
+                )
             );
         }
         else
@@ -187,14 +210,18 @@ public class STDB : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator UploadProfilePictureFromUrl(
         string imageUrl,
-        string authToken
+        string authToken,
+        Identity identity
     )
     {
         string apiUrl = GetProfilePictureApiUrl();
-        Debug.Log($"[STDB] Starting profile picture upload from URL: {imageUrl} to API: {apiUrl}");
+        string identityHex = identity.ToString(); // SpacetimeDB Identity.ToString() returns hex
+        Debug.Log(
+            $"[STDB] Starting profile picture upload from URL: {imageUrl} to API: {apiUrl} for identity: {identityHex}"
+        );
 
-        // Create JSON payload
-        string jsonPayload = $"{{\"imageUrl\":\"{imageUrl}\"}}";
+        // Create JSON payload with imageUrl and identity
+        string jsonPayload = $"{{\"imageUrl\":\"{imageUrl}\",\"identity\":\"{identityHex}\"}}";
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
 
         using (UnityWebRequest request = new UnityWebRequest(apiUrl, UnityWebRequest.kHttpVerbPOST))
@@ -285,8 +312,8 @@ public class STDB : MonoBehaviour
                     }
                 }
             )
-            .WithUri(SERVER_URL)
-            .WithModuleName(MODULE_NAME)
+            .WithUri(DEFAULT_SERVER_URL)
+            .WithModuleName(DEFAULT_MODULE_NAME)
             .WithToken(adminToken)
             .Build();
 

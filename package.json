@@ -4,7 +4,9 @@
         "stdb:dev":"spacetime dev --server local --database marbles2 --project-path . --module-bindings-path MarblesUnityProject\\Assets\\ModuleBindings --client-lang csharp --module-project-path .\\spacetimedb -y",
         "stdb:gen":"spacetime generate --lang csharp --out-dir MarblesUnityProject\\Assets\\Scripts\\ModuleBindings --project-path spacetimedb -y && spacetime generate --lang typescript --out-dir apps\\web\\marbles-web-client\\src\\module_bindings --project-path spacetimedb -y",
         "stdb:pub:dev":"spacetime publish --project-path ./spacetimedb marbles2 -y",
-        "stdb:pubClear:dev":"spacetime publish --project-path ./spacetimedb marbles2 -c -y"
+        "stdb:pubClear:dev":"spacetime publish --project-path ./spacetimedb marbles2 -c -y",
+        "stdb:pub:prod": "npm run stdb:gen && spacetime publish --project-path ./spacetimedb -s maincloud marbles2dev -y",
+        "stdb:pubClear:prod": "npm run stdb:gen && spacetime publish --project-path ./spacetimedb -s maincloud marbles2dev -c -y "
 
     }
 }

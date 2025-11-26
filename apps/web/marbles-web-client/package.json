@@ -1,34 +1,35 @@
 {
-  "name": "marbles-web-client",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "dev:wrangler": "npm run build && npx wrangler dev --port 5173 --remote",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "format": "prettier --write \"src/**/*.{ts,js,svelte,json,css,html}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,js,svelte,json,css,html}\""
-  },
-  "dependencies": {
-    "aws4fetch": "^1.0.20",
-    "spacetimedb": "^1.8.0"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250109.0",
-    "@sveltejs/adapter-cloudflare": "^7.1.3",
-    "@sveltejs/kit": "^2.28.0",
-    "@sveltejs/vite-plugin-svelte": "^6.2.1",
-    "@tsconfig/svelte": "^5.0.5",
-    "@types/node": "^24.6.0",
-    "prettier": "^3.0.0",
-    "prettier-plugin-svelte": "^3.0.0",
-    "svelte": "^5.39.6",
-    "svelte-check": "^4.3.2",
-    "typescript": "~5.9.3",
-    "vite": "^7.1.7",
-    "wrangler": "^4.38.0"
-  }
+    "name": "marbles-web-client",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "dev:wrangler:remote": "npm run build && npx wrangler dev --port 5173 --remote --log-level debug --x-tail-logs",
+        "dev:wrangler:local": "npm run build && npx wrangler dev --port 5173 --local",
+        "build": "vite build",
+        "preview": "vite preview",
+        "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+        "format": "prettier --write \"src/**/*.{ts,js,svelte,json,css,html}\"",
+        "format:check": "prettier --check \"src/**/*.{ts,js,svelte,json,css,html}\""
+    },
+    "dependencies": {
+        "aws4fetch": "^1.0.20",
+        "spacetimedb": "^1.8.0"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "^4.20250109.0",
+        "@sveltejs/adapter-cloudflare": "^7.1.3",
+        "@sveltejs/kit": "^2.28.0",
+        "@sveltejs/vite-plugin-svelte": "^6.2.1",
+        "@tsconfig/svelte": "^5.0.5",
+        "@types/node": "^24.6.0",
+        "prettier": "^3.0.0",
+        "prettier-plugin-svelte": "^3.0.0",
+        "svelte": "^5.39.6",
+        "svelte-check": "^4.3.2",
+        "typescript": "~5.9.3",
+        "vite": "^7.1.7",
+        "wrangler": "^4.38.0"
+    }
 }

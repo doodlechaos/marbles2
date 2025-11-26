@@ -40,6 +40,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/" | "/api" | "/api/" | "/api/profile-picture" | "/api/profile-picture/" | "/api/stripe-webhook" | "/api/stripe-webhook/" | "/game" | "/game/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/Build/static.data.unityweb" | "/Build/static.framework.js.unityweb" | "/Build/static.loader.js" | "/Build/static.wasm.unityweb" | "/index.html" | "/TemplateData/webmemd-icon.png" | string & {};
+		Asset(): "/unity-webgl/Build/unity-webgl.data.unityweb" | "/unity-webgl/Build/unity-webgl.framework.js.unityweb" | "/unity-webgl/Build/unity-webgl.loader.js" | "/unity-webgl/Build/unity-webgl.wasm.unityweb" | "/unity-webgl/TemplateData/webmemd-icon.png" | string & {};
 	}
 }

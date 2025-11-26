@@ -26,5 +26,12 @@
 		}
 	],
 
+	// Server-side vars for wrangler dev and production
+	// SPACETIMEDB_ADMIN_TOKEN should be in .dev.vars (local) or `wrangler secret put` (production)
+	"vars": {
+		"SPACETIMEDB_HOST": "wss://maincloud.spacetimedb.com", //http://localhost:3000
+		"SPACETIMEDB_DB_NAME": "marbles2dev" //marbles2
+	},
+
 	"routes": [{ "pattern": "marbles.live", "custom_domain": true }]
 }

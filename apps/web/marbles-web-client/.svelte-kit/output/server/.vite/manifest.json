@@ -127,6 +127,12 @@
     "src": "src/routes/api/profile-picture/+server.ts",
     "isEntry": true
   },
+  "src/routes/game/+page.server.ts": {
+    "file": "entries/pages/game/_page.server.ts.js",
+    "name": "entries/pages/game/_page.server.ts",
+    "src": "src/routes/game/+page.server.ts",
+    "isEntry": true
+  },
   "src/routes/game/+page.svelte": {
     "file": "entries/pages/game/_page.svelte.js",
     "name": "entries/pages/game/_page.svelte",

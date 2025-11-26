@@ -3,5 +3,7 @@
 	"/api/profile-picture": [
 		"src/routes/api/profile-picture/+server.ts"
 	],
-	"/game": []
+	"/game": [
+		"src/routes/game/+page.server.ts"
+	]
 }
