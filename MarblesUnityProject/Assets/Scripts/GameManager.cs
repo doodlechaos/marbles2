@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private STDB _stdb;
 
+    [SerializeField]
+    private bool _stdbInitialized = false;
+
     private void Awake()
     {
         GameCoreLib.Logger.Log = Debug.Log;
@@ -37,12 +40,18 @@ public class GameManager : MonoBehaviour
         Application.targetFrameRate = 60;
 
         _authManager.InitAndTryRestoreSession();
+        _authManager.OnAuthenticationSuccess += OnAuthSuccess;
     }
 
     private void Start()
     {
         _authManager.CheckForOAuthCallback();
-        _stdb.InitStdbConnection();
+        TryInitStdbConnection();
+    }
+
+    private void OnDestroy()
+    {
+        _authManager.OnAuthenticationSuccess -= OnAuthSuccess;
     }
 
     private void FixedUpdate()
@@ -100,5 +109,31 @@ public class GameManager : MonoBehaviour
                     GameCoreRenderer.UpdateRendering();
                     Debug.Log("Re-rendered both tiles after deserialization");
                 } */
+    }
+
+    private void OnAuthSuccess()
+    {
+        // We only establish the SpacetimeDB connection once we know the auth token,
+        // otherwise the connection uses a fresh local identity that won't match the
+        // authenticated account (and profile picture upload never triggers).
+        TryInitStdbConnection();
+    }
+
+    private void TryInitStdbConnection()
+    {
+        if (_stdbInitialized)
+        {
+            return;
+        }
+
+        // Only connect once we have a token (either a restored SpacetimeDB session
+        // token or the newly acquired SpacetimeAuth ID token).
+        if (!SessionToken.HasToken())
+        {
+            return;
+        }
+
+        _stdb.InitStdbConnection();
+        _stdbInitialized = true;
     }
 }

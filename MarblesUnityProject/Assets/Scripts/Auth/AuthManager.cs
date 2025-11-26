@@ -310,6 +310,8 @@ public class AuthManager : MonoBehaviour
                 // Mark as authenticated
                 isAuthenticated = true;
 
+                SessionToken.ClearToken();
+
                 // Persist session
                 SaveSession();
 

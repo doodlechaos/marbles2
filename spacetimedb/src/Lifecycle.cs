@@ -30,10 +30,25 @@ public static partial class Module
     [Reducer(ReducerKind.ClientConnected)]
     public static void Connect(ReducerContext ctx)
     {
-        Log.Info($"[Init] Client Connecting");
-        Account account = Account.GetOrCreate(ctx);
-        account.IsConnected = true;
-        ctx.Db.Account.Identity.Update(account);
+        Log.Info(
+            $"[Connect] Client Connecting from sender identity: {ctx.Sender}. Jwt: {ctx.SenderAuth.Jwt}"
+        );
+        try
+        {
+            Account account = Account.GetOrCreate(ctx);
+            Log.Info(
+                $"[Connect] Got/created account ID: {account.Id} for identity: {account.Identity}"
+            );
+            account.IsConnected = true;
+            ctx.Db.Account.Identity.Update(account);
+            Log.Info($"[Connect] Successfully updated account IsConnected=true");
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"[Connect] Error in Connect reducer: {ex.Message}");
+            Log.Error($"[Connect] Stack trace: {ex.StackTrace}");
+            throw;
+        }
     }
 
     [Reducer(ReducerKind.ClientDisconnected)]

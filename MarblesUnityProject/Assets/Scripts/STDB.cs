@@ -45,11 +45,29 @@ public class STDB : MonoBehaviour
             .WithModuleName(MODULE_NAME);
 
         _tokenConnectedWith = SessionToken.Token;
+
+        // Debug: Log token status before connecting
+        bool hasToken = SessionToken.HasToken();
+        string currentToken = SessionToken.Token;
+        Debug.Log($"[STDB] SessionToken.HasToken() = {hasToken}");
+        Debug.Log(
+            $"[STDB] SessionToken.Token is null? {currentToken == null}, empty? {string.IsNullOrEmpty(currentToken)}"
+        );
+        if (!string.IsNullOrEmpty(currentToken) && currentToken.Length > 50)
+        {
+            Debug.Log($"[STDB] Token preview: {currentToken.Substring(0, 50)}...");
+        }
+
         // If the user has a SpacetimeDB auth token stored in the Unity PlayerPrefs,
         // we can use it to authenticate the connection.
-        if (SessionToken.HasToken())
+        if (hasToken)
         {
-            builder = builder.WithToken(SessionToken.Token);
+            Debug.Log("[STDB] Connecting WITH existing token");
+            builder = builder.WithToken(currentToken);
+        }
+        else
+        {
+            Debug.Log("[STDB] Connecting WITHOUT token (will get new identity)");
         }
 
         // Building the connection will establish a connection to the SpacetimeDB
@@ -58,7 +76,7 @@ public class STDB : MonoBehaviour
 
         CreateTableCallbacks(Conn);
 
-        Debug.Log($"Building stdb connection with token: [{SessionToken.Token}]");
+        Debug.Log($"[STDB] Connection initiated");
     }
 
     private void CreateTableCallbacks(DbConnection conn)
@@ -139,9 +157,19 @@ public class STDB : MonoBehaviour
     // Called when we connect to SpacetimeDB and receive our client identity
     void HandleConnect(DbConnection _conn, Identity identity, string token)
     {
-        Debug.Log("Connected. Token: " + token);
+        Debug.Log($"[STDB] HandleConnect called!");
+        Debug.Log($"[STDB] Received identity: {identity}");
+        Debug.Log(
+            $"[STDB] Received token (first 50 chars): {(token?.Length > 50 ? token.Substring(0, 50) : token)}..."
+        );
+        Debug.Log(
+            $"[STDB] Previous token we connected with: {(_tokenConnectedWith?.Length > 50 ? _tokenConnectedWith.Substring(0, 50) : _tokenConnectedWith)}..."
+        );
+
         SessionToken.SaveToken(token);
         LocalIdentity = identity;
+
+        Debug.Log($"[STDB] LocalIdentity set to: {LocalIdentity}");
 
         _synchronizer.SetActive(true);
 

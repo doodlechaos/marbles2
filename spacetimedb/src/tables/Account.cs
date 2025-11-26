@@ -23,17 +23,23 @@ public static partial class Module
 
         public static Account GetOrCreate(ReducerContext ctx)
         {
-            var accountOpt = ctx.Db.Account.Identity.Find(ctx.Identity);
+            Log.Info($"[Account.GetOrCreate] Looking for account with identity: {ctx.Sender}");
+            var accountOpt = ctx.Db.Account.Identity.Find(ctx.Sender);
             if (accountOpt.HasValue)
             {
+                Log.Info($"[Account.GetOrCreate] Found existing account ID: {accountOpt.Value.Id}");
                 return accountOpt.Value;
             }
 
+            Log.Info($"[Account.GetOrCreate] No existing account, creating new one...");
+
             // Create new account
             var newId = AccountSeqHelper.IncAndGet(ctx);
+            Log.Info($"[Account.GetOrCreate] Got new ID from sequence: {newId}");
+
             var newAccount = new Account
             {
-                Identity = ctx.Identity,
+                Identity = ctx.Sender, //IMPORTANT: USE SENDER, NOT IDENTITY
                 Id = newId,
                 Marbles = 0,
                 Points = 0,
@@ -44,9 +50,18 @@ public static partial class Module
                 LastDailyRewardClaimDay = 0,
             };
 
+            Log.Info(
+                $"[Account.GetOrCreate] Creating AccountCustomization for account ID: {newId}"
+            );
             AccountCustomization _ = AccountCustomization.GetOrCreate(ctx, newAccount.Id); //Each account must have a customization row
 
-            return ctx.Db.Account.Insert(newAccount);
+            Log.Info($"[Account.GetOrCreate] Inserting new account...");
+            var insertedAccount = ctx.Db.Account.Insert(newAccount);
+            Log.Info(
+                $"[Account.GetOrCreate] Successfully inserted account ID: {insertedAccount.Id}"
+            );
+
+            return insertedAccount;
         }
     }
 
