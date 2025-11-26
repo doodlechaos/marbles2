@@ -20,7 +20,7 @@ public class STDB : MonoBehaviour
     private static string GetProfilePictureApiUrl() =>
         WebGLBrowser.GetApiUrl("/api/profile-picture");
 
-    public static Identity LocalIdentity { get; private set; }
+    //public static Identity LocalIdentity { get; private set; }
     public static DbConnection Conn { get; private set; }
 
     [SerializeField]
@@ -81,52 +81,23 @@ public class STDB : MonoBehaviour
 
     private void CreateTableCallbacks(DbConnection conn)
     {
-        try
-        {
-            conn.Db.Account.OnInsert += (EventContext ctx, Account row) =>
-            {
-                Debug.Log($"Account inserted: {row.Id}. Checking if it needs to upload pfp");
-                CheckIfNeedsToUploadProfilePicture(ctx, row);
-            };
-            conn.Db.Account.OnUpdate += (EventContext ctx, Account oldRow, Account newRow) =>
-            {
-                Debug.Log($"Account updated: {newRow.Id}. Checking if it needs to upload pfp");
-                CheckIfNeedsToUploadProfilePicture(ctx, newRow);
-            };
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Error creating table callbacks: {ex}");
-        }
-
         Debug.Log("Initialized table callbacks.");
     }
 
-    void CheckIfNeedsToUploadProfilePicture(EventContext ctx, Account row)
+    void CheckIfNeedsToUploadProfilePicture(SubscriptionEventContext ctx)
     {
+        Account localAccount = ctx.Db.Account.Iter().FirstOrDefault();
+
         // Only process profile picture upload for the LOCAL identity's account
-        if (LocalIdentity == null)
+        if (localAccount == null)
         {
             Debug.Log("[STDB] LocalIdentity not set yet, skipping pfp check");
             return;
         }
 
-        if (!row.Identity.Equals(LocalIdentity))
-        {
-            Debug.Log(
-                $"[STDB] Account {row.Id} has identity [{row.Identity}] which differs from localIdentity [{LocalIdentity}], skipping pfp upload"
-            );
-            return;
-        }
-
-        Debug.Log(
-            $"[STDB] Account {row.Id} matches local identity! Processing pfp upload check..."
+        AccountCustomization localAccountCustomization = ctx.Db.AccountCustomization.AccountId.Find(
+            localAccount.Id
         );
-
-        AccountCustomization localAccountCustomization = ctx
-            .Db.AccountCustomization.Iter()
-            .Where(ac => ac.AccountId == row.Id)
-            .FirstOrDefault();
 
         if (localAccountCustomization == null)
         {
@@ -149,7 +120,7 @@ public class STDB : MonoBehaviour
         else
         {
             Debug.Log(
-                $"Local Account {row} {localAccountCustomization} doesn't need to upload profile picture from auth"
+                $"Local Account {localAccount} {localAccountCustomization} doesn't need to upload profile picture from auth"
             );
         }
     }
@@ -167,9 +138,6 @@ public class STDB : MonoBehaviour
         );
 
         SessionToken.SaveToken(token);
-        LocalIdentity = identity;
-
-        Debug.Log($"[STDB] LocalIdentity set to: {LocalIdentity}");
 
         _synchronizer.SetActive(true);
 
@@ -179,27 +147,7 @@ public class STDB : MonoBehaviour
                 (SubscriptionEventContext ctx) =>
                 {
                     Debug.Log("Subscription applied!");
-                    // Debug: Log all accounts in the subscription
-                    var allAccounts = ctx.Db.Account.Iter().ToList();
-                    Debug.Log($"[STDB] Total accounts in subscription: {allAccounts.Count}");
-                    foreach (var acc in allAccounts)
-                    {
-                        Debug.Log($"[STDB]   Account ID={acc.Id}, Identity={acc.Identity}");
-                    }
-                    // Check if current identity has an account
-                    var myAccount = allAccounts.FirstOrDefault(a =>
-                        a.Identity.Equals(LocalIdentity)
-                    );
-                    if (myAccount.Id > 0)
-                    {
-                        Debug.Log($"[STDB] Found MY account: ID={myAccount.Id}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning(
-                            $"[STDB] NO account found for LocalIdentity [{LocalIdentity}]!"
-                        );
-                    }
+                    CheckIfNeedsToUploadProfilePicture(ctx);
                 }
             )
             .OnError(
