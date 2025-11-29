@@ -15,9 +15,6 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     public GameCore GameCore = new GameCore();
 
-    [SerializeField]
-    private bool _forceStepping;
-
     public string Game1JSON_PATH;
 
     public GameCoreRenderer GameCoreRenderer;
@@ -54,22 +51,6 @@ public class GameManager : MonoBehaviour
         _authManager.OnAuthenticationSuccess -= OnAuthSuccess;
     }
 
-    private void FixedUpdate()
-    {
-        if (_forceStepping)
-        {
-            GameCore.Step(new List<InputEvent>());
-        }
-    }
-
-    [ProButton]
-    public void StepPhysics()
-    {
-        Debug.Log("GameTile1 Bodies: " + GameCore.GameTile1.Sim.Bodies.Count);
-        GameCore.GameTile1.Step();
-        Debug.Log("Stepped physics simulation");
-    }
-
     [ProButton]
     public void TestSerializeGameCore()
     {
@@ -102,13 +83,6 @@ public class GameManager : MonoBehaviour
         );
         Debug.Log("Deserialized GameCore successfully");
         Debug.Log($"Deserialized GameCore hash: {GameCore.GetDeterministicHashHex()}");
-
-        /*         // Re-render to sync with the new GameCore
-                if (GameCoreRenderer != null)
-                {
-                    GameCoreRenderer.UpdateRendering();
-                    Debug.Log("Re-rendered both tiles after deserialization");
-                } */
     }
 
     private void OnAuthSuccess()

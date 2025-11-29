@@ -27,14 +27,21 @@ namespace GameCoreLib
         [MemoryPackOrder(4)]
         public ulong NextRuntimeId = 1;
 
-        public void Step(List<InputEvent> inputEvents)
+        [MemoryPackIgnore]
+        public readonly OutputEventBuffer OutputEvents = new();
+
+        public OutputEventBuffer Step(List<InputEvent> inputEvents)
         {
+            OutputEvents.Clear();
             HandleInputEvents(inputEvents);
 
-            GameTile1.Step();
-            GameTile2.Step();
+            GameTile1.Step(OutputEvents);
+            GameTile2.Step(OutputEvents);
+
+            //Drain all the events from the gametiles
 
             Seq = Seq.WrappingAdd(1);
+            return OutputEvents;
         }
 
         private void HandleInputEvents(List<InputEvent> inputEvents)
@@ -68,6 +75,48 @@ namespace GameCoreLib
         {
             byte[] data = MemoryPackSerializer.Serialize(this);
             return data.GetDeterministicHashHex();
+        }
+    }
+
+    public abstract class OutputToClientEvent
+    {
+        public class NewKing : OutputToClientEvent //I might not need this, if the client is just rendering hte gamecore state now
+        {
+            public ulong AccountId;
+        }
+    }
+
+    public abstract class OutputToServerEvent
+    {
+        public class DeterminismHash : OutputToServerEvent
+        {
+            public ushort Seq;
+            public string HashString;
+        }
+
+        public class AddPointsToAccount : OutputToServerEvent
+        {
+            public ulong AccountId;
+            public uint Points;
+        }
+
+        public class NewKing : OutputToServerEvent
+        {
+            public ulong AccountId;
+        }
+
+        public class GameplayFinished : OutputToServerEvent { }
+    }
+
+    public sealed class OutputEventBuffer
+    {
+        public readonly List<OutputToClientEvent> Client = new();
+        public readonly List<OutputToServerEvent> Server = new();
+
+        public void Clear()
+        {
+            Client.Clear();
+            Server.Clear();
         }
     }
 }

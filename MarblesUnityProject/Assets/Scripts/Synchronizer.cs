@@ -91,7 +91,11 @@ public class Synchronizer : MonoBehaviour
                 inputFrame.InputEventsList.ToArray()
             );
 
-            GameManager.Inst.GameCore.Step(inputEvents);
+            OutputEventBuffer outputEvents = GameManager.Inst.GameCore.Step(inputEvents);
+            foreach (OutputToClientEvent outputToClientEvent in outputEvents.Client)
+            {
+                Debug.Log("OutputToClientEvent: " + outputToClientEvent.GetType().Name);
+            }
         }
     }
 
@@ -154,8 +158,7 @@ public class Synchronizer : MonoBehaviour
     {
         Debug.LogWarning("Client has fallen too far behind, requesting restore");
         restoreRequestedFlag = true;
-        STDB
-            .Conn.SubscriptionBuilder()
+        STDB.Conn.SubscriptionBuilder()
             .OnError(
                 (ErrorContext ctx, Exception ex) =>
                 {

@@ -27,6 +27,12 @@ namespace GameCoreLib
         [MemoryPackOrder(3), MemoryPackInclude]
         private Dictionary<ulong, int> runtimeIdToBodyId = new Dictionary<ulong, int>();
 
+        [MemoryPackIgnore]
+        public List<OutputToClientEvent> OutputToClientEvents = new List<OutputToClientEvent>();
+
+        [MemoryPackIgnore]
+        public List<OutputToServerEvent> OutputToServerEvents = new List<OutputToServerEvent>();
+
         public GameTile(int worldId)
         {
             WorldId = worldId;
@@ -270,7 +276,7 @@ namespace GameCoreLib
             }
         }
 
-        public void Step()
+        public void Step(OutputEventBuffer outputEvents)
         {
             PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), new WorldSimulationContext());
 

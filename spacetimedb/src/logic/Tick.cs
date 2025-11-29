@@ -163,8 +163,8 @@ public static partial class Module
             {
                 inputEvents = new List<InputEvent>();
             }
-            core.Step(inputEvents);
-            // ProcessOutputEvents(ctx, outputEvents);
+            OutputEventBuffer outputEvents = core.Step(inputEvents);
+            ProcessOutputEvents(ctx, outputEvents);
         }
 
         // Verify seq consistency
@@ -189,59 +189,14 @@ public static partial class Module
         StepsSinceLastBatch.Set(ctx, 0);
     }
 
-    /// <summary>
-    /// Processes output events from the game simulation
-    /// </summary>
-    /*     private static void ProcessOutputEvents(ReducerContext ctx, List<OutputToSTDB> outputEvents)
+    private static void ProcessOutputEvents(ReducerContext ctx, OutputEventBuffer outputEvents)
+    {
+        foreach (OutputToServerEvent outputToServerEvent in outputEvents.Server)
         {
-            foreach (var outputEvent in outputEvents)
-            {
-                Log.Info($"Processing output event in server: {outputEvent.EventType}");
-    
-                switch (outputEvent.EventType)
-                {
-                    case OutputToSTDBEventType.AddPointsToAccount:
-                    {
-                        var accountOpt = ctx.Db.Account.Id.Find(outputEvent.AccountId);
-                        if (!accountOpt.HasValue)
-                        {
-                            throw new Exception($"Account {outputEvent.AccountId} not found");
-                        }
-    
-                        var account = accountOpt.Value;
-                        account.Points = account.Points.SaturatingAdd(outputEvent.Points);
-                        ctx.Db.Account.Id.Update(account);
-                        break;
-                    }
-    
-                    case OutputToSTDBEventType.NewKing:
-                        // Handle new king event
-                        break;
-    
-                    case OutputToSTDBEventType.DeterminismHash:
-                    {
-                        Log.Info($"Determinism hash: {outputEvent.HashString}");
-                        ctx.Db.DeterminismCheck.Id.Delete(0);
-                        ctx.Db.DeterminismCheck.Insert(
-                            new DeterminismCheck
-                            {
-                                Id = 0,
-                                Seq = outputEvent.Seq,
-                                HashString = outputEvent.HashString,
-                            }
-                        );
-                        break;
-                    }
-    
-                    case OutputToSTDBEventType.GameTileFinished:
-                    {
-                        CloseAndCycleGameTile(ctx, outputEvent.WorldId);
-                        break;
-                    }
-                }
-            }
+            Log.Info($"Processing output event in server: {outputToServerEvent.GetType().Name}");
         }
-     */
+    }
+
     /// <summary>
     /// Insert an input frame no matter what
     /// </summary>
