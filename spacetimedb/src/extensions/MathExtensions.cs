@@ -9,4 +9,18 @@ public static class MathExtensions
         // Otherwise, perform the subtraction.
         return amount > value ? 0 : value - amount;
     }
+
+    public static long SaturatingSub(this long value, long amount)
+    {
+        // If the amount we want to subtract is greater than what we have, return 0.
+        // Otherwise, perform the subtraction.
+        return amount > value ? 0 : value - amount;
+    }
+
+    public static uint SaturatingSub(this uint value, uint amount)
+    {
+        // If the amount we want to subtract is greater than what we have, return 0.
+        // Otherwise, perform the subtraction.
+        return amount > value ? 0 : value - amount;
+    }
 }

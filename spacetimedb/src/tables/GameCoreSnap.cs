@@ -27,9 +27,13 @@ public static partial class Module
             }
             else
             {
-                return new GameCoreSnap { Id = 0, Seq = 0, BinaryData = new byte[0] };
+                return new GameCoreSnap
+                {
+                    Id = 0,
+                    Seq = 0,
+                    BinaryData = new byte[0],
+                };
             }
         }
     }
 }
-

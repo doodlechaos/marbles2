@@ -1,4 +1,5 @@
 // InputEvent.cs
+using System;
 using MemoryPack;
 
 namespace GameCoreLib
@@ -11,9 +12,36 @@ namespace GameCoreLib
     [MemoryPackUnion(3, typeof(SetIntegrationParameter))]
     [MemoryPackUnion(4, typeof(StartCloseDoorAnimation))]
     [MemoryPackUnion(5, typeof(LoadLevelFile))]
+    [MemoryPackUnion(6, typeof(StartGameTile))]
     public abstract partial class InputEvent
     {
         protected InputEvent() { }
+
+        [MemoryPackable(SerializeLayout.Explicit)]
+        public partial class StartGameTile : InputEvent
+        {
+            [MemoryPackOrder(0)]
+            public Entrant[] Entrants { get; set; } = Array.Empty<Entrant>();
+
+            [MemoryPackOrder(1)]
+            public uint TotalMarblesBid { get; set; }
+
+            [MemoryPackConstructor]
+            public StartGameTile() { }
+
+            public StartGameTile(Entrant[] entrants, uint totalMarblesBid)
+            {
+                Entrants = entrants;
+                TotalMarblesBid = totalMarblesBid;
+            }
+        }
+
+        [MemoryPackable]
+        public partial struct Entrant
+        {
+            public ulong AccountId;
+            public uint TotalBid;
+        }
 
         [MemoryPackable(SerializeLayout.Explicit)]
         public partial class Attack : InputEvent

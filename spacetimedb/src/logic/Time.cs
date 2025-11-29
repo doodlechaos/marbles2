@@ -74,4 +74,9 @@ public static partial class Module
     {
         return (long)(minutes * 60.0 * 1_000_000.0);
     }
+
+    public static long SecondsToMicroseconds(double seconds)
+    {
+        return (long)(seconds * 1_000_000.0);
+    }
 }

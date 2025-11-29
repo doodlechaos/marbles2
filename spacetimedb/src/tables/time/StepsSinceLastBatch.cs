@@ -41,7 +41,5 @@ public static partial class Module
                 return 0;
             }
         }
-
     }
 }
-

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using SpacetimeDB;
 
 public static partial class Module
@@ -19,4 +18,3 @@ public static partial class Module
         ctx.Db.AuthFrame.Insert(row);
     }
 }
-

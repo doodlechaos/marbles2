@@ -12,7 +12,9 @@ public static partial class Module
         public static void Set(ReducerContext ctx, Timestamp lastAuthFrameTime)
         {
             ctx.Db.LastAuthFrameTimestamp.Id.Delete(0);
-            ctx.Db.LastAuthFrameTimestamp.Insert(new LastAuthFrameTimestamp { Id = 0, LastAuthFrameTime = lastAuthFrameTime });
+            ctx.Db.LastAuthFrameTimestamp.Insert(
+                new LastAuthFrameTimestamp { Id = 0, LastAuthFrameTime = lastAuthFrameTime }
+            );
         }
 
         public static LastAuthFrameTimestamp GetSingleton(ReducerContext ctx)
@@ -24,11 +26,14 @@ public static partial class Module
             }
             else
             {
-                LastAuthFrameTimestamp lastAuthFrameTimestamp = new LastAuthFrameTimestamp { Id = 0, LastAuthFrameTime = default };
+                LastAuthFrameTimestamp lastAuthFrameTimestamp = new LastAuthFrameTimestamp
+                {
+                    Id = 0,
+                    LastAuthFrameTime = default,
+                };
                 Set(ctx, default);
                 return lastAuthFrameTimestamp;
             }
         }
     }
 }
-
