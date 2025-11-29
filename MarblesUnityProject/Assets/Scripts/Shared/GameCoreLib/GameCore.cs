@@ -17,11 +17,14 @@ namespace GameCoreLib
         [MemoryPackOrder(2)]
         public GameTile GameTile2 = new GameTile(2);
 
+        [MemoryPackOrder(3)]
+        public int BiddingWorldId;
+
         /// <summary>
         /// Counter for assigning unique RuntimeIds to RuntimeObj instances.
         /// Ensures deterministic, stable IDs across the entire GameCore.
         /// </summary>
-        [MemoryPackOrder(3)]
+        [MemoryPackOrder(4)]
         public ulong NextRuntimeId = 1;
 
         public void Step(List<InputEvent> inputEvents)
@@ -53,6 +56,10 @@ namespace GameCoreLib
                     {
                         Logger.Error("Invalid world id: " + loadTileFile.WorldId);
                     }
+                }
+                else if (inputEvent is InputEvent.StartGameTile startGameTile)
+                {
+                    //TODO: Pass the data to the correct gametile
                 }
             }
         }
