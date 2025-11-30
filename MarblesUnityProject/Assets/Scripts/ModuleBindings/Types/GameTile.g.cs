@@ -11,7 +11,7 @@ namespace SpacetimeDB.Types
 {
     [SpacetimeDB.Type]
     [DataContract]
-    public sealed partial class GameTileData
+    public sealed partial class GameTile
     {
         [DataMember(Name = "UnityPrefabGUID")]
         public string UnityPrefabGuid;
@@ -28,7 +28,7 @@ namespace SpacetimeDB.Types
         [DataMember(Name = "GameTileBinary")]
         public System.Collections.Generic.List<byte> GameTileBinary;
 
-        public GameTileData(
+        public GameTile(
             string UnityPrefabGuid,
             string LevelName,
             int Rarity,
@@ -47,7 +47,7 @@ namespace SpacetimeDB.Types
             this.GameTileBinary = GameTileBinary;
         }
 
-        public GameTileData()
+        public GameTile()
         {
             this.UnityPrefabGuid = "";
             this.LevelName = "";

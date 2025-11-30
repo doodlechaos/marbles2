@@ -424,7 +424,7 @@ public class GameTileExporter : EditorWindow
         byte[] gameTileBinary
     )
     {
-        var gameTileData = new GameTileData
+        var gameTileData = new GameTile
         {
             UnityPrefabGuid = unityPrefabGUID,
             LevelName = levelName,
@@ -435,6 +435,6 @@ public class GameTileExporter : EditorWindow
             GameTileBinary = new List<byte>(gameTileBinary),
         };
 
-        conn.Reducers.UpsertGameTileData(gameTileData);
+        conn.Reducers.UpsertGameTile(gameTileData);
     }
 }

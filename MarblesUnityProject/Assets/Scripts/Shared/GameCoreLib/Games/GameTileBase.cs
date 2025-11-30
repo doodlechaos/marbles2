@@ -6,6 +6,16 @@ using MemoryPack;
 
 namespace GameCoreLib
 {
+    public enum GameTileState
+    {
+        Spinning,
+        OpeningDoor,
+        Bidding,
+        Gameplay,
+        ScoreScreen,
+        Finished,
+    }
+
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
     [MemoryPackUnion(0, typeof(SimpleBattleRoyale))]
@@ -29,7 +39,7 @@ namespace GameCoreLib
         /// to ensure global uniqueness across all tiles without needing GameCore reference.
         /// </summary>
         [MemoryPackOrder(3)]
-        public ushort TileWorldId;
+        public byte TileWorldId;
 
         /// <summary>
         /// Counter for the local portion of RuntimeIds.
@@ -37,6 +47,12 @@ namespace GameCoreLib
         /// </summary>
         [MemoryPackOrder(4)]
         public ulong NextLocalId = 1;
+
+        [MemoryPackOrder(5)]
+        public GameTileState State = GameTileState.Spinning;
+
+        [MemoryPackOrder(6)]
+        protected int stateSteps = 0;
 
         [MemoryPackIgnore]
         public List<OutputToClientEvent> OutputToClientEvents = new List<OutputToClientEvent>();
@@ -84,9 +100,10 @@ namespace GameCoreLib
         /// Called after deserializing a GameTile template from storage.
         /// </summary>
         /// <param name="tileWorldId">The tile slot ID (1 or 2) for unique RuntimeId generation</param>
-        public void Initialize(ushort tileWorldId)
+        public void Initialize(byte tileWorldId)
         {
             Logger.Log($"Initializing GameTile with TileId={tileWorldId}...");
+            SetState(GameTileState.Spinning);
 
             // Set the tile ID for unique RuntimeId generation
             TileWorldId = tileWorldId;
@@ -128,6 +145,35 @@ namespace GameCoreLib
         public virtual void StartGameplay(InputEvent.Entrant[] entrants, uint totalMarblesBid)
         {
             throw new NotImplementedException();
+        }
+
+        const float SPINNING_DURATION_SEC = 5.0f;
+        const float OPENING_DOOR_DURATION_SEC = 2.0f;
+        const float SCORE_SCREEN_DURATION_SEC = 5.0f;
+
+        public virtual void Step(OutputEventBuffer outputEvents)
+        {
+            float stateDurationSec = stateSteps / 60.0f;
+            if (State == GameTileState.Spinning)
+            {
+                if (stateDurationSec >= SPINNING_DURATION_SEC)
+                    SetState(GameTileState.OpeningDoor);
+                if (stateDurationSec >= OPENING_DOOR_DURATION_SEC)
+                    SetState(GameTileState.Bidding);
+                if (stateDurationSec >= SCORE_SCREEN_DURATION_SEC)
+                    SetState(GameTileState.Finished);
+            }
+            PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), new WorldSimulationContext());
+            SyncPhysicsToRuntimeObjs();
+        }
+
+        public void SetState(GameTileState state)
+        {
+            OutputToServerEvents.Add(
+                new OutputToServerEvent.StateUpdatedTo { State = state, WorldId = TileWorldId }
+            );
+            stateSteps = 0;
+            State = state;
         }
 
         private void AssignRuntimeIds(RuntimeObj obj)
@@ -330,12 +376,6 @@ namespace GameCoreLib
             }
         }
 
-        public virtual void Step(OutputEventBuffer outputEvents)
-        {
-            PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), new WorldSimulationContext());
-            SyncPhysicsToRuntimeObjs();
-        }
-
         private void SyncPhysicsToRuntimeObjs()
         {
             if (TileRoot == null)
@@ -383,4 +423,3 @@ namespace GameCoreLib
         }
     }
 }
-

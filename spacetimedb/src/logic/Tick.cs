@@ -124,6 +124,8 @@ public static partial class Module
             gameCore.GameTile2 = GetRandomGameTile(ctx);
             gameCore.GameTile2.Initialize(2);
 
+            //gameCore.BiddingWorldId = 1;
+
             snapshot = new GameCoreSnap
             {
                 Id = 0,
@@ -200,6 +202,22 @@ public static partial class Module
         foreach (OutputToServerEvent outputToServerEvent in outputEvents.Server)
         {
             Log.Info($"Processing output event in server: {outputToServerEvent.GetType().Name}");
+            if (outputToServerEvent is OutputToServerEvent.StateUpdatedTo stateUpdatedTo)
+            {
+                if (stateUpdatedTo.State == GameTileState.Finished)
+                {
+                    //Create input event to gamecore to load and spin the next tile
+                    ctx.Db.InputCollector.Insert(
+                        new InputCollector
+                        {
+                            delaySeqs = 0,
+                            inputEventData = new InputEvent.SpinToNewGameTile(
+                                GetRandomGameTile(ctx)
+                            ).ToBinary(),
+                        }
+                    );
+                }
+            }
         }
     }
 

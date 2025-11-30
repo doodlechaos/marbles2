@@ -36,7 +36,7 @@ namespace SpacetimeDB.Types
             AddTable(ClockSchedule = new(conn));
             AddTable(DeterminismCheck = new(conn));
             AddTable(GameCoreSnap = new(conn));
-            AddTable(GameTileData = new(conn));
+            AddTable(GameTile = new(conn));
             AddTable(GameplayFinishedFlagS = new(conn));
             AddTable(InputCollector = new(conn));
             AddTable(InputFrame = new(conn));
@@ -500,7 +500,7 @@ namespace SpacetimeDB.Types
                 "UpsertAccountSeq" => BSATNHelpers.Decode<Reducer.UpsertAccountSeq>(encodedArgs),
                 "UpsertAuthFrame" => BSATNHelpers.Decode<Reducer.UpsertAuthFrame>(encodedArgs),
                 "UpsertBaseCfg" => BSATNHelpers.Decode<Reducer.UpsertBaseCfg>(encodedArgs),
-                "UpsertGameTileData" => BSATNHelpers.Decode<Reducer.UpsertGameTileData>(encodedArgs),
+                "UpsertGameTile" => BSATNHelpers.Decode<Reducer.UpsertGameTile>(encodedArgs),
                 "UpsertInputCollector" => BSATNHelpers.Decode<Reducer.UpsertInputCollector>(encodedArgs),
                 "UpsertInputFrame" => BSATNHelpers.Decode<Reducer.UpsertInputFrame>(encodedArgs),
                 "" => throw new SpacetimeDBEmptyReducerNameException("Reducer name is empty"),
@@ -538,7 +538,7 @@ namespace SpacetimeDB.Types
                 Reducer.UpsertAccountSeq args => Reducers.InvokeUpsertAccountSeq(eventContext, args),
                 Reducer.UpsertAuthFrame args => Reducers.InvokeUpsertAuthFrame(eventContext, args),
                 Reducer.UpsertBaseCfg args => Reducers.InvokeUpsertBaseCfg(eventContext, args),
-                Reducer.UpsertGameTileData args => Reducers.InvokeUpsertGameTileData(eventContext, args),
+                Reducer.UpsertGameTile args => Reducers.InvokeUpsertGameTile(eventContext, args),
                 Reducer.UpsertInputCollector args => Reducers.InvokeUpsertInputCollector(eventContext, args),
                 Reducer.UpsertInputFrame args => Reducers.InvokeUpsertInputFrame(eventContext, args),
                 _ => throw new ArgumentOutOfRangeException("Reducer", $"Unknown reducer {reducer}")

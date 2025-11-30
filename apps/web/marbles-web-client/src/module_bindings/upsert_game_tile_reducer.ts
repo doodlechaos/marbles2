@@ -28,41 +28,41 @@ import {
   type TableHandle as __TableHandle,
 } from "spacetimedb";
 
-import { GameTileData } from "./game_tile_data_type";
+import { GameTile } from "./game_tile_type";
 // Mark import as potentially unused
-declare type __keep_GameTileData = GameTileData;
+declare type __keep_GameTile = GameTile;
 
-export type UpsertGameTileData = {
-  gameTileData: GameTileData,
+export type UpsertGameTile = {
+  gameTileData: GameTile,
 };
-let _cached_UpsertGameTileData_type_value: __AlgebraicTypeType | null = null;
+let _cached_UpsertGameTile_type_value: __AlgebraicTypeType | null = null;
 
 /**
  * An object for generated helper functions.
  */
-export const UpsertGameTileData = {
+export const UpsertGameTile = {
   /**
   * A function which returns this type represented as an AlgebraicType.
   * This function is derived from the AlgebraicType used to generate this type.
   */
   getTypeScriptAlgebraicType(): __AlgebraicTypeType {
-    if (_cached_UpsertGameTileData_type_value) return _cached_UpsertGameTileData_type_value;
-    _cached_UpsertGameTileData_type_value = __AlgebraicTypeValue.Product({ elements: [] });
-    _cached_UpsertGameTileData_type_value.value.elements.push(
-      { name: "gameTileData", algebraicType: GameTileData.getTypeScriptAlgebraicType() },
+    if (_cached_UpsertGameTile_type_value) return _cached_UpsertGameTile_type_value;
+    _cached_UpsertGameTile_type_value = __AlgebraicTypeValue.Product({ elements: [] });
+    _cached_UpsertGameTile_type_value.value.elements.push(
+      { name: "gameTileData", algebraicType: GameTile.getTypeScriptAlgebraicType() },
     );
-    return _cached_UpsertGameTileData_type_value;
+    return _cached_UpsertGameTile_type_value;
   },
 
-  serialize(writer: __BinaryWriter, value: UpsertGameTileData): void {
-    __AlgebraicTypeValue.serializeValue(writer, UpsertGameTileData.getTypeScriptAlgebraicType(), value);
+  serialize(writer: __BinaryWriter, value: UpsertGameTile): void {
+    __AlgebraicTypeValue.serializeValue(writer, UpsertGameTile.getTypeScriptAlgebraicType(), value);
   },
 
-  deserialize(reader: __BinaryReader): UpsertGameTileData {
-    return __AlgebraicTypeValue.deserializeValue(reader, UpsertGameTileData.getTypeScriptAlgebraicType());
+  deserialize(reader: __BinaryReader): UpsertGameTile {
+    return __AlgebraicTypeValue.deserializeValue(reader, UpsertGameTile.getTypeScriptAlgebraicType());
   },
 
 }
 
-export default UpsertGameTileData;
+export default UpsertGameTile;
 

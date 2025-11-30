@@ -57,8 +57,8 @@ import { UpsertAuthFrame } from "./upsert_auth_frame_reducer.ts";
 export { UpsertAuthFrame };
 import { UpsertBaseCfg } from "./upsert_base_cfg_reducer.ts";
 export { UpsertBaseCfg };
-import { UpsertGameTileData } from "./upsert_game_tile_data_reducer.ts";
-export { UpsertGameTileData };
+import { UpsertGameTile } from "./upsert_game_tile_reducer.ts";
+export { UpsertGameTile };
 import { UpsertInputCollector } from "./upsert_input_collector_reducer.ts";
 export { UpsertInputCollector };
 import { UpsertInputFrame } from "./upsert_input_frame_reducer.ts";
@@ -91,8 +91,8 @@ import { DeterminismCheckTableHandle } from "./determinism_check_table.ts";
 export { DeterminismCheckTableHandle };
 import { GameCoreSnapTableHandle } from "./game_core_snap_table.ts";
 export { GameCoreSnapTableHandle };
-import { GameTileDataTableHandle } from "./game_tile_data_table.ts";
-export { GameTileDataTableHandle };
+import { GameTileTableHandle } from "./game_tile_table.ts";
+export { GameTileTableHandle };
 import { GameplayFinishedFlagSTableHandle } from "./gameplay_finished_flag_s_table.ts";
 export { GameplayFinishedFlagSTableHandle };
 import { InputCollectorTableHandle } from "./input_collector_table.ts";
@@ -135,8 +135,8 @@ import { DeterminismCheck } from "./determinism_check_type.ts";
 export { DeterminismCheck };
 import { GameCoreSnap } from "./game_core_snap_type.ts";
 export { GameCoreSnap };
-import { GameTileData } from "./game_tile_data_type.ts";
-export { GameTileData };
+import { GameTile } from "./game_tile_type.ts";
+export { GameTile };
 import { GameplayFinishedFlagS } from "./gameplay_finished_flag_s_type.ts";
 export { GameplayFinishedFlagS };
 import { InputCollector } from "./input_collector_type.ts";
@@ -271,13 +271,13 @@ const REMOTE_MODULE = {
         colType: (GameCoreSnap.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
-    GameTileData: {
-      tableName: "GameTileData" as const,
-      rowType: GameTileData.getTypeScriptAlgebraicType(),
+    GameTile: {
+      tableName: "GameTile" as const,
+      rowType: GameTile.getTypeScriptAlgebraicType(),
       primaryKey: "unityPrefabGuid",
       primaryKeyInfo: {
         colName: "unityPrefabGuid",
-        colType: (GameTileData.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
+        colType: (GameTile.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
     GameplayFinishedFlagS: {
@@ -392,9 +392,9 @@ const REMOTE_MODULE = {
       reducerName: "UpsertBaseCfg",
       argsType: UpsertBaseCfg.getTypeScriptAlgebraicType(),
     },
-    UpsertGameTileData: {
-      reducerName: "UpsertGameTileData",
-      argsType: UpsertGameTileData.getTypeScriptAlgebraicType(),
+    UpsertGameTile: {
+      reducerName: "UpsertGameTile",
+      argsType: UpsertGameTile.getTypeScriptAlgebraicType(),
     },
     UpsertInputCollector: {
       reducerName: "UpsertInputCollector",
@@ -447,7 +447,7 @@ export type Reducer = never
 | { name: "UpsertAccountSeq", args: UpsertAccountSeq }
 | { name: "UpsertAuthFrame", args: UpsertAuthFrame }
 | { name: "UpsertBaseCfg", args: UpsertBaseCfg }
-| { name: "UpsertGameTileData", args: UpsertGameTileData }
+| { name: "UpsertGameTile", args: UpsertGameTile }
 | { name: "UpsertInputCollector", args: UpsertInputCollector }
 | { name: "UpsertInputFrame", args: UpsertInputFrame }
 ;
@@ -643,20 +643,20 @@ export class RemoteReducers {
     this.connection.offReducer("UpsertBaseCfg", callback);
   }
 
-  upsertGameTileData(gameTileData: GameTileData) {
+  upsertGameTile(gameTileData: GameTile) {
     const __args = { gameTileData };
     let __writer = new __BinaryWriter(1024);
-    UpsertGameTileData.serialize(__writer, __args);
+    UpsertGameTile.serialize(__writer, __args);
     let __argsBuffer = __writer.getBuffer();
-    this.connection.callReducer("UpsertGameTileData", __argsBuffer, this.setCallReducerFlags.upsertGameTileDataFlags);
+    this.connection.callReducer("UpsertGameTile", __argsBuffer, this.setCallReducerFlags.upsertGameTileFlags);
   }
 
-  onUpsertGameTileData(callback: (ctx: ReducerEventContext, gameTileData: GameTileData) => void) {
-    this.connection.onReducer("UpsertGameTileData", callback);
+  onUpsertGameTile(callback: (ctx: ReducerEventContext, gameTileData: GameTile) => void) {
+    this.connection.onReducer("UpsertGameTile", callback);
   }
 
-  removeOnUpsertGameTileData(callback: (ctx: ReducerEventContext, gameTileData: GameTileData) => void) {
-    this.connection.offReducer("UpsertGameTileData", callback);
+  removeOnUpsertGameTile(callback: (ctx: ReducerEventContext, gameTileData: GameTile) => void) {
+    this.connection.offReducer("UpsertGameTile", callback);
   }
 
   upsertInputCollector(row: InputCollector) {
@@ -749,9 +749,9 @@ export class SetReducerFlags {
     this.upsertBaseCfgFlags = flags;
   }
 
-  upsertGameTileDataFlags: __CallReducerFlags = 'FullUpdate';
-  upsertGameTileData(flags: __CallReducerFlags) {
-    this.upsertGameTileDataFlags = flags;
+  upsertGameTileFlags: __CallReducerFlags = 'FullUpdate';
+  upsertGameTile(flags: __CallReducerFlags) {
+    this.upsertGameTileFlags = flags;
   }
 
   upsertInputCollectorFlags: __CallReducerFlags = 'FullUpdate';
@@ -834,9 +834,9 @@ export class RemoteTables {
     return new GameCoreSnapTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameCoreSnap>(REMOTE_MODULE.tables.GameCoreSnap));
   }
 
-  get gameTileData(): GameTileDataTableHandle<'GameTileData'> {
+  get gameTile(): GameTileTableHandle<'GameTile'> {
     // clientCache is a private property
-    return new GameTileDataTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameTileData>(REMOTE_MODULE.tables.GameTileData));
+    return new GameTileTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameTile>(REMOTE_MODULE.tables.GameTile));
   }
 
   get gameplayFinishedFlagS(): GameplayFinishedFlagSTableHandle<'GameplayFinishedFlagS'> {

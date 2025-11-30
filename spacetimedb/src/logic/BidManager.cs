@@ -42,7 +42,7 @@ public static partial class Module
 
     private static void TryCountdownBidTimer(ReducerContext ctx, float deltaTimeSec)
     {
-        if (!GameplayFinishedFlagS.Inst(ctx).IsGameplayFinished)
+        if (!BiddingStateS.Inst(ctx).IsGameplayFinished)
             return;
 
         if ((int)ctx.Db.AccountBid.Count < BidConfigS.Inst(ctx).MinAuctionSpots)
@@ -115,10 +115,13 @@ public static partial class Module
             remainingBidders.RemoveAt(randomIndex);
         }
 
+        BiddingStateS biddingState = BiddingStateS.Inst(ctx);
+
         // Create an input event with the entrants list and insert it into the input collector
         InputEvent.StartGameTile startGameTileEvent = new InputEvent.StartGameTile(
             entrants.ToArray(),
-            totalMarblesBidByAll
+            totalMarblesBidByAll,
+            biddingState.CurrBidWorldId
         );
         byte[] eventData = startGameTileEvent.ToBinary();
         ctx.Db.InputCollector.Insert(
@@ -131,8 +134,9 @@ public static partial class Module
 
         // Reset bid timer for next round (will be set when gameplay finishes again)
         BidTimeS.Set(ctx, new BidTimeS { MicrosecondsRemaining = SecondsToMicroseconds(10) });
-        ctx.Db.GameplayFinishedFlagS.Id.Update(
-            new GameplayFinishedFlagS { Id = 0, IsGameplayFinished = false }
-        );
+
+        biddingState.IsGameplayFinished = false;
+        biddingState.CurrBidWorldId = (byte)(biddingState.CurrBidWorldId == 1 ? 2 : 1);
+        ctx.Db.BiddingStateS.Id.Update(biddingState);
     }
 }

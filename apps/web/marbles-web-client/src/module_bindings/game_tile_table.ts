@@ -27,26 +27,26 @@ import {
   type SubscriptionEventContextInterface as __SubscriptionEventContextInterface,
   type TableHandle as __TableHandle,
 } from "spacetimedb";
-import { GameTileData } from "./game_tile_data_type";
+import { GameTile } from "./game_tile_type";
 import { type EventContext, type Reducer, RemoteReducers, RemoteTables } from ".";
 declare type __keep = [EventContext, Reducer, RemoteReducers, RemoteTables];
 
 /**
- * Table handle for the table `GameTileData`.
+ * Table handle for the table `GameTile`.
  *
- * Obtain a handle from the [`gameTileData`] property on [`RemoteTables`],
- * like `ctx.db.gameTileData`.
+ * Obtain a handle from the [`gameTile`] property on [`RemoteTables`],
+ * like `ctx.db.gameTile`.
  *
  * Users are encouraged not to explicitly reference this type,
  * but to directly chain method calls,
- * like `ctx.db.gameTileData.on_insert(...)`.
+ * like `ctx.db.gameTile.on_insert(...)`.
  */
-export class GameTileDataTableHandle<TableName extends string> implements __TableHandle<TableName> {
+export class GameTileTableHandle<TableName extends string> implements __TableHandle<TableName> {
   // phantom type to track the table name
   readonly tableName!: TableName;
-  tableCache: __TableCache<GameTileData>;
+  tableCache: __TableCache<GameTile>;
 
-  constructor(tableCache: __TableCache<GameTileData>) {
+  constructor(tableCache: __TableCache<GameTile>) {
     this.tableCache = tableCache;
   }
 
@@ -54,24 +54,24 @@ export class GameTileDataTableHandle<TableName extends string> implements __Tabl
     return this.tableCache.count();
   }
 
-  iter(): Iterable<GameTileData> {
+  iter(): Iterable<GameTile> {
     return this.tableCache.iter();
   }
   /**
-   * Access to the `unityPrefabGuid` unique index on the table `GameTileData`,
+   * Access to the `unityPrefabGuid` unique index on the table `GameTile`,
    * which allows point queries on the field of the same name
-   * via the [`GameTileDataUnityPrefabGuidUnique.find`] method.
+   * via the [`GameTileUnityPrefabGuidUnique.find`] method.
    *
    * Users are encouraged not to explicitly reference this type,
    * but to directly chain method calls,
-   * like `ctx.db.gameTileData.unityPrefabGuid().find(...)`.
+   * like `ctx.db.gameTile.unityPrefabGuid().find(...)`.
    *
-   * Get a handle on the `unityPrefabGuid` unique index on the table `GameTileData`.
+   * Get a handle on the `unityPrefabGuid` unique index on the table `GameTile`.
    */
   unityPrefabGuid = {
     // Find the subscribed row whose `unityPrefabGuid` column value is equal to `col_val`,
     // if such a row is present in the client cache.
-    find: (col_val: string): GameTileData | undefined => {
+    find: (col_val: string): GameTile | undefined => {
       for (let row of this.tableCache.iter()) {
         if (__deepEqual(row.unityPrefabGuid, col_val)) {
           return row;
@@ -80,27 +80,27 @@ export class GameTileDataTableHandle<TableName extends string> implements __Tabl
     },
   };
 
-  onInsert = (cb: (ctx: EventContext, row: GameTileData) => void) => {
+  onInsert = (cb: (ctx: EventContext, row: GameTile) => void) => {
     return this.tableCache.onInsert(cb);
   }
 
-  removeOnInsert = (cb: (ctx: EventContext, row: GameTileData) => void) => {
+  removeOnInsert = (cb: (ctx: EventContext, row: GameTile) => void) => {
     return this.tableCache.removeOnInsert(cb);
   }
 
-  onDelete = (cb: (ctx: EventContext, row: GameTileData) => void) => {
+  onDelete = (cb: (ctx: EventContext, row: GameTile) => void) => {
     return this.tableCache.onDelete(cb);
   }
 
-  removeOnDelete = (cb: (ctx: EventContext, row: GameTileData) => void) => {
+  removeOnDelete = (cb: (ctx: EventContext, row: GameTile) => void) => {
     return this.tableCache.removeOnDelete(cb);
   }
 
   // Updates are only defined for tables with primary keys.
-  onUpdate = (cb: (ctx: EventContext, oldRow: GameTileData, newRow: GameTileData) => void) => {
+  onUpdate = (cb: (ctx: EventContext, oldRow: GameTile, newRow: GameTile) => void) => {
     return this.tableCache.onUpdate(cb);
   }
 
-  removeOnUpdate = (cb: (ctx: EventContext, onRow: GameTileData, newRow: GameTileData) => void) => {
+  removeOnUpdate = (cb: (ctx: EventContext, onRow: GameTile, newRow: GameTile) => void) => {
     return this.tableCache.removeOnUpdate(cb);
   }}

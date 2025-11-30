@@ -11,7 +11,7 @@ namespace GameCoreLib
     [MemoryPackUnion(2, typeof(Dhash))]
     [MemoryPackUnion(3, typeof(SetIntegrationParameter))]
     [MemoryPackUnion(4, typeof(StartCloseDoorAnimation))]
-    [MemoryPackUnion(5, typeof(LoadGameTile))]
+    [MemoryPackUnion(5, typeof(SpinToNewGameTile))]
     [MemoryPackUnion(6, typeof(StartGameTile))]
     public abstract partial class InputEvent
     {
@@ -26,14 +26,28 @@ namespace GameCoreLib
             [MemoryPackOrder(1)]
             public uint TotalMarblesBid { get; set; }
 
+            [MemoryPackOrder(2)]
+            public byte WorldId { get; set; } // u8
+
             [MemoryPackConstructor]
             public StartGameTile() { }
 
-            public StartGameTile(Entrant[] entrants, uint totalMarblesBid)
+            public StartGameTile(Entrant[] entrants, uint totalMarblesBid, byte worldId)
             {
                 Entrants = entrants;
                 TotalMarblesBid = totalMarblesBid;
+                WorldId = worldId;
             }
+        }
+
+        [MemoryPackable(SerializeLayout.Explicit)]
+        public partial class FinishGameplay : InputEvent
+        {
+            [MemoryPackOrder(0)]
+            public byte WorldId { get; set; } // u8
+
+            [MemoryPackConstructor]
+            public FinishGameplay() { }
         }
 
         [MemoryPackable]
@@ -120,27 +134,26 @@ namespace GameCoreLib
         /// The GameTile is deserialized and initialized with the appropriate TileId.
         /// </summary>
         [MemoryPackable(SerializeLayout.Explicit)]
-        public partial class LoadGameTile : InputEvent
+        public partial class SpinToNewGameTile : InputEvent
         {
-            [MemoryPackOrder(0)]
-            public byte WorldId { get; set; } // u8
-
             /// <summary>
             /// The GameTile template to load. Already fully constructed, just needs
             /// Initialize(tileId) called to assign RuntimeIds and set up physics.
             /// </summary>
+            [MemoryPackOrder(0)]
+            public GameTileBase NewGameTile { get; set; }
+
             [MemoryPackOrder(1)]
-            public GameTileBase GameTile { get; set; }
+            public byte WorldId { get; set; } // u8
 
             [MemoryPackConstructor]
-            public LoadGameTile() { }
+            public SpinToNewGameTile() { }
 
-            public LoadGameTile(byte worldId, GameTileBase gameTile)
+            public SpinToNewGameTile(GameTileBase newGameTile, byte worldId)
             {
+                NewGameTile = newGameTile;
                 WorldId = worldId;
-                GameTile = gameTile;
             }
         }
     }
 }
-

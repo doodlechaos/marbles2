@@ -12,17 +12,17 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void UpsertGameTileDataHandler(ReducerEventContext ctx, GameTileData gameTileData);
-        public event UpsertGameTileDataHandler? OnUpsertGameTileData;
+        public delegate void UpsertGameTileHandler(ReducerEventContext ctx, GameTile gameTileData);
+        public event UpsertGameTileHandler? OnUpsertGameTile;
 
-        public void UpsertGameTileData(GameTileData gameTileData)
+        public void UpsertGameTile(GameTile gameTileData)
         {
-            conn.InternalCallReducer(new Reducer.UpsertGameTileData(gameTileData), this.SetCallReducerFlags.UpsertGameTileDataFlags);
+            conn.InternalCallReducer(new Reducer.UpsertGameTile(gameTileData), this.SetCallReducerFlags.UpsertGameTileFlags);
         }
 
-        public bool InvokeUpsertGameTileData(ReducerEventContext ctx, Reducer.UpsertGameTileData args)
+        public bool InvokeUpsertGameTile(ReducerEventContext ctx, Reducer.UpsertGameTile args)
         {
-            if (OnUpsertGameTileData == null)
+            if (OnUpsertGameTile == null)
             {
                 if (InternalOnUnhandledReducerError != null)
                 {
@@ -38,7 +38,7 @@ namespace SpacetimeDB.Types
                 }
                 return false;
             }
-            OnUpsertGameTileData(
+            OnUpsertGameTile(
                 ctx,
                 args.GameTileData
             );
@@ -50,28 +50,28 @@ namespace SpacetimeDB.Types
     {
         [SpacetimeDB.Type]
         [DataContract]
-        public sealed partial class UpsertGameTileData : Reducer, IReducerArgs
+        public sealed partial class UpsertGameTile : Reducer, IReducerArgs
         {
             [DataMember(Name = "gameTileData")]
-            public GameTileData GameTileData;
+            public GameTile GameTileData;
 
-            public UpsertGameTileData(GameTileData GameTileData)
+            public UpsertGameTile(GameTile GameTileData)
             {
                 this.GameTileData = GameTileData;
             }
 
-            public UpsertGameTileData()
+            public UpsertGameTile()
             {
                 this.GameTileData = new();
             }
 
-            string IReducerArgs.ReducerName => "UpsertGameTileData";
+            string IReducerArgs.ReducerName => "UpsertGameTile";
         }
     }
 
     public sealed partial class SetReducerFlags
     {
-        internal CallReducerFlags UpsertGameTileDataFlags;
-        public void UpsertGameTileData(CallReducerFlags flags) => UpsertGameTileDataFlags = flags;
+        internal CallReducerFlags UpsertGameTileFlags;
+        public void UpsertGameTile(CallReducerFlags flags) => UpsertGameTileFlags = flags;
     }
 }

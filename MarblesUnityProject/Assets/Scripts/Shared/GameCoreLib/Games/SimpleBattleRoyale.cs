@@ -30,22 +30,22 @@ namespace GameCoreLib
         /// Counter for assigning elimination order.
         /// Serialized so it continues correctly after deserialize.
         /// </summary>
-        [MemoryPackOrder(5)]
+        [MemoryPackOrder(6)]
         public int NextEliminationOrder = 1;
 
         /// <summary>
         /// Queue of players waiting to spawn.
         /// </summary>
-        [MemoryPackOrder(6)]
+        [MemoryPackOrder(7)]
         public List<InputEvent.Entrant> SpawnQueue = new List<InputEvent.Entrant>();
 
-        [MemoryPackOrder(7)]
+        [MemoryPackOrder(8)]
         public int SpawnTickCounter = 0;
 
-        [MemoryPackOrder(8)]
+        [MemoryPackOrder(9)]
         public int TicksBetweenSpawns = 30;
 
-        [MemoryPackOrder(9)]
+        [MemoryPackOrder(10)]
         public uint TotalMarblesBid;
 
         public SimpleBattleRoyale() { }
@@ -180,12 +180,10 @@ namespace GameCoreLib
                 outputEvents.Server.Add(
                     new OutputToServerEvent.NewKing { AccountId = lastAlive.AccountId }
                 );
-                outputEvents.Server.Add(new OutputToServerEvent.GameplayFinished());
             }
             else if (aliveCount == 0 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 0)
             {
                 Logger.Log("All players eliminated!");
-                outputEvents.Server.Add(new OutputToServerEvent.GameplayFinished());
             }
         }
 

@@ -28,7 +28,7 @@ import {
   type TableHandle as __TableHandle,
 } from "spacetimedb";
 
-export type GameTileData = {
+export type GameTile = {
   unityPrefabGuid: string,
   levelName: string,
   rarity: number,
@@ -37,20 +37,20 @@ export type GameTileData = {
   maxRaffleDraws: number,
   gameTileBinary: Uint8Array,
 };
-let _cached_GameTileData_type_value: __AlgebraicTypeType | null = null;
+let _cached_GameTile_type_value: __AlgebraicTypeType | null = null;
 
 /**
  * An object for generated helper functions.
  */
-export const GameTileData = {
+export const GameTile = {
   /**
   * A function which returns this type represented as an AlgebraicType.
   * This function is derived from the AlgebraicType used to generate this type.
   */
   getTypeScriptAlgebraicType(): __AlgebraicTypeType {
-    if (_cached_GameTileData_type_value) return _cached_GameTileData_type_value;
-    _cached_GameTileData_type_value = __AlgebraicTypeValue.Product({ elements: [] });
-    _cached_GameTileData_type_value.value.elements.push(
+    if (_cached_GameTile_type_value) return _cached_GameTile_type_value;
+    _cached_GameTile_type_value = __AlgebraicTypeValue.Product({ elements: [] });
+    _cached_GameTile_type_value.value.elements.push(
       { name: "unityPrefabGuid", algebraicType: __AlgebraicTypeValue.String },
       { name: "levelName", algebraicType: __AlgebraicTypeValue.String },
       { name: "rarity", algebraicType: __AlgebraicTypeValue.I32 },
@@ -59,19 +59,19 @@ export const GameTileData = {
       { name: "maxRaffleDraws", algebraicType: __AlgebraicTypeValue.I32 },
       { name: "gameTileBinary", algebraicType: __AlgebraicTypeValue.Array(__AlgebraicTypeValue.U8) },
     );
-    return _cached_GameTileData_type_value;
+    return _cached_GameTile_type_value;
   },
 
-  serialize(writer: __BinaryWriter, value: GameTileData): void {
-    __AlgebraicTypeValue.serializeValue(writer, GameTileData.getTypeScriptAlgebraicType(), value);
+  serialize(writer: __BinaryWriter, value: GameTile): void {
+    __AlgebraicTypeValue.serializeValue(writer, GameTile.getTypeScriptAlgebraicType(), value);
   },
 
-  deserialize(reader: __BinaryReader): GameTileData {
-    return __AlgebraicTypeValue.deserializeValue(reader, GameTileData.getTypeScriptAlgebraicType());
+  deserialize(reader: __BinaryReader): GameTile {
+    return __AlgebraicTypeValue.deserializeValue(reader, GameTile.getTypeScriptAlgebraicType());
   },
 
 }
 
-export default GameTileData;
+export default GameTile;
 
 

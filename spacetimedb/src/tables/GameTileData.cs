@@ -9,7 +9,7 @@ public static partial class Module
     /// The GameTile is exported directly from Unity, eliminating the need for JSON parsing.
     /// </summary>
     [Table(Public = true)]
-    public partial struct GameTileData
+    public partial struct GameTile
     {
         [PrimaryKey]
         public string UnityPrefabGUID;
@@ -36,10 +36,10 @@ public static partial class Module
     }
 
     [Reducer]
-    public static void UpsertGameTileData(ReducerContext ctx, GameTileData gameTileData)
+    public static void UpsertGameTile(ReducerContext ctx, GameTile gameTileData)
     {
         // Delete existing entry if it exists, then insert the new one (upsert behavior)
-        ctx.Db.GameTileData.UnityPrefabGUID.Delete(gameTileData.UnityPrefabGUID);
-        ctx.Db.GameTileData.Insert(gameTileData);
+        ctx.Db.GameTile.UnityPrefabGUID.Delete(gameTileData.UnityPrefabGUID);
+        ctx.Db.GameTile.Insert(gameTileData);
     }
 }
