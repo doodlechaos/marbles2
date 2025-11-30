@@ -50,7 +50,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2701450334066813998, guid: dfbdcd942a69d2449b4230c73a8263e2, type: 3}
       propertyPath: m_Name
-      value: TestTile1 Variant
+      value: SimpleBattleRoyale1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -98,7 +98,7 @@ MonoBehaviour:
   MinAuctionSpots: 0
   MaxAuctionSpots: 10
   MaxRaffleDraws: 10
-  SpawnPipe: {fileID: 6382826218314141683}
+  spawnPipe: {fileID: 0}
 --- !u!1001 &1558352678305899191
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -285,17 +285,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
   m_PrefabInstance: {fileID: 7897211838667543016}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6382826218314141683 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3822662128245136923, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
-  m_PrefabInstance: {fileID: 7897211838667543016}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2652dd0b93423714582bcb9a70ce23f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpawnPipeAuth
 --- !u!1001 &8309876489985676321
 PrefabInstance:
   m_ObjectHideFlags: 0

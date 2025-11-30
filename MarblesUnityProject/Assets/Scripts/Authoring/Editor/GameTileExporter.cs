@@ -13,18 +13,41 @@ public class GameTileExporter : EditorWindow
     private GameCoreRenderer cachedRuntimeRenderer;
     private List<GameObject> cachedRenderPrefabs;
 
-    private const string SERVER_URL = "http://127.0.0.1:3000";
-    private const string MODULE_NAME = "marbles2";
+    private const string PREF_SERVER_URL = "GameTileExporter_ServerUrl";
+    private const string PREF_MODULE_NAME = "GameTileExporter_ModuleName";
 
-    [MenuItem("Window/LockSim/LevelFileExporter")]
+    private const string DEFAULT_SERVER_URL = "http://127.0.0.1:3000";
+    private const string DEFAULT_MODULE_NAME = "marbles2";
+
+    private string serverUrl;
+    private string moduleName;
+
+    [MenuItem("Window/GameCore/GameTileExporter")]
     public static void ShowWindow()
     {
         GetWindow<GameTileExporter>("Game Tile Exporter");
     }
 
+    void OnEnable()
+    {
+        serverUrl = EditorPrefs.GetString(PREF_SERVER_URL, DEFAULT_SERVER_URL);
+        moduleName = EditorPrefs.GetString(PREF_MODULE_NAME, DEFAULT_MODULE_NAME);
+    }
+
     void OnGUI()
     {
-        GUILayout.Label("Level Export Tools", EditorStyles.boldLabel);
+        GUILayout.Label("Game Tile Export Tools", EditorStyles.boldLabel);
+
+        EditorGUI.BeginChangeCheck();
+        serverUrl = EditorGUILayout.TextField("Server URL", serverUrl);
+        moduleName = EditorGUILayout.TextField("Module Name", moduleName);
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorPrefs.SetString(PREF_SERVER_URL, serverUrl);
+            EditorPrefs.SetString(PREF_MODULE_NAME, moduleName);
+        }
+
+        EditorGUILayout.Space();
 
         if (GUILayout.Button("Export and Upload Levels to SpacetimeDB"))
         {
