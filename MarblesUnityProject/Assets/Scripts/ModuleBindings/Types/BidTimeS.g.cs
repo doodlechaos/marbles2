@@ -13,11 +13,17 @@ namespace SpacetimeDB.Types
     [DataContract]
     public sealed partial class BidTimeS
     {
+        [DataMember(Name = "Id")]
+        public byte Id;
         [DataMember(Name = "MicrosecondsRemaining")]
-        public ulong MicrosecondsRemaining;
+        public long MicrosecondsRemaining;
 
-        public BidTimeS(ulong MicrosecondsRemaining)
+        public BidTimeS(
+            byte Id,
+            long MicrosecondsRemaining
+        )
         {
+            this.Id = Id;
             this.MicrosecondsRemaining = MicrosecondsRemaining;
         }
 

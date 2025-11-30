@@ -29,6 +29,7 @@ import {
 } from "spacetimedb";
 
 export type BidConfigS = {
+  id: number,
   minAuctionSpots: number,
   maxAcutionSpots: number,
   maxRaffleDraws: number,
@@ -47,6 +48,7 @@ export const BidConfigS = {
     if (_cached_BidConfigS_type_value) return _cached_BidConfigS_type_value;
     _cached_BidConfigS_type_value = __AlgebraicTypeValue.Product({ elements: [] });
     _cached_BidConfigS_type_value.value.elements.push(
+      { name: "id", algebraicType: __AlgebraicTypeValue.U8 },
       { name: "minAuctionSpots", algebraicType: __AlgebraicTypeValue.I32 },
       { name: "maxAcutionSpots", algebraicType: __AlgebraicTypeValue.I32 },
       { name: "maxRaffleDraws", algebraicType: __AlgebraicTypeValue.I32 },

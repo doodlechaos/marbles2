@@ -57,6 +57,28 @@ export class BidConfigSTableHandle<TableName extends string> implements __TableH
   iter(): Iterable<BidConfigS> {
     return this.tableCache.iter();
   }
+  /**
+   * Access to the `id` unique index on the table `BidConfigS`,
+   * which allows point queries on the field of the same name
+   * via the [`BidConfigSIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.bidConfigS.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `BidConfigS`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val: number): BidConfigS | undefined => {
+      for (let row of this.tableCache.iter()) {
+        if (__deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    },
+  };
 
   onInsert = (cb: (ctx: EventContext, row: BidConfigS) => void) => {
     return this.tableCache.onInsert(cb);
@@ -73,4 +95,12 @@ export class BidConfigSTableHandle<TableName extends string> implements __TableH
   removeOnDelete = (cb: (ctx: EventContext, row: BidConfigS) => void) => {
     return this.tableCache.removeOnDelete(cb);
   }
-}
+
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb: (ctx: EventContext, oldRow: BidConfigS, newRow: BidConfigS) => void) => {
+    return this.tableCache.onUpdate(cb);
+  }
+
+  removeOnUpdate = (cb: (ctx: EventContext, onRow: BidConfigS, newRow: BidConfigS) => void) => {
+    return this.tableCache.removeOnUpdate(cb);
+  }}

@@ -29,6 +29,7 @@ import {
 } from "spacetimedb";
 
 export type BidTimeS = {
+  id: number,
   microsecondsRemaining: bigint,
 };
 let _cached_BidTimeS_type_value: __AlgebraicTypeType | null = null;
@@ -45,7 +46,8 @@ export const BidTimeS = {
     if (_cached_BidTimeS_type_value) return _cached_BidTimeS_type_value;
     _cached_BidTimeS_type_value = __AlgebraicTypeValue.Product({ elements: [] });
     _cached_BidTimeS_type_value.value.elements.push(
-      { name: "microsecondsRemaining", algebraicType: __AlgebraicTypeValue.U64 },
+      { name: "id", algebraicType: __AlgebraicTypeValue.U8 },
+      { name: "microsecondsRemaining", algebraicType: __AlgebraicTypeValue.I64 },
     );
     return _cached_BidTimeS_type_value;
   },

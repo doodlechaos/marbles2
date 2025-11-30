@@ -74,7 +74,7 @@ public class GameCoreRenderer : MonoBehaviour
     /// Update rendering for a specific GameTile
     /// </summary>
     private void UpdateGameTile(
-        GameTile gameTile,
+        GameTileBase gameTile,
         ref GameObject renderRoot,
         Dictionary<ulong, GameObject> idToGameObject,
         HashSet<ulong> seenIds,
@@ -142,8 +142,8 @@ public class GameCoreRenderer : MonoBehaviour
         HashSet<ulong> seenIds
     )
     {
-        // Skip GameTileAuth components (they're authoring-only)
-        if (HasGameTileAuthComponent(runtimeObj))
+        // Skip level roots (they're just containers)
+        if (IsLevelRoot(runtimeObj))
         {
             // Still process children, but don't render this object
             if (runtimeObj.Children != null)
@@ -277,22 +277,12 @@ public class GameCoreRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// Check if a RuntimeObj has a GameTileAuth component
+    /// Check if a RuntimeObj is a level root (should not be rendered directly)
     /// </summary>
-    private bool HasGameTileAuthComponent(RuntimeObj runtimeObj)
+    private bool IsLevelRoot(RuntimeObj runtimeObj)
     {
-        if (runtimeObj.Components == null)
-            return false;
-
-        foreach (var component in runtimeObj.Components)
-        {
-            if (component.type != null && component.type.Contains("GameTileAuth"))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        // Check for LevelRootComponent marker
+        return runtimeObj.HasComponent<LevelRootComponent>();
     }
 
     /// <summary>
@@ -389,7 +379,7 @@ public class GameCoreRenderer : MonoBehaviour
     /// <summary>
     /// Draw physics debug gizmos for a specific GameTile
     /// </summary>
-    private void DrawPhysicsGizmos(GameTile gameTile)
+    private void DrawPhysicsGizmos(GameTileBase gameTile)
     {
         if (gameTile == null || gameTile.Sim == null)
             return;

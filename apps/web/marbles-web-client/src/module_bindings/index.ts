@@ -31,6 +31,10 @@ import {
 } from "spacetimedb";
 
 // Import and reexport all reducer arg types
+import { AGiveMarbles } from "./a_give_marbles_reducer.ts";
+export { AGiveMarbles };
+import { ASetGameplayFinished } from "./a_set_gameplay_finished_reducer.ts";
+export { ASetGameplayFinished };
 import { ClockUpdate } from "./clock_update_reducer.ts";
 export { ClockUpdate };
 import { CloseAndCycleGameTile } from "./close_and_cycle_game_tile_reducer.ts";
@@ -41,6 +45,8 @@ import { Disconnect } from "./disconnect_reducer.ts";
 export { Disconnect };
 import { IncrementPfpVersion } from "./increment_pfp_version_reducer.ts";
 export { IncrementPfpVersion };
+import { PlaceBid } from "./place_bid_reducer.ts";
+export { PlaceBid };
 import { SetUsername } from "./set_username_reducer.ts";
 export { SetUsername };
 import { UpsertAccount } from "./upsert_account_reducer.ts";
@@ -51,12 +57,12 @@ import { UpsertAuthFrame } from "./upsert_auth_frame_reducer.ts";
 export { UpsertAuthFrame };
 import { UpsertBaseCfg } from "./upsert_base_cfg_reducer.ts";
 export { UpsertBaseCfg };
+import { UpsertGameTileData } from "./upsert_game_tile_data_reducer.ts";
+export { UpsertGameTileData };
 import { UpsertInputCollector } from "./upsert_input_collector_reducer.ts";
 export { UpsertInputCollector };
 import { UpsertInputFrame } from "./upsert_input_frame_reducer.ts";
 export { UpsertInputFrame };
-import { UpsertLevelFileData } from "./upsert_level_file_data_reducer.ts";
-export { UpsertLevelFileData };
 
 // Import and reexport all table handle types
 import { AccountTableHandle } from "./account_table.ts";
@@ -81,20 +87,20 @@ import { ClockTableHandle } from "./clock_table.ts";
 export { ClockTableHandle };
 import { ClockScheduleTableHandle } from "./clock_schedule_table.ts";
 export { ClockScheduleTableHandle };
-import { CurrentBidTableHandle } from "./current_bid_table.ts";
-export { CurrentBidTableHandle };
 import { DeterminismCheckTableHandle } from "./determinism_check_table.ts";
 export { DeterminismCheckTableHandle };
 import { GameCoreSnapTableHandle } from "./game_core_snap_table.ts";
 export { GameCoreSnapTableHandle };
+import { GameTileDataTableHandle } from "./game_tile_data_table.ts";
+export { GameTileDataTableHandle };
+import { GameplayFinishedFlagSTableHandle } from "./gameplay_finished_flag_s_table.ts";
+export { GameplayFinishedFlagSTableHandle };
 import { InputCollectorTableHandle } from "./input_collector_table.ts";
 export { InputCollectorTableHandle };
 import { InputFrameTableHandle } from "./input_frame_table.ts";
 export { InputFrameTableHandle };
 import { LastAuthFrameTimestampTableHandle } from "./last_auth_frame_timestamp_table.ts";
 export { LastAuthFrameTimestampTableHandle };
-import { LevelFileDataTableHandle } from "./level_file_data_table.ts";
-export { LevelFileDataTableHandle };
 import { SeqTableHandle } from "./seq_table.ts";
 export { SeqTableHandle };
 import { StepsSinceLastAuthFrameTableHandle } from "./steps_since_last_auth_frame_table.ts";
@@ -125,20 +131,20 @@ import { Clock } from "./clock_type.ts";
 export { Clock };
 import { ClockSchedule } from "./clock_schedule_type.ts";
 export { ClockSchedule };
-import { CurrentBid } from "./current_bid_type.ts";
-export { CurrentBid };
 import { DeterminismCheck } from "./determinism_check_type.ts";
 export { DeterminismCheck };
 import { GameCoreSnap } from "./game_core_snap_type.ts";
 export { GameCoreSnap };
+import { GameTileData } from "./game_tile_data_type.ts";
+export { GameTileData };
+import { GameplayFinishedFlagS } from "./gameplay_finished_flag_s_type.ts";
+export { GameplayFinishedFlagS };
 import { InputCollector } from "./input_collector_type.ts";
 export { InputCollector };
 import { InputFrame } from "./input_frame_type.ts";
 export { InputFrame };
 import { LastAuthFrameTimestamp } from "./last_auth_frame_timestamp_type.ts";
 export { LastAuthFrameTimestamp };
-import { LevelFileData } from "./level_file_data_type.ts";
-export { LevelFileData };
 import { Seq } from "./seq_type.ts";
 export { Seq };
 import { StepsSinceLastAuthFrame } from "./steps_since_last_auth_frame_type.ts";
@@ -214,10 +220,20 @@ const REMOTE_MODULE = {
     BidConfigS: {
       tableName: "BidConfigS" as const,
       rowType: BidConfigS.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: (BidConfigS.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
+      },
     },
     BidTimeS: {
       tableName: "BidTimeS" as const,
       rowType: BidTimeS.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: (BidTimeS.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
+      },
     },
     Clock: {
       tableName: "Clock" as const,
@@ -237,10 +253,6 @@ const REMOTE_MODULE = {
         colType: (ClockSchedule.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
-    CurrentBid: {
-      tableName: "CurrentBid" as const,
-      rowType: CurrentBid.getTypeScriptAlgebraicType(),
-    },
     DeterminismCheck: {
       tableName: "DeterminismCheck" as const,
       rowType: DeterminismCheck.getTypeScriptAlgebraicType(),
@@ -257,6 +269,24 @@ const REMOTE_MODULE = {
       primaryKeyInfo: {
         colName: "id",
         colType: (GameCoreSnap.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
+      },
+    },
+    GameTileData: {
+      tableName: "GameTileData" as const,
+      rowType: GameTileData.getTypeScriptAlgebraicType(),
+      primaryKey: "unityPrefabGuid",
+      primaryKeyInfo: {
+        colName: "unityPrefabGuid",
+        colType: (GameTileData.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
+      },
+    },
+    GameplayFinishedFlagS: {
+      tableName: "GameplayFinishedFlagS" as const,
+      rowType: GameplayFinishedFlagS.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: (GameplayFinishedFlagS.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
     InputCollector: {
@@ -279,15 +309,6 @@ const REMOTE_MODULE = {
       primaryKeyInfo: {
         colName: "id",
         colType: (LastAuthFrameTimestamp.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
-      },
-    },
-    LevelFileData: {
-      tableName: "LevelFileData" as const,
-      rowType: LevelFileData.getTypeScriptAlgebraicType(),
-      primaryKey: "unityPrefabGuid",
-      primaryKeyInfo: {
-        colName: "unityPrefabGuid",
-        colType: (LevelFileData.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
     Seq: {
@@ -319,6 +340,14 @@ const REMOTE_MODULE = {
     },
   },
   reducers: {
+    A_GiveMarbles: {
+      reducerName: "A_GiveMarbles",
+      argsType: AGiveMarbles.getTypeScriptAlgebraicType(),
+    },
+    A_SetGameplayFinished: {
+      reducerName: "A_SetGameplayFinished",
+      argsType: ASetGameplayFinished.getTypeScriptAlgebraicType(),
+    },
     ClockUpdate: {
       reducerName: "ClockUpdate",
       argsType: ClockUpdate.getTypeScriptAlgebraicType(),
@@ -338,6 +367,10 @@ const REMOTE_MODULE = {
     IncrementPfpVersion: {
       reducerName: "IncrementPfpVersion",
       argsType: IncrementPfpVersion.getTypeScriptAlgebraicType(),
+    },
+    PlaceBid: {
+      reducerName: "PlaceBid",
+      argsType: PlaceBid.getTypeScriptAlgebraicType(),
     },
     SetUsername: {
       reducerName: "SetUsername",
@@ -359,6 +392,10 @@ const REMOTE_MODULE = {
       reducerName: "UpsertBaseCfg",
       argsType: UpsertBaseCfg.getTypeScriptAlgebraicType(),
     },
+    UpsertGameTileData: {
+      reducerName: "UpsertGameTileData",
+      argsType: UpsertGameTileData.getTypeScriptAlgebraicType(),
+    },
     UpsertInputCollector: {
       reducerName: "UpsertInputCollector",
       argsType: UpsertInputCollector.getTypeScriptAlgebraicType(),
@@ -366,10 +403,6 @@ const REMOTE_MODULE = {
     UpsertInputFrame: {
       reducerName: "UpsertInputFrame",
       argsType: UpsertInputFrame.getTypeScriptAlgebraicType(),
-    },
-    UpsertLevelFileData: {
-      reducerName: "UpsertLevelFileData",
-      argsType: UpsertLevelFileData.getTypeScriptAlgebraicType(),
     },
   },
   versionInfo: {
@@ -401,23 +434,58 @@ const REMOTE_MODULE = {
 
 // A type representing all the possible variants of a reducer.
 export type Reducer = never
+| { name: "AGiveMarbles", args: AGiveMarbles }
+| { name: "ASetGameplayFinished", args: ASetGameplayFinished }
 | { name: "ClockUpdate", args: ClockUpdate }
 | { name: "CloseAndCycleGameTile", args: CloseAndCycleGameTile }
 | { name: "Connect", args: Connect }
 | { name: "Disconnect", args: Disconnect }
 | { name: "IncrementPfpVersion", args: IncrementPfpVersion }
+| { name: "PlaceBid", args: PlaceBid }
 | { name: "SetUsername", args: SetUsername }
 | { name: "UpsertAccount", args: UpsertAccount }
 | { name: "UpsertAccountSeq", args: UpsertAccountSeq }
 | { name: "UpsertAuthFrame", args: UpsertAuthFrame }
 | { name: "UpsertBaseCfg", args: UpsertBaseCfg }
+| { name: "UpsertGameTileData", args: UpsertGameTileData }
 | { name: "UpsertInputCollector", args: UpsertInputCollector }
 | { name: "UpsertInputFrame", args: UpsertInputFrame }
-| { name: "UpsertLevelFileData", args: UpsertLevelFileData }
 ;
 
 export class RemoteReducers {
   constructor(private connection: __DbConnectionImpl, private setCallReducerFlags: SetReducerFlags) {}
+
+  aGiveMarbles(accountId: bigint, marbles: number) {
+    const __args = { accountId, marbles };
+    let __writer = new __BinaryWriter(1024);
+    AGiveMarbles.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("A_GiveMarbles", __argsBuffer, this.setCallReducerFlags.aGiveMarblesFlags);
+  }
+
+  onAGiveMarbles(callback: (ctx: ReducerEventContext, accountId: bigint, marbles: number) => void) {
+    this.connection.onReducer("A_GiveMarbles", callback);
+  }
+
+  removeOnAGiveMarbles(callback: (ctx: ReducerEventContext, accountId: bigint, marbles: number) => void) {
+    this.connection.offReducer("A_GiveMarbles", callback);
+  }
+
+  aSetGameplayFinished(isGameplayFinished: boolean) {
+    const __args = { isGameplayFinished };
+    let __writer = new __BinaryWriter(1024);
+    ASetGameplayFinished.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("A_SetGameplayFinished", __argsBuffer, this.setCallReducerFlags.aSetGameplayFinishedFlags);
+  }
+
+  onASetGameplayFinished(callback: (ctx: ReducerEventContext, isGameplayFinished: boolean) => void) {
+    this.connection.onReducer("A_SetGameplayFinished", callback);
+  }
+
+  removeOnASetGameplayFinished(callback: (ctx: ReducerEventContext, isGameplayFinished: boolean) => void) {
+    this.connection.offReducer("A_SetGameplayFinished", callback);
+  }
 
   clockUpdate(schedule: ClockSchedule) {
     const __args = { schedule };
@@ -477,6 +545,22 @@ export class RemoteReducers {
 
   removeOnIncrementPfpVersion(callback: (ctx: ReducerEventContext) => void) {
     this.connection.offReducer("IncrementPfpVersion", callback);
+  }
+
+  placeBid(bid: number) {
+    const __args = { bid };
+    let __writer = new __BinaryWriter(1024);
+    PlaceBid.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("PlaceBid", __argsBuffer, this.setCallReducerFlags.placeBidFlags);
+  }
+
+  onPlaceBid(callback: (ctx: ReducerEventContext, bid: number) => void) {
+    this.connection.onReducer("PlaceBid", callback);
+  }
+
+  removeOnPlaceBid(callback: (ctx: ReducerEventContext, bid: number) => void) {
+    this.connection.offReducer("PlaceBid", callback);
   }
 
   setUsername(username: string, overwriteExisting: boolean) {
@@ -559,6 +643,22 @@ export class RemoteReducers {
     this.connection.offReducer("UpsertBaseCfg", callback);
   }
 
+  upsertGameTileData(gameTileData: GameTileData) {
+    const __args = { gameTileData };
+    let __writer = new __BinaryWriter(1024);
+    UpsertGameTileData.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertGameTileData", __argsBuffer, this.setCallReducerFlags.upsertGameTileDataFlags);
+  }
+
+  onUpsertGameTileData(callback: (ctx: ReducerEventContext, gameTileData: GameTileData) => void) {
+    this.connection.onReducer("UpsertGameTileData", callback);
+  }
+
+  removeOnUpsertGameTileData(callback: (ctx: ReducerEventContext, gameTileData: GameTileData) => void) {
+    this.connection.offReducer("UpsertGameTileData", callback);
+  }
+
   upsertInputCollector(row: InputCollector) {
     const __args = { row };
     let __writer = new __BinaryWriter(1024);
@@ -591,25 +691,19 @@ export class RemoteReducers {
     this.connection.offReducer("UpsertInputFrame", callback);
   }
 
-  upsertLevelFileData(levelFileData: LevelFileData) {
-    const __args = { levelFileData };
-    let __writer = new __BinaryWriter(1024);
-    UpsertLevelFileData.serialize(__writer, __args);
-    let __argsBuffer = __writer.getBuffer();
-    this.connection.callReducer("UpsertLevelFileData", __argsBuffer, this.setCallReducerFlags.upsertLevelFileDataFlags);
-  }
-
-  onUpsertLevelFileData(callback: (ctx: ReducerEventContext, levelFileData: LevelFileData) => void) {
-    this.connection.onReducer("UpsertLevelFileData", callback);
-  }
-
-  removeOnUpsertLevelFileData(callback: (ctx: ReducerEventContext, levelFileData: LevelFileData) => void) {
-    this.connection.offReducer("UpsertLevelFileData", callback);
-  }
-
 }
 
 export class SetReducerFlags {
+  aGiveMarblesFlags: __CallReducerFlags = 'FullUpdate';
+  aGiveMarbles(flags: __CallReducerFlags) {
+    this.aGiveMarblesFlags = flags;
+  }
+
+  aSetGameplayFinishedFlags: __CallReducerFlags = 'FullUpdate';
+  aSetGameplayFinished(flags: __CallReducerFlags) {
+    this.aSetGameplayFinishedFlags = flags;
+  }
+
   clockUpdateFlags: __CallReducerFlags = 'FullUpdate';
   clockUpdate(flags: __CallReducerFlags) {
     this.clockUpdateFlags = flags;
@@ -623,6 +717,11 @@ export class SetReducerFlags {
   incrementPfpVersionFlags: __CallReducerFlags = 'FullUpdate';
   incrementPfpVersion(flags: __CallReducerFlags) {
     this.incrementPfpVersionFlags = flags;
+  }
+
+  placeBidFlags: __CallReducerFlags = 'FullUpdate';
+  placeBid(flags: __CallReducerFlags) {
+    this.placeBidFlags = flags;
   }
 
   setUsernameFlags: __CallReducerFlags = 'FullUpdate';
@@ -650,6 +749,11 @@ export class SetReducerFlags {
     this.upsertBaseCfgFlags = flags;
   }
 
+  upsertGameTileDataFlags: __CallReducerFlags = 'FullUpdate';
+  upsertGameTileData(flags: __CallReducerFlags) {
+    this.upsertGameTileDataFlags = flags;
+  }
+
   upsertInputCollectorFlags: __CallReducerFlags = 'FullUpdate';
   upsertInputCollector(flags: __CallReducerFlags) {
     this.upsertInputCollectorFlags = flags;
@@ -658,11 +762,6 @@ export class SetReducerFlags {
   upsertInputFrameFlags: __CallReducerFlags = 'FullUpdate';
   upsertInputFrame(flags: __CallReducerFlags) {
     this.upsertInputFrameFlags = flags;
-  }
-
-  upsertLevelFileDataFlags: __CallReducerFlags = 'FullUpdate';
-  upsertLevelFileData(flags: __CallReducerFlags) {
-    this.upsertLevelFileDataFlags = flags;
   }
 
 }
@@ -725,11 +824,6 @@ export class RemoteTables {
     return new ClockScheduleTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<ClockSchedule>(REMOTE_MODULE.tables.ClockSchedule));
   }
 
-  get currentBid(): CurrentBidTableHandle<'CurrentBid'> {
-    // clientCache is a private property
-    return new CurrentBidTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<CurrentBid>(REMOTE_MODULE.tables.CurrentBid));
-  }
-
   get determinismCheck(): DeterminismCheckTableHandle<'DeterminismCheck'> {
     // clientCache is a private property
     return new DeterminismCheckTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<DeterminismCheck>(REMOTE_MODULE.tables.DeterminismCheck));
@@ -738,6 +832,16 @@ export class RemoteTables {
   get gameCoreSnap(): GameCoreSnapTableHandle<'GameCoreSnap'> {
     // clientCache is a private property
     return new GameCoreSnapTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameCoreSnap>(REMOTE_MODULE.tables.GameCoreSnap));
+  }
+
+  get gameTileData(): GameTileDataTableHandle<'GameTileData'> {
+    // clientCache is a private property
+    return new GameTileDataTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameTileData>(REMOTE_MODULE.tables.GameTileData));
+  }
+
+  get gameplayFinishedFlagS(): GameplayFinishedFlagSTableHandle<'GameplayFinishedFlagS'> {
+    // clientCache is a private property
+    return new GameplayFinishedFlagSTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameplayFinishedFlagS>(REMOTE_MODULE.tables.GameplayFinishedFlagS));
   }
 
   get inputCollector(): InputCollectorTableHandle<'InputCollector'> {
@@ -753,11 +857,6 @@ export class RemoteTables {
   get lastAuthFrameTimestamp(): LastAuthFrameTimestampTableHandle<'LastAuthFrameTimestamp'> {
     // clientCache is a private property
     return new LastAuthFrameTimestampTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<LastAuthFrameTimestamp>(REMOTE_MODULE.tables.LastAuthFrameTimestamp));
-  }
-
-  get levelFileData(): LevelFileDataTableHandle<'LevelFileData'> {
-    // clientCache is a private property
-    return new LevelFileDataTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<LevelFileData>(REMOTE_MODULE.tables.LevelFileData));
   }
 
   get seq(): SeqTableHandle<'Seq'> {

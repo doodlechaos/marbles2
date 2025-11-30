@@ -11,7 +11,7 @@ namespace GameCoreLib
     [MemoryPackUnion(2, typeof(Dhash))]
     [MemoryPackUnion(3, typeof(SetIntegrationParameter))]
     [MemoryPackUnion(4, typeof(StartCloseDoorAnimation))]
-    [MemoryPackUnion(5, typeof(LoadLevelFile))]
+    [MemoryPackUnion(5, typeof(LoadGameTile))]
     [MemoryPackUnion(6, typeof(StartGameTile))]
     public abstract partial class InputEvent
     {
@@ -115,23 +115,32 @@ namespace GameCoreLib
             public StartCloseDoorAnimation(byte worldId) => WorldId = worldId;
         }
 
+        /// <summary>
+        /// Load a pre-serialized GameTile template into a world slot.
+        /// The GameTile is deserialized and initialized with the appropriate TileId.
+        /// </summary>
         [MemoryPackable(SerializeLayout.Explicit)]
-        public partial class LoadLevelFile : InputEvent
+        public partial class LoadGameTile : InputEvent
         {
             [MemoryPackOrder(0)]
             public byte WorldId { get; set; } // u8
 
+            /// <summary>
+            /// The GameTile template to load. Already fully constructed, just needs
+            /// Initialize(tileId) called to assign RuntimeIds and set up physics.
+            /// </summary>
             [MemoryPackOrder(1)]
-            public LevelFile LevelFile { get; set; }
+            public GameTileBase GameTile { get; set; }
 
             [MemoryPackConstructor]
-            public LoadLevelFile() { }
+            public LoadGameTile() { }
 
-            public LoadLevelFile(byte worldId, LevelFile levelFile)
+            public LoadGameTile(byte worldId, GameTileBase gameTile)
             {
                 WorldId = worldId;
-                LevelFile = levelFile;
+                GameTile = gameTile;
             }
         }
     }
 }
+

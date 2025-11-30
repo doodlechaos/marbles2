@@ -64,10 +64,13 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2516225194930558213, guid: dfbdcd942a69d2449b4230c73a8263e2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6927898108215807369}
+    - targetCorrespondingSourceObject: {fileID: 2516225194930558213, guid: dfbdcd942a69d2449b4230c73a8263e2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 180632720801683573}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2701450334066813998, guid: dfbdcd942a69d2449b4230c73a8263e2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2264758385389692895}
+      addedObject: {fileID: 1568423892521891110}
   m_SourcePrefab: {fileID: 100100000, guid: dfbdcd942a69d2449b4230c73a8263e2, type: 3}
 --- !u!4 &3076757502892871093 stripped
 Transform:
@@ -79,7 +82,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2701450334066813998, guid: dfbdcd942a69d2449b4230c73a8263e2, type: 3}
   m_PrefabInstance: {fileID: 601718589355710640}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2264758385389692895
+--- !u!114 &1568423892521891110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -88,10 +91,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 3252937149911299230}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78aff5f2adc54964f9b4a3db604cc7a9, type: 3}
+  m_Script: {fileID: 11500000, guid: 1f50b5e742d31d54284f199f90b8a181, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameTileAuth
-  MinutesUntilCycle: 1
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleBattleRoyaleAuth
+  AppearanceFrequency: 0
+  MinAuctionSpots: 0
+  MaxAuctionSpots: 10
+  MaxRaffleDraws: 10
+  SpawnPipe: {fileID: 6382826218314141683}
 --- !u!1001 &1558352678305899191
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -216,6 +223,79 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8468094541348368190, guid: 03d597c05dc5274408125f36079def78, type: 3}
   m_PrefabInstance: {fileID: 1926102525318022884}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7897211838667543016
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3076757502892871093}
+    m_Modifications:
+    - target: {fileID: 6668244075672124559, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_Name
+      value: SpawnPipe
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+--- !u!4 &180632720801683573 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+  m_PrefabInstance: {fileID: 7897211838667543016}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6382826218314141683 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3822662128245136923, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
+  m_PrefabInstance: {fileID: 7897211838667543016}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2652dd0b93423714582bcb9a70ce23f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnPipeAuth
 --- !u!1001 &8309876489985676321
 PrefabInstance:
   m_ObjectHideFlags: 0

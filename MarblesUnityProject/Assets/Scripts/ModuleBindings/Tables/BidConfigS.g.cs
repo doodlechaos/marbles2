@@ -17,9 +17,21 @@ namespace SpacetimeDB.Types
         {
             protected override string RemoteTableName => "BidConfigS";
 
+            public sealed class IdUniqueIndex : UniqueIndexBase<byte>
+            {
+                protected override byte GetKey(BidConfigS row) => row.Id;
+
+                public IdUniqueIndex(BidConfigSHandle table) : base(table) { }
+            }
+
+            public readonly IdUniqueIndex Id;
+
             internal BidConfigSHandle(DbConnection conn) : base(conn)
             {
+                Id = new(this);
             }
+
+            protected override object GetPrimaryKey(BidConfigS row) => row.Id;
         }
 
         public readonly BidConfigSHandle BidConfigS;

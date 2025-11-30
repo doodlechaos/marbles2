@@ -116,8 +116,14 @@ public static partial class Module
         else
         {
             GameCore gameCore = new GameCore();
-            gameCore.GameTile1.Load(GetRandomLevelFile(ctx), gameCore);
-            gameCore.GameTile2.Load(GetRandomLevelFile(ctx), gameCore);
+
+            // Get random GameTile templates and initialize them with their slot IDs
+            gameCore.GameTile1 = GetRandomGameTile(ctx);
+            gameCore.GameTile1.Initialize(1);
+
+            gameCore.GameTile2 = GetRandomGameTile(ctx);
+            gameCore.GameTile2.Initialize(2);
+
             snapshot = new GameCoreSnap
             {
                 Id = 0,

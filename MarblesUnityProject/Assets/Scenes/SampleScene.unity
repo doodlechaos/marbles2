@@ -180,12 +180,13 @@ MonoBehaviour:
         Name: 
         Children: []
         RenderPrefabID: 0
+    BiddingWorldId: 0
     NextRuntimeId: 1
-  _forceStepping: 0
   Game1JSON_PATH: C:\Users\merob\Desktop\CurrentProjects\marbles2\MarblesUnityProject\Temp\LevelJSONs\TestAuthoringWorld.json
   GameCoreRenderer: {fileID: 1098268961}
   _authManager: {fileID: 931444009}
   _stdb: {fileID: 1423701285}
+  _stdbInitialized: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,20 +12,13 @@ namespace GameCoreLib
         public ushort Seq;
 
         [MemoryPackOrder(1)]
-        public GameTile GameTile1 = new GameTile(1);
+        public GameTileBase? GameTile1;
 
         [MemoryPackOrder(2)]
-        public GameTile GameTile2 = new GameTile(2);
+        public GameTileBase? GameTile2;
 
         [MemoryPackOrder(3)]
         public int BiddingWorldId;
-
-        /// <summary>
-        /// Counter for assigning unique RuntimeIds to RuntimeObj instances.
-        /// Ensures deterministic, stable IDs across the entire GameCore.
-        /// </summary>
-        [MemoryPackOrder(4)]
-        public ulong NextRuntimeId = 1;
 
         [MemoryPackIgnore]
         public readonly OutputEventBuffer OutputEvents = new();
@@ -35,10 +28,10 @@ namespace GameCoreLib
             OutputEvents.Clear();
             HandleInputEvents(inputEvents);
 
-            GameTile1.Step(OutputEvents);
-            GameTile2.Step(OutputEvents);
+            GameTile1?.Step(OutputEvents);
+            GameTile2?.Step(OutputEvents);
 
-            //Drain all the events from the gametiles
+            //TODO: Drain all the events from the gametiles
 
             Seq = Seq.WrappingAdd(1);
             return OutputEvents;
@@ -49,25 +42,53 @@ namespace GameCoreLib
             foreach (InputEvent inputEvent in inputEvents)
             {
                 Logger.Log($"[{Seq}] Stepping with input event: " + inputEvent.GetType().Name);
-                if (inputEvent is InputEvent.LoadLevelFile loadTileFile)
+                if (inputEvent is InputEvent.LoadGameTile loadGameTile)
                 {
-                    if (loadTileFile.WorldId == 1)
-                    {
-                        GameTile1.Load(loadTileFile.LevelFile, this);
-                    }
-                    else if (loadTileFile.WorldId == 2)
-                    {
-                        GameTile2.Load(loadTileFile.LevelFile, this);
-                    }
-                    else
-                    {
-                        Logger.Error("Invalid world id: " + loadTileFile.WorldId);
-                    }
+                    // Load the pre-deserialized GameTile into the appropriate slot
+                    LoadGameTileIntoSlot(loadGameTile.WorldId, loadGameTile.GameTile);
                 }
                 else if (inputEvent is InputEvent.StartGameTile startGameTile)
                 {
-                    //TODO: Pass the data to the correct gametile
+                    var gameTile = BiddingWorldId == 1 ? GameTile1 : GameTile2;
+
+                    if (gameTile != null)
+                    {
+                        gameTile.StartGameplay(
+                            startGameTile.Entrants,
+                            startGameTile.TotalMarblesBid
+                        );
+                    }
+
+                    // Toggle bidding world
+                    BiddingWorldId = BiddingWorldId == 1 ? 2 : 1;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Load a GameTile template into the specified slot and initialize it.
+        /// </summary>
+        private void LoadGameTileIntoSlot(byte worldId, GameTileBase gameTile)
+        {
+            if (gameTile == null)
+            {
+                Logger.Error($"Cannot load null GameTile into slot {worldId}");
+                return;
+            }
+
+            if (worldId == 1)
+            {
+                GameTile1 = gameTile;
+                GameTile1.Initialize(1);
+            }
+            else if (worldId == 2)
+            {
+                GameTile2 = gameTile;
+                GameTile2.Initialize(2);
+            }
+            else
+            {
+                Logger.Error($"Invalid world id: {worldId}");
             }
         }
 
@@ -80,7 +101,7 @@ namespace GameCoreLib
 
     public abstract class OutputToClientEvent
     {
-        public class NewKing : OutputToClientEvent //I might not need this, if the client is just rendering hte gamecore state now
+        public class NewKing : OutputToClientEvent
         {
             public ulong AccountId;
         }

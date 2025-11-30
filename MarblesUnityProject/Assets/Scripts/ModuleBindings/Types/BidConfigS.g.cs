@@ -13,6 +13,8 @@ namespace SpacetimeDB.Types
     [DataContract]
     public sealed partial class BidConfigS
     {
+        [DataMember(Name = "Id")]
+        public byte Id;
         [DataMember(Name = "MinAuctionSpots")]
         public int MinAuctionSpots;
         [DataMember(Name = "MaxAcutionSpots")]
@@ -21,11 +23,13 @@ namespace SpacetimeDB.Types
         public int MaxRaffleDraws;
 
         public BidConfigS(
+            byte Id,
             int MinAuctionSpots,
             int MaxAcutionSpots,
             int MaxRaffleDraws
         )
         {
+            this.Id = Id;
             this.MinAuctionSpots = MinAuctionSpots;
             this.MaxAcutionSpots = MaxAcutionSpots;
             this.MaxRaffleDraws = MaxRaffleDraws;

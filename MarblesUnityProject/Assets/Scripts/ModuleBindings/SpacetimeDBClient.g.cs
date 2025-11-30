@@ -34,13 +34,13 @@ namespace SpacetimeDB.Types
             AddTable(BidTimeS = new(conn));
             AddTable(Clock = new(conn));
             AddTable(ClockSchedule = new(conn));
-            AddTable(CurrentBid = new(conn));
             AddTable(DeterminismCheck = new(conn));
             AddTable(GameCoreSnap = new(conn));
+            AddTable(GameTileData = new(conn));
+            AddTable(GameplayFinishedFlagS = new(conn));
             AddTable(InputCollector = new(conn));
             AddTable(InputFrame = new(conn));
             AddTable(LastAuthFrameTimestamp = new(conn));
-            AddTable(LevelFileData = new(conn));
             AddTable(Seq = new(conn));
             AddTable(StepsSinceLastAuthFrame = new(conn));
             AddTable(StepsSinceLastBatch = new(conn));
@@ -487,19 +487,22 @@ namespace SpacetimeDB.Types
             var encodedArgs = update.ReducerCall.Args;
             return update.ReducerCall.ReducerName switch
             {
+                "A_GiveMarbles" => BSATNHelpers.Decode<Reducer.AGiveMarbles>(encodedArgs),
+                "A_SetGameplayFinished" => BSATNHelpers.Decode<Reducer.ASetGameplayFinished>(encodedArgs),
                 "ClockUpdate" => BSATNHelpers.Decode<Reducer.ClockUpdate>(encodedArgs),
                 "CloseAndCycleGameTile" => BSATNHelpers.Decode<Reducer.CloseAndCycleGameTile>(encodedArgs),
                 "Connect" => BSATNHelpers.Decode<Reducer.Connect>(encodedArgs),
                 "Disconnect" => BSATNHelpers.Decode<Reducer.Disconnect>(encodedArgs),
                 "IncrementPfpVersion" => BSATNHelpers.Decode<Reducer.IncrementPfpVersion>(encodedArgs),
+                "PlaceBid" => BSATNHelpers.Decode<Reducer.PlaceBid>(encodedArgs),
                 "SetUsername" => BSATNHelpers.Decode<Reducer.SetUsername>(encodedArgs),
                 "UpsertAccount" => BSATNHelpers.Decode<Reducer.UpsertAccount>(encodedArgs),
                 "UpsertAccountSeq" => BSATNHelpers.Decode<Reducer.UpsertAccountSeq>(encodedArgs),
                 "UpsertAuthFrame" => BSATNHelpers.Decode<Reducer.UpsertAuthFrame>(encodedArgs),
                 "UpsertBaseCfg" => BSATNHelpers.Decode<Reducer.UpsertBaseCfg>(encodedArgs),
+                "UpsertGameTileData" => BSATNHelpers.Decode<Reducer.UpsertGameTileData>(encodedArgs),
                 "UpsertInputCollector" => BSATNHelpers.Decode<Reducer.UpsertInputCollector>(encodedArgs),
                 "UpsertInputFrame" => BSATNHelpers.Decode<Reducer.UpsertInputFrame>(encodedArgs),
-                "UpsertLevelFileData" => BSATNHelpers.Decode<Reducer.UpsertLevelFileData>(encodedArgs),
                 "" => throw new SpacetimeDBEmptyReducerNameException("Reducer name is empty"),
                 var reducer => throw new ArgumentOutOfRangeException("Reducer", $"Unknown reducer {reducer}")
             };
@@ -522,19 +525,22 @@ namespace SpacetimeDB.Types
             var eventContext = (ReducerEventContext)context;
             return reducer switch
             {
+                Reducer.AGiveMarbles args => Reducers.InvokeAGiveMarbles(eventContext, args),
+                Reducer.ASetGameplayFinished args => Reducers.InvokeASetGameplayFinished(eventContext, args),
                 Reducer.ClockUpdate args => Reducers.InvokeClockUpdate(eventContext, args),
                 Reducer.CloseAndCycleGameTile args => Reducers.InvokeCloseAndCycleGameTile(eventContext, args),
                 Reducer.Connect args => Reducers.InvokeConnect(eventContext, args),
                 Reducer.Disconnect args => Reducers.InvokeDisconnect(eventContext, args),
                 Reducer.IncrementPfpVersion args => Reducers.InvokeIncrementPfpVersion(eventContext, args),
+                Reducer.PlaceBid args => Reducers.InvokePlaceBid(eventContext, args),
                 Reducer.SetUsername args => Reducers.InvokeSetUsername(eventContext, args),
                 Reducer.UpsertAccount args => Reducers.InvokeUpsertAccount(eventContext, args),
                 Reducer.UpsertAccountSeq args => Reducers.InvokeUpsertAccountSeq(eventContext, args),
                 Reducer.UpsertAuthFrame args => Reducers.InvokeUpsertAuthFrame(eventContext, args),
                 Reducer.UpsertBaseCfg args => Reducers.InvokeUpsertBaseCfg(eventContext, args),
+                Reducer.UpsertGameTileData args => Reducers.InvokeUpsertGameTileData(eventContext, args),
                 Reducer.UpsertInputCollector args => Reducers.InvokeUpsertInputCollector(eventContext, args),
                 Reducer.UpsertInputFrame args => Reducers.InvokeUpsertInputFrame(eventContext, args),
-                Reducer.UpsertLevelFileData args => Reducers.InvokeUpsertLevelFileData(eventContext, args),
                 _ => throw new ArgumentOutOfRangeException("Reducer", $"Unknown reducer {reducer}")
             };
         }
