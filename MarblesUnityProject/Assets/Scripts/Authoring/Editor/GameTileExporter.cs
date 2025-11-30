@@ -357,6 +357,11 @@ public class GameTileExporter : EditorWindow
         return false;
     }
 
+    /// <summary>
+    /// Get the RenderPrefabID for a GameObject, but ONLY if it's a prefab root.
+    /// This ensures we can distinguish between "this is a prefab I should instantiate" vs
+    /// "this is a child that's part of another prefab's definition."
+    /// </summary>
     private int GetRenderPrefabID(GameObject go)
     {
         if (cachedRenderPrefabs == null || cachedRenderPrefabs.Count == 0)
@@ -364,36 +369,86 @@ public class GameTileExporter : EditorWindow
             return -1;
         }
 
-        GameObject sourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(go);
-
-        if (sourcePrefab == null)
+        // NEW POLICY: Only assign RenderPrefabID to prefab instance roots.
+        // Children within prefabs should NOT get a RenderPrefabID, even if they
+        // happen to match a render prefab's path. This allows the renderer to
+        // instantiate prefabs only at the appropriate roots and find/link children
+        // from the instantiated hierarchy.
+        if (!IsPrefabInstanceRoot(go))
         {
-            sourcePrefab = PrefabUtility.IsPartOfPrefabAsset(go) ? go : null;
+            return -1;
         }
 
-        if (sourcePrefab != null)
+        // Get the asset path of the prefab this object corresponds to
+        string goAssetPath = GetPrefabAssetPath(go);
+
+        if (string.IsNullOrEmpty(goAssetPath))
         {
-            for (int i = 0; i < cachedRenderPrefabs.Count; i++)
+            // This object isn't from a prefab - that's okay, return -1
+            return -1;
+        }
+
+        // Compare by asset path - more reliable than object reference comparison
+        for (int i = 0; i < cachedRenderPrefabs.Count; i++)
+        {
+            if (cachedRenderPrefabs[i] != null)
             {
-                if (
-                    cachedRenderPrefabs[i] != null
-                    && (
-                        cachedRenderPrefabs[i] == sourcePrefab
-                        || PrefabUtility.GetCorrespondingObjectFromSource(cachedRenderPrefabs[i])
-                            == sourcePrefab
-                    )
-                )
+                string renderPrefabPath = AssetDatabase.GetAssetPath(cachedRenderPrefabs[i]);
+                if (!string.IsNullOrEmpty(renderPrefabPath) && renderPrefabPath == goAssetPath)
                 {
+                    Debug.Log(
+                        $"  Prefab root '{go.name}' matched render prefab [{i}]: {renderPrefabPath}"
+                    );
                     return i;
                 }
             }
         }
-        else
-        {
-            Debug.LogError($"No source prefab found for {go.name}");
-        }
 
         return -1;
+    }
+
+    /// <summary>
+    /// Check if a GameObject is the root of a prefab instance (not just a child within a prefab).
+    /// This is used to determine if RenderPrefabID should be assigned.
+    /// </summary>
+    private bool IsPrefabInstanceRoot(GameObject go)
+    {
+        // Check if this is the root of a prefab instance (including nested prefabs)
+        return PrefabUtility.IsAnyPrefabInstanceRoot(go);
+    }
+
+    /// <summary>
+    /// Get the asset path of the prefab that a GameObject corresponds to.
+    /// Handles nested prefabs within prefab assets correctly.
+    /// </summary>
+    private string GetPrefabAssetPath(GameObject go)
+    {
+        // For nested prefabs within prefab assets, GetCorrespondingObjectFromOriginalSource
+        // properly traverses the nested prefab chain to find the original prefab asset
+        GameObject originalSource = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
+        if (originalSource != null)
+        {
+            // Make sure we're getting the root of the prefab, not a child object
+            GameObject prefabRoot = originalSource.transform.root.gameObject;
+            return AssetDatabase.GetAssetPath(prefabRoot);
+        }
+
+        // Fallback: try GetCorrespondingObjectFromSource for scene instances
+        GameObject source = PrefabUtility.GetCorrespondingObjectFromSource(go);
+        if (source != null)
+        {
+            GameObject prefabRoot = source.transform.root.gameObject;
+            return AssetDatabase.GetAssetPath(prefabRoot);
+        }
+
+        // If the object is directly part of a prefab asset (not nested), get its path
+        if (PrefabUtility.IsPartOfPrefabAsset(go))
+        {
+            GameObject prefabRoot = go.transform.root.gameObject;
+            return AssetDatabase.GetAssetPath(prefabRoot);
+        }
+
+        return null;
     }
 
     private FPTransform3D ConvertToFPTransform(Transform t)

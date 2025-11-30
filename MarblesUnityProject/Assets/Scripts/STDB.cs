@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices; //Must keep for WebGL builds
 using System.Text;
 using System.Threading.Tasks;
 using SpacetimeDB;

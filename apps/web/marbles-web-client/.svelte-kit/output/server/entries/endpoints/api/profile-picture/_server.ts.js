@@ -1,0 +1,2854 @@
+import { error, json } from "@sveltejs/kit";
+import { AlgebraicType, deepEqual, DbConnectionImpl, DbConnectionBuilder, SubscriptionBuilderImpl, BinaryWriter, Identity } from "spacetimedb";
+import { Jimp } from "jimp";
+let _cached_AGiveMarbles_type_value = null;
+const AGiveMarbles = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_AGiveMarbles_type_value) return _cached_AGiveMarbles_type_value;
+    _cached_AGiveMarbles_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_AGiveMarbles_type_value.value.elements.push(
+      { name: "accountId", algebraicType: AlgebraicType.U64 },
+      { name: "marbles", algebraicType: AlgebraicType.U32 }
+    );
+    return _cached_AGiveMarbles_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, AGiveMarbles.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, AGiveMarbles.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_ASpinLoadGameplayTile_type_value = null;
+const ASpinLoadGameplayTile = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_ASpinLoadGameplayTile_type_value) return _cached_ASpinLoadGameplayTile_type_value;
+    _cached_ASpinLoadGameplayTile_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_ASpinLoadGameplayTile_type_value.value.elements.push(
+      { name: "worldId", algebraicType: AlgebraicType.U8 }
+    );
+    return _cached_ASpinLoadGameplayTile_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, ASpinLoadGameplayTile.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, ASpinLoadGameplayTile.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_ClockSchedule_type_value = null;
+const ClockSchedule = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_ClockSchedule_type_value) return _cached_ClockSchedule_type_value;
+    _cached_ClockSchedule_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_ClockSchedule_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U64 },
+      { name: "scheduledAt", algebraicType: AlgebraicType.createScheduleAtType() }
+    );
+    return _cached_ClockSchedule_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, ClockSchedule.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, ClockSchedule.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_ClockUpdate_type_value = null;
+const ClockUpdate = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_ClockUpdate_type_value) return _cached_ClockUpdate_type_value;
+    _cached_ClockUpdate_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_ClockUpdate_type_value.value.elements.push(
+      { name: "schedule", algebraicType: ClockSchedule.getTypeScriptAlgebraicType() }
+    );
+    return _cached_ClockUpdate_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, ClockUpdate.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, ClockUpdate.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_Connect_type_value = null;
+const Connect = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_Connect_type_value) return _cached_Connect_type_value;
+    _cached_Connect_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_Connect_type_value.value.elements.push();
+    return _cached_Connect_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, Connect.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, Connect.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_Disconnect_type_value = null;
+const Disconnect = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_Disconnect_type_value) return _cached_Disconnect_type_value;
+    _cached_Disconnect_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_Disconnect_type_value.value.elements.push();
+    return _cached_Disconnect_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, Disconnect.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, Disconnect.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_IncrementPfpVersion_type_value = null;
+const IncrementPfpVersion = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_IncrementPfpVersion_type_value) return _cached_IncrementPfpVersion_type_value;
+    _cached_IncrementPfpVersion_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_IncrementPfpVersion_type_value.value.elements.push();
+    return _cached_IncrementPfpVersion_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, IncrementPfpVersion.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, IncrementPfpVersion.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_PlaceBid_type_value = null;
+const PlaceBid = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_PlaceBid_type_value) return _cached_PlaceBid_type_value;
+    _cached_PlaceBid_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_PlaceBid_type_value.value.elements.push(
+      { name: "bid", algebraicType: AlgebraicType.U32 }
+    );
+    return _cached_PlaceBid_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, PlaceBid.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, PlaceBid.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_SetUsername_type_value = null;
+const SetUsername = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_SetUsername_type_value) return _cached_SetUsername_type_value;
+    _cached_SetUsername_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_SetUsername_type_value.value.elements.push(
+      { name: "username", algebraicType: AlgebraicType.String },
+      { name: "overwriteExisting", algebraicType: AlgebraicType.Bool }
+    );
+    return _cached_SetUsername_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, SetUsername.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, SetUsername.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_Account_type_value = null;
+const Account = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_Account_type_value) return _cached_Account_type_value;
+    _cached_Account_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_Account_type_value.value.elements.push(
+      { name: "identity", algebraicType: AlgebraicType.createIdentityType() },
+      { name: "id", algebraicType: AlgebraicType.U64 },
+      { name: "isConnected", algebraicType: AlgebraicType.Bool },
+      { name: "marbles", algebraicType: AlgebraicType.U32 },
+      { name: "points", algebraicType: AlgebraicType.U32 },
+      { name: "gold", algebraicType: AlgebraicType.U32 },
+      { name: "firstLoginBonusClaimed", algebraicType: AlgebraicType.Bool },
+      { name: "isMember", algebraicType: AlgebraicType.Bool },
+      { name: "dailyRewardClaimStreak", algebraicType: AlgebraicType.I64 },
+      { name: "lastDailyRewardClaimDay", algebraicType: AlgebraicType.I64 }
+    );
+    return _cached_Account_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, Account.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, Account.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_UpsertAccount_type_value = null;
+const UpsertAccount = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_UpsertAccount_type_value) return _cached_UpsertAccount_type_value;
+    _cached_UpsertAccount_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_UpsertAccount_type_value.value.elements.push(
+      { name: "row", algebraicType: Account.getTypeScriptAlgebraicType() }
+    );
+    return _cached_UpsertAccount_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, UpsertAccount.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, UpsertAccount.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_AccountSeq_type_value = null;
+const AccountSeq = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_AccountSeq_type_value) return _cached_AccountSeq_type_value;
+    _cached_AccountSeq_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_AccountSeq_type_value.value.elements.push(
+      { name: "idS", algebraicType: AlgebraicType.U64 },
+      { name: "seq", algebraicType: AlgebraicType.U64 }
+    );
+    return _cached_AccountSeq_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, AccountSeq.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, AccountSeq.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_UpsertAccountSeq_type_value = null;
+const UpsertAccountSeq = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_UpsertAccountSeq_type_value) return _cached_UpsertAccountSeq_type_value;
+    _cached_UpsertAccountSeq_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_UpsertAccountSeq_type_value.value.elements.push(
+      { name: "row", algebraicType: AccountSeq.getTypeScriptAlgebraicType() }
+    );
+    return _cached_UpsertAccountSeq_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, UpsertAccountSeq.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, UpsertAccountSeq.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_InputFrame_type_value = null;
+const InputFrame = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_InputFrame_type_value) return _cached_InputFrame_type_value;
+    _cached_InputFrame_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_InputFrame_type_value.value.elements.push(
+      { name: "seq", algebraicType: AlgebraicType.U16 },
+      { name: "inputEventsList", algebraicType: AlgebraicType.Array(AlgebraicType.U8) }
+    );
+    return _cached_InputFrame_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, InputFrame.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, InputFrame.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_AuthFrame_type_value = null;
+const AuthFrame = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_AuthFrame_type_value) return _cached_AuthFrame_type_value;
+    _cached_AuthFrame_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_AuthFrame_type_value.value.elements.push(
+      { name: "seq", algebraicType: AlgebraicType.U16 },
+      { name: "frames", algebraicType: AlgebraicType.Array(InputFrame.getTypeScriptAlgebraicType()) }
+    );
+    return _cached_AuthFrame_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, AuthFrame.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, AuthFrame.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_UpsertAuthFrame_type_value = null;
+const UpsertAuthFrame = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_UpsertAuthFrame_type_value) return _cached_UpsertAuthFrame_type_value;
+    _cached_UpsertAuthFrame_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_UpsertAuthFrame_type_value.value.elements.push(
+      { name: "row", algebraicType: AuthFrame.getTypeScriptAlgebraicType() }
+    );
+    return _cached_UpsertAuthFrame_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, UpsertAuthFrame.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, UpsertAuthFrame.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_BaseCfg_type_value = null;
+const BaseCfg = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_BaseCfg_type_value) return _cached_BaseCfg_type_value;
+    _cached_BaseCfg_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_BaseCfg_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "clockIntervalSec", algebraicType: AlgebraicType.F64 },
+      { name: "targetStepsPerSecond", algebraicType: AlgebraicType.U16 },
+      { name: "physicsStepsPerBatch", algebraicType: AlgebraicType.U16 },
+      { name: "stepsPerAuthFrame", algebraicType: AlgebraicType.U16 },
+      { name: "authFrameTimeErrorThresholdSec", algebraicType: AlgebraicType.F64 },
+      { name: "logInputFrameTimes", algebraicType: AlgebraicType.Bool },
+      { name: "logAuthFrameTimeDiffs", algebraicType: AlgebraicType.Bool },
+      { name: "gcCacheAccountTimeoutMinutes", algebraicType: AlgebraicType.F64 }
+    );
+    return _cached_BaseCfg_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, BaseCfg.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, BaseCfg.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_UpsertBaseCfg_type_value = null;
+const UpsertBaseCfg = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_UpsertBaseCfg_type_value) return _cached_UpsertBaseCfg_type_value;
+    _cached_UpsertBaseCfg_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_UpsertBaseCfg_type_value.value.elements.push(
+      { name: "row", algebraicType: BaseCfg.getTypeScriptAlgebraicType() }
+    );
+    return _cached_UpsertBaseCfg_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, UpsertBaseCfg.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, UpsertBaseCfg.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_GameTile_type_value = null;
+const GameTile = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_GameTile_type_value) return _cached_GameTile_type_value;
+    _cached_GameTile_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_GameTile_type_value.value.elements.push(
+      { name: "unityPrefabGuid", algebraicType: AlgebraicType.String },
+      { name: "levelName", algebraicType: AlgebraicType.String },
+      { name: "rarity", algebraicType: AlgebraicType.I32 },
+      { name: "minAuctionSpots", algebraicType: AlgebraicType.I32 },
+      { name: "maxAuctionSpots", algebraicType: AlgebraicType.I32 },
+      { name: "maxRaffleDraws", algebraicType: AlgebraicType.I32 },
+      { name: "gameTileBinary", algebraicType: AlgebraicType.Array(AlgebraicType.U8) }
+    );
+    return _cached_GameTile_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, GameTile.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, GameTile.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_UpsertGameTile_type_value = null;
+const UpsertGameTile = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_UpsertGameTile_type_value) return _cached_UpsertGameTile_type_value;
+    _cached_UpsertGameTile_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_UpsertGameTile_type_value.value.elements.push(
+      { name: "gameTileData", algebraicType: GameTile.getTypeScriptAlgebraicType() }
+    );
+    return _cached_UpsertGameTile_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, UpsertGameTile.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, UpsertGameTile.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_InputCollector_type_value = null;
+const InputCollector = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_InputCollector_type_value) return _cached_InputCollector_type_value;
+    _cached_InputCollector_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_InputCollector_type_value.value.elements.push(
+      { name: "delaySeqs", algebraicType: AlgebraicType.U16 },
+      { name: "inputEventData", algebraicType: AlgebraicType.Array(AlgebraicType.U8) }
+    );
+    return _cached_InputCollector_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, InputCollector.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, InputCollector.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_UpsertInputCollector_type_value = null;
+const UpsertInputCollector = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_UpsertInputCollector_type_value) return _cached_UpsertInputCollector_type_value;
+    _cached_UpsertInputCollector_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_UpsertInputCollector_type_value.value.elements.push(
+      { name: "row", algebraicType: InputCollector.getTypeScriptAlgebraicType() }
+    );
+    return _cached_UpsertInputCollector_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, UpsertInputCollector.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, UpsertInputCollector.getTypeScriptAlgebraicType());
+  }
+};
+let _cached_UpsertInputFrame_type_value = null;
+const UpsertInputFrame = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_UpsertInputFrame_type_value) return _cached_UpsertInputFrame_type_value;
+    _cached_UpsertInputFrame_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_UpsertInputFrame_type_value.value.elements.push(
+      { name: "row", algebraicType: InputFrame.getTypeScriptAlgebraicType() }
+    );
+    return _cached_UpsertInputFrame_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, UpsertInputFrame.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, UpsertInputFrame.getTypeScriptAlgebraicType());
+  }
+};
+class AccountTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `identity` unique index on the table `Account`,
+   * which allows point queries on the field of the same name
+   * via the [`AccountIdentityUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.account.identity().find(...)`.
+   *
+   * Get a handle on the `identity` unique index on the table `Account`.
+   */
+  identity = {
+    // Find the subscribed row whose `identity` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.identity, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  /**
+   * Access to the `id` unique index on the table `Account`,
+   * which allows point queries on the field of the same name
+   * via the [`AccountIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.account.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `Account`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_AccountBid_type_value = null;
+const AccountBid = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_AccountBid_type_value) return _cached_AccountBid_type_value;
+    _cached_AccountBid_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_AccountBid_type_value.value.elements.push(
+      { name: "accountId", algebraicType: AlgebraicType.U64 },
+      { name: "totalBid", algebraicType: AlgebraicType.U32 }
+    );
+    return _cached_AccountBid_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, AccountBid.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, AccountBid.getTypeScriptAlgebraicType());
+  }
+};
+class AccountBidTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `accountId` unique index on the table `AccountBid`,
+   * which allows point queries on the field of the same name
+   * via the [`AccountBidAccountIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.accountBid.accountId().find(...)`.
+   *
+   * Get a handle on the `accountId` unique index on the table `AccountBid`.
+   */
+  accountId = {
+    // Find the subscribed row whose `accountId` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.accountId, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_AccountCustomization_type_value = null;
+const AccountCustomization = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_AccountCustomization_type_value) return _cached_AccountCustomization_type_value;
+    _cached_AccountCustomization_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_AccountCustomization_type_value.value.elements.push(
+      { name: "accountId", algebraicType: AlgebraicType.U64 },
+      { name: "username", algebraicType: AlgebraicType.String },
+      { name: "pfpVersion", algebraicType: AlgebraicType.U8 }
+    );
+    return _cached_AccountCustomization_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, AccountCustomization.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, AccountCustomization.getTypeScriptAlgebraicType());
+  }
+};
+class AccountCustomizationTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `accountId` unique index on the table `AccountCustomization`,
+   * which allows point queries on the field of the same name
+   * via the [`AccountCustomizationAccountIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.accountCustomization.accountId().find(...)`.
+   *
+   * Get a handle on the `accountId` unique index on the table `AccountCustomization`.
+   */
+  accountId = {
+    // Find the subscribed row whose `accountId` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.accountId, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+class AccountSeqTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `idS` unique index on the table `AccountSeq`,
+   * which allows point queries on the field of the same name
+   * via the [`AccountSeqIdSUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.accountSeq.idS().find(...)`.
+   *
+   * Get a handle on the `idS` unique index on the table `AccountSeq`.
+   */
+  idS = {
+    // Find the subscribed row whose `idS` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.idS, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_Admin_type_value = null;
+const Admin = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_Admin_type_value) return _cached_Admin_type_value;
+    _cached_Admin_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_Admin_type_value.value.elements.push(
+      { name: "adminIdentity", algebraicType: AlgebraicType.createIdentityType() }
+    );
+    return _cached_Admin_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, Admin.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, Admin.getTypeScriptAlgebraicType());
+  }
+};
+class AdminTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `adminIdentity` unique index on the table `Admin`,
+   * which allows point queries on the field of the same name
+   * via the [`AdminAdminIdentityUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.admin.adminIdentity().find(...)`.
+   *
+   * Get a handle on the `adminIdentity` unique index on the table `Admin`.
+   */
+  adminIdentity = {
+    // Find the subscribed row whose `adminIdentity` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.adminIdentity, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+class AuthFrameTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `seq` unique index on the table `AuthFrame`,
+   * which allows point queries on the field of the same name
+   * via the [`AuthFrameSeqUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.authFrame.seq().find(...)`.
+   *
+   * Get a handle on the `seq` unique index on the table `AuthFrame`.
+   */
+  seq = {
+    // Find the subscribed row whose `seq` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.seq, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+class BaseCfgTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `BaseCfg`,
+   * which allows point queries on the field of the same name
+   * via the [`BaseCfgIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.baseCfg.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `BaseCfg`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_BidConfigS_type_value = null;
+const BidConfigS = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_BidConfigS_type_value) return _cached_BidConfigS_type_value;
+    _cached_BidConfigS_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_BidConfigS_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "minAuctionSpots", algebraicType: AlgebraicType.I32 },
+      { name: "maxAcutionSpots", algebraicType: AlgebraicType.I32 },
+      { name: "maxRaffleDraws", algebraicType: AlgebraicType.I32 }
+    );
+    return _cached_BidConfigS_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, BidConfigS.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, BidConfigS.getTypeScriptAlgebraicType());
+  }
+};
+class BidConfigSTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `BidConfigS`,
+   * which allows point queries on the field of the same name
+   * via the [`BidConfigSIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.bidConfigS.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `BidConfigS`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_BidTimeS_type_value = null;
+const BidTimeS = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_BidTimeS_type_value) return _cached_BidTimeS_type_value;
+    _cached_BidTimeS_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_BidTimeS_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "microsecondsRemaining", algebraicType: AlgebraicType.I64 }
+    );
+    return _cached_BidTimeS_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, BidTimeS.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, BidTimeS.getTypeScriptAlgebraicType());
+  }
+};
+class BidTimeSTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `BidTimeS`,
+   * which allows point queries on the field of the same name
+   * via the [`BidTimeSIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.bidTimeS.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `BidTimeS`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_BiddingStateS_type_value = null;
+const BiddingStateS = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_BiddingStateS_type_value) return _cached_BiddingStateS_type_value;
+    _cached_BiddingStateS_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_BiddingStateS_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "isGameplayFinished", algebraicType: AlgebraicType.Bool },
+      { name: "currBidWorldId", algebraicType: AlgebraicType.U8 }
+    );
+    return _cached_BiddingStateS_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, BiddingStateS.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, BiddingStateS.getTypeScriptAlgebraicType());
+  }
+};
+class BiddingStateSTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `BiddingStateS`,
+   * which allows point queries on the field of the same name
+   * via the [`BiddingStateSIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.biddingStateS.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `BiddingStateS`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_Clock_type_value = null;
+const Clock = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_Clock_type_value) return _cached_Clock_type_value;
+    _cached_Clock_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_Clock_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "prevClockUpdate", algebraicType: AlgebraicType.createTimestampType() },
+      { name: "tickTimeAccumulatorSec", algebraicType: AlgebraicType.F32 }
+    );
+    return _cached_Clock_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, Clock.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, Clock.getTypeScriptAlgebraicType());
+  }
+};
+class ClockTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `Clock`,
+   * which allows point queries on the field of the same name
+   * via the [`ClockIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.clock.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `Clock`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+class ClockScheduleTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `ClockSchedule`,
+   * which allows point queries on the field of the same name
+   * via the [`ClockScheduleIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.clockSchedule.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `ClockSchedule`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_DeterminismCheck_type_value = null;
+const DeterminismCheck = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_DeterminismCheck_type_value) return _cached_DeterminismCheck_type_value;
+    _cached_DeterminismCheck_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_DeterminismCheck_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "seq", algebraicType: AlgebraicType.U16 },
+      { name: "hashString", algebraicType: AlgebraicType.String }
+    );
+    return _cached_DeterminismCheck_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, DeterminismCheck.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, DeterminismCheck.getTypeScriptAlgebraicType());
+  }
+};
+class DeterminismCheckTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `DeterminismCheck`,
+   * which allows point queries on the field of the same name
+   * via the [`DeterminismCheckIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.determinismCheck.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `DeterminismCheck`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_GameCoreSnap_type_value = null;
+const GameCoreSnap = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_GameCoreSnap_type_value) return _cached_GameCoreSnap_type_value;
+    _cached_GameCoreSnap_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_GameCoreSnap_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "seq", algebraicType: AlgebraicType.U16 },
+      { name: "binaryData", algebraicType: AlgebraicType.Array(AlgebraicType.U8) }
+    );
+    return _cached_GameCoreSnap_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, GameCoreSnap.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, GameCoreSnap.getTypeScriptAlgebraicType());
+  }
+};
+class GameCoreSnapTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `GameCoreSnap`,
+   * which allows point queries on the field of the same name
+   * via the [`GameCoreSnapIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.gameCoreSnap.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `GameCoreSnap`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+class GameTileTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `unityPrefabGuid` unique index on the table `GameTile`,
+   * which allows point queries on the field of the same name
+   * via the [`GameTileUnityPrefabGuidUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.gameTile.unityPrefabGuid().find(...)`.
+   *
+   * Get a handle on the `unityPrefabGuid` unique index on the table `GameTile`.
+   */
+  unityPrefabGuid = {
+    // Find the subscribed row whose `unityPrefabGuid` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.unityPrefabGuid, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+class InputCollectorTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+}
+class InputFrameTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `seq` unique index on the table `InputFrame`,
+   * which allows point queries on the field of the same name
+   * via the [`InputFrameSeqUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.inputFrame.seq().find(...)`.
+   *
+   * Get a handle on the `seq` unique index on the table `InputFrame`.
+   */
+  seq = {
+    // Find the subscribed row whose `seq` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.seq, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_LastAuthFrameTimestamp_type_value = null;
+const LastAuthFrameTimestamp = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_LastAuthFrameTimestamp_type_value) return _cached_LastAuthFrameTimestamp_type_value;
+    _cached_LastAuthFrameTimestamp_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_LastAuthFrameTimestamp_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "lastAuthFrameTime", algebraicType: AlgebraicType.createTimestampType() }
+    );
+    return _cached_LastAuthFrameTimestamp_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, LastAuthFrameTimestamp.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, LastAuthFrameTimestamp.getTypeScriptAlgebraicType());
+  }
+};
+class LastAuthFrameTimestampTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `LastAuthFrameTimestamp`,
+   * which allows point queries on the field of the same name
+   * via the [`LastAuthFrameTimestampIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.lastAuthFrameTimestamp.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `LastAuthFrameTimestamp`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_Seq_type_value = null;
+const Seq = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_Seq_type_value) return _cached_Seq_type_value;
+    _cached_Seq_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_Seq_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "value", algebraicType: AlgebraicType.U16 }
+    );
+    return _cached_Seq_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, Seq.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, Seq.getTypeScriptAlgebraicType());
+  }
+};
+class SeqTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `Seq`,
+   * which allows point queries on the field of the same name
+   * via the [`SeqIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.seq.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `Seq`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_StepsSinceLastAuthFrame_type_value = null;
+const StepsSinceLastAuthFrame = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_StepsSinceLastAuthFrame_type_value) return _cached_StepsSinceLastAuthFrame_type_value;
+    _cached_StepsSinceLastAuthFrame_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_StepsSinceLastAuthFrame_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "value", algebraicType: AlgebraicType.U16 }
+    );
+    return _cached_StepsSinceLastAuthFrame_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, StepsSinceLastAuthFrame.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, StepsSinceLastAuthFrame.getTypeScriptAlgebraicType());
+  }
+};
+class StepsSinceLastAuthFrameTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `StepsSinceLastAuthFrame`,
+   * which allows point queries on the field of the same name
+   * via the [`StepsSinceLastAuthFrameIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.stepsSinceLastAuthFrame.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `StepsSinceLastAuthFrame`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+let _cached_StepsSinceLastBatch_type_value = null;
+const StepsSinceLastBatch = {
+  /**
+  * A function which returns this type represented as an AlgebraicType.
+  * This function is derived from the AlgebraicType used to generate this type.
+  */
+  getTypeScriptAlgebraicType() {
+    if (_cached_StepsSinceLastBatch_type_value) return _cached_StepsSinceLastBatch_type_value;
+    _cached_StepsSinceLastBatch_type_value = AlgebraicType.Product({ elements: [] });
+    _cached_StepsSinceLastBatch_type_value.value.elements.push(
+      { name: "id", algebraicType: AlgebraicType.U8 },
+      { name: "value", algebraicType: AlgebraicType.U16 }
+    );
+    return _cached_StepsSinceLastBatch_type_value;
+  },
+  serialize(writer, value) {
+    AlgebraicType.serializeValue(writer, StepsSinceLastBatch.getTypeScriptAlgebraicType(), value);
+  },
+  deserialize(reader) {
+    return AlgebraicType.deserializeValue(reader, StepsSinceLastBatch.getTypeScriptAlgebraicType());
+  }
+};
+class StepsSinceLastBatchTableHandle {
+  // phantom type to track the table name
+  tableName;
+  tableCache;
+  constructor(tableCache) {
+    this.tableCache = tableCache;
+  }
+  count() {
+    return this.tableCache.count();
+  }
+  iter() {
+    return this.tableCache.iter();
+  }
+  /**
+   * Access to the `id` unique index on the table `StepsSinceLastBatch`,
+   * which allows point queries on the field of the same name
+   * via the [`StepsSinceLastBatchIdUnique.find`] method.
+   *
+   * Users are encouraged not to explicitly reference this type,
+   * but to directly chain method calls,
+   * like `ctx.db.stepsSinceLastBatch.id().find(...)`.
+   *
+   * Get a handle on the `id` unique index on the table `StepsSinceLastBatch`.
+   */
+  id = {
+    // Find the subscribed row whose `id` column value is equal to `col_val`,
+    // if such a row is present in the client cache.
+    find: (col_val) => {
+      for (let row of this.tableCache.iter()) {
+        if (deepEqual(row.id, col_val)) {
+          return row;
+        }
+      }
+    }
+  };
+  onInsert = (cb) => {
+    return this.tableCache.onInsert(cb);
+  };
+  removeOnInsert = (cb) => {
+    return this.tableCache.removeOnInsert(cb);
+  };
+  onDelete = (cb) => {
+    return this.tableCache.onDelete(cb);
+  };
+  removeOnDelete = (cb) => {
+    return this.tableCache.removeOnDelete(cb);
+  };
+  // Updates are only defined for tables with primary keys.
+  onUpdate = (cb) => {
+    return this.tableCache.onUpdate(cb);
+  };
+  removeOnUpdate = (cb) => {
+    return this.tableCache.removeOnUpdate(cb);
+  };
+}
+const REMOTE_MODULE = {
+  tables: {
+    Account: {
+      tableName: "Account",
+      rowType: Account.getTypeScriptAlgebraicType(),
+      primaryKey: "identity",
+      primaryKeyInfo: {
+        colName: "identity",
+        colType: Account.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    AccountBid: {
+      tableName: "AccountBid",
+      rowType: AccountBid.getTypeScriptAlgebraicType(),
+      primaryKey: "accountId",
+      primaryKeyInfo: {
+        colName: "accountId",
+        colType: AccountBid.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    AccountCustomization: {
+      tableName: "AccountCustomization",
+      rowType: AccountCustomization.getTypeScriptAlgebraicType(),
+      primaryKey: "accountId",
+      primaryKeyInfo: {
+        colName: "accountId",
+        colType: AccountCustomization.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    AccountSeq: {
+      tableName: "AccountSeq",
+      rowType: AccountSeq.getTypeScriptAlgebraicType(),
+      primaryKey: "idS",
+      primaryKeyInfo: {
+        colName: "idS",
+        colType: AccountSeq.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    Admin: {
+      tableName: "Admin",
+      rowType: Admin.getTypeScriptAlgebraicType(),
+      primaryKey: "adminIdentity",
+      primaryKeyInfo: {
+        colName: "adminIdentity",
+        colType: Admin.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    AuthFrame: {
+      tableName: "AuthFrame",
+      rowType: AuthFrame.getTypeScriptAlgebraicType(),
+      primaryKey: "seq",
+      primaryKeyInfo: {
+        colName: "seq",
+        colType: AuthFrame.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    BaseCfg: {
+      tableName: "BaseCfg",
+      rowType: BaseCfg.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: BaseCfg.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    BidConfigS: {
+      tableName: "BidConfigS",
+      rowType: BidConfigS.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: BidConfigS.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    BidTimeS: {
+      tableName: "BidTimeS",
+      rowType: BidTimeS.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: BidTimeS.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    BiddingStateS: {
+      tableName: "BiddingStateS",
+      rowType: BiddingStateS.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: BiddingStateS.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    Clock: {
+      tableName: "Clock",
+      rowType: Clock.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: Clock.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    ClockSchedule: {
+      tableName: "ClockSchedule",
+      rowType: ClockSchedule.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: ClockSchedule.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    DeterminismCheck: {
+      tableName: "DeterminismCheck",
+      rowType: DeterminismCheck.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: DeterminismCheck.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    GameCoreSnap: {
+      tableName: "GameCoreSnap",
+      rowType: GameCoreSnap.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: GameCoreSnap.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    GameTile: {
+      tableName: "GameTile",
+      rowType: GameTile.getTypeScriptAlgebraicType(),
+      primaryKey: "unityPrefabGuid",
+      primaryKeyInfo: {
+        colName: "unityPrefabGuid",
+        colType: GameTile.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    InputCollector: {
+      tableName: "InputCollector",
+      rowType: InputCollector.getTypeScriptAlgebraicType()
+    },
+    InputFrame: {
+      tableName: "InputFrame",
+      rowType: InputFrame.getTypeScriptAlgebraicType(),
+      primaryKey: "seq",
+      primaryKeyInfo: {
+        colName: "seq",
+        colType: InputFrame.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    LastAuthFrameTimestamp: {
+      tableName: "LastAuthFrameTimestamp",
+      rowType: LastAuthFrameTimestamp.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: LastAuthFrameTimestamp.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    Seq: {
+      tableName: "Seq",
+      rowType: Seq.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: Seq.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    StepsSinceLastAuthFrame: {
+      tableName: "StepsSinceLastAuthFrame",
+      rowType: StepsSinceLastAuthFrame.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: StepsSinceLastAuthFrame.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    },
+    StepsSinceLastBatch: {
+      tableName: "StepsSinceLastBatch",
+      rowType: StepsSinceLastBatch.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: StepsSinceLastBatch.getTypeScriptAlgebraicType().value.elements[0].algebraicType
+      }
+    }
+  },
+  reducers: {
+    A_GiveMarbles: {
+      reducerName: "A_GiveMarbles",
+      argsType: AGiveMarbles.getTypeScriptAlgebraicType()
+    },
+    A_SpinLoadGameplayTile: {
+      reducerName: "A_SpinLoadGameplayTile",
+      argsType: ASpinLoadGameplayTile.getTypeScriptAlgebraicType()
+    },
+    ClockUpdate: {
+      reducerName: "ClockUpdate",
+      argsType: ClockUpdate.getTypeScriptAlgebraicType()
+    },
+    Connect: {
+      reducerName: "Connect",
+      argsType: Connect.getTypeScriptAlgebraicType()
+    },
+    Disconnect: {
+      reducerName: "Disconnect",
+      argsType: Disconnect.getTypeScriptAlgebraicType()
+    },
+    IncrementPfpVersion: {
+      reducerName: "IncrementPfpVersion",
+      argsType: IncrementPfpVersion.getTypeScriptAlgebraicType()
+    },
+    PlaceBid: {
+      reducerName: "PlaceBid",
+      argsType: PlaceBid.getTypeScriptAlgebraicType()
+    },
+    SetUsername: {
+      reducerName: "SetUsername",
+      argsType: SetUsername.getTypeScriptAlgebraicType()
+    },
+    UpsertAccount: {
+      reducerName: "UpsertAccount",
+      argsType: UpsertAccount.getTypeScriptAlgebraicType()
+    },
+    UpsertAccountSeq: {
+      reducerName: "UpsertAccountSeq",
+      argsType: UpsertAccountSeq.getTypeScriptAlgebraicType()
+    },
+    UpsertAuthFrame: {
+      reducerName: "UpsertAuthFrame",
+      argsType: UpsertAuthFrame.getTypeScriptAlgebraicType()
+    },
+    UpsertBaseCfg: {
+      reducerName: "UpsertBaseCfg",
+      argsType: UpsertBaseCfg.getTypeScriptAlgebraicType()
+    },
+    UpsertGameTile: {
+      reducerName: "UpsertGameTile",
+      argsType: UpsertGameTile.getTypeScriptAlgebraicType()
+    },
+    UpsertInputCollector: {
+      reducerName: "UpsertInputCollector",
+      argsType: UpsertInputCollector.getTypeScriptAlgebraicType()
+    },
+    UpsertInputFrame: {
+      reducerName: "UpsertInputFrame",
+      argsType: UpsertInputFrame.getTypeScriptAlgebraicType()
+    }
+  },
+  versionInfo: {
+    cliVersion: "1.8.0"
+  },
+  // Constructors which are used by the DbConnectionImpl to
+  // extract type information from the generated RemoteModule.
+  //
+  // NOTE: This is not strictly necessary for `eventContextConstructor` because
+  // all we do is build a TypeScript object which we could have done inside the
+  // SDK, but if in the future we wanted to create a class this would be
+  // necessary because classes have methods, so we'll keep it.
+  eventContextConstructor: (imp, event) => {
+    return {
+      ...imp,
+      event
+    };
+  },
+  dbViewConstructor: (imp) => {
+    return new RemoteTables(imp);
+  },
+  reducersConstructor: (imp, setReducerFlags) => {
+    return new RemoteReducers(imp, setReducerFlags);
+  },
+  setReducerFlagsConstructor: () => {
+    return new SetReducerFlags();
+  }
+};
+class RemoteReducers {
+  constructor(connection, setCallReducerFlags) {
+    this.connection = connection;
+    this.setCallReducerFlags = setCallReducerFlags;
+  }
+  aGiveMarbles(accountId, marbles) {
+    const __args = { accountId, marbles };
+    let __writer = new BinaryWriter(1024);
+    AGiveMarbles.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("A_GiveMarbles", __argsBuffer, this.setCallReducerFlags.aGiveMarblesFlags);
+  }
+  onAGiveMarbles(callback) {
+    this.connection.onReducer("A_GiveMarbles", callback);
+  }
+  removeOnAGiveMarbles(callback) {
+    this.connection.offReducer("A_GiveMarbles", callback);
+  }
+  aSpinLoadGameplayTile(worldId) {
+    const __args = { worldId };
+    let __writer = new BinaryWriter(1024);
+    ASpinLoadGameplayTile.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("A_SpinLoadGameplayTile", __argsBuffer, this.setCallReducerFlags.aSpinLoadGameplayTileFlags);
+  }
+  onASpinLoadGameplayTile(callback) {
+    this.connection.onReducer("A_SpinLoadGameplayTile", callback);
+  }
+  removeOnASpinLoadGameplayTile(callback) {
+    this.connection.offReducer("A_SpinLoadGameplayTile", callback);
+  }
+  clockUpdate(schedule) {
+    const __args = { schedule };
+    let __writer = new BinaryWriter(1024);
+    ClockUpdate.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("ClockUpdate", __argsBuffer, this.setCallReducerFlags.clockUpdateFlags);
+  }
+  onClockUpdate(callback) {
+    this.connection.onReducer("ClockUpdate", callback);
+  }
+  removeOnClockUpdate(callback) {
+    this.connection.offReducer("ClockUpdate", callback);
+  }
+  onConnect(callback) {
+    this.connection.onReducer("Connect", callback);
+  }
+  removeOnConnect(callback) {
+    this.connection.offReducer("Connect", callback);
+  }
+  onDisconnect(callback) {
+    this.connection.onReducer("Disconnect", callback);
+  }
+  removeOnDisconnect(callback) {
+    this.connection.offReducer("Disconnect", callback);
+  }
+  incrementPfpVersion() {
+    this.connection.callReducer("IncrementPfpVersion", new Uint8Array(0), this.setCallReducerFlags.incrementPfpVersionFlags);
+  }
+  onIncrementPfpVersion(callback) {
+    this.connection.onReducer("IncrementPfpVersion", callback);
+  }
+  removeOnIncrementPfpVersion(callback) {
+    this.connection.offReducer("IncrementPfpVersion", callback);
+  }
+  placeBid(bid) {
+    const __args = { bid };
+    let __writer = new BinaryWriter(1024);
+    PlaceBid.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("PlaceBid", __argsBuffer, this.setCallReducerFlags.placeBidFlags);
+  }
+  onPlaceBid(callback) {
+    this.connection.onReducer("PlaceBid", callback);
+  }
+  removeOnPlaceBid(callback) {
+    this.connection.offReducer("PlaceBid", callback);
+  }
+  setUsername(username, overwriteExisting) {
+    const __args = { username, overwriteExisting };
+    let __writer = new BinaryWriter(1024);
+    SetUsername.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("SetUsername", __argsBuffer, this.setCallReducerFlags.setUsernameFlags);
+  }
+  onSetUsername(callback) {
+    this.connection.onReducer("SetUsername", callback);
+  }
+  removeOnSetUsername(callback) {
+    this.connection.offReducer("SetUsername", callback);
+  }
+  upsertAccount(row) {
+    const __args = { row };
+    let __writer = new BinaryWriter(1024);
+    UpsertAccount.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertAccount", __argsBuffer, this.setCallReducerFlags.upsertAccountFlags);
+  }
+  onUpsertAccount(callback) {
+    this.connection.onReducer("UpsertAccount", callback);
+  }
+  removeOnUpsertAccount(callback) {
+    this.connection.offReducer("UpsertAccount", callback);
+  }
+  upsertAccountSeq(row) {
+    const __args = { row };
+    let __writer = new BinaryWriter(1024);
+    UpsertAccountSeq.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertAccountSeq", __argsBuffer, this.setCallReducerFlags.upsertAccountSeqFlags);
+  }
+  onUpsertAccountSeq(callback) {
+    this.connection.onReducer("UpsertAccountSeq", callback);
+  }
+  removeOnUpsertAccountSeq(callback) {
+    this.connection.offReducer("UpsertAccountSeq", callback);
+  }
+  upsertAuthFrame(row) {
+    const __args = { row };
+    let __writer = new BinaryWriter(1024);
+    UpsertAuthFrame.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertAuthFrame", __argsBuffer, this.setCallReducerFlags.upsertAuthFrameFlags);
+  }
+  onUpsertAuthFrame(callback) {
+    this.connection.onReducer("UpsertAuthFrame", callback);
+  }
+  removeOnUpsertAuthFrame(callback) {
+    this.connection.offReducer("UpsertAuthFrame", callback);
+  }
+  upsertBaseCfg(row) {
+    const __args = { row };
+    let __writer = new BinaryWriter(1024);
+    UpsertBaseCfg.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertBaseCfg", __argsBuffer, this.setCallReducerFlags.upsertBaseCfgFlags);
+  }
+  onUpsertBaseCfg(callback) {
+    this.connection.onReducer("UpsertBaseCfg", callback);
+  }
+  removeOnUpsertBaseCfg(callback) {
+    this.connection.offReducer("UpsertBaseCfg", callback);
+  }
+  upsertGameTile(gameTileData) {
+    const __args = { gameTileData };
+    let __writer = new BinaryWriter(1024);
+    UpsertGameTile.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertGameTile", __argsBuffer, this.setCallReducerFlags.upsertGameTileFlags);
+  }
+  onUpsertGameTile(callback) {
+    this.connection.onReducer("UpsertGameTile", callback);
+  }
+  removeOnUpsertGameTile(callback) {
+    this.connection.offReducer("UpsertGameTile", callback);
+  }
+  upsertInputCollector(row) {
+    const __args = { row };
+    let __writer = new BinaryWriter(1024);
+    UpsertInputCollector.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertInputCollector", __argsBuffer, this.setCallReducerFlags.upsertInputCollectorFlags);
+  }
+  onUpsertInputCollector(callback) {
+    this.connection.onReducer("UpsertInputCollector", callback);
+  }
+  removeOnUpsertInputCollector(callback) {
+    this.connection.offReducer("UpsertInputCollector", callback);
+  }
+  upsertInputFrame(row) {
+    const __args = { row };
+    let __writer = new BinaryWriter(1024);
+    UpsertInputFrame.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("UpsertInputFrame", __argsBuffer, this.setCallReducerFlags.upsertInputFrameFlags);
+  }
+  onUpsertInputFrame(callback) {
+    this.connection.onReducer("UpsertInputFrame", callback);
+  }
+  removeOnUpsertInputFrame(callback) {
+    this.connection.offReducer("UpsertInputFrame", callback);
+  }
+}
+class SetReducerFlags {
+  aGiveMarblesFlags = "FullUpdate";
+  aGiveMarbles(flags) {
+    this.aGiveMarblesFlags = flags;
+  }
+  aSpinLoadGameplayTileFlags = "FullUpdate";
+  aSpinLoadGameplayTile(flags) {
+    this.aSpinLoadGameplayTileFlags = flags;
+  }
+  clockUpdateFlags = "FullUpdate";
+  clockUpdate(flags) {
+    this.clockUpdateFlags = flags;
+  }
+  incrementPfpVersionFlags = "FullUpdate";
+  incrementPfpVersion(flags) {
+    this.incrementPfpVersionFlags = flags;
+  }
+  placeBidFlags = "FullUpdate";
+  placeBid(flags) {
+    this.placeBidFlags = flags;
+  }
+  setUsernameFlags = "FullUpdate";
+  setUsername(flags) {
+    this.setUsernameFlags = flags;
+  }
+  upsertAccountFlags = "FullUpdate";
+  upsertAccount(flags) {
+    this.upsertAccountFlags = flags;
+  }
+  upsertAccountSeqFlags = "FullUpdate";
+  upsertAccountSeq(flags) {
+    this.upsertAccountSeqFlags = flags;
+  }
+  upsertAuthFrameFlags = "FullUpdate";
+  upsertAuthFrame(flags) {
+    this.upsertAuthFrameFlags = flags;
+  }
+  upsertBaseCfgFlags = "FullUpdate";
+  upsertBaseCfg(flags) {
+    this.upsertBaseCfgFlags = flags;
+  }
+  upsertGameTileFlags = "FullUpdate";
+  upsertGameTile(flags) {
+    this.upsertGameTileFlags = flags;
+  }
+  upsertInputCollectorFlags = "FullUpdate";
+  upsertInputCollector(flags) {
+    this.upsertInputCollectorFlags = flags;
+  }
+  upsertInputFrameFlags = "FullUpdate";
+  upsertInputFrame(flags) {
+    this.upsertInputFrameFlags = flags;
+  }
+}
+class RemoteTables {
+  constructor(connection) {
+    this.connection = connection;
+  }
+  get account() {
+    return new AccountTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.Account));
+  }
+  get accountBid() {
+    return new AccountBidTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.AccountBid));
+  }
+  get accountCustomization() {
+    return new AccountCustomizationTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.AccountCustomization));
+  }
+  get accountSeq() {
+    return new AccountSeqTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.AccountSeq));
+  }
+  get admin() {
+    return new AdminTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.Admin));
+  }
+  get authFrame() {
+    return new AuthFrameTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.AuthFrame));
+  }
+  get baseCfg() {
+    return new BaseCfgTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.BaseCfg));
+  }
+  get bidConfigS() {
+    return new BidConfigSTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.BidConfigS));
+  }
+  get bidTimeS() {
+    return new BidTimeSTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.BidTimeS));
+  }
+  get biddingStateS() {
+    return new BiddingStateSTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.BiddingStateS));
+  }
+  get clock() {
+    return new ClockTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.Clock));
+  }
+  get clockSchedule() {
+    return new ClockScheduleTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.ClockSchedule));
+  }
+  get determinismCheck() {
+    return new DeterminismCheckTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.DeterminismCheck));
+  }
+  get gameCoreSnap() {
+    return new GameCoreSnapTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.GameCoreSnap));
+  }
+  get gameTile() {
+    return new GameTileTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.GameTile));
+  }
+  get inputCollector() {
+    return new InputCollectorTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.InputCollector));
+  }
+  get inputFrame() {
+    return new InputFrameTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.InputFrame));
+  }
+  get lastAuthFrameTimestamp() {
+    return new LastAuthFrameTimestampTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.LastAuthFrameTimestamp));
+  }
+  get seq() {
+    return new SeqTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.Seq));
+  }
+  get stepsSinceLastAuthFrame() {
+    return new StepsSinceLastAuthFrameTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.StepsSinceLastAuthFrame));
+  }
+  get stepsSinceLastBatch() {
+    return new StepsSinceLastBatchTableHandle(this.connection.clientCache.getOrCreateTable(REMOTE_MODULE.tables.StepsSinceLastBatch));
+  }
+}
+class SubscriptionBuilder extends SubscriptionBuilderImpl {
+}
+class DbConnection extends DbConnectionImpl {
+  static builder = () => {
+    return new DbConnectionBuilder(REMOTE_MODULE, (imp) => imp);
+  };
+  subscriptionBuilder = () => {
+    return new SubscriptionBuilder(this);
+  };
+}
+const PROFILE_STORAGE_PREFIX = "pfp/";
+const MAX_PROFILE_VERSION = 255;
+const PFP_MAX_BYTES = 2 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/bmp",
+  "image/tiff"
+];
+async function subscribeAndWait(connection, queries) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    connection.subscriptionBuilder().onApplied(() => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    }).onError((errorContext) => {
+      if (settled) return;
+      settled = true;
+      const errorMessage = errorContext instanceof Error ? errorContext.message : JSON.stringify(errorContext);
+      console.error("[Profile] Subscription error:", errorMessage);
+      reject(new Error(`Failed to subscribe: ${errorMessage}`));
+    }).subscribe(queries);
+  });
+}
+async function connectToSpacetimeDb(env) {
+  const host = env.SPACETIMEDB_HOST;
+  const moduleName = env.SPACETIMEDB_DB_NAME;
+  const token = env.SPACETIMEDB_ADMIN_TOKEN;
+  if (!host || !moduleName) {
+    console.error("[Profile] SpacetimeDB connection is not configured:", host, moduleName);
+    throw error(500, "SpacetimeDB connection is not configured");
+  }
+  if (!token) {
+    console.error("[Profile] No admin token available for server-side SpacetimeDB connection");
+    throw error(500, "SpacetimeDB admin token is not configured");
+  }
+  console.log("[Profile] Connecting to SpacetimeDB:", host, moduleName, "(using admin token)");
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const builder = DbConnection.builder().withUri(host).withModuleName(moduleName).withToken(token).onConnect((connection, identity) => {
+      if (identity === void 0) {
+        if (!settled) {
+          settled = true;
+          reject(new Error("Unable to resolve account identity"));
+        }
+        return;
+      }
+      if (!settled) {
+        settled = true;
+        resolve({ connection, identity });
+      }
+    }).onConnectError((_ctx, err) => {
+      if (!settled) {
+        settled = true;
+        reject(err ?? new Error("Failed to connect to SpacetimeDB"));
+      }
+    }).onDisconnect((_ctx, err) => {
+      if (!settled) {
+        settled = true;
+        reject(err ?? new Error("Disconnected before connecting to SpacetimeDB"));
+      }
+    });
+    builder.build();
+  });
+}
+async function resolveAccountData(connection, identity) {
+  console.log(`[Profile] Starting resolve account data for identity: ${identity.toHexString()}`);
+  await subscribeAndWait(connection, [`SELECT * FROM Account`]);
+  console.log("[Profile] After subscribe and wait");
+  const allAccounts = Array.from(connection.db.account.iter());
+  console.log(`[Profile] Accounts in cache: ${allAccounts.length}`);
+  for (const acc of allAccounts) {
+    console.log(`[Profile]   Account ${acc.id}: identity=${acc.identity.toHexString()}`);
+  }
+  const accountRow = connection.db.account.identity.find(identity);
+  if (!accountRow) {
+    console.error(
+      `[Profile] No account is associated with this identity: ${identity.toHexString()}`
+    );
+    throw error(469, "No account is associated with this identity");
+  }
+  const accountId = accountRow.id;
+  const query = `SELECT * FROM AccountCustomization`;
+  console.log("Starting subscribe for account_customization with Query: ", query);
+  await subscribeAndWait(connection, [query]);
+  console.log("After subscribe and wait for account_customization");
+  const customization = connection.db.accountCustomization.accountId.find(accountId);
+  const currentVersion = customization ? Number(customization.pfpVersion) : 0;
+  return { accountId, currentVersion };
+}
+async function uploadProfilePictureToR2(bucket, objectKey, body, contentType) {
+  console.log(
+    `[Profile] Uploading to R2 bucket, key: ${objectKey}, size: ${body.byteLength} bytes`
+  );
+  const result = await bucket.put(objectKey, body, {
+    httpMetadata: {
+      contentType,
+      cacheControl: "public, max-age=31536000, immutable"
+    }
+  });
+  if (!result) {
+    throw new Error("R2 put returned null - upload may have failed");
+  }
+  console.log(`[Profile] R2 upload successful, etag: ${result.etag}`);
+}
+function buildProfilePictureUrl(baseUrl, accountId, version, extension) {
+  console.log("[PFP] Base URL:", baseUrl);
+  if (!baseUrl?.trim() || version <= 0) {
+    return null;
+  }
+  const normalizedBase = baseUrl.trim().replace(/\/$/, "");
+  return `${normalizedBase}/pfp/${accountId.toString()}.${extension}?v=${version}`;
+}
+async function downloadImageFromUrl(imageUrl) {
+  console.log(`[Profile] Downloading image from URL: ${imageUrl}`);
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to download image: ${response.status}`);
+  }
+  const contentType = response.headers.get("content-type") ?? "image/jpeg";
+  const buffer = await response.arrayBuffer();
+  console.log(`[Profile] Downloaded ${buffer.byteLength} bytes, content-type: ${contentType}`);
+  return { bytes: new Uint8Array(buffer), contentType };
+}
+function detectImageType(bytes) {
+  if (bytes.length >= 8) {
+    if (bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) {
+      return "png";
+    }
+    if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) {
+      return "jpeg";
+    }
+    if (bytes[0] === 71 && bytes[1] === 73 && bytes[2] === 70 && bytes[3] === 56) {
+      return "gif";
+    }
+    if (bytes[0] === 82 && bytes[1] === 73 && bytes[2] === 70 && bytes[3] === 70 && bytes[8] === 87 && bytes[9] === 69 && bytes[10] === 66 && bytes[11] === 80) {
+      return "webp";
+    }
+    if (bytes[0] === 66 && bytes[1] === 77) {
+      return "bmp";
+    }
+    if (bytes[0] === 73 && bytes[1] === 73 && bytes[2] === 42 && bytes[3] === 0 || bytes[0] === 77 && bytes[1] === 77 && bytes[2] === 0 && bytes[3] === 42) {
+      return "tiff";
+    }
+  }
+  return "unknown";
+}
+async function convertToPng(imageBytes) {
+  console.log(`[Profile] Converting image (${imageBytes.length} bytes) to PNG`);
+  const image = await Jimp.read(Buffer.from(imageBytes));
+  const pngBuffer = await image.getBuffer("image/png");
+  console.log(`[Profile] Converted to PNG: ${pngBuffer.length} bytes`);
+  return new Uint8Array(pngBuffer);
+}
+const POST = async ({ request, platform }) => {
+  console.log("[Profile] Starting POST request");
+  const env = platform?.env;
+  if (!env) {
+    console.error("[Profile] Platform environment is not available");
+    throw error(500, "Platform environment is not available");
+  }
+  const authHeader = request.headers.get("authorization") ?? request.headers.get("Authorization");
+  console.log(
+    `[Profile] Auth header present: ${!!authHeader}, starts with Bearer: ${authHeader?.startsWith("Bearer ")}`
+  );
+  if (!authHeader?.startsWith("Bearer ")) {
+    console.error("[Profile] Missing or invalid auth header");
+    throw error(401, "An ID token is required to upload profile pictures");
+  }
+  const token = authHeader.slice(7).trim();
+  if (!token) {
+    console.error("[Profile] Token is empty after extracting from header");
+    throw error(401, "An ID token is required to upload profile pictures");
+  }
+  console.log(`[Profile] Received token (first 20 chars): ${token.substring(0, 20)}...`);
+  const contentType = request.headers.get("content-type") ?? "";
+  let imageBytes;
+  let imageMimeType;
+  let userIdentity = null;
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await request.formData();
+    const image = formData.get("image");
+    const identityField = formData.get("identity");
+    if (!(image instanceof File)) {
+      throw error(400, "The request must include an image file");
+    }
+    if (!identityField || typeof identityField !== "string") {
+      throw error(400, "The request must include an identity");
+    }
+    try {
+      userIdentity = Identity.fromString(identityField);
+    } catch {
+      throw error(400, "Invalid identity format");
+    }
+    if (!ACCEPTED_IMAGE_TYPES.includes(image.type)) {
+      throw error(400, `Profile pictures must be one of: ${ACCEPTED_IMAGE_TYPES.join(", ")}`);
+    }
+    if (image.size > PFP_MAX_BYTES) {
+      throw error(
+        400,
+        `Profile pictures must be smaller than ${PFP_MAX_BYTES / 1024 / 1024}MB`
+      );
+    }
+    imageBytes = new Uint8Array(await image.arrayBuffer());
+    imageMimeType = image.type;
+    console.log(`[Profile] Received ${imageBytes.length} bytes ${imageMimeType} upload`);
+  } else if (contentType.includes("application/json")) {
+    const body = await request.json();
+    if (!body.imageUrl || typeof body.imageUrl !== "string") {
+      throw error(400, "Request must include an imageUrl");
+    }
+    if (!body.identity || typeof body.identity !== "string") {
+      throw error(400, "Request must include an identity");
+    }
+    try {
+      new URL(body.imageUrl);
+    } catch {
+      throw error(400, "Invalid imageUrl provided");
+    }
+    try {
+      userIdentity = Identity.fromString(body.identity);
+    } catch {
+      throw error(400, "Invalid identity format");
+    }
+    console.log("[Profile] Downloading image from URL:", body.imageUrl);
+    try {
+      const downloaded = await downloadImageFromUrl(body.imageUrl);
+      imageBytes = downloaded.bytes;
+      imageMimeType = downloaded.contentType;
+    } catch (err) {
+      console.error("[Profile] Failed to download image:", err);
+      throw error(400, "Failed to download image from URL");
+    }
+  } else {
+    throw error(400, "Request must be multipart/form-data or application/json");
+  }
+  if (!userIdentity) {
+    throw error(400, "Identity is required");
+  }
+  console.log(`[Profile] User identity: ${userIdentity.toHexString()}`);
+  const detectedType = detectImageType(imageBytes);
+  console.log(`[Profile] Detected original image type: ${detectedType}`);
+  let pngBytes;
+  try {
+    pngBytes = await convertToPng(imageBytes);
+  } catch (err) {
+    console.error("[Profile] Failed to convert image to PNG:", err);
+    throw error(400, "Failed to process image. Please ensure it's a valid image file.");
+  }
+  let connection = null;
+  let accountId = 0n;
+  let currentVersion = 0;
+  try {
+    console.log("[Profile] Attempting to connect to SpacetimeDB with admin token...");
+    const connectionResult = await connectToSpacetimeDb(env);
+    console.log(
+      "[Profile] Connected to SpacetimeDB as admin, identity:",
+      connectionResult.identity.toHexString()
+    );
+    connection = connectionResult.connection;
+    const accountData = await resolveAccountData(connection, userIdentity);
+    accountId = accountData.accountId;
+    currentVersion = accountData.currentVersion;
+    console.log(`[Profile] Resolved account ${accountId} with pfp version ${currentVersion}`);
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorStack = err instanceof Error ? err.stack : void 0;
+    console.error("[Profile] Failed to resolve account data:", errorMessage);
+    console.error("[Profile] Error stack:", errorStack);
+    connection?.disconnect();
+    if (err && typeof err === "object" && "status" in err) {
+      throw err;
+    }
+    throw error(401, `Unable to verify your SpacetimeDB account: ${errorMessage}`);
+  }
+  if (!connection) {
+    throw error(500, "SpacetimeDB connection is not available");
+  }
+  const activeConnection = connection;
+  const bucket = env.MARBLES_BUCKET_BINDING;
+  if (!bucket) {
+    console.error("[Profile] R2 bucket binding not available");
+    throw error(500, "Profile picture storage is not configured");
+  }
+  const objectKey = `${PROFILE_STORAGE_PREFIX}${accountId.toString()}.png`;
+  const nextVersion = Math.min(currentVersion + 1, MAX_PROFILE_VERSION);
+  try {
+    console.log(`[Profile] Uploading ${pngBytes.length} bytes PNG to R2 as ${objectKey}`);
+    await uploadProfilePictureToR2(bucket, objectKey, pngBytes, "image/png");
+    console.log("[Profile] Upload successful");
+    console.log("[Profile] Calling IncrementPfpVersion reducer");
+    await activeConnection.reducers.incrementPfpVersion();
+    console.log("[Profile] Reducer called successfully");
+  } catch (err) {
+    console.error("[Profile] Failed to upload profile picture:", err);
+    throw error(500, "Failed to upload profile picture");
+  } finally {
+    activeConnection.disconnect();
+  }
+  const url = buildProfilePictureUrl(env.VITE_PFP_CDN_BASE_URL, accountId, nextVersion, "png");
+  console.log("[Profile] Returning profile picture URL:", url);
+  return json({
+    accountId: accountId.toString(),
+    version: nextVersion,
+    url
+  });
+};
+export {
+  POST
+};

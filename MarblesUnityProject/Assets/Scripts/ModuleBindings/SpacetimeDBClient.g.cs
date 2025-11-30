@@ -32,12 +32,12 @@ namespace SpacetimeDB.Types
             AddTable(BaseCfg = new(conn));
             AddTable(BidConfigS = new(conn));
             AddTable(BidTimeS = new(conn));
+            AddTable(BiddingStateS = new(conn));
             AddTable(Clock = new(conn));
             AddTable(ClockSchedule = new(conn));
             AddTable(DeterminismCheck = new(conn));
             AddTable(GameCoreSnap = new(conn));
             AddTable(GameTile = new(conn));
-            AddTable(GameplayFinishedFlagS = new(conn));
             AddTable(InputCollector = new(conn));
             AddTable(InputFrame = new(conn));
             AddTable(LastAuthFrameTimestamp = new(conn));
@@ -488,9 +488,8 @@ namespace SpacetimeDB.Types
             return update.ReducerCall.ReducerName switch
             {
                 "A_GiveMarbles" => BSATNHelpers.Decode<Reducer.AGiveMarbles>(encodedArgs),
-                "A_SetGameplayFinished" => BSATNHelpers.Decode<Reducer.ASetGameplayFinished>(encodedArgs),
+                "A_SpinLoadGameplayTile" => BSATNHelpers.Decode<Reducer.ASpinLoadGameplayTile>(encodedArgs),
                 "ClockUpdate" => BSATNHelpers.Decode<Reducer.ClockUpdate>(encodedArgs),
-                "CloseAndCycleGameTile" => BSATNHelpers.Decode<Reducer.CloseAndCycleGameTile>(encodedArgs),
                 "Connect" => BSATNHelpers.Decode<Reducer.Connect>(encodedArgs),
                 "Disconnect" => BSATNHelpers.Decode<Reducer.Disconnect>(encodedArgs),
                 "IncrementPfpVersion" => BSATNHelpers.Decode<Reducer.IncrementPfpVersion>(encodedArgs),
@@ -526,9 +525,8 @@ namespace SpacetimeDB.Types
             return reducer switch
             {
                 Reducer.AGiveMarbles args => Reducers.InvokeAGiveMarbles(eventContext, args),
-                Reducer.ASetGameplayFinished args => Reducers.InvokeASetGameplayFinished(eventContext, args),
+                Reducer.ASpinLoadGameplayTile args => Reducers.InvokeASpinLoadGameplayTile(eventContext, args),
                 Reducer.ClockUpdate args => Reducers.InvokeClockUpdate(eventContext, args),
-                Reducer.CloseAndCycleGameTile args => Reducers.InvokeCloseAndCycleGameTile(eventContext, args),
                 Reducer.Connect args => Reducers.InvokeConnect(eventContext, args),
                 Reducer.Disconnect args => Reducers.InvokeDisconnect(eventContext, args),
                 Reducer.IncrementPfpVersion args => Reducers.InvokeIncrementPfpVersion(eventContext, args),

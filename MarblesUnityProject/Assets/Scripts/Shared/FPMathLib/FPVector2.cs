@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using MemoryPack;
 using Newtonsoft.Json;
+
 namespace FPMathLib
 {
     /// <summary>
@@ -13,6 +14,7 @@ namespace FPMathLib
     {
         [JsonProperty("x")]
         public FP X;
+
         [JsonProperty("y")]
         public FP Y;
 
@@ -105,10 +107,7 @@ namespace FPMathLib
         {
             FP cos = FPMath.Cos(angle);
             FP sin = FPMath.Sin(angle);
-            return new FPVector2(
-                v.X * cos - v.Y * sin,
-                v.X * sin + v.Y * cos
-            );
+            return new FPVector2(v.X * cos - v.Y * sin, v.X * sin + v.Y * cos);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -195,4 +194,3 @@ namespace FPMathLib
         }
     }
 }
-

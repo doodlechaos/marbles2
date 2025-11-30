@@ -93,21 +93,51 @@ public class GameCoreRenderer : MonoBehaviour
             return;
         }
 
+        // Get the specific game type name for better identification
+        string gameTypeName = gameTile.GetType().Name;
+        string expectedRootName = $"RenderRoot_{tileName}_{gameTypeName}";
+
         // Ensure we have a render root
         if (renderRoot == null)
         {
-            renderRoot = new GameObject($"RenderRoot_{tileName}");
+            renderRoot = new GameObject(expectedRootName);
             renderRoot.transform.SetParent(transform);
             renderRoot.transform.localPosition = Vector3.zero;
             renderRoot.transform.localRotation = Quaternion.identity;
             renderRoot.transform.localScale = Vector3.one;
+
+            // Add GameTileBinding component
+            var tileBinding = renderRoot.AddComponent<GameTileBinding>();
+            tileBinding.GameTile = gameTile;
+        }
+        else
+        {
+            // Update name if game type changed (e.g., after loading a different game)
+            if (renderRoot.name != expectedRootName)
+            {
+                renderRoot.name = expectedRootName;
+            }
+
+            // Update the GameTileBinding reference in case the GameTile instance changed
+            var tileBinding = renderRoot.GetComponent<GameTileBinding>();
+            if (tileBinding != null && tileBinding.GameTile != gameTile)
+            {
+                tileBinding.GameTile = gameTile;
+            }
         }
 
         // Clear the "seen" set from previous frame
         seenIds.Clear();
 
         // Traverse the RuntimeObj tree and create/update GameObjects as needed
-        UpdateRuntimeObjRecursive(gameTile.TileRoot, renderRoot.transform, idToGameObject, seenIds);
+        // isInsidePrefabHierarchy = false at root level
+        UpdateRuntimeObjRecursive(
+            gameTile.TileRoot,
+            renderRoot.transform,
+            idToGameObject,
+            seenIds,
+            false
+        );
 
         // Destroy any GameObjects whose RuntimeIds were not seen (they've been removed from the tree)
         List<ulong> idsToRemove = new List<ulong>();
@@ -135,11 +165,14 @@ public class GameCoreRenderer : MonoBehaviour
     /// <summary>
     /// Recursively update or create GameObjects for RuntimeObjs in the hierarchy.
     /// </summary>
+    /// <param name="isInsidePrefabHierarchy">True if we're processing children of an instantiated prefab.
+    /// When true, non-prefab-root children should be found in the existing hierarchy rather than created new.</param>
     private void UpdateRuntimeObjRecursive(
         RuntimeObj runtimeObj,
         Transform parentTransform,
         Dictionary<ulong, GameObject> idToGameObject,
-        HashSet<ulong> seenIds
+        HashSet<ulong> seenIds,
+        bool isInsidePrefabHierarchy
     )
     {
         // Skip level roots (they're just containers)
@@ -150,7 +183,13 @@ public class GameCoreRenderer : MonoBehaviour
             {
                 foreach (var child in runtimeObj.Children)
                 {
-                    UpdateRuntimeObjRecursive(child, parentTransform, idToGameObject, seenIds);
+                    UpdateRuntimeObjRecursive(
+                        child,
+                        parentTransform,
+                        idToGameObject,
+                        seenIds,
+                        false
+                    );
                 }
             }
             return;
@@ -170,6 +209,7 @@ public class GameCoreRenderer : MonoBehaviour
                 UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
 
                 // Process children with this GameObject as parent
+                // Children inherit the isInsidePrefabHierarchy status (they're still inside the same prefab)
                 if (runtimeObj.Children != null)
                 {
                     foreach (var child in runtimeObj.Children)
@@ -178,7 +218,8 @@ public class GameCoreRenderer : MonoBehaviour
                             child,
                             visualObj.transform,
                             idToGameObject,
-                            seenIds
+                            seenIds,
+                            isInsidePrefabHierarchy
                         );
                     }
                 }
@@ -186,75 +227,149 @@ public class GameCoreRenderer : MonoBehaviour
             else
             {
                 // GameObject was destroyed externally - recreate it
-                CreateGameObjectForRuntimeObj(runtimeObj, parentTransform, idToGameObject, seenIds);
+                CreateGameObjectForRuntimeObj(
+                    runtimeObj,
+                    parentTransform,
+                    idToGameObject,
+                    seenIds,
+                    isInsidePrefabHierarchy
+                );
             }
         }
         else
         {
-            // GameObject doesn't exist yet - create it
-            CreateGameObjectForRuntimeObj(runtimeObj, parentTransform, idToGameObject, seenIds);
+            // GameObject doesn't exist yet - create or find it
+            CreateGameObjectForRuntimeObj(
+                runtimeObj,
+                parentTransform,
+                idToGameObject,
+                seenIds,
+                isInsidePrefabHierarchy
+            );
         }
     }
 
     /// <summary>
-    /// Create a new GameObject for a RuntimeObj that doesn't have one yet.
+    /// Create or find a GameObject for a RuntimeObj that doesn't have one yet.
     /// This can happen after deserialization or when new objects are added to the tree.
     /// </summary>
+    /// <param name="isInsidePrefabHierarchy">True if we're inside an instantiated prefab's hierarchy.
+    /// When true and the RuntimeObj is not a prefab root, we try to find the existing child GO
+    /// rather than creating a new one.</param>
     private void CreateGameObjectForRuntimeObj(
         RuntimeObj runtimeObj,
         Transform parentTransform,
         Dictionary<ulong, GameObject> idToGameObject,
-        HashSet<ulong> seenIds
+        HashSet<ulong> seenIds,
+        bool isInsidePrefabHierarchy
     )
     {
         GameObject visualObj = null;
+        bool didInstantiatePrefab = false;
 
-        // Look up prefab by RenderPrefabID
-        GameObject prefabToInstantiate = GetPrefabByID(runtimeObj.RenderPrefabID);
-
-        if (prefabToInstantiate != null)
+        // Check if this is a prefab root that should be instantiated
+        if (runtimeObj.IsPrefabRoot)
         {
-            // Instantiate the prefab
-            visualObj = Instantiate(prefabToInstantiate, parentTransform);
-            visualObj.name = runtimeObj.Name;
+            // This is a prefab root - either instantiate or find it
+            if (isInsidePrefabHierarchy)
+            {
+                // We're inside a parent prefab - the nested prefab instance should already exist
+                Transform existingChild = parentTransform.Find(runtimeObj.Name);
+                if (existingChild != null)
+                {
+                    visualObj = existingChild.gameObject;
+                    didInstantiatePrefab = true; // Children are from this nested prefab
+                    if (ShowDebugInfo)
+                    {
+                        Debug.Log(
+                            $"Found existing nested prefab '{runtimeObj.Name}' in parent prefab hierarchy"
+                        );
+                    }
+                }
+            }
+
+            // If not found (or not inside a prefab), instantiate it
+            if (visualObj == null)
+            {
+                GameObject prefabToInstantiate = GetPrefabByID(runtimeObj.RenderPrefabID);
+                if (prefabToInstantiate != null)
+                {
+                    visualObj = Instantiate(prefabToInstantiate, parentTransform);
+                    visualObj.name = runtimeObj.Name;
+                    didInstantiatePrefab = true;
+                    if (ShowDebugInfo)
+                    {
+                        Debug.Log(
+                            $"Instantiated prefab [{runtimeObj.RenderPrefabID}] for '{runtimeObj.Name}'"
+                        );
+                    }
+                }
+                else if (ShowDebugInfo)
+                {
+                    Debug.LogWarning(
+                        $"RenderPrefabID {runtimeObj.RenderPrefabID} is invalid for '{runtimeObj.Name}'. Creating empty GameObject."
+                    );
+                }
+            }
         }
-        else
+        else if (isInsidePrefabHierarchy)
         {
-            // No prefab (ID -1 or invalid ID), create empty GameObject
+            // Not a prefab root, but we're inside a prefab - find the existing child
+            Transform existingChild = parentTransform.Find(runtimeObj.Name);
+            if (existingChild != null)
+            {
+                visualObj = existingChild.gameObject;
+                if (ShowDebugInfo)
+                {
+                    Debug.Log($"Found existing child '{runtimeObj.Name}' in prefab hierarchy");
+                }
+            }
+        }
+
+        // Fallback: create empty GameObject if we couldn't find or instantiate
+        if (visualObj == null)
+        {
             visualObj = new GameObject(runtimeObj.Name);
             visualObj.transform.SetParent(parentTransform);
-
-            if (ShowDebugInfo && runtimeObj.RenderPrefabID >= 0)
+            if (ShowDebugInfo)
             {
-                Debug.LogWarning(
-                    $"RenderPrefabID {runtimeObj.RenderPrefabID} is invalid for '{runtimeObj.Name}'. Creating empty GameObject."
-                );
+                Debug.Log($"Created empty GameObject for '{runtimeObj.Name}'");
             }
         }
 
         // Set transform
         UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
 
-        // Add RuntimeBinding component
-        var binding = visualObj.AddComponent<RuntimeBinding>();
-        binding.RuntimeObj = runtimeObj;
+        // Add RuntimeBinding component if not already present
+        var existingBinding = visualObj.GetComponent<RuntimeBinding>();
+        if (existingBinding == null)
+        {
+            var binding = visualObj.AddComponent<RuntimeBinding>();
+            binding.RuntimeObj = runtimeObj;
+        }
+        else
+        {
+            // Update the existing binding's reference
+            existingBinding.RuntimeObj = runtimeObj;
+        }
 
         // Store in mapping
         idToGameObject[runtimeObj.RuntimeId] = visualObj;
 
-        if (ShowDebugInfo)
-        {
-            Debug.Log(
-                $"Created GameObject for RuntimeObj '{runtimeObj.Name}' (ID: {runtimeObj.RuntimeId})"
-            );
-        }
-
-        // Recursively create children
+        // Recursively process children
+        // If we instantiated a prefab, children are inside that prefab hierarchy
         if (runtimeObj.Children != null)
         {
+            bool childrenInsidePrefab = didInstantiatePrefab || isInsidePrefabHierarchy;
             foreach (var child in runtimeObj.Children)
             {
-                UpdateRuntimeObjRecursive(child, visualObj.transform, idToGameObject, seenIds);
+                UpdateRuntimeObjRecursive(
+                    child,
+                    visualObj.transform,
+                    idToGameObject,
+                    seenIds,
+                    childrenInsidePrefab
+                );
             }
         }
     }

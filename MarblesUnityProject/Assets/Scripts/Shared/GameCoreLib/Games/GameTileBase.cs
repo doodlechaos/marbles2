@@ -253,8 +253,14 @@ namespace GameCoreLib
             Rigidbody2DComponent rigidbody
         )
         {
-            FPVector2 position = new FPVector2(obj.Transform.Position.X, obj.Transform.Position.Y);
             FP rotation = obj.Transform.EulerAngles.Z;
+
+            // Apply collider offset rotated by Z rotation
+            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotation);
+            FPVector2 position = new FPVector2(
+                obj.Transform.Position.X + rotatedOffset.X,
+                obj.Transform.Position.Y + rotatedOffset.Y
+            );
 
             // Determine if static or dynamic
             bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
@@ -298,8 +304,14 @@ namespace GameCoreLib
             Rigidbody2DComponent rigidbody
         )
         {
-            FPVector2 position = new FPVector2(obj.Transform.Position.X, obj.Transform.Position.Y);
             FP rotation = obj.Transform.EulerAngles.Z;
+
+            // Apply collider offset rotated by Z rotation
+            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotation);
+            FPVector2 position = new FPVector2(
+                obj.Transform.Position.X + rotatedOffset.X,
+                obj.Transform.Position.Y + rotatedOffset.Y
+            );
 
             // Determine if static or dynamic
             bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
@@ -392,6 +404,7 @@ namespace GameCoreLib
                 {
                     var body = Sim.GetBody(bodyId);
 
+                    // Sync position for all bodies
                     FPVector3 newPosition = new FPVector3(
                         body.Position.X,
                         body.Position.Y,
@@ -399,11 +412,15 @@ namespace GameCoreLib
                     );
                     runtimeObj.Transform.LocalPosition = newPosition;
 
-                    FP angle = body.Rotation;
-                    runtimeObj.Transform.LocalRotation = FPQuaternion.AngleAxis(
-                        angle,
-                        FPVector3.Forward
-                    );
+                    // Only sync rotation for dynamic bodies.
+                    // Static bodies can't rotate in physics, so preserve their original visual rotation.
+                    if (body.BodyType == BodyType.Dynamic)
+                    {
+                        runtimeObj.Transform.LocalRotation = FPQuaternion.AngleAxis(
+                            body.Rotation,
+                            FPVector3.Forward
+                        );
+                    }
                 }
                 catch (Exception e)
                 {
@@ -423,3 +440,4 @@ namespace GameCoreLib
         }
     }
 }
+

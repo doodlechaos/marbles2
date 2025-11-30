@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using MemoryPack;
 
+#nullable enable
+
 namespace GameCoreLib
 {
     [Serializable]
@@ -58,7 +60,6 @@ namespace GameCoreLib
                             startGameTile.TotalMarblesBid
                         );
                     }
-
                 }
                 else if (inputEvent is InputEvent.FinishGameplay finishGameplay)
                 {

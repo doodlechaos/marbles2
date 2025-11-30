@@ -166,22 +166,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   GameCore:
     Seq: 0
-    GameTile1:
-      WorldId: 1
-      TileRoot:
-        RuntimeId: 0
-        Name: 
-        Children: []
-        RenderPrefabID: 0
-    GameTile2:
-      WorldId: 2
-      TileRoot:
-        RuntimeId: 0
-        Name: 
-        Children: []
-        RenderPrefabID: 0
-    BiddingWorldId: 0
-    NextRuntimeId: 1
   Game1JSON_PATH: C:\Users\merob\Desktop\CurrentProjects\marbles2\MarblesUnityProject\Temp\LevelJSONs\TestAuthoringWorld.json
   GameCoreRenderer: {fileID: 1098268961}
   _authManager: {fileID: 931444009}
@@ -1088,6 +1072,7 @@ MonoBehaviour:
   - {fileID: 1073688982425294196, guid: 0965a81b8e02e27439aa19b46271ab33, type: 3}
   - {fileID: 6795843947873832426, guid: 03d597c05dc5274408125f36079def78, type: 3}
   - {fileID: 8627050739790726732, guid: 27407d322ea4b9948a9ed629475944e8, type: 3}
+  - {fileID: 6668244075672124559, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
   ShowDebugInfo: 1
 --- !u!1 &1224530332
 GameObject:

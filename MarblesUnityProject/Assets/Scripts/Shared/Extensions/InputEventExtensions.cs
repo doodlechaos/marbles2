@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using MemoryPack;
 
+#nullable enable
+
 namespace GameCoreLib
 {
     public static class InputEventSerialization

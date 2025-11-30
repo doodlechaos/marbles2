@@ -6,6 +6,7 @@ using MemoryPack;
 namespace GameCoreLib
 {
     [MemoryPackable(SerializeLayout.Explicit)]
+    [Serializable]
     public partial class RuntimeObj
     {
         /// <summary>
@@ -19,6 +20,7 @@ namespace GameCoreLib
         public string Name = "";
 
         [MemoryPackOrder(2)]
+        [NonSerialized]
         public List<RuntimeObj> Children = new List<RuntimeObj>();
 
         [MemoryPackOrder(3)]
@@ -33,12 +35,22 @@ namespace GameCoreLib
 
         /// <summary>
         /// ID referencing which prefab to use for rendering.
-        /// This is automatically assigned during export based on the RuntimeRenderer's renderPrefabs list.
-        /// -1 = no prefab (empty GameObject)
-        /// 0+ = 0-based index into RuntimeRenderer.renderPrefabs list
+        /// Only assigned to prefab roots (not children within prefabs).
+        /// This allows distinguishing "this is a prefab I should instantiate" from
+        /// "this is a child that's part of another prefab's definition."
+        /// -1 = not a prefab root (either an empty container or part of a parent prefab)
+        /// 0+ = 0-based index into GameCoreRenderer.renderPrefabs list
         /// </summary>
         [MemoryPackOrder(5)]
         public int RenderPrefabID = -1;
+
+        /// <summary>
+        /// True if this RuntimeObj is the root of a prefab and should be instantiated.
+        /// When true, the renderer instantiates this prefab and finds/links its children
+        /// from the instantiated hierarchy rather than creating new GameObjects.
+        /// </summary>
+        [MemoryPackIgnore]
+        public bool IsPrefabRoot => RenderPrefabID >= 0;
 
         #region Component Query Helpers
 
@@ -208,4 +220,3 @@ namespace GameCoreLib
         #endregion
     }
 }
-

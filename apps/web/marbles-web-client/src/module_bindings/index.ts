@@ -33,12 +33,10 @@ import {
 // Import and reexport all reducer arg types
 import { AGiveMarbles } from "./a_give_marbles_reducer.ts";
 export { AGiveMarbles };
-import { ASetGameplayFinished } from "./a_set_gameplay_finished_reducer.ts";
-export { ASetGameplayFinished };
+import { ASpinLoadGameplayTile } from "./a_spin_load_gameplay_tile_reducer.ts";
+export { ASpinLoadGameplayTile };
 import { ClockUpdate } from "./clock_update_reducer.ts";
 export { ClockUpdate };
-import { CloseAndCycleGameTile } from "./close_and_cycle_game_tile_reducer.ts";
-export { CloseAndCycleGameTile };
 import { Connect } from "./connect_reducer.ts";
 export { Connect };
 import { Disconnect } from "./disconnect_reducer.ts";
@@ -83,6 +81,8 @@ import { BidConfigSTableHandle } from "./bid_config_s_table.ts";
 export { BidConfigSTableHandle };
 import { BidTimeSTableHandle } from "./bid_time_s_table.ts";
 export { BidTimeSTableHandle };
+import { BiddingStateSTableHandle } from "./bidding_state_s_table.ts";
+export { BiddingStateSTableHandle };
 import { ClockTableHandle } from "./clock_table.ts";
 export { ClockTableHandle };
 import { ClockScheduleTableHandle } from "./clock_schedule_table.ts";
@@ -93,8 +93,6 @@ import { GameCoreSnapTableHandle } from "./game_core_snap_table.ts";
 export { GameCoreSnapTableHandle };
 import { GameTileTableHandle } from "./game_tile_table.ts";
 export { GameTileTableHandle };
-import { GameplayFinishedFlagSTableHandle } from "./gameplay_finished_flag_s_table.ts";
-export { GameplayFinishedFlagSTableHandle };
 import { InputCollectorTableHandle } from "./input_collector_table.ts";
 export { InputCollectorTableHandle };
 import { InputFrameTableHandle } from "./input_frame_table.ts";
@@ -127,6 +125,8 @@ import { BidConfigS } from "./bid_config_s_type.ts";
 export { BidConfigS };
 import { BidTimeS } from "./bid_time_s_type.ts";
 export { BidTimeS };
+import { BiddingStateS } from "./bidding_state_s_type.ts";
+export { BiddingStateS };
 import { Clock } from "./clock_type.ts";
 export { Clock };
 import { ClockSchedule } from "./clock_schedule_type.ts";
@@ -137,8 +137,6 @@ import { GameCoreSnap } from "./game_core_snap_type.ts";
 export { GameCoreSnap };
 import { GameTile } from "./game_tile_type.ts";
 export { GameTile };
-import { GameplayFinishedFlagS } from "./gameplay_finished_flag_s_type.ts";
-export { GameplayFinishedFlagS };
 import { InputCollector } from "./input_collector_type.ts";
 export { InputCollector };
 import { InputFrame } from "./input_frame_type.ts";
@@ -235,6 +233,15 @@ const REMOTE_MODULE = {
         colType: (BidTimeS.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
+    BiddingStateS: {
+      tableName: "BiddingStateS" as const,
+      rowType: BiddingStateS.getTypeScriptAlgebraicType(),
+      primaryKey: "id",
+      primaryKeyInfo: {
+        colName: "id",
+        colType: (BiddingStateS.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
+      },
+    },
     Clock: {
       tableName: "Clock" as const,
       rowType: Clock.getTypeScriptAlgebraicType(),
@@ -278,15 +285,6 @@ const REMOTE_MODULE = {
       primaryKeyInfo: {
         colName: "unityPrefabGuid",
         colType: (GameTile.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
-      },
-    },
-    GameplayFinishedFlagS: {
-      tableName: "GameplayFinishedFlagS" as const,
-      rowType: GameplayFinishedFlagS.getTypeScriptAlgebraicType(),
-      primaryKey: "id",
-      primaryKeyInfo: {
-        colName: "id",
-        colType: (GameplayFinishedFlagS.getTypeScriptAlgebraicType() as __AlgebraicTypeVariants.Product).value.elements[0].algebraicType,
       },
     },
     InputCollector: {
@@ -344,17 +342,13 @@ const REMOTE_MODULE = {
       reducerName: "A_GiveMarbles",
       argsType: AGiveMarbles.getTypeScriptAlgebraicType(),
     },
-    A_SetGameplayFinished: {
-      reducerName: "A_SetGameplayFinished",
-      argsType: ASetGameplayFinished.getTypeScriptAlgebraicType(),
+    A_SpinLoadGameplayTile: {
+      reducerName: "A_SpinLoadGameplayTile",
+      argsType: ASpinLoadGameplayTile.getTypeScriptAlgebraicType(),
     },
     ClockUpdate: {
       reducerName: "ClockUpdate",
       argsType: ClockUpdate.getTypeScriptAlgebraicType(),
-    },
-    CloseAndCycleGameTile: {
-      reducerName: "CloseAndCycleGameTile",
-      argsType: CloseAndCycleGameTile.getTypeScriptAlgebraicType(),
     },
     Connect: {
       reducerName: "Connect",
@@ -435,9 +429,8 @@ const REMOTE_MODULE = {
 // A type representing all the possible variants of a reducer.
 export type Reducer = never
 | { name: "AGiveMarbles", args: AGiveMarbles }
-| { name: "ASetGameplayFinished", args: ASetGameplayFinished }
+| { name: "ASpinLoadGameplayTile", args: ASpinLoadGameplayTile }
 | { name: "ClockUpdate", args: ClockUpdate }
-| { name: "CloseAndCycleGameTile", args: CloseAndCycleGameTile }
 | { name: "Connect", args: Connect }
 | { name: "Disconnect", args: Disconnect }
 | { name: "IncrementPfpVersion", args: IncrementPfpVersion }
@@ -471,20 +464,20 @@ export class RemoteReducers {
     this.connection.offReducer("A_GiveMarbles", callback);
   }
 
-  aSetGameplayFinished(isGameplayFinished: boolean) {
-    const __args = { isGameplayFinished };
+  aSpinLoadGameplayTile(worldId: number) {
+    const __args = { worldId };
     let __writer = new __BinaryWriter(1024);
-    ASetGameplayFinished.serialize(__writer, __args);
+    ASpinLoadGameplayTile.serialize(__writer, __args);
     let __argsBuffer = __writer.getBuffer();
-    this.connection.callReducer("A_SetGameplayFinished", __argsBuffer, this.setCallReducerFlags.aSetGameplayFinishedFlags);
+    this.connection.callReducer("A_SpinLoadGameplayTile", __argsBuffer, this.setCallReducerFlags.aSpinLoadGameplayTileFlags);
   }
 
-  onASetGameplayFinished(callback: (ctx: ReducerEventContext, isGameplayFinished: boolean) => void) {
-    this.connection.onReducer("A_SetGameplayFinished", callback);
+  onASpinLoadGameplayTile(callback: (ctx: ReducerEventContext, worldId: number) => void) {
+    this.connection.onReducer("A_SpinLoadGameplayTile", callback);
   }
 
-  removeOnASetGameplayFinished(callback: (ctx: ReducerEventContext, isGameplayFinished: boolean) => void) {
-    this.connection.offReducer("A_SetGameplayFinished", callback);
+  removeOnASpinLoadGameplayTile(callback: (ctx: ReducerEventContext, worldId: number) => void) {
+    this.connection.offReducer("A_SpinLoadGameplayTile", callback);
   }
 
   clockUpdate(schedule: ClockSchedule) {
@@ -501,22 +494,6 @@ export class RemoteReducers {
 
   removeOnClockUpdate(callback: (ctx: ReducerEventContext, schedule: ClockSchedule) => void) {
     this.connection.offReducer("ClockUpdate", callback);
-  }
-
-  closeAndCycleGameTile(worldId: number) {
-    const __args = { worldId };
-    let __writer = new __BinaryWriter(1024);
-    CloseAndCycleGameTile.serialize(__writer, __args);
-    let __argsBuffer = __writer.getBuffer();
-    this.connection.callReducer("CloseAndCycleGameTile", __argsBuffer, this.setCallReducerFlags.closeAndCycleGameTileFlags);
-  }
-
-  onCloseAndCycleGameTile(callback: (ctx: ReducerEventContext, worldId: number) => void) {
-    this.connection.onReducer("CloseAndCycleGameTile", callback);
-  }
-
-  removeOnCloseAndCycleGameTile(callback: (ctx: ReducerEventContext, worldId: number) => void) {
-    this.connection.offReducer("CloseAndCycleGameTile", callback);
   }
 
   onConnect(callback: (ctx: ReducerEventContext) => void) {
@@ -699,19 +676,14 @@ export class SetReducerFlags {
     this.aGiveMarblesFlags = flags;
   }
 
-  aSetGameplayFinishedFlags: __CallReducerFlags = 'FullUpdate';
-  aSetGameplayFinished(flags: __CallReducerFlags) {
-    this.aSetGameplayFinishedFlags = flags;
+  aSpinLoadGameplayTileFlags: __CallReducerFlags = 'FullUpdate';
+  aSpinLoadGameplayTile(flags: __CallReducerFlags) {
+    this.aSpinLoadGameplayTileFlags = flags;
   }
 
   clockUpdateFlags: __CallReducerFlags = 'FullUpdate';
   clockUpdate(flags: __CallReducerFlags) {
     this.clockUpdateFlags = flags;
-  }
-
-  closeAndCycleGameTileFlags: __CallReducerFlags = 'FullUpdate';
-  closeAndCycleGameTile(flags: __CallReducerFlags) {
-    this.closeAndCycleGameTileFlags = flags;
   }
 
   incrementPfpVersionFlags: __CallReducerFlags = 'FullUpdate';
@@ -814,6 +786,11 @@ export class RemoteTables {
     return new BidTimeSTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<BidTimeS>(REMOTE_MODULE.tables.BidTimeS));
   }
 
+  get biddingStateS(): BiddingStateSTableHandle<'BiddingStateS'> {
+    // clientCache is a private property
+    return new BiddingStateSTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<BiddingStateS>(REMOTE_MODULE.tables.BiddingStateS));
+  }
+
   get clock(): ClockTableHandle<'Clock'> {
     // clientCache is a private property
     return new ClockTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<Clock>(REMOTE_MODULE.tables.Clock));
@@ -837,11 +814,6 @@ export class RemoteTables {
   get gameTile(): GameTileTableHandle<'GameTile'> {
     // clientCache is a private property
     return new GameTileTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameTile>(REMOTE_MODULE.tables.GameTile));
-  }
-
-  get gameplayFinishedFlagS(): GameplayFinishedFlagSTableHandle<'GameplayFinishedFlagS'> {
-    // clientCache is a private property
-    return new GameplayFinishedFlagSTableHandle((this.connection as unknown as { clientCache: __ClientCache }).clientCache.getOrCreateTable<GameplayFinishedFlagS>(REMOTE_MODULE.tables.GameplayFinishedFlagS));
   }
 
   get inputCollector(): InputCollectorTableHandle<'InputCollector'> {

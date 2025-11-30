@@ -212,7 +212,8 @@ public static partial class Module
                         {
                             delaySeqs = 0,
                             inputEventData = new InputEvent.SpinToNewGameTile(
-                                GetRandomGameTile(ctx)
+                                GetRandomGameTile(ctx),
+                                stateUpdatedTo.WorldId
                             ).ToBinary(),
                         }
                     );
