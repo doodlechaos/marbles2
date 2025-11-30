@@ -16,6 +16,10 @@ public class GameCoreRenderer : MonoBehaviour
     [SerializeField]
     private List<GameObject> renderPrefabs = new List<GameObject>();
 
+    [Header("Tile Orchestrator")]
+    [Tooltip("Reference to the TileOrchestrator for positioning render roots")]
+    public TileOrchestrator TileOrchestrator;
+
     [Header("Debug")]
     public bool ShowDebugInfo = false;
 
@@ -57,7 +61,8 @@ public class GameCoreRenderer : MonoBehaviour
             ref renderRoot1,
             tile1IdToGameObject,
             tile1SeenIds,
-            "GameTile1"
+            "GameTile1",
+            TileOrchestrator.GameTile1Origin
         );
 
         // Update GameTile2
@@ -66,7 +71,8 @@ public class GameCoreRenderer : MonoBehaviour
             ref renderRoot2,
             tile2IdToGameObject,
             tile2SeenIds,
-            "GameTile2"
+            "GameTile2",
+            TileOrchestrator.GameTile2Origin
         );
     }
 
@@ -78,7 +84,8 @@ public class GameCoreRenderer : MonoBehaviour
         ref GameObject renderRoot,
         Dictionary<ulong, GameObject> idToGameObject,
         HashSet<ulong> seenIds,
-        string tileName
+        string tileName,
+        Transform originTransform
     )
     {
         if (gameTile == null || gameTile.TileRoot == null)
@@ -101,7 +108,7 @@ public class GameCoreRenderer : MonoBehaviour
         if (renderRoot == null)
         {
             renderRoot = new GameObject(expectedRootName);
-            renderRoot.transform.SetParent(transform);
+            renderRoot.transform.SetParent(originTransform);
             renderRoot.transform.localPosition = Vector3.zero;
             renderRoot.transform.localRotation = Quaternion.identity;
             renderRoot.transform.localScale = Vector3.one;
