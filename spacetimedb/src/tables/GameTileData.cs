@@ -17,7 +17,7 @@ public static partial class Module
         /// <summary>
         /// Level name for display purposes
         /// </summary>
-        public string LevelName;
+        public string TileName;
 
         /// <summary>
         /// Rarity for weighted random selection

@@ -100,9 +100,8 @@ public class GameCoreRenderer : MonoBehaviour
             return;
         }
 
-        // Get the specific game type name for better identification
-        string gameTypeName = gameTile.GetType().Name;
-        string expectedRootName = $"RenderRoot_{tileName}_{gameTypeName}";
+        // Use the TileRoot's name directly - this matches the prefab name from Unity
+        string expectedRootName = gameTile.TileRoot.Name;
 
         // Ensure we have a render root
         if (renderRoot == null)

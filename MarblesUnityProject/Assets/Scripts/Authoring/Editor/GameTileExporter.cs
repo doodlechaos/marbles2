@@ -110,19 +110,19 @@ public class GameTileExporter : EditorWindow
                     // Serialize the entire GameTileBase with MemoryPack
                     byte[] gameTileBinary = MemoryPackSerializer.Serialize<GameTileBase>(gameTile);
 
-                    string levelName = Path.GetFileNameWithoutExtension(assetPath);
+                    string tileName = Path.GetFileNameWithoutExtension(assetPath);
 
                     // Upload to SpacetimeDB
                     UploadGameTileToSpacetimeDB(
                         adminConn,
                         guid,
-                        levelName,
+                        tileName,
                         gameTileAuth,
                         gameTileBinary
                     );
 
                     Debug.Log(
-                        $"✓ Uploaded: {levelName} (GUID: {guid}, Size: {gameTileBinary.Length} bytes)"
+                        $"✓ Uploaded: {tileName} (GUID: {guid}, Size: {gameTileBinary.Length} bytes)"
                     );
                     uploadedCount++;
                 }
@@ -474,7 +474,7 @@ public class GameTileExporter : EditorWindow
     private void UploadGameTileToSpacetimeDB(
         DbConnection conn,
         string unityPrefabGUID,
-        string levelName,
+        string tileName,
         GameTileAuthBase gameTileAuth,
         byte[] gameTileBinary
     )
@@ -482,7 +482,7 @@ public class GameTileExporter : EditorWindow
         var gameTileData = new GameTile
         {
             UnityPrefabGuid = unityPrefabGUID,
-            LevelName = levelName,
+            TileName = tileName,
             Rarity = (int)gameTileAuth.AppearanceFrequency,
             MinAuctionSpots = gameTileAuth.MinAuctionSpots,
             MaxAuctionSpots = gameTileAuth.MaxAuctionSpots,

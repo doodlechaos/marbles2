@@ -34,10 +34,10 @@ public static partial class Module
     [Reducer]
     public static void A_SpinLoadGameplayTile(ReducerContext ctx, byte worldId)
     {
-        Log.Info($"Spinning and loading new game tile");
         try
         {
             GameTileBase gameTile = GetRandomGameTile(ctx);
+            Log.Info($"Spinning and loading new game tile: {gameTile}");
 
             //2. Schedule a load game tile input event
             byte[] eventData2 = new InputEvent.SpinToNewGameTile(gameTile, worldId).ToBinary();

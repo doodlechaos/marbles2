@@ -32,7 +32,7 @@ public static partial class Module
             return CreateDefaultGameTile();
         }
 
-        Log.Info($"Loaded GameTile: {gameTileData.LevelName}");
+        Log.Info($"Got random gameTile: {gameTileData.TileName}");
         return gameTile;
     }
 

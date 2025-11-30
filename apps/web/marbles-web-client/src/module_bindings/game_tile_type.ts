@@ -30,7 +30,7 @@ import {
 
 export type GameTile = {
   unityPrefabGuid: string,
-  levelName: string,
+  tileName: string,
   rarity: number,
   minAuctionSpots: number,
   maxAuctionSpots: number,
@@ -52,7 +52,7 @@ export const GameTile = {
     _cached_GameTile_type_value = __AlgebraicTypeValue.Product({ elements: [] });
     _cached_GameTile_type_value.value.elements.push(
       { name: "unityPrefabGuid", algebraicType: __AlgebraicTypeValue.String },
-      { name: "levelName", algebraicType: __AlgebraicTypeValue.String },
+      { name: "tileName", algebraicType: __AlgebraicTypeValue.String },
       { name: "rarity", algebraicType: __AlgebraicTypeValue.I32 },
       { name: "minAuctionSpots", algebraicType: __AlgebraicTypeValue.I32 },
       { name: "maxAuctionSpots", algebraicType: __AlgebraicTypeValue.I32 },

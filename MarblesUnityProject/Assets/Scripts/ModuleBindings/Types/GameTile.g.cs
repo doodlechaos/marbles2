@@ -15,8 +15,8 @@ namespace SpacetimeDB.Types
     {
         [DataMember(Name = "UnityPrefabGUID")]
         public string UnityPrefabGuid;
-        [DataMember(Name = "LevelName")]
-        public string LevelName;
+        [DataMember(Name = "TileName")]
+        public string TileName;
         [DataMember(Name = "Rarity")]
         public int Rarity;
         [DataMember(Name = "MinAuctionSpots")]
@@ -30,7 +30,7 @@ namespace SpacetimeDB.Types
 
         public GameTile(
             string UnityPrefabGuid,
-            string LevelName,
+            string TileName,
             int Rarity,
             int MinAuctionSpots,
             int MaxAuctionSpots,
@@ -39,7 +39,7 @@ namespace SpacetimeDB.Types
         )
         {
             this.UnityPrefabGuid = UnityPrefabGuid;
-            this.LevelName = LevelName;
+            this.TileName = TileName;
             this.Rarity = Rarity;
             this.MinAuctionSpots = MinAuctionSpots;
             this.MaxAuctionSpots = MaxAuctionSpots;
@@ -50,7 +50,7 @@ namespace SpacetimeDB.Types
         public GameTile()
         {
             this.UnityPrefabGuid = "";
-            this.LevelName = "";
+            this.TileName = "";
             this.GameTileBinary = new();
         }
     }
