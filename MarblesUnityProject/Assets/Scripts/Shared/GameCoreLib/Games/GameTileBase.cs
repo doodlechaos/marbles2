@@ -60,9 +60,6 @@ namespace GameCoreLib
         [MemoryPackIgnore]
         public int StateSteps => stateSteps;
 
-        [MemoryPackIgnore]
-        private OutputEventBuffer _outputBufferRef;
-
         public GameTileBase()
         {
             Sim = new World();
@@ -111,7 +108,7 @@ namespace GameCoreLib
             TileWorldId = tileWorldId;
             NextLocalId = 1;
 
-            SetState(GameTileState.Spinning);
+            SetState(GameTileState.Spinning, null);
 
             // Clear and recreate physics world
             runtimeIdToBodyId.Clear();
@@ -146,7 +143,11 @@ namespace GameCoreLib
         /// </summary>
         protected virtual void OnLevelLoaded() { }
 
-        public virtual void StartGameplay(InputEvent.Entrant[] entrants, uint totalMarblesBid)
+        public virtual void StartGameplay(
+            InputEvent.Entrant[] entrants,
+            uint totalMarblesBid,
+            OutputEventBuffer outputEvents
+        )
         {
             throw new NotImplementedException();
         }
@@ -158,18 +159,16 @@ namespace GameCoreLib
 
         public virtual void Step(OutputEventBuffer outputEvents)
         {
-            _outputBufferRef = outputEvents;
-
             float stateDurationSec = stateSteps / 60.0f;
             if (State == GameTileState.Spinning)
             {
                 if (stateDurationSec >= SPINNING_DURATION_SEC)
-                    SetState(GameTileState.OpeningDoor);
+                    SetState(GameTileState.OpeningDoor, outputEvents);
             }
             else if (State == GameTileState.OpeningDoor)
             {
                 if (stateDurationSec >= OPENING_DOOR_DURATION_SEC)
-                    SetState(GameTileState.Bidding);
+                    SetState(GameTileState.Bidding, outputEvents);
             }
             else if (State == GameTileState.Bidding)
             {
@@ -180,24 +179,22 @@ namespace GameCoreLib
             else if (State == GameTileState.Gameplay)
             {
                 if (stateDurationSec >= GAMEPLAY_MAX_DURATION_SEC)
-                    SetState(GameTileState.ScoreScreen);
+                    SetState(GameTileState.ScoreScreen, outputEvents);
             }
             else if (State == GameTileState.ScoreScreen)
             {
                 if (stateDurationSec >= SCORE_SCREEN_DURATION_SEC)
-                    SetState(GameTileState.Finished);
+                    SetState(GameTileState.Finished, outputEvents);
             }
 
             PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), new WorldSimulationContext());
             SyncPhysicsToRuntimeObjs();
             stateSteps++;
-
-            _outputBufferRef = null;
         }
 
-        public void SetState(GameTileState state)
+        public void SetState(GameTileState state, OutputEventBuffer? outputEvents)
         {
-            _outputBufferRef?.Server.Add(
+            outputEvents?.Server.Add(
                 new OutputToServerEvent.StateUpdatedTo { State = state, WorldId = TileWorldId }
             );
             stateSteps = 0;

@@ -75,7 +75,11 @@ namespace GameCoreLib
             TileRoot?.FindAllComponentsInChildren(PlayerMarbles);
         }
 
-        public override void StartGameplay(InputEvent.Entrant[] entrants, uint totalMarblesBid)
+        public override void StartGameplay(
+            InputEvent.Entrant[] entrants,
+            uint totalMarblesBid,
+            OutputEventBuffer outputEvents
+        )
         {
             TotalMarblesBid = totalMarblesBid;
             PlayerMarbles.Clear();
@@ -87,7 +91,7 @@ namespace GameCoreLib
                 SpawnQueue.Add(entrant);
 
             // Transition to Gameplay state (controlled by server bidding logic)
-            SetState(GameTileState.Gameplay);
+            SetState(GameTileState.Gameplay, outputEvents);
         }
 
         public override void Step(OutputEventBuffer outputEvents)

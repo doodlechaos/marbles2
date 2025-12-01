@@ -67,7 +67,8 @@ namespace GameCoreLib
                     {
                         gameTile.StartGameplay(
                             startGameTile.Entrants,
-                            startGameTile.TotalMarblesBid
+                            startGameTile.TotalMarblesBid,
+                            OutputEvents
                         );
                     }
                 }
@@ -75,9 +76,9 @@ namespace GameCoreLib
                 {
                     byte worldId = finishGameplay.WorldId;
                     if (worldId == 1)
-                        GameTile2?.SetState(GameTileState.Finished);
+                        GameTile2?.SetState(GameTileState.Finished, OutputEvents);
                     else
-                        GameTile1?.SetState(GameTileState.Finished);
+                        GameTile1?.SetState(GameTileState.Finished, OutputEvents);
                 }
             }
         }
