@@ -44,6 +44,11 @@ public sealed class GameTileBinding : MonoBehaviour
     /// </summary>
     public bool IsValid => gameTile != null;
 
+    [SerializeField]
+    private Vector2 screenOffset = new Vector2(0, 50);
+    private GUIStyle labelStyle;
+    private GUIStyle boxStyle;
+
     /// <summary>
     /// Try to get the GameTile as a specific derived type.
     /// </summary>
@@ -55,5 +60,77 @@ public sealed class GameTileBinding : MonoBehaviour
     {
         result = gameTile as T;
         return result != null;
+    }
+
+    void OnGUI()
+    {
+        // Lazy init styles
+        if (labelStyle == null)
+        {
+            labelStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 28,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+            };
+            boxStyle = new GUIStyle(GUI.skin.box)
+            {
+                fontSize = 28,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+            };
+        }
+
+        // Convert world position to screen position
+        Camera cam = Camera.main;
+        if (cam == null)
+            return;
+
+        Vector3 screenPos = cam.WorldToScreenPoint(transform.position);
+
+        // Skip if behind camera
+        if (screenPos.z < 0)
+            return;
+
+        // Flip Y for GUI coordinates
+        float guiY = Screen.height - screenPos.y;
+
+        // Build display text
+        var tile = GameTile;
+        string stateText = $"Tile {TileWorldId}: {tile.State}";
+        string stepsText = $"Steps: {tile.StateSteps}";
+
+        // Draw box with label
+        Rect boxRect = new Rect(
+            screenPos.x + screenOffset.x - 160,
+            guiY + screenOffset.y - 30,
+            320,
+            90
+        );
+
+        // Color based on state
+        Color stateColor = tile.State switch
+        {
+            GameTileState.Spinning => Color.yellow,
+            GameTileState.OpeningDoor => Color.cyan,
+            GameTileState.Bidding => Color.green,
+            GameTileState.Gameplay => Color.white,
+            GameTileState.ScoreScreen => Color.magenta,
+            GameTileState.Finished => Color.gray,
+            _ => Color.white,
+        };
+
+        GUI.backgroundColor = stateColor;
+        GUI.Box(boxRect, "", boxStyle);
+
+        // Draw state text
+        Rect stateRect = new Rect(boxRect.x, boxRect.y + 10, boxRect.width, 30);
+        GUI.Label(stateRect, stateText, labelStyle);
+
+        // Draw steps text below
+        Rect stepsRect = new Rect(boxRect.x, boxRect.y + 45, boxRect.width, 30);
+        GUI.Label(stepsRect, stepsText, labelStyle);
+
+        GUI.backgroundColor = Color.white;
     }
 }

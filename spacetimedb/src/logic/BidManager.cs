@@ -42,7 +42,10 @@ public static partial class Module
 
     private static void TryCountdownBidTimer(ReducerContext ctx, float deltaTimeSec)
     {
-        if (!BiddingStateS.Inst(ctx).IsGameplayFinished)
+        // Only countdown when:
+        // 1. The other tile is in Bidding state (so users have something to bid on next)
+        // 2. We have enough bidders for a game
+        if (!BiddingStateS.Inst(ctx).OtherTileReadyForBidding)
             return;
 
         if ((int)ctx.Db.AccountBid.Count < BidConfigS.Inst(ctx).MinAuctionSpots)
@@ -132,11 +135,17 @@ public static partial class Module
         foreach (AccountBid bid in ctx.Db.AccountBid.Iter().ToList())
             ctx.Db.AccountBid.Delete(bid);
 
-        // Reset bid timer for next round (will be set when gameplay finishes again)
+        // Reset bid timer for next round
         BidTimeS.Set(ctx, new BidTimeS { MicrosecondsRemaining = SecondsToMicroseconds(10) });
 
-        biddingState.IsGameplayFinished = false;
+        // Switch bidding to the other tile and reset the ready flag
+        // (the flag will be set again when the next tile enters Bidding state)
+        biddingState.OtherTileReadyForBidding = false;
         biddingState.CurrBidWorldId = (byte)(biddingState.CurrBidWorldId == 1 ? 2 : 1);
         ctx.Db.BiddingStateS.Id.Update(biddingState);
+
+        Log.Info(
+            $"Bidding finished. Gameplay starting on tile {(biddingState.CurrBidWorldId == 1 ? 2 : 1)}, now accepting bids on tile {biddingState.CurrBidWorldId}"
+        );
     }
 }

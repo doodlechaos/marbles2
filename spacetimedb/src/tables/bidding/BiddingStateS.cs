@@ -8,8 +8,17 @@ public static partial class Module
         [PrimaryKey]
         public byte Id;
 
-        public bool IsGameplayFinished; //TODO: Send an output signal out of the GameCore when the gameplay is finished (I don't want to check every frame because I'd have to deserialize the entire GameCore every frame)
+        /// <summary>
+        /// True when the OTHER tile (not CurrBidWorldId) has entered Bidding state,
+        /// meaning users will have something to bid on once we start gameplay on the current tile.
+        /// This ensures seamless bidding continuity.
+        /// </summary>
+        public bool OtherTileReadyForBidding;
 
+        /// <summary>
+        /// Which tile is currently accepting bids (1 or 2).
+        /// The other tile should be in Gameplay, ScoreScreen, or transitioning.
+        /// </summary>
         public byte CurrBidWorldId;
 
         public static BiddingStateS Inst(ReducerContext ctx)
@@ -25,7 +34,7 @@ public static partial class Module
                     new BiddingStateS
                     {
                         Id = 0,
-                        IsGameplayFinished = false,
+                        OtherTileReadyForBidding = false,
                         CurrBidWorldId = 1,
                     }
                 );

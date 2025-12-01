@@ -51,14 +51,17 @@ namespace GameCoreLib
         [MemoryPackOrder(5)]
         public GameTileState State = GameTileState.Spinning;
 
-        [MemoryPackOrder(6)]
+        [MemoryPackOrder(6), MemoryPackInclude]
         protected int stateSteps = 0;
 
+        /// <summary>
+        /// Number of simulation steps spent in the current state.
+        /// </summary>
         [MemoryPackIgnore]
-        public List<OutputToClientEvent> OutputToClientEvents = new List<OutputToClientEvent>();
+        public int StateSteps => stateSteps;
 
         [MemoryPackIgnore]
-        public List<OutputToServerEvent> OutputToServerEvents = new List<OutputToServerEvent>();
+        private OutputEventBuffer _outputBufferRef;
 
         public GameTileBase()
         {
@@ -103,11 +106,12 @@ namespace GameCoreLib
         public void Initialize(byte tileWorldId)
         {
             Logger.Log($"Initializing GameTile with TileId={tileWorldId}...");
-            SetState(GameTileState.Spinning);
 
-            // Set the tile ID for unique RuntimeId generation
+            // Set the tile ID BEFORE SetState so the event has the correct WorldId
             TileWorldId = tileWorldId;
             NextLocalId = 1;
+
+            SetState(GameTileState.Spinning);
 
             // Clear and recreate physics world
             runtimeIdToBodyId.Clear();
@@ -150,26 +154,50 @@ namespace GameCoreLib
         const float SPINNING_DURATION_SEC = 5.0f;
         const float OPENING_DOOR_DURATION_SEC = 2.0f;
         const float SCORE_SCREEN_DURATION_SEC = 5.0f;
+        const float GAMEPLAY_MAX_DURATION_SEC = 60.0f;
 
         public virtual void Step(OutputEventBuffer outputEvents)
         {
+            _outputBufferRef = outputEvents;
+
             float stateDurationSec = stateSteps / 60.0f;
             if (State == GameTileState.Spinning)
             {
                 if (stateDurationSec >= SPINNING_DURATION_SEC)
                     SetState(GameTileState.OpeningDoor);
+            }
+            else if (State == GameTileState.OpeningDoor)
+            {
                 if (stateDurationSec >= OPENING_DOOR_DURATION_SEC)
                     SetState(GameTileState.Bidding);
+            }
+            else if (State == GameTileState.Bidding)
+            {
+                // Bidding → Gameplay transition is controlled by the server via StartGameTile input event.
+                // This ensures gameplay only starts when the other tile is ready for bidding
+                // and minimum auction spots are filled.
+            }
+            else if (State == GameTileState.Gameplay)
+            {
+                if (stateDurationSec >= GAMEPLAY_MAX_DURATION_SEC)
+                    SetState(GameTileState.ScoreScreen);
+            }
+            else if (State == GameTileState.ScoreScreen)
+            {
                 if (stateDurationSec >= SCORE_SCREEN_DURATION_SEC)
                     SetState(GameTileState.Finished);
             }
+
             PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), new WorldSimulationContext());
             SyncPhysicsToRuntimeObjs();
+            stateSteps++;
+
+            _outputBufferRef = null;
         }
 
         public void SetState(GameTileState state)
         {
-            OutputToServerEvents.Add(
+            _outputBufferRef?.Server.Add(
                 new OutputToServerEvent.StateUpdatedTo { State = state, WorldId = TileWorldId }
             );
             stateSteps = 0;
@@ -440,4 +468,3 @@ namespace GameCoreLib
         }
     }
 }
-

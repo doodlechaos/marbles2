@@ -204,20 +204,50 @@ public static partial class Module
             Log.Info($"Processing output event in server: {outputToServerEvent.GetType().Name}");
             if (outputToServerEvent is OutputToServerEvent.StateUpdatedTo stateUpdatedTo)
             {
-                if (stateUpdatedTo.State == GameTileState.Finished)
+                ProcessStateUpdate(ctx, stateUpdatedTo);
+            }
+        }
+    }
+
+    private static void ProcessStateUpdate(
+        ReducerContext ctx,
+        OutputToServerEvent.StateUpdatedTo stateUpdatedTo
+    )
+    {
+        byte worldId = stateUpdatedTo.WorldId;
+        GameTileState state = stateUpdatedTo.State;
+
+        if (state == GameTileState.Finished)
+        {
+            Log.Info($"Detected Tile {worldId} finished - spinning to a new level");
+            // Tile finished - spin to a new level
+            ctx.Db.InputCollector.Insert(
+                new InputCollector
                 {
-                    //Create input event to gamecore to load and spin the next tile
-                    ctx.Db.InputCollector.Insert(
-                        new InputCollector
-                        {
-                            delaySeqs = 0,
-                            inputEventData = new InputEvent.SpinToNewGameTile(
-                                GetRandomGameTile(ctx),
-                                stateUpdatedTo.WorldId
-                            ).ToBinary(),
-                        }
-                    );
+                    delaySeqs = 0,
+                    inputEventData = new InputEvent.SpinToNewGameTile(
+                        GetRandomGameTile(ctx),
+                        worldId
+                    ).ToBinary(),
                 }
+            );
+        }
+        else if (state == GameTileState.Bidding)
+        {
+            Log.Info($"Detected Tile {worldId} entered Bidding state");
+            // A tile just entered Bidding state.
+            // Signal that the OTHER tile (currently in bidding) can now start gameplay.
+            BiddingStateS biddingState = BiddingStateS.Inst(ctx);
+
+            // Only set the flag if this is the "other" tile (not the current bidding tile)
+            // This means: the tile that was in Gameplay/ScoreScreen/Spinning has now reached Bidding
+            if (worldId != biddingState.CurrBidWorldId)
+            {
+                biddingState.OtherTileReadyForBidding = true;
+                ctx.Db.BiddingStateS.Id.Update(biddingState);
+                Log.Info(
+                    $"Tile {worldId} entered Bidding - other tile ready flag set. Current bidding tile: {biddingState.CurrBidWorldId}"
+                );
             }
         }
     }

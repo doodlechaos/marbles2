@@ -20,7 +20,17 @@ namespace GameCoreLib
         public GameTileBase? GameTile2;
 
         [MemoryPackIgnore]
-        public readonly OutputEventBuffer OutputEvents = new();
+        public OutputEventBuffer OutputEvents = new();
+
+        /// <summary>
+        /// Called by MemoryPack after deserialization.
+        /// Ensures OutputEvents is initialized since it's not serialized.
+        /// </summary>
+        [MemoryPackOnDeserialized]
+        private void OnDeserialized()
+        {
+            OutputEvents ??= new OutputEventBuffer();
+        }
 
         public OutputEventBuffer Step(List<InputEvent> inputEvents)
         {

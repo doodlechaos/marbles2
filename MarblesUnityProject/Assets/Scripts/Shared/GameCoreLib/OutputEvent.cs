@@ -50,7 +50,6 @@ namespace GameCoreLib
         {
             public GameTileState State;
             public byte WorldId;
-
         }
     }
 }
