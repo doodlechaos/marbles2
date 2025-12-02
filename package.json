@@ -3,11 +3,18 @@
     "scripts":{
         "stdb:dev":"spacetime dev --server local --database marbles2 --project-path . --module-bindings-path MarblesUnityProject\\Assets\\ModuleBindings --client-lang csharp --module-project-path .\\spacetimedb -y",
         "stdb:gen":"spacetime generate --lang csharp --out-dir MarblesUnityProject\\Assets\\Scripts\\ModuleBindings --project-path spacetimedb -y && spacetime generate --lang typescript --out-dir apps\\web\\marbles-web-client\\src\\module_bindings --project-path spacetimedb -y",
+        
         "stdb:pub:dev":"spacetime publish --project-path ./spacetimedb marbles2 -y",
+        "stdb:pub:staging": "spacetime publish --project-path ./spacetimedb -s maincloud marbles2-staging -y",
+        "stdb:pub:main": "spacetime publish --project-path ./spacetimedb -s maincloud marbles2-main -y",
+
         "stdb:pubClear:dev":"spacetime publish --project-path ./spacetimedb marbles2 -c -y",
-        "stdb:pub:prod": "npm run stdb:gen && spacetime publish --project-path ./spacetimedb -s maincloud marbles2dev -y",
-        "stdb:pubClear:prod": "npm run stdb:gen && spacetime publish --project-path ./spacetimedb -s maincloud marbles2dev -c -y ",
-        "stdb:delete:prod": "spacetime delete --server maincloud marbles2dev",
+        "stdb:pubClear:staging": "spacetime publish --project-path ./spacetimedb -s maincloud marbles2-staging -c -y",
+        "stdb:pubClear:main": "spacetime publish --project-path ./spacetimedb -s maincloud marbles2-main -c -y ",
+
+        "stdb:delete:dev": "spacetime delete marbles2",
+        "stdb:delete:staging": "spacetime delete --server maincloud marbles2-staging",
+        "stdb:delete:main": "spacetime delete --server maincloud marbles2-main",
 
         "pushDevToStaging":"git push origin dev:staging",
         "pushStagingToProd":"git push origin staging:main"
