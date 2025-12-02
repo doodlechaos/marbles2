@@ -47,12 +47,11 @@ async function subscribeAndWait(connection: DbConnection, queries: string[]): Pr
     });
 }
 
-async function connectToSpacetimeDb(
-    env: App.Platform["env"]
-): Promise<{ connection: DbConnection; identity: Identity }> {
-    const host = env.SPACETIMEDB_HOST;
-    const moduleName = env.SPACETIMEDB_DB_NAME;
-    const token = env.SPACETIMEDB_ADMIN_TOKEN;
+async function connectToSpacetimeDb(): Promise<{ connection: DbConnection; identity: Identity }> {
+    // env: App.Platform["env"]
+    const host = import.meta.env.VITE_SPACETIMEDB_HOST;
+    const moduleName = import.meta.env.VITE_SPACETIMEDB_DB_NAME;
+    const token = import.meta.env.VITE_SPACETIMEDB_ADMIN_TOKEN;
 
     if (!host || !moduleName) {
         console.error("[Profile] SpacetimeDB connection is not configured:", host, moduleName);
@@ -130,9 +129,7 @@ async function resolveAccountData(
     console.log("Starting subscribe for account_customization with Query: ", query);
     await subscribeAndWait(connection, [query]);
     console.log("After subscribe and wait for account_customization");
-    const customization = connection.db.accountCustomization.accountId.find(accountId) as
-        | AccountCustomization
-        | undefined;
+    const customization = connection.db.accountCustomization.accountId.find(accountId);
 
     const currentVersion = customization ? Number(customization.pfpVersion) : 0;
     return { accountId, currentVersion };
@@ -384,7 +381,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
     try {
         console.log("[Profile] Attempting to connect to SpacetimeDB with admin token...");
-        const connectionResult = await connectToSpacetimeDb(env);
+        const connectionResult = await connectToSpacetimeDb();
         console.log(
             "[Profile] Connected to SpacetimeDB as admin, identity:",
             connectionResult.identity.toHexString()
@@ -428,7 +425,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         console.log("[Profile] Upload successful");
 
         console.log("[Profile] Calling IncrementPfpVersion reducer");
-        await activeConnection.reducers.incrementPfpVersion();
+        await activeConnection.reducers.incrementPfpVersion({});
         console.log("[Profile] Reducer called successfully");
     } catch (err) {
         console.error("[Profile] Failed to upload profile picture:", err);
@@ -438,7 +435,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
     }
 
     // Build the profile picture URL
-    const url = buildProfilePictureUrl(env.VITE_PFP_CDN_BASE_URL, accountId, nextVersion, "png");
+    const url = buildProfilePictureUrl(
+        import.meta.env.VITE_PFP_CDN_BASE_URL,
+        accountId,
+        nextVersion,
+        "png"
+    );
 
     console.log("[Profile] Returning profile picture URL:", url);
 

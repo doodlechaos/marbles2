@@ -26,11 +26,10 @@
  * ```
  */
 declare module '$env/static/private' {
-	export const VITE_PFP_CDN_BASE_URL: string;
+	export const VITE_ENV_NAME: string;
 	export const VITE_SPACETIMEDB_HOST: string;
-	export const BACKUP: string;
 	export const VITE_SPACETIMEDB_DB_NAME: string;
-	export const BACKUP2: string;
+	export const VITE_PFP_CDN_BASE_URL: string;
 	export const VITE_R2_BUCKET: string;
 	export const VITE_S3_ACCESS_KEY: string;
 	export const VITE_S3_SECRET_ACCESS_KEY: string;
@@ -154,11 +153,10 @@ declare module '$env/static/public' {
  */
 declare module '$env/dynamic/private' {
 	export const env: {
-		VITE_PFP_CDN_BASE_URL: string;
+		VITE_ENV_NAME: string;
 		VITE_SPACETIMEDB_HOST: string;
-		BACKUP: string;
 		VITE_SPACETIMEDB_DB_NAME: string;
-		BACKUP2: string;
+		VITE_PFP_CDN_BASE_URL: string;
 		VITE_R2_BUCKET: string;
 		VITE_S3_ACCESS_KEY: string;
 		VITE_S3_SECRET_ACCESS_KEY: string;
