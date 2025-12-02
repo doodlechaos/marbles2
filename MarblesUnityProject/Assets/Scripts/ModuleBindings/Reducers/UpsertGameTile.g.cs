@@ -12,10 +12,10 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void UpsertGameTileHandler(ReducerEventContext ctx, GameTile gameTileData);
+        public delegate void UpsertGameTileHandler(ReducerEventContext ctx, SpacetimeDB.Types.GameTile gameTileData);
         public event UpsertGameTileHandler? OnUpsertGameTile;
 
-        public void UpsertGameTile(GameTile gameTileData)
+        public void UpsertGameTile(SpacetimeDB.Types.GameTile gameTileData)
         {
             conn.InternalCallReducer(new Reducer.UpsertGameTile(gameTileData), this.SetCallReducerFlags.UpsertGameTileFlags);
         }
@@ -28,12 +28,8 @@ namespace SpacetimeDB.Types
                 {
                     switch (ctx.Event.Status)
                     {
-                        case Status.Failed(var reason):
-                            InternalOnUnhandledReducerError(ctx, new Exception(reason));
-                            break;
-                        case Status.OutOfEnergy(var _):
-                            InternalOnUnhandledReducerError(ctx, new Exception("out of energy"));
-                            break;
+                        case Status.Failed(var reason): InternalOnUnhandledReducerError(ctx, new Exception(reason)); break;
+                        case Status.OutOfEnergy(var _): InternalOnUnhandledReducerError(ctx, new Exception("out of energy")); break;
                     }
                 }
                 return false;

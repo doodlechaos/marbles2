@@ -4,78 +4,22 @@
 /* eslint-disable */
 /* tslint:disable */
 import {
-  AlgebraicType as __AlgebraicTypeValue,
-  BinaryReader as __BinaryReader,
-  BinaryWriter as __BinaryWriter,
-  ClientCache as __ClientCache,
-  ConnectionId as __ConnectionId,
-  DbConnectionBuilder as __DbConnectionBuilder,
-  DbConnectionImpl as __DbConnectionImpl,
-  Identity as __Identity,
-  SubscriptionBuilderImpl as __SubscriptionBuilderImpl,
-  TableCache as __TableCache,
-  TimeDuration as __TimeDuration,
-  Timestamp as __Timestamp,
-  deepEqual as __deepEqual,
-  type AlgebraicType as __AlgebraicTypeType,
-  type AlgebraicTypeVariants as __AlgebraicTypeVariants,
-  type CallReducerFlags as __CallReducerFlags,
-  type ErrorContextInterface as __ErrorContextInterface,
-  type Event as __Event,
-  type EventContextInterface as __EventContextInterface,
-  type ReducerEventContextInterface as __ReducerEventContextInterface,
-  type SubscriptionEventContextInterface as __SubscriptionEventContextInterface,
-  type TableHandle as __TableHandle,
+  TypeBuilder as __TypeBuilder,
+  t as __t,
+  type AlgebraicTypeType as __AlgebraicTypeType,
+  type Infer as __Infer,
 } from "spacetimedb";
 
-export type BaseCfg = {
-  id: number,
-  clockIntervalSec: number,
-  targetStepsPerSecond: number,
-  physicsStepsPerBatch: number,
-  stepsPerAuthFrame: number,
-  authFrameTimeErrorThresholdSec: number,
-  logInputFrameTimes: boolean,
-  logAuthFrameTimeDiffs: boolean,
-  gcCacheAccountTimeoutMinutes: number,
-};
-let _cached_BaseCfg_type_value: __AlgebraicTypeType | null = null;
-
-/**
- * An object for generated helper functions.
- */
-export const BaseCfg = {
-  /**
-  * A function which returns this type represented as an AlgebraicType.
-  * This function is derived from the AlgebraicType used to generate this type.
-  */
-  getTypeScriptAlgebraicType(): __AlgebraicTypeType {
-    if (_cached_BaseCfg_type_value) return _cached_BaseCfg_type_value;
-    _cached_BaseCfg_type_value = __AlgebraicTypeValue.Product({ elements: [] });
-    _cached_BaseCfg_type_value.value.elements.push(
-      { name: "id", algebraicType: __AlgebraicTypeValue.U8 },
-      { name: "clockIntervalSec", algebraicType: __AlgebraicTypeValue.F64 },
-      { name: "targetStepsPerSecond", algebraicType: __AlgebraicTypeValue.U16 },
-      { name: "physicsStepsPerBatch", algebraicType: __AlgebraicTypeValue.U16 },
-      { name: "stepsPerAuthFrame", algebraicType: __AlgebraicTypeValue.U16 },
-      { name: "authFrameTimeErrorThresholdSec", algebraicType: __AlgebraicTypeValue.F64 },
-      { name: "logInputFrameTimes", algebraicType: __AlgebraicTypeValue.Bool },
-      { name: "logAuthFrameTimeDiffs", algebraicType: __AlgebraicTypeValue.Bool },
-      { name: "gcCacheAccountTimeoutMinutes", algebraicType: __AlgebraicTypeValue.F64 },
-    );
-    return _cached_BaseCfg_type_value;
-  },
-
-  serialize(writer: __BinaryWriter, value: BaseCfg): void {
-    __AlgebraicTypeValue.serializeValue(writer, BaseCfg.getTypeScriptAlgebraicType(), value);
-  },
-
-  deserialize(reader: __BinaryReader): BaseCfg {
-    return __AlgebraicTypeValue.deserializeValue(reader, BaseCfg.getTypeScriptAlgebraicType());
-  },
-
-}
-
-export default BaseCfg;
+export default __t.object("BaseCfg", {
+  id: __t.u8(),
+  clockIntervalSec: __t.f64(),
+  targetStepsPerSecond: __t.u16(),
+  physicsStepsPerBatch: __t.u16(),
+  stepsPerAuthFrame: __t.u16(),
+  authFrameTimeErrorThresholdSec: __t.f64(),
+  logInputFrameTimes: __t.bool(),
+  logAuthFrameTimeDiffs: __t.bool(),
+  gcCacheAccountTimeoutMinutes: __t.f64(),
+});
 
 

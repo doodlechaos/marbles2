@@ -2,7 +2,7 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-    [Table(Public = true)]
+    [Table(Public = false)]
     public partial struct Account
     {
         [PrimaryKey]
@@ -63,6 +63,9 @@ public static partial class Module
             return insertedAccount;
         }
     }
+
+    [View(Name = "MyAccount", Public = true)]
+    public static Account? MyAccount(ViewContext ctx) => ctx.Db.Account.Identity.Find(ctx.Sender);
 
     [Reducer]
     public static void UpsertAccount(ReducerContext ctx, Account row)

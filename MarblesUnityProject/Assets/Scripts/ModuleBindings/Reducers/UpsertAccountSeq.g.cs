@@ -12,10 +12,10 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void UpsertAccountSeqHandler(ReducerEventContext ctx, AccountSeq row);
+        public delegate void UpsertAccountSeqHandler(ReducerEventContext ctx, SpacetimeDB.Types.AccountSeq row);
         public event UpsertAccountSeqHandler? OnUpsertAccountSeq;
 
-        public void UpsertAccountSeq(AccountSeq row)
+        public void UpsertAccountSeq(SpacetimeDB.Types.AccountSeq row)
         {
             conn.InternalCallReducer(new Reducer.UpsertAccountSeq(row), this.SetCallReducerFlags.UpsertAccountSeqFlags);
         }
@@ -28,12 +28,8 @@ namespace SpacetimeDB.Types
                 {
                     switch (ctx.Event.Status)
                     {
-                        case Status.Failed(var reason):
-                            InternalOnUnhandledReducerError(ctx, new Exception(reason));
-                            break;
-                        case Status.OutOfEnergy(var _):
-                            InternalOnUnhandledReducerError(ctx, new Exception("out of energy"));
-                            break;
+                        case Status.Failed(var reason): InternalOnUnhandledReducerError(ctx, new Exception(reason)); break;
+                        case Status.OutOfEnergy(var _): InternalOnUnhandledReducerError(ctx, new Exception("out of energy")); break;
                     }
                 }
                 return false;

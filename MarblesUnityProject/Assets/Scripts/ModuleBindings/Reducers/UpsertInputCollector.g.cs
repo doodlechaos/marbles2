@@ -12,10 +12,10 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void UpsertInputCollectorHandler(ReducerEventContext ctx, InputCollector row);
+        public delegate void UpsertInputCollectorHandler(ReducerEventContext ctx, SpacetimeDB.Types.InputCollector row);
         public event UpsertInputCollectorHandler? OnUpsertInputCollector;
 
-        public void UpsertInputCollector(InputCollector row)
+        public void UpsertInputCollector(SpacetimeDB.Types.InputCollector row)
         {
             conn.InternalCallReducer(new Reducer.UpsertInputCollector(row), this.SetCallReducerFlags.UpsertInputCollectorFlags);
         }
@@ -28,12 +28,8 @@ namespace SpacetimeDB.Types
                 {
                     switch (ctx.Event.Status)
                     {
-                        case Status.Failed(var reason):
-                            InternalOnUnhandledReducerError(ctx, new Exception(reason));
-                            break;
-                        case Status.OutOfEnergy(var _):
-                            InternalOnUnhandledReducerError(ctx, new Exception("out of energy"));
-                            break;
+                        case Status.Failed(var reason): InternalOnUnhandledReducerError(ctx, new Exception(reason)); break;
+                        case Status.OutOfEnergy(var _): InternalOnUnhandledReducerError(ctx, new Exception("out of energy")); break;
                     }
                 }
                 return false;

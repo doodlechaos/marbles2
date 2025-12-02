@@ -12,10 +12,10 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void UpsertAuthFrameHandler(ReducerEventContext ctx, AuthFrame row);
+        public delegate void UpsertAuthFrameHandler(ReducerEventContext ctx, SpacetimeDB.Types.AuthFrame row);
         public event UpsertAuthFrameHandler? OnUpsertAuthFrame;
 
-        public void UpsertAuthFrame(AuthFrame row)
+        public void UpsertAuthFrame(SpacetimeDB.Types.AuthFrame row)
         {
             conn.InternalCallReducer(new Reducer.UpsertAuthFrame(row), this.SetCallReducerFlags.UpsertAuthFrameFlags);
         }
@@ -28,12 +28,8 @@ namespace SpacetimeDB.Types
                 {
                     switch (ctx.Event.Status)
                     {
-                        case Status.Failed(var reason):
-                            InternalOnUnhandledReducerError(ctx, new Exception(reason));
-                            break;
-                        case Status.OutOfEnergy(var _):
-                            InternalOnUnhandledReducerError(ctx, new Exception("out of energy"));
-                            break;
+                        case Status.Failed(var reason): InternalOnUnhandledReducerError(ctx, new Exception(reason)); break;
+                        case Status.OutOfEnergy(var _): InternalOnUnhandledReducerError(ctx, new Exception("out of energy")); break;
                     }
                 }
                 return false;

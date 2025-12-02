@@ -12,10 +12,10 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void ClockUpdateHandler(ReducerEventContext ctx, ClockSchedule schedule);
+        public delegate void ClockUpdateHandler(ReducerEventContext ctx, SpacetimeDB.Types.ClockSchedule schedule);
         public event ClockUpdateHandler? OnClockUpdate;
 
-        public void ClockUpdate(ClockSchedule schedule)
+        public void ClockUpdate(SpacetimeDB.Types.ClockSchedule schedule)
         {
             conn.InternalCallReducer(new Reducer.ClockUpdate(schedule), this.SetCallReducerFlags.ClockUpdateFlags);
         }
@@ -28,12 +28,8 @@ namespace SpacetimeDB.Types
                 {
                     switch (ctx.Event.Status)
                     {
-                        case Status.Failed(var reason):
-                            InternalOnUnhandledReducerError(ctx, new Exception(reason));
-                            break;
-                        case Status.OutOfEnergy(var _):
-                            InternalOnUnhandledReducerError(ctx, new Exception("out of energy"));
-                            break;
+                        case Status.Failed(var reason): InternalOnUnhandledReducerError(ctx, new Exception(reason)); break;
+                        case Status.OutOfEnergy(var _): InternalOnUnhandledReducerError(ctx, new Exception("out of energy")); break;
                     }
                 }
                 return false;

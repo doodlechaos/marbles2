@@ -4,66 +4,16 @@
 /* eslint-disable */
 /* tslint:disable */
 import {
-  AlgebraicType as __AlgebraicTypeValue,
-  BinaryReader as __BinaryReader,
-  BinaryWriter as __BinaryWriter,
-  ClientCache as __ClientCache,
-  ConnectionId as __ConnectionId,
-  DbConnectionBuilder as __DbConnectionBuilder,
-  DbConnectionImpl as __DbConnectionImpl,
-  Identity as __Identity,
-  SubscriptionBuilderImpl as __SubscriptionBuilderImpl,
-  TableCache as __TableCache,
-  TimeDuration as __TimeDuration,
-  Timestamp as __Timestamp,
-  deepEqual as __deepEqual,
-  type AlgebraicType as __AlgebraicTypeType,
-  type AlgebraicTypeVariants as __AlgebraicTypeVariants,
-  type CallReducerFlags as __CallReducerFlags,
-  type ErrorContextInterface as __ErrorContextInterface,
-  type Event as __Event,
-  type EventContextInterface as __EventContextInterface,
-  type ReducerEventContextInterface as __ReducerEventContextInterface,
-  type SubscriptionEventContextInterface as __SubscriptionEventContextInterface,
-  type TableHandle as __TableHandle,
+  TypeBuilder as __TypeBuilder,
+  t as __t,
+  type AlgebraicTypeType as __AlgebraicTypeType,
+  type Infer as __Infer,
 } from "spacetimedb";
 
-export type AccountCustomization = {
-  accountId: bigint,
-  username: string,
-  pfpVersion: number,
-};
-let _cached_AccountCustomization_type_value: __AlgebraicTypeType | null = null;
-
-/**
- * An object for generated helper functions.
- */
-export const AccountCustomization = {
-  /**
-  * A function which returns this type represented as an AlgebraicType.
-  * This function is derived from the AlgebraicType used to generate this type.
-  */
-  getTypeScriptAlgebraicType(): __AlgebraicTypeType {
-    if (_cached_AccountCustomization_type_value) return _cached_AccountCustomization_type_value;
-    _cached_AccountCustomization_type_value = __AlgebraicTypeValue.Product({ elements: [] });
-    _cached_AccountCustomization_type_value.value.elements.push(
-      { name: "accountId", algebraicType: __AlgebraicTypeValue.U64 },
-      { name: "username", algebraicType: __AlgebraicTypeValue.String },
-      { name: "pfpVersion", algebraicType: __AlgebraicTypeValue.U8 },
-    );
-    return _cached_AccountCustomization_type_value;
-  },
-
-  serialize(writer: __BinaryWriter, value: AccountCustomization): void {
-    __AlgebraicTypeValue.serializeValue(writer, AccountCustomization.getTypeScriptAlgebraicType(), value);
-  },
-
-  deserialize(reader: __BinaryReader): AccountCustomization {
-    return __AlgebraicTypeValue.deserializeValue(reader, AccountCustomization.getTypeScriptAlgebraicType());
-  },
-
-}
-
-export default AccountCustomization;
+export default __t.object("AccountCustomization", {
+  accountId: __t.u64(),
+  username: __t.string(),
+  pfpVersion: __t.u8(),
+});
 
 

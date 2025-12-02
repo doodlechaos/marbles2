@@ -4,65 +4,16 @@
 /* eslint-disable */
 /* tslint:disable */
 import {
-  AlgebraicType as __AlgebraicTypeValue,
-  BinaryReader as __BinaryReader,
-  BinaryWriter as __BinaryWriter,
-  ClientCache as __ClientCache,
-  ConnectionId as __ConnectionId,
-  DbConnectionBuilder as __DbConnectionBuilder,
-  DbConnectionImpl as __DbConnectionImpl,
-  Identity as __Identity,
-  SubscriptionBuilderImpl as __SubscriptionBuilderImpl,
-  TableCache as __TableCache,
-  TimeDuration as __TimeDuration,
-  Timestamp as __Timestamp,
-  deepEqual as __deepEqual,
-  type AlgebraicType as __AlgebraicTypeType,
-  type AlgebraicTypeVariants as __AlgebraicTypeVariants,
-  type CallReducerFlags as __CallReducerFlags,
-  type ErrorContextInterface as __ErrorContextInterface,
-  type Event as __Event,
-  type EventContextInterface as __EventContextInterface,
-  type ReducerEventContextInterface as __ReducerEventContextInterface,
-  type SubscriptionEventContextInterface as __SubscriptionEventContextInterface,
-  type TableHandle as __TableHandle,
+  TypeBuilder as __TypeBuilder,
+  t as __t,
+  type AlgebraicTypeType as __AlgebraicTypeType,
+  type Infer as __Infer,
 } from "spacetimedb";
 
-import { AccountSeq } from "./account_seq_type";
-// Mark import as potentially unused
-declare type __keep_AccountSeq = AccountSeq;
+import AccountSeq from "./account_seq_type";
 
-export type UpsertAccountSeq = {
-  row: AccountSeq,
+export default {
+  get row() {
+    return AccountSeq;
+  },
 };
-let _cached_UpsertAccountSeq_type_value: __AlgebraicTypeType | null = null;
-
-/**
- * An object for generated helper functions.
- */
-export const UpsertAccountSeq = {
-  /**
-  * A function which returns this type represented as an AlgebraicType.
-  * This function is derived from the AlgebraicType used to generate this type.
-  */
-  getTypeScriptAlgebraicType(): __AlgebraicTypeType {
-    if (_cached_UpsertAccountSeq_type_value) return _cached_UpsertAccountSeq_type_value;
-    _cached_UpsertAccountSeq_type_value = __AlgebraicTypeValue.Product({ elements: [] });
-    _cached_UpsertAccountSeq_type_value.value.elements.push(
-      { name: "row", algebraicType: AccountSeq.getTypeScriptAlgebraicType() },
-    );
-    return _cached_UpsertAccountSeq_type_value;
-  },
-
-  serialize(writer: __BinaryWriter, value: UpsertAccountSeq): void {
-    __AlgebraicTypeValue.serializeValue(writer, UpsertAccountSeq.getTypeScriptAlgebraicType(), value);
-  },
-
-  deserialize(reader: __BinaryReader): UpsertAccountSeq {
-    return __AlgebraicTypeValue.deserializeValue(reader, UpsertAccountSeq.getTypeScriptAlgebraicType());
-  },
-
-}
-
-export default UpsertAccountSeq;
-

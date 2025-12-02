@@ -28,7 +28,9 @@
 declare module '$env/static/private' {
 	export const VITE_PFP_CDN_BASE_URL: string;
 	export const VITE_SPACETIMEDB_HOST: string;
+	export const BACKUP: string;
 	export const VITE_SPACETIMEDB_DB_NAME: string;
+	export const BACKUP2: string;
 	export const VITE_R2_BUCKET: string;
 	export const VITE_S3_ACCESS_KEY: string;
 	export const VITE_S3_SECRET_ACCESS_KEY: string;
@@ -47,7 +49,7 @@ declare module '$env/static/private' {
 	export const CURSOR_TRACE_ID: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_8800: string;
+	export const EFC_8852: string;
 	export const FPS_BROWSER_APP_PROFILE_STRING: string;
 	export const FPS_BROWSER_USER_PROFILE_STRING: string;
 	export const GIT_ASKPASS: string;
@@ -66,8 +68,6 @@ declare module '$env/static/private' {
 	export const MIC_LD_LIBRARY_PATH: string;
 	export const NODE: string;
 	export const NODE_ENV: string;
-	export const NODE_EXE: string;
-	export const NPM_CLI_JS: string;
 	export const npm_command: string;
 	export const npm_config_cache: string;
 	export const npm_config_globalconfig: string;
@@ -87,10 +87,6 @@ declare module '$env/static/private' {
 	export const npm_package_json: string;
 	export const npm_package_name: string;
 	export const npm_package_version: string;
-	export const NPM_PREFIX_JS: string;
-	export const NPM_PREFIX_NPM_CLI_JS: string;
-	export const NPM_PREFIX_NPX_CLI_JS: string;
-	export const NPX_CLI_JS: string;
 	export const NUMBER_OF_PROCESSORS: string;
 	export const NVM_HOME: string;
 	export const NVM_SYMLINK: string;
@@ -160,7 +156,9 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		VITE_PFP_CDN_BASE_URL: string;
 		VITE_SPACETIMEDB_HOST: string;
+		BACKUP: string;
 		VITE_SPACETIMEDB_DB_NAME: string;
+		BACKUP2: string;
 		VITE_R2_BUCKET: string;
 		VITE_S3_ACCESS_KEY: string;
 		VITE_S3_SECRET_ACCESS_KEY: string;
@@ -179,7 +177,7 @@ declare module '$env/dynamic/private' {
 		CURSOR_TRACE_ID: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_8800: string;
+		EFC_8852: string;
 		FPS_BROWSER_APP_PROFILE_STRING: string;
 		FPS_BROWSER_USER_PROFILE_STRING: string;
 		GIT_ASKPASS: string;
@@ -198,8 +196,6 @@ declare module '$env/dynamic/private' {
 		MIC_LD_LIBRARY_PATH: string;
 		NODE: string;
 		NODE_ENV: string;
-		NODE_EXE: string;
-		NPM_CLI_JS: string;
 		npm_command: string;
 		npm_config_cache: string;
 		npm_config_globalconfig: string;
@@ -219,10 +215,6 @@ declare module '$env/dynamic/private' {
 		npm_package_json: string;
 		npm_package_name: string;
 		npm_package_version: string;
-		NPM_PREFIX_JS: string;
-		NPM_PREFIX_NPM_CLI_JS: string;
-		NPM_PREFIX_NPX_CLI_JS: string;
-		NPX_CLI_JS: string;
 		NUMBER_OF_PROCESSORS: string;
 		NVM_HOME: string;
 		NVM_SYMLINK: string;

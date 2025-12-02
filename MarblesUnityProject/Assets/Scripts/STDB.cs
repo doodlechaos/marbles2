@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpacetimeDB;
 using SpacetimeDB.Types;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -48,6 +49,14 @@ public class STDB : MonoBehaviour
 
     [SerializeField]
     private BidDisplayPanel _bidDisplayPanel;
+
+    [SerializeField]
+    public TextMeshProUGUI _marbleCountText;
+
+    [SerializeField]
+    public TextMeshProUGUI _pointsText;
+
+    public string ConnectedIdentity = "";
 
     public void InitStdbConnection()
     {
@@ -103,11 +112,29 @@ public class STDB : MonoBehaviour
     {
         Debug.Log("Initialized table callbacks.");
         _bidDisplayPanel.SetCallbacks(conn);
+
+        conn.Db.MyAccount.OnInsert += (EventContext ctx, Account account) =>
+        {
+            UpdateAccountStats(account);
+        };
+        conn.Db.MyAccount.OnUpdate += (EventContext ctx, Account oldAccount, Account newAccount) =>
+        {
+            UpdateAccountStats(newAccount);
+        };
+    }
+
+    private void UpdateAccountStats(Account account)
+    {
+        Debug.Log(
+            $"[STDB] Updating account stats: {account.Marbles} marbles, {account.Points} points"
+        );
+        _marbleCountText.SetText($"Marbles: {account.Marbles.ToString()}");
+        _pointsText.SetText($"Points: {account.Points.ToString()}");
     }
 
     void CheckIfNeedsToUploadProfilePicture(SubscriptionEventContext ctx)
     {
-        Account localAccount = ctx.Db.Account.Iter().FirstOrDefault();
+        Account localAccount = ctx.Db.MyAccount.Iter().FirstOrDefault();
 
         // Only process profile picture upload for the LOCAL identity's account
         if (localAccount == null)
@@ -153,6 +180,7 @@ public class STDB : MonoBehaviour
     // Called when we connect to SpacetimeDB and receive our client identity
     void HandleConnect(DbConnection _conn, Identity identity, string token)
     {
+        ConnectedIdentity = identity.ToString();
         Debug.Log($"[STDB] HandleConnect called!");
         Debug.Log($"[STDB] Received identity: {identity}");
         Debug.Log(
@@ -185,7 +213,7 @@ public class STDB : MonoBehaviour
                 new string[]
                 {
                     "SELECT * FROM AuthFrame",
-                    "SELECT * FROM Account",
+                    "SELECT * FROM MyAccount",
                     "SELECT * FROM AccountCustomization",
                     "SELECT * FROM BaseCfg",
                     "SELECT * FROM AccountBid",

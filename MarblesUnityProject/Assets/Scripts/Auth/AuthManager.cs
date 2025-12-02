@@ -6,6 +6,10 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using System.Net;
+using System.Threading;
+#endif
 
 public class AuthManager : MonoBehaviour
 {
@@ -39,6 +43,15 @@ public class AuthManager : MonoBehaviour
     private const string STORAGE_KEY_ID_TOKEN = "spacetimeauth_id_token";
     private const string STORAGE_KEY_USER_PROFILE = "spacetimeauth_user_profile";
 
+#if UNITY_EDITOR
+    // Editor-only: Loopback server for OAuth callback
+    private HttpListener httpListener;
+    private Thread listenerThread;
+    private const int LOOPBACK_PORT = 8400;
+    private const string LOOPBACK_CALLBACK_PATH = "/editor-callback";
+    private volatile bool isListening = false;
+#endif
+
     [Serializable]
     public class UserProfile
     {
@@ -68,10 +81,17 @@ public class AuthManager : MonoBehaviour
 
     public void InitAndTryRestoreSession()
     {
+#if UNITY_EDITOR
+        // Ensure main thread dispatcher exists for Editor OAuth callback
+        UnityMainThreadDispatcher.EnsureExists();
+#endif
+
         // Set redirect URI based on current page (without query parameters)
+        // For WebGL: this will be the actual page URL
+        // For Editor: this will be overridden in StartEditorLogin()
         redirectUri = GetCurrentPageUrlWithoutQuery();
 
-        Debug.Log("redirectUri: " + redirectUri);
+        Debug.Log($"[AuthManager] Initial redirect URI: {redirectUri}");
 
         // Try to restore previous session
         RestoreSession();
@@ -79,11 +99,30 @@ public class AuthManager : MonoBehaviour
 
     void Update()
     {
-        isAuthenticatedVisualToggle.isOn = isAuthenticated;
+        if (isAuthenticatedVisualToggle != null)
+        {
+            isAuthenticatedVisualToggle.isOn = isAuthenticated;
+        }
+    }
+
+    void OnDestroy()
+    {
+#if UNITY_EDITOR
+        StopLoopbackListener();
+#endif
+    }
+
+    void OnApplicationQuit()
+    {
+#if UNITY_EDITOR
+        StopLoopbackListener();
+#endif
     }
 
     /// <summary>
-    /// Start the interactive login flow by redirecting to SpacetimeAuth
+    /// Start the interactive login flow.
+    /// In Editor: Opens system browser and uses loopback server for callback.
+    /// In WebGL: Redirects entire page to auth provider.
     /// </summary>
     public void StartLogin()
     {
@@ -94,27 +133,11 @@ public class AuthManager : MonoBehaviour
             return;
         }
 
-        Debug.Log("[AuthManager] Starting interactive login...");
-
-        // Generate PKCE challenge
-        codeVerifier = GenerateCodeVerifier();
-        string codeChallenge = GenerateCodeChallenge(codeVerifier);
-
-        // Generate state for CSRF protection
-        state = GenerateRandomString(32);
-
-        // Store PKCE and state in session storage for when we return
-        PlayerPrefs.SetString("pkce_verifier", codeVerifier);
-        PlayerPrefs.SetString("oauth_state", state);
-        PlayerPrefs.Save();
-
-        // Build authorization URL
-        string authUrl = BuildAuthorizationUrl(codeChallenge, state);
-
-        Debug.Log($"[AuthManager] Redirecting to: {authUrl}");
-
-        // Redirect to authorization endpoint
-        RedirectToUrl(authUrl);
+#if UNITY_EDITOR
+        StartEditorLogin();
+#else
+        StartWebGLLogin();
+#endif
     }
 
     /// <summary>
@@ -138,11 +161,13 @@ public class AuthManager : MonoBehaviour
 
         OnLogout?.Invoke();
 
-        // Perform local logout by refreshing the page (clears any in-memory state)
-        // SpacetimeAuth doesn't support a server-side logout endpoint,
-        // so we just clear local session and refresh
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // In WebGL, refresh the page to clear any in-memory state
         string currentPage = GetCurrentPageUrlWithoutQuery();
         RedirectToUrl(currentPage);
+#else
+        Debug.Log("[AuthManager] Logout complete (Editor/Standalone mode - no page refresh)");
+#endif
     }
 
     /// <summary>
@@ -161,11 +186,15 @@ public class AuthManager : MonoBehaviour
         return isAuthenticated && !string.IsNullOrEmpty(idToken);
     }
 
+    /// <summary>
+    /// Check for OAuth callback in URL (WebGL only - called on page load)
+    /// </summary>
     public void CheckForOAuthCallback()
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
         string currentUrl = GetCurrentPageUrl();
 
-        Debug.Log("currentUrl: " + currentUrl);
+        Debug.Log($"[AuthManager] Checking URL for OAuth callback: {currentUrl}");
 
         // Check if URL contains OAuth callback parameters
         if (currentUrl.Contains("?code=") || currentUrl.Contains("&code="))
@@ -173,6 +202,11 @@ public class AuthManager : MonoBehaviour
             Debug.Log("[AuthManager] Detected OAuth callback, processing...");
             ProcessOAuthCallback(currentUrl);
         }
+#else
+        Debug.Log(
+            "[AuthManager] CheckForOAuthCallback called - skipping in Editor (using loopback server)"
+        );
+#endif
     }
 
     public void ClearPlayerPrefs()
@@ -182,7 +216,257 @@ public class AuthManager : MonoBehaviour
         Debug.Log("[AuthManager] PlayerPrefs cleared");
     }
 
-    #region Private Methods
+    #region WebGL OAuth Flow
+
+    /// <summary>
+    /// WebGL login: Redirects the browser page to auth provider
+    /// </summary>
+    private void StartWebGLLogin()
+    {
+        Debug.Log("[AuthManager] Starting WebGL login (page redirect)...");
+
+        // Generate PKCE challenge
+        codeVerifier = GenerateCodeVerifier();
+        string codeChallenge = GenerateCodeChallenge(codeVerifier);
+
+        // Generate state for CSRF protection
+        state = GenerateRandomString(32);
+
+        // Store PKCE and state - these persist across page reload via IndexedDB (WebGL) or registry (Editor)
+        PlayerPrefs.SetString("pkce_verifier", codeVerifier);
+        PlayerPrefs.SetString("oauth_state", state);
+        PlayerPrefs.Save();
+
+        // Redirect URI is the current page (set in InitAndTryRestoreSession)
+        Debug.Log($"[AuthManager] Using redirect URI: {redirectUri}");
+
+        // Build authorization URL
+        string authUrl = BuildAuthorizationUrl(codeChallenge, state);
+
+        Debug.Log($"[AuthManager] Redirecting to: {authUrl}");
+
+        // Redirect entire page to authorization endpoint
+        // Unity will be completely unloaded and reloaded after auth!
+        RedirectToUrl(authUrl);
+    }
+
+    #endregion
+
+    #region Editor OAuth Flow (Loopback Server)
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// Editor login: Opens system browser and starts local HTTP server for callback
+    /// </summary>
+    private void StartEditorLogin()
+    {
+        Debug.Log("[AuthManager] Starting Editor login (loopback server)...");
+
+        // Stop any existing listener
+        StopLoopbackListener();
+
+        // Set redirect URI to loopback with fixed port
+        redirectUri = $"http://127.0.0.1:{LOOPBACK_PORT}{LOOPBACK_CALLBACK_PATH}";
+        Debug.Log($"[AuthManager] Using loopback redirect URI: {redirectUri}");
+
+        // Generate PKCE challenge
+        codeVerifier = GenerateCodeVerifier();
+        string codeChallenge = GenerateCodeChallenge(codeVerifier);
+
+        // Generate state for CSRF protection
+        state = GenerateRandomString(32);
+
+        // Start loopback listener before opening browser
+        if (!StartLoopbackListener())
+        {
+            Debug.LogError("[AuthManager] Failed to start loopback listener");
+            OnAuthenticationError?.Invoke(
+                $"Failed to start OAuth callback server on port {LOOPBACK_PORT}. Is another instance running?"
+            );
+            return;
+        }
+
+        // Build and open auth URL in system browser
+        string authUrl = BuildAuthorizationUrl(codeChallenge, state);
+        Debug.Log($"[AuthManager] Opening browser for auth: {authUrl}");
+        Application.OpenURL(authUrl);
+    }
+
+    private bool StartLoopbackListener()
+    {
+        try
+        {
+            httpListener = new HttpListener();
+            // Listen on the specific port and path
+            httpListener.Prefixes.Add($"http://127.0.0.1:{LOOPBACK_PORT}{LOOPBACK_CALLBACK_PATH}/");
+            httpListener.Start();
+            isListening = true;
+
+            listenerThread = new Thread(LoopbackListenerThread)
+            {
+                IsBackground = true,
+                Name = "OAuth Loopback Listener",
+            };
+            listenerThread.Start();
+
+            Debug.Log(
+                $"[AuthManager] Loopback listener started at http://127.0.0.1:{LOOPBACK_PORT}{LOOPBACK_CALLBACK_PATH}"
+            );
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[AuthManager] Failed to start loopback listener: {ex.Message}");
+            return false;
+        }
+    }
+
+    private void StopLoopbackListener()
+    {
+        isListening = false;
+
+        if (httpListener != null)
+        {
+            try
+            {
+                httpListener.Stop();
+                httpListener.Close();
+            }
+            catch { }
+            httpListener = null;
+        }
+
+        if (listenerThread != null && listenerThread.IsAlive)
+        {
+            try
+            {
+                listenerThread.Join(1000); // Wait up to 1 second
+                if (listenerThread.IsAlive)
+                {
+                    listenerThread.Abort();
+                }
+            }
+            catch { }
+            listenerThread = null;
+        }
+    }
+
+    private void LoopbackListenerThread()
+    {
+        try
+        {
+            while (isListening && httpListener != null && httpListener.IsListening)
+            {
+                HttpListenerContext context;
+                try
+                {
+                    // This blocks until a request comes in or the listener is stopped
+                    context = httpListener.GetContext();
+                }
+                catch (HttpListenerException)
+                {
+                    // Listener was stopped
+                    break;
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+
+                var request = context.Request;
+                var response = context.Response;
+
+                Debug.Log($"[AuthManager] Received callback: {request.Url}");
+
+                // Send a nice response to the browser
+                string responseHtml =
+                    @"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authentication Complete</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+        .checkmark {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        h1 { margin: 0 0 16px 0; font-weight: 600; }
+        p { margin: 0; opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='checkmark'>✓</div>
+        <h1>Authentication Complete</h1>
+        <p>You can close this window and return to Unity.</p>
+    </div>
+</body>
+</html>";
+
+                byte[] buffer = Encoding.UTF8.GetBytes(responseHtml);
+                response.ContentType = "text/html; charset=utf-8";
+                response.ContentLength64 = buffer.Length;
+                response.OutputStream.Write(buffer, 0, buffer.Length);
+                response.Close();
+
+                // Extract the callback URL and dispatch to main thread
+                string callbackUrl = request.Url.ToString();
+
+                // Dispatch processing to Unity's main thread
+                UnityMainThreadDispatcher.Instance.Enqueue(() =>
+                {
+                    ProcessEditorOAuthCallback(callbackUrl);
+                });
+
+                // Stop listening after receiving callback
+                break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[AuthManager] Loopback listener error: {ex.Message}");
+        }
+        finally
+        {
+            isListening = false;
+        }
+    }
+
+    /// <summary>
+    /// Process OAuth callback received via loopback server (Editor only)
+    /// </summary>
+    private void ProcessEditorOAuthCallback(string callbackUrl)
+    {
+        Debug.Log($"[AuthManager] Processing Editor OAuth callback: {callbackUrl}");
+
+        // Stop the listener
+        StopLoopbackListener();
+
+        // Process the callback (reuse the same logic as WebGL)
+        ProcessOAuthCallback(callbackUrl);
+    }
+#endif
+
+    #endregion
+
+    #region Shared OAuth Processing
 
     private void ProcessOAuthCallback(string url)
     {
@@ -199,7 +483,7 @@ public class AuthManager : MonoBehaviour
             Debug.LogError($"[AuthManager] OAuth error: {error} - {errorDescription}");
             OnAuthenticationError?.Invoke($"{error}: {errorDescription}");
 
-            // Clean up URL
+            // Clean up URL (WebGL only)
             CleanUrlParameters();
             return;
         }
@@ -208,31 +492,45 @@ public class AuthManager : MonoBehaviour
         if (!queryParams.ContainsKey("code"))
         {
             Debug.LogError("[AuthManager] No authorization code found in callback");
+            OnAuthenticationError?.Invoke("No authorization code in callback");
             return;
         }
 
         string code = queryParams["code"];
         string returnedState = queryParams.ContainsKey("state") ? queryParams["state"] : "";
 
-        // Verify state matches (CSRF protection)
+#if UNITY_EDITOR
+        // In Editor, state is in memory (same Unity instance)
+        string expectedState = state;
+#else
+        // In WebGL, state was saved before page redirect
         string expectedState = PlayerPrefs.GetString("oauth_state", "");
+#endif
+
+        // Verify state matches (CSRF protection)
         if (returnedState != expectedState)
         {
-            Debug.LogError("[AuthManager] State mismatch! Possible CSRF attack.");
-            OnAuthenticationError?.Invoke("State verification failed");
+            Debug.LogError(
+                $"[AuthManager] State mismatch! Expected: {expectedState}, Got: {returnedState}"
+            );
+            OnAuthenticationError?.Invoke("State verification failed - possible CSRF attack");
             CleanUrlParameters();
             return;
         }
 
-        // Retrieve stored code verifier
+#if !UNITY_EDITOR
+        // In WebGL, retrieve stored code verifier (saved before page redirect)
         codeVerifier = PlayerPrefs.GetString("pkce_verifier", "");
         if (string.IsNullOrEmpty(codeVerifier))
         {
-            Debug.LogError("[AuthManager] Code verifier not found!");
-            OnAuthenticationError?.Invoke("PKCE verifier missing");
+            Debug.LogError("[AuthManager] Code verifier not found in PlayerPrefs!");
+            OnAuthenticationError?.Invoke("PKCE verifier missing - please try logging in again");
             CleanUrlParameters();
             return;
         }
+#endif
+
+        Debug.Log("[AuthManager] OAuth callback validated, exchanging code for tokens...");
 
         // Exchange code for tokens
         StartCoroutine(ExchangeCodeForTokens(code));
@@ -317,7 +615,7 @@ public class AuthManager : MonoBehaviour
 
                 Debug.Log($"[AuthManager] Authentication successful! User: {userProfile?.sub}");
 
-                // Clean URL and notify success
+                // Clean URL (WebGL only) and notify success
                 CleanUrlParameters();
                 OnAuthenticationSuccess?.Invoke();
             }
@@ -329,6 +627,10 @@ public class AuthManager : MonoBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region Token & Session Management
 
     private UserProfile ParseIdToken(string token)
     {
@@ -405,6 +707,10 @@ public class AuthManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region URL Building & Parsing
+
     private string BuildAuthorizationUrl(string codeChallenge, string state)
     {
         string authEndpoint = $"{authority}/auth";
@@ -437,6 +743,35 @@ public class AuthManager : MonoBehaviour
 
         return urlBuilder.ToString();
     }
+
+    private Dictionary<string, string> ParseQueryString(string url)
+    {
+        var result = new Dictionary<string, string>();
+
+        int queryStart = url.IndexOf('?');
+        if (queryStart < 0)
+            return result;
+
+        string query = url.Substring(queryStart + 1);
+        string[] pairs = query.Split('&');
+
+        foreach (string pair in pairs)
+        {
+            string[] parts = pair.Split('=');
+            if (parts.Length == 2)
+            {
+                string key = Uri.UnescapeDataString(parts[0]);
+                string value = Uri.UnescapeDataString(parts[1]);
+                result[key] = value;
+            }
+        }
+
+        return result;
+    }
+
+    #endregion
+
+    #region PKCE Helpers
 
     private string GenerateCodeVerifier()
     {
@@ -480,30 +815,9 @@ public class AuthManager : MonoBehaviour
         return base64.Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }
 
-    private Dictionary<string, string> ParseQueryString(string url)
-    {
-        var result = new Dictionary<string, string>();
+    #endregion
 
-        int queryStart = url.IndexOf('?');
-        if (queryStart < 0)
-            return result;
-
-        string query = url.Substring(queryStart + 1);
-        string[] pairs = query.Split('&');
-
-        foreach (string pair in pairs)
-        {
-            string[] parts = pair.Split('=');
-            if (parts.Length == 2)
-            {
-                string key = Uri.UnescapeDataString(parts[0]);
-                string value = Uri.UnescapeDataString(parts[1]);
-                result[key] = value;
-            }
-        }
-
-        return result;
-    }
+    #region Browser Helpers
 
     private string GetCurrentPageUrl() => WebGLBrowser.GetCurrentPageUrl();
 
