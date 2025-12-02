@@ -46,6 +46,9 @@ public class STDB : MonoBehaviour
     [SerializeField]
     private string _tokenConnectedWith;
 
+    [SerializeField]
+    private BidDisplayPanel _bidDisplayPanel;
+
     public void InitStdbConnection()
     {
         // Log the resolved config (useful for debugging WebGL builds)
@@ -99,6 +102,7 @@ public class STDB : MonoBehaviour
     private void CreateTableCallbacks(DbConnection conn)
     {
         Debug.Log("Initialized table callbacks.");
+        _bidDisplayPanel.SetCallbacks(conn);
     }
 
     void CheckIfNeedsToUploadProfilePicture(SubscriptionEventContext ctx)
@@ -184,6 +188,7 @@ public class STDB : MonoBehaviour
                     "SELECT * FROM Account",
                     "SELECT * FROM AccountCustomization",
                     "SELECT * FROM BaseCfg",
+                    "SELECT * FROM AccountBid",
                 }
             );
     }

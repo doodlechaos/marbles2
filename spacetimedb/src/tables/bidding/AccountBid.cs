@@ -7,6 +7,8 @@ public static partial class Module
     {
         [PrimaryKey]
         public ulong AccountId;
+
+        public uint LatestBid;
         public uint TotalBid;
     }
 }

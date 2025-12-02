@@ -30,7 +30,7 @@ import {
 
 export type BiddingStateS = {
   id: number,
-  isGameplayFinished: boolean,
+  otherTileReadyForBidding: boolean,
   currBidWorldId: number,
 };
 let _cached_BiddingStateS_type_value: __AlgebraicTypeType | null = null;
@@ -48,7 +48,7 @@ export const BiddingStateS = {
     _cached_BiddingStateS_type_value = __AlgebraicTypeValue.Product({ elements: [] });
     _cached_BiddingStateS_type_value.value.elements.push(
       { name: "id", algebraicType: __AlgebraicTypeValue.U8 },
-      { name: "isGameplayFinished", algebraicType: __AlgebraicTypeValue.Bool },
+      { name: "otherTileReadyForBidding", algebraicType: __AlgebraicTypeValue.Bool },
       { name: "currBidWorldId", algebraicType: __AlgebraicTypeValue.U8 },
     );
     return _cached_BiddingStateS_type_value;

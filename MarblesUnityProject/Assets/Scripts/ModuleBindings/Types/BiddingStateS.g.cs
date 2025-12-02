@@ -15,19 +15,19 @@ namespace SpacetimeDB.Types
     {
         [DataMember(Name = "Id")]
         public byte Id;
-        [DataMember(Name = "IsGameplayFinished")]
-        public bool IsGameplayFinished;
+        [DataMember(Name = "OtherTileReadyForBidding")]
+        public bool OtherTileReadyForBidding;
         [DataMember(Name = "CurrBidWorldId")]
         public byte CurrBidWorldId;
 
         public BiddingStateS(
             byte Id,
-            bool IsGameplayFinished,
+            bool OtherTileReadyForBidding,
             byte CurrBidWorldId
         )
         {
             this.Id = Id;
-            this.IsGameplayFinished = IsGameplayFinished;
+            this.OtherTileReadyForBidding = OtherTileReadyForBidding;
             this.CurrBidWorldId = CurrBidWorldId;
         }
 

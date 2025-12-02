@@ -30,6 +30,7 @@ import {
 
 export type AccountBid = {
   accountId: bigint,
+  latestBid: number,
   totalBid: number,
 };
 let _cached_AccountBid_type_value: __AlgebraicTypeType | null = null;
@@ -47,6 +48,7 @@ export const AccountBid = {
     _cached_AccountBid_type_value = __AlgebraicTypeValue.Product({ elements: [] });
     _cached_AccountBid_type_value.value.elements.push(
       { name: "accountId", algebraicType: __AlgebraicTypeValue.U64 },
+      { name: "latestBid", algebraicType: __AlgebraicTypeValue.U32 },
       { name: "totalBid", algebraicType: __AlgebraicTypeValue.U32 },
     );
     return _cached_AccountBid_type_value;

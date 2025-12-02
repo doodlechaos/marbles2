@@ -23,7 +23,6 @@ public static partial class Module
 
         public static Account GetOrCreate(ReducerContext ctx)
         {
-            Log.Info($"[Account.GetOrCreate] Looking for account with identity: {ctx.Sender}");
             var accountOpt = ctx.Db.Account.Identity.Find(ctx.Sender);
             if (accountOpt.HasValue)
             {
@@ -31,11 +30,11 @@ public static partial class Module
                 return accountOpt.Value;
             }
 
-            Log.Info($"[Account.GetOrCreate] No existing account, creating new one...");
-
             // Create new account
             var newId = AccountSeqHelper.IncAndGet(ctx);
-            Log.Info($"[Account.GetOrCreate] Got new ID from sequence: {newId}");
+            Log.Info(
+                $"[Account.GetOrCreate] No existing account. Creating new one with new ID from sequence: {newId}"
+            );
 
             var newAccount = new Account
             {

@@ -15,15 +15,19 @@ namespace SpacetimeDB.Types
     {
         [DataMember(Name = "AccountId")]
         public ulong AccountId;
+        [DataMember(Name = "LatestBid")]
+        public uint LatestBid;
         [DataMember(Name = "TotalBid")]
         public uint TotalBid;
 
         public AccountBid(
             ulong AccountId,
+            uint LatestBid,
             uint TotalBid
         )
         {
             this.AccountId = AccountId;
+            this.LatestBid = LatestBid;
             this.TotalBid = TotalBid;
         }
 

@@ -22,8 +22,26 @@ public static partial class Module
         account.Marbles = account.Marbles.SaturatingSub(bid);
         ctx.Db.Account.Identity.Update(account);
 
-        AccountBid accountBid = new AccountBid { AccountId = account.Id, TotalBid = bid };
-        ctx.Db.AccountBid.Insert(accountBid);
+        if (ctx.Db.AccountBid.AccountId.Find(account.Id) is AccountBid existingBid)
+        {
+            existingBid.TotalBid += bid;
+            existingBid.LatestBid = bid;
+
+            ctx.Db.AccountBid.AccountId.Update(existingBid);
+        }
+        else
+        {
+            AccountBid accountBid = new AccountBid
+            {
+                AccountId = account.Id,
+                LatestBid = bid,
+                TotalBid = bid,
+            };
+
+            ctx.Db.AccountBid.Insert(accountBid);
+        }
+
+        Log.Info($"[BidManager.PlaceBid] Account {account.Id} bid {bid} marbles.");
     }
 
     /// <summary>
@@ -67,28 +85,21 @@ public static partial class Module
 
         BidConfigS config = BidConfigS.Inst(ctx);
 
-        // Sum the total bids per account (condense multiple bids into one per account)
+        // Get all bids (already one row per account with TotalBid pre-calculated)
+        List<AccountBid> allBids = ctx.Db.AccountBid.Iter().ToList();
+
+        // Calculate total marbles bid by all accounts
         uint totalMarblesBidByAll = 0;
-        Dictionary<ulong, uint> bidsByAccount = new Dictionary<ulong, uint>();
-        foreach (AccountBid accountBid in ctx.Db.AccountBid.Iter())
-        {
-            totalMarblesBidByAll += accountBid.TotalBid;
-            if (bidsByAccount.ContainsKey(accountBid.AccountId))
-                bidsByAccount[accountBid.AccountId] += accountBid.TotalBid;
-            else
-                bidsByAccount[accountBid.AccountId] = accountBid.TotalBid;
-        }
+        foreach (AccountBid bid in allBids)
+            totalMarblesBidByAll += bid.TotalBid;
 
         // Sort accounts by total bid descending
-        List<(ulong AccountId, uint TotalBid)> sortedBidders = bidsByAccount
-            .Select(kvp => (kvp.Key, kvp.Value))
-            .OrderByDescending(x => x.Value)
-            .ToList();
+        List<AccountBid> sortedBidders = allBids.OrderByDescending(x => x.TotalBid).ToList();
 
         // Create an empty list of entrants
         List<InputEvent.Entrant> entrants = new List<InputEvent.Entrant>();
 
-        // Take the top (# of guaranteed spots) highest total bid accounts and add them to the entrants list
+        // Take the top (# of guaranteed spots) highest total bid accounts
         int guaranteedSpots = Math.Min(config.MaxAcutionSpots, sortedBidders.Count);
         for (int i = 0; i < guaranteedSpots; i++)
         {
@@ -102,16 +113,14 @@ public static partial class Module
         }
 
         // Get remaining bidders for raffle
-        List<(ulong AccountId, uint TotalBid)> remainingBidders = sortedBidders
-            .Skip(guaranteedSpots)
-            .ToList();
+        List<AccountBid> remainingBidders = sortedBidders.Skip(guaranteedSpots).ToList();
 
-        // Randomly select more players (# of raffle draws) from the remaining accounts and add them to the entrants list
+        // Randomly select more players (# of raffle draws) from remaining accounts
         int raffleDraws = Math.Min(config.MaxRaffleDraws, remainingBidders.Count);
         for (int i = 0; i < raffleDraws; i++)
         {
             int randomIndex = ctx.Rng.Next(0, remainingBidders.Count);
-            var winner = remainingBidders[randomIndex];
+            AccountBid winner = remainingBidders[randomIndex];
             entrants.Add(
                 new InputEvent.Entrant { AccountId = winner.AccountId, TotalBid = winner.TotalBid }
             );
