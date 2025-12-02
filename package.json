@@ -16,7 +16,7 @@
         "stdb:delete:staging": "spacetime delete --server maincloud marbles2-staging",
         "stdb:delete:main": "spacetime delete --server maincloud marbles2-main",
 
-        "pushDevToStaging":"git push origin dev:staging",
-        "pushStagingToProd":"git push origin staging:main"
+        "pushDevToStaging": "git checkout staging && git reset --hard dev && git push origin staging && git checkout dev",
+        "pushStagingToMain": "git checkout main && git reset --hard staging && git push origin main && git checkout dev"
     }
 }
