@@ -33,6 +33,8 @@ import {
 // Import and reexport all reducer arg types
 import { AGiveMarbles } from "./a_give_marbles_reducer.ts";
 export { AGiveMarbles };
+import { AInsertBid } from "./a_insert_bid_reducer.ts";
+export { AInsertBid };
 import { ASpinLoadGameplayTile } from "./a_spin_load_gameplay_tile_reducer.ts";
 export { ASpinLoadGameplayTile };
 import { ClockUpdate } from "./clock_update_reducer.ts";
@@ -342,6 +344,10 @@ const REMOTE_MODULE = {
       reducerName: "A_GiveMarbles",
       argsType: AGiveMarbles.getTypeScriptAlgebraicType(),
     },
+    A_InsertBid: {
+      reducerName: "A_InsertBid",
+      argsType: AInsertBid.getTypeScriptAlgebraicType(),
+    },
     A_SpinLoadGameplayTile: {
       reducerName: "A_SpinLoadGameplayTile",
       argsType: ASpinLoadGameplayTile.getTypeScriptAlgebraicType(),
@@ -429,6 +435,7 @@ const REMOTE_MODULE = {
 // A type representing all the possible variants of a reducer.
 export type Reducer = never
 | { name: "AGiveMarbles", args: AGiveMarbles }
+| { name: "AInsertBid", args: AInsertBid }
 | { name: "ASpinLoadGameplayTile", args: ASpinLoadGameplayTile }
 | { name: "ClockUpdate", args: ClockUpdate }
 | { name: "Connect", args: Connect }
@@ -462,6 +469,22 @@ export class RemoteReducers {
 
   removeOnAGiveMarbles(callback: (ctx: ReducerEventContext, accountId: bigint, marbles: number) => void) {
     this.connection.offReducer("A_GiveMarbles", callback);
+  }
+
+  aInsertBid(accountId: bigint, bid: number) {
+    const __args = { accountId, bid };
+    let __writer = new __BinaryWriter(1024);
+    AInsertBid.serialize(__writer, __args);
+    let __argsBuffer = __writer.getBuffer();
+    this.connection.callReducer("A_InsertBid", __argsBuffer, this.setCallReducerFlags.aInsertBidFlags);
+  }
+
+  onAInsertBid(callback: (ctx: ReducerEventContext, accountId: bigint, bid: number) => void) {
+    this.connection.onReducer("A_InsertBid", callback);
+  }
+
+  removeOnAInsertBid(callback: (ctx: ReducerEventContext, accountId: bigint, bid: number) => void) {
+    this.connection.offReducer("A_InsertBid", callback);
   }
 
   aSpinLoadGameplayTile(worldId: number) {
@@ -674,6 +697,11 @@ export class SetReducerFlags {
   aGiveMarblesFlags: __CallReducerFlags = 'FullUpdate';
   aGiveMarbles(flags: __CallReducerFlags) {
     this.aGiveMarblesFlags = flags;
+  }
+
+  aInsertBidFlags: __CallReducerFlags = 'FullUpdate';
+  aInsertBid(flags: __CallReducerFlags) {
+    this.aInsertBidFlags = flags;
   }
 
   aSpinLoadGameplayTileFlags: __CallReducerFlags = 'FullUpdate';

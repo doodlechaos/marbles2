@@ -4,16 +4,28 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-    /*     [Reducer]
-        public static void A_SetGameplayFinished(ReducerContext ctx, bool isGameplayFinished)
+    [Reducer]
+    public static void A_InsertBid(ReducerContext ctx, ulong accountId, uint bid)
+    {
+        if (ctx.Db.AccountBid.AccountId.Find(accountId) is AccountBid existingBid)
         {
-            GameplayFinishedFlagS state = new GameplayFinishedFlagS
+            existingBid.TotalBid += bid;
+            existingBid.LatestBid = bid;
+
+            ctx.Db.AccountBid.AccountId.Update(existingBid);
+        }
+        else
+        {
+            AccountBid accountBid = new AccountBid
             {
-                Id = 0,
-                IsGameplayFinished = isGameplayFinished,
+                AccountId = accountId,
+                LatestBid = bid,
+                TotalBid = bid,
             };
-            ctx.Db.GameplayFinishedFlagS.Id.Update(state);
-        } */
+
+            ctx.Db.AccountBid.Insert(accountBid);
+        }
+    }
 
     [Reducer]
     public static void A_GiveMarbles(ReducerContext ctx, ulong accountId, uint marbles)

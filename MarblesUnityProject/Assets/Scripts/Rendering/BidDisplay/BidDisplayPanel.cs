@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using SpacetimeDB.Types;
 using UnityEngine;
-using UnityEngine.Pool;
 
 public class BidDisplayPanel : MonoBehaviour
 {
@@ -9,18 +9,20 @@ public class BidDisplayPanel : MonoBehaviour
     private AuctionPlayerEntry _auctionPlayerEntryPrefab;
 
     [SerializeField]
-    private List<AuctionPlayerEntry> _activeAuctionPlayerEntries = new List<AuctionPlayerEntry>();
+    private float _spacingBetweenAuctionEntries = 0.5f;
 
     [SerializeField]
-    private float _spacingBetweenAuctionEntries = 90.0f;
+    private Transform _auctionPlayerEntriesParent;
 
-    //TODO: Every time there is a new bid, update the positions of the playerbidentry prefabs
+    private Dictionary<ulong, AuctionPlayerEntry> _entriesByAccountId =
+        new Dictionary<ulong, AuctionPlayerEntry>();
+    private List<AuctionPlayerEntry> _pooledEntries = new List<AuctionPlayerEntry>();
 
     public void SetCallbacks(DbConnection conn)
     {
         conn.Db.AccountBid.OnInsert += (EventContext ctx, AccountBid accountBid) =>
         {
-            OnAccountBidCallback(ctx);
+            RefreshBidDisplay(ctx.Db);
         };
         conn.Db.AccountBid.OnUpdate += (
             EventContext ctx,
@@ -28,23 +30,90 @@ public class BidDisplayPanel : MonoBehaviour
             AccountBid newAccountBid
         ) =>
         {
-            OnAccountBidCallback(ctx);
+            RefreshBidDisplay(ctx.Db);
         };
-        Debug.Log("Set callbacks for accountbid table.");
+        conn.Db.AccountBid.OnDelete += (EventContext ctx, AccountBid accountBid) =>
+        {
+            RefreshBidDisplay(ctx.Db);
+        };
+        Debug.Log("Set callbacks for AccountBid table.");
     }
 
-    void OnAccountBidCallback(EventContext ctx)
+    private void RefreshBidDisplay(RemoteTables db)
     {
-        //TODO: Update the entire list of auctionplayerentries by iterating through all the AccountBid rows.
-        Debug.Log("Detected change in accountbid table. ");
+        // Get all bids sorted by TotalBid descending (highest bidder = rank 1)
+        List<AccountBid> sortedBids = db
+            .AccountBid.Iter()
+            .OrderByDescending(bid => bid.TotalBid)
+            .ToList();
+
+        // Track which accounts are still active
+        HashSet<ulong> activeAccountIds = new HashSet<ulong>();
+
+        for (int i = 0; i < sortedBids.Count; i++)
+        {
+            AccountBid bid = sortedBids[i];
+            activeAccountIds.Add(bid.AccountId);
+
+            // Get or create entry for this account
+            if (!_entriesByAccountId.TryGetValue(bid.AccountId, out AuctionPlayerEntry entry))
+            {
+                entry = GetOrCreateEntry();
+                string username = GetUsername(db, bid.AccountId);
+                entry.Init(bid.AccountId, (ushort)(i + 1), username, bid.TotalBid);
+                _entriesByAccountId[bid.AccountId] = entry;
+            }
+            else
+            {
+                entry.UpdateDisplay((ushort)(i + 1), bid.TotalBid);
+            }
+
+            entry.gameObject.SetActive(true);
+            Vector3 targetLocalPos = new Vector3(0, -i * _spacingBetweenAuctionEntries, 0);
+            entry.SetTargetLocalPos(targetLocalPos);
+        }
+
+        // Hide entries for accounts no longer bidding
+        List<ulong> toRemove = new List<ulong>();
+        foreach (var kvp in _entriesByAccountId)
+        {
+            if (!activeAccountIds.Contains(kvp.Key))
+            {
+                kvp.Value.gameObject.SetActive(false);
+                _pooledEntries.Add(kvp.Value);
+                toRemove.Add(kvp.Key);
+            }
+        }
+        foreach (ulong id in toRemove)
+        {
+            _entriesByAccountId.Remove(id);
+        }
+    }
+
+    private AuctionPlayerEntry GetOrCreateEntry()
+    {
+        if (_pooledEntries.Count > 0)
+        {
+            AuctionPlayerEntry pooled = _pooledEntries[_pooledEntries.Count - 1];
+            _pooledEntries.RemoveAt(_pooledEntries.Count - 1);
+            return pooled;
+        }
+        return Instantiate(_auctionPlayerEntryPrefab, _auctionPlayerEntriesParent);
+    }
+
+    private string GetUsername(RemoteTables db, ulong accountId)
+    {
+        AccountCustomization customization = db.AccountCustomization.AccountId.Find(accountId);
+        if (customization != null && !string.IsNullOrEmpty(customization.Username))
+        {
+            return customization.Username;
+        }
+        return $"Player {accountId}";
     }
 
     public void OnBidButtonClicked()
     {
-        //Assume a bid of one marble for now
         STDB.Conn.Reducers.PlaceBid(1);
-        Debug.Log($"Called reducer to place bid.");
+        Debug.Log("Called reducer to place bid.");
     }
-
-    void Update() { }
 }

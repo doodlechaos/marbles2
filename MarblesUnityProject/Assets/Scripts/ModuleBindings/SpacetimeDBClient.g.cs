@@ -488,6 +488,7 @@ namespace SpacetimeDB.Types
             return update.ReducerCall.ReducerName switch
             {
                 "A_GiveMarbles" => BSATNHelpers.Decode<Reducer.AGiveMarbles>(encodedArgs),
+                "A_InsertBid" => BSATNHelpers.Decode<Reducer.AInsertBid>(encodedArgs),
                 "A_SpinLoadGameplayTile" => BSATNHelpers.Decode<Reducer.ASpinLoadGameplayTile>(encodedArgs),
                 "ClockUpdate" => BSATNHelpers.Decode<Reducer.ClockUpdate>(encodedArgs),
                 "Connect" => BSATNHelpers.Decode<Reducer.Connect>(encodedArgs),
@@ -525,6 +526,7 @@ namespace SpacetimeDB.Types
             return reducer switch
             {
                 Reducer.AGiveMarbles args => Reducers.InvokeAGiveMarbles(eventContext, args),
+                Reducer.AInsertBid args => Reducers.InvokeAInsertBid(eventContext, args),
                 Reducer.ASpinLoadGameplayTile args => Reducers.InvokeASpinLoadGameplayTile(eventContext, args),
                 Reducer.ClockUpdate args => Reducers.InvokeClockUpdate(eventContext, args),
                 Reducer.Connect args => Reducers.InvokeConnect(eventContext, args),
