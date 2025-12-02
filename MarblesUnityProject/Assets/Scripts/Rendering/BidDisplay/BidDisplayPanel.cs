@@ -1,10 +1,19 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SpacetimeDB.Types;
+using TMPro;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class BidDisplayPanel : MonoBehaviour
 {
+    [SerializeField]
+    private Transform _GameTile1Origin; //TODO: Move the entire bid display panel to the origin of the game tile that we're actively bidding on.
+
+    [SerializeField]
+    private Transform _GameTile2Origin;
+
     [SerializeField]
     private AuctionPlayerEntry _auctionPlayerEntryPrefab;
 
@@ -17,6 +26,17 @@ public class BidDisplayPanel : MonoBehaviour
     private Dictionary<ulong, AuctionPlayerEntry> _entriesByAccountId =
         new Dictionary<ulong, AuctionPlayerEntry>();
     private List<AuctionPlayerEntry> _pooledEntries = new List<AuctionPlayerEntry>();
+
+    [SerializeField]
+    private TextMeshProUGUI _bidTimeText;
+
+    [SerializeField]
+    private TextMeshProUGUI _bidStateText;
+
+    [SerializeField]
+    private float _lerpSpeed = 5f;
+
+    private byte _currentBidWorldId = 1;
 
     public void SetCallbacks(DbConnection conn)
     {
@@ -36,7 +56,40 @@ public class BidDisplayPanel : MonoBehaviour
         {
             RefreshBidDisplay(ctx.Db);
         };
-        Debug.Log("Set callbacks for AccountBid table.");
+        conn.Db.BiddingStateS.OnUpdate += (
+            EventContext ctx,
+            BiddingStateS oldBiddingState,
+            BiddingStateS newBiddingState
+        ) =>
+        {
+            _currentBidWorldId = newBiddingState.CurrBidWorldId;
+            _bidStateText.SetText(
+                $"OtherTileReadyForBidding: {newBiddingState.OtherTileReadyForBidding}, CurrBidWorldId: {newBiddingState.CurrBidWorldId}"
+            );
+        };
+        conn.Db.BidTimeS.OnUpdate += (EventContext ctx, BidTimeS oldBidTime, BidTimeS newBidTime) =>
+        {
+            var ts = TimeSpan.FromTicks(newBidTime.MicrosecondsRemaining * 10);
+
+            _bidTimeText.SetText(ts.ToString(@"mm\:ss"));
+        };
+        Debug.Log("Set callbacks for BidDisplayPanel table.");
+    }
+
+    void Update()
+    {
+        // Determine target origin based on current bid world ID
+        Transform targetOrigin = _currentBidWorldId == 2 ? _GameTile2Origin : _GameTile1Origin;
+
+        if (targetOrigin != null)
+        {
+            // For a worldspace canvas, we can directly lerp the transform's position
+            transform.position = Vector3.Lerp(
+                transform.position,
+                targetOrigin.position,
+                _lerpSpeed * Time.deltaTime
+            );
+        }
     }
 
     private void RefreshBidDisplay(RemoteTables db)

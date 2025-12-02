@@ -2,7 +2,7 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-    [Table(Public = false)]
+    [Table(Public = true)]
     public partial struct BiddingStateS
     {
         [PrimaryKey]

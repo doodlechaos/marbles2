@@ -189,6 +189,8 @@ public class STDB : MonoBehaviour
                     "SELECT * FROM AccountCustomization",
                     "SELECT * FROM BaseCfg",
                     "SELECT * FROM AccountBid",
+                    "SELECT * FROM BiddingStateS",
+                    "SELECT * FROM BidTimeS",
                 }
             );
     }
