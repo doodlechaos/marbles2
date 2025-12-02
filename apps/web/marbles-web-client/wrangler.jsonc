@@ -1,5 +1,5 @@
 {
-	"name": "marbles2-client",
+	"name": "marbles2",
 	"main": ".svelte-kit/cloudflare/_worker.js",
 	"compatibility_date": "2025-06-27",
 	"account_id": "1728ab02145e197308788f182d6a13c5",
@@ -25,6 +25,14 @@
 			"preview_bucket_name": "marbles-dev"
 		}
 	],
-
-	"routes": [{ "pattern": "marbles.live", "custom_domain": true }]
+	"env": {
+		"main": {
+			"name": "marbles2-main",
+			"routes": [{ "pattern": "marbles.live", "custom_domain": true }]
+		},
+		"staging": {
+			"name": "marbles2-staging",
+			"routes": [{ "pattern": "staging.marbles.live", "custom_domain": true }]
+		}
+	}
 }
