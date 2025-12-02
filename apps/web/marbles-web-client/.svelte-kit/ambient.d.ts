@@ -31,9 +31,6 @@ declare module '$env/static/private' {
 	export const VITE_SPACETIMEDB_DB_NAME: string;
 	export const VITE_PFP_CDN_BASE_URL: string;
 	export const VITE_R2_BUCKET: string;
-	export const VITE_S3_ACCESS_KEY: string;
-	export const VITE_S3_SECRET_ACCESS_KEY: string;
-	export const VITE_S3_ENDPOINT: string;
 	export const ALLUSERSPROFILE: string;
 	export const APPDATA: string;
 	export const ChocolateyInstall: string;
@@ -158,9 +155,6 @@ declare module '$env/dynamic/private' {
 		VITE_SPACETIMEDB_DB_NAME: string;
 		VITE_PFP_CDN_BASE_URL: string;
 		VITE_R2_BUCKET: string;
-		VITE_S3_ACCESS_KEY: string;
-		VITE_S3_SECRET_ACCESS_KEY: string;
-		VITE_S3_ENDPOINT: string;
 		ALLUSERSPROFILE: string;
 		APPDATA: string;
 		ChocolateyInstall: string;
