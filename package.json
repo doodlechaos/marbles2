@@ -17,7 +17,7 @@
         "stdb:delete:main": "spacetime delete --server maincloud marbles2-main",
 
         "pushDevToStaging": "git push --force-with-lease origin dev:staging",
-        "pushStagingToMain": "git fetch origin staging && git push --force-with-lease origin staging:main"
+        "pushStagingToMain": "git fetch origin staging && git push --force-with-lease origin origin/staging:main"
 
     }
 }
