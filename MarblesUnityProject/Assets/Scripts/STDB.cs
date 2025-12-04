@@ -63,11 +63,7 @@ public class STDB : MonoBehaviour
     [SerializeField]
     private BidDisplayPanel _bidDisplayPanel;
 
-    [SerializeField]
-    public TextMeshProUGUI _marbleCountText;
 
-    [SerializeField]
-    public TextMeshProUGUI _pointsText;
 
     public string ConnectedIdentity = "";
 
@@ -223,8 +219,8 @@ public class STDB : MonoBehaviour
         Debug.Log(
             $"[STDB] Updating account stats: {account.Marbles} marbles, {account.Points} points"
         );
-        _marbleCountText.SetText($"Marbles: {account.Marbles}");
-        _pointsText.SetText($"Points: {account.Points}");
+        //_marbleCountText.SetText($"Marbles: {account.Marbles}");
+        //_pointsText.SetText($"Points: {account.Points}");
     }
 
     void CheckIfNeedsToUploadProfilePicture(SubscriptionEventContext ctx)

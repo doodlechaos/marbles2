@@ -17,6 +17,11 @@ public class UIManager : MonoBehaviour
     private Image _profilePicture;
     private VisualElement _root;
 
+    // Currency display elements
+    private Button _marblesButton;
+    private Label _marbleCountLabel;
+    private Label _pointsCountLabel;
+
     private string _loadedProfilePictureUrl = null;
 
     void Awake()
@@ -39,6 +44,14 @@ public class UIManager : MonoBehaviour
         _profilePicture = _root.Q<Image>("profile-picture");
         _profileButton.clicked += OnProfileClicked;
 
+        // Setup Marbles button
+        _marblesButton = _root.Q<Button>("btn-marbles");
+        _marbleCountLabel = _root.Q<Label>("marble-count");
+        _marblesButton.clicked += OnMarblesClicked;
+
+        // Setup Points display
+        _pointsCountLabel = _root.Q<Label>("points-count");
+
         // Subscribe to auth logout event to clear profile picture
         if (_authManager != null)
         {
@@ -54,6 +67,11 @@ public class UIManager : MonoBehaviour
         conn.Db.MySessionKind.OnInsert += OnMySessionKindInsert;
         conn.Db.MySessionKind.OnUpdate += OnMySessionKindUpdate;
         conn.Db.MySessionKind.OnDelete += OnMySessionKindDelete;
+
+        // Subscribe to account updates for currency display
+        conn.Db.MyAccount.OnInsert += OnMyAccountInsert;
+        conn.Db.MyAccount.OnUpdate += OnMyAccountUpdate;
+
         Debug.Log("[UIManager] Callbacks registered");
     }
 
@@ -62,10 +80,14 @@ public class UIManager : MonoBehaviour
         conn.Db.MySessionKind.OnInsert -= OnMySessionKindInsert;
         conn.Db.MySessionKind.OnUpdate -= OnMySessionKindUpdate;
         conn.Db.MySessionKind.OnDelete -= OnMySessionKindDelete;
+
+        conn.Db.MyAccount.OnInsert -= OnMyAccountInsert;
+        conn.Db.MyAccount.OnUpdate -= OnMyAccountUpdate;
+
         Debug.Log("[UIManager] Callbacks cleaned up");
     }
 
-    // Callback method handlers
+    // Callback method handlers for session kind
     private void OnMySessionKindInsert(EventContext ctx, MySessionKindContainer mySessionKind)
     {
         UpdateAuthUI(mySessionKind.Kind);
@@ -83,6 +105,47 @@ public class UIManager : MonoBehaviour
     private void OnMySessionKindDelete(EventContext ctx, MySessionKindContainer mySessionKind)
     {
         UpdateAuthUI(mySessionKind.Kind);
+    }
+
+    // Callback method handlers for account (currency display)
+    private void OnMyAccountInsert(EventContext ctx, Account account)
+    {
+        UpdateCurrencyDisplay(account);
+    }
+
+    private void OnMyAccountUpdate(EventContext ctx, Account oldAccount, Account newAccount)
+    {
+        UpdateCurrencyDisplay(newAccount);
+    }
+
+    private void UpdateCurrencyDisplay(Account account)
+    {
+        if (_marbleCountLabel != null)
+        {
+            _marbleCountLabel.text = FormatCurrencyCount(account.Marbles);
+        }
+
+        if (_pointsCountLabel != null)
+        {
+            _pointsCountLabel.text = FormatCurrencyCount(account.Points);
+        }
+
+        Debug.Log(
+            $"[UIManager] Currency updated: {account.Marbles} marbles, {account.Points} points"
+        );
+    }
+
+    private string FormatCurrencyCount(uint value)
+    {
+        if (value >= 1_000_000)
+        {
+            return $"{value / 1_000_000f:0.#}M";
+        }
+        else if (value >= 1_000)
+        {
+            return $"{value / 1_000f:0.#}K";
+        }
+        return value.ToString();
     }
 
     void OnDestroy()
@@ -117,6 +180,12 @@ public class UIManager : MonoBehaviour
         {
             _authManager.Logout();
         }
+    }
+
+    private void OnMarblesClicked()
+    {
+        Debug.Log("[UIManager] Marbles button clicked - TODO: Open purchase modal");
+        // TODO: Open modal for purchasing marbles
     }
 
     private void OnLogout()
