@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3896320327183086788}
   - component: {fileID: 8686839506519481649}
   - component: {fileID: 4344077359094929294}
+  - component: {fileID: -255706831774324399}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -126,3 +127,16 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.000000059604645, y: 0}
   m_Radius: 0.5
+--- !u!114 &-255706831774324399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6795843947873832426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f8a2b5c4d6e7f8a9b0c1d2e3f4a5b6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
+  renderPrefabID: 1

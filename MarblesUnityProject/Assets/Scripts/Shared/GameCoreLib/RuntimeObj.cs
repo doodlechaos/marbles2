@@ -39,7 +39,7 @@ namespace GameCoreLib
         /// This allows distinguishing "this is a prefab I should instantiate" from
         /// "this is a child that's part of another prefab's definition."
         /// -1 = not a prefab root (either an empty container or part of a parent prefab)
-        /// 0+ = 0-based index into GameCoreRenderer.renderPrefabs list
+        /// 0+ = 0-based index into RenderPrefabRegistry.Prefabs list
         /// </summary>
         [MemoryPackOrder(5)]
         public int RenderPrefabID = -1;

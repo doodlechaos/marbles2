@@ -21,7 +21,12 @@ public class GameManager : MonoBehaviour
 
     public string Game1JSON_PATH;
 
-    public GameCoreRenderer GameCoreRenderer;
+    [Header("Rendering")]
+    [Tooltip("Renderer for GameTile1 (player 1's tile)")]
+    public TileRenderer GameTile1Renderer;
+
+    [Tooltip("Renderer for GameTile2 (player 2's tile)")]
+    public TileRenderer GameTile2Renderer;
 
     [SerializeField]
     private AuthManager _authManager;
@@ -91,6 +96,34 @@ public class GameManager : MonoBehaviour
         // If user already has a stored SpacetimeDB token or ID token, connect now
         // (If CheckForOAuthCallback triggered auth success, this is redundant but safe)
         _stdb.InitStdbConnection();
+
+        // Wire up renderers to their respective GameTiles
+        UpdateRenderers();
+    }
+
+    private void Update()
+    {
+        // Keep renderers synchronized with the GameCore tiles
+        // (tiles may change due to network updates, game state changes, etc.)
+        UpdateRenderers();
+    }
+
+    /// <summary>
+    /// Update renderers with the current GameCore tiles.
+    /// This is called every frame to keep them in sync.
+    /// </summary>
+    private void UpdateRenderers()
+    {
+        if (GameTile1Renderer != null)
+        {
+            GameTile1Renderer.Render(GameCore?.GameTile1);
+            GameTile1Renderer.PhysicsSim = GameCore?.GameTile1?.Sim;
+        }
+        if (GameTile2Renderer != null)
+        {
+            GameTile2Renderer.Render(GameCore?.GameTile2);
+            GameTile2Renderer.PhysicsSim = GameCore?.GameTile2?.Sim;
+        }
     }
 
     private void OnDestroy()
@@ -105,39 +138,5 @@ public class GameManager : MonoBehaviour
         {
             _stdb.OnSTDBConnectError -= HandleStdbAuthError;
         }
-    }
-
-    [ProButton]
-    public void TestSerializeGameCore()
-    {
-        byte[] data = MemoryPackSerializer.Serialize(GameCore, new MemoryPackSerializerOptions { });
-        //Write this to file
-        string tempDir = "Temp";
-        if (!Directory.Exists(tempDir))
-        {
-            Directory.CreateDirectory(tempDir);
-        }
-        string filePath = Path.Combine(tempDir, "GameCore.bin");
-        File.WriteAllBytes(filePath, data);
-        Debug.Log($"Serialized GameCore and wrote to {filePath}");
-        Debug.Log($"Serialized GameCore hash: {GameCore.GetDeterministicHashHex()}");
-    }
-
-    [ProButton]
-    public void TestDeserializeGameCore()
-    {
-        string filePath = "Temp/GameCore.bin";
-        if (!File.Exists(filePath))
-        {
-            Debug.LogError($"File not found: {filePath}");
-            return;
-        }
-        byte[] data = File.ReadAllBytes(filePath);
-        GameCore = MemoryPackSerializer.Deserialize<GameCore>(
-            data,
-            new MemoryPackSerializerOptions { }
-        );
-        Debug.Log("Deserialized GameCore successfully");
-        Debug.Log($"Deserialized GameCore hash: {GameCore.GetDeterministicHashHex()}");
     }
 }

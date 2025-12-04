@@ -1,134 +1,108 @@
 using System.Collections.Generic;
 using FPMathLib;
 using GameCoreLib;
+using LockSim;
 using UnityEngine;
 
-public class GameCoreRenderer : MonoBehaviour
+/// <summary>
+/// Renders a single tile's RuntimeObj hierarchy. Completely generic - works with any tile type
+/// (GameTiles, ThroneTile, etc.) as long as you provide a TileRoot.
+///
+/// Multiple instances can be used to render multiple tiles.
+/// All instances share the same RenderPrefabRegistry for prefab configuration.
+/// </summary>
+public class TileRenderer : MonoBehaviour
 {
-    [Header("Rendering Settings")]
-    [Tooltip("Update rendering every frame")]
-    public bool AutoUpdate = true;
-
     [Header("Prefab Configuration")]
-    [Tooltip(
-        "List of prefabs for rendering. RenderPrefabID uses 0-based indexing (0 = first prefab, 1 = second, etc). ID -1 = no prefab."
-    )]
+    [Tooltip("Reference to the shared RenderPrefabRegistry asset")]
     [SerializeField]
-    private List<GameObject> renderPrefabs = new List<GameObject>();
-
-    [Header("Tile Orchestrator")]
-    [Tooltip("Reference to the TileOrchestrator for positioning render roots")]
-    public TileOrchestrator TileOrchestrator;
+    private RenderPrefabRegistry prefabRegistry;
 
     [Header("Debug")]
     public bool ShowDebugInfo = false;
 
-    // Track mapping between RuntimeId and their visual GameObject representations for each tile
-    private Dictionary<ulong, GameObject> tile1IdToGameObject = new Dictionary<ulong, GameObject>();
-    private Dictionary<ulong, GameObject> tile2IdToGameObject = new Dictionary<ulong, GameObject>();
+    [Tooltip(
+        "Optional: Physics simulation for gizmo drawing. Set this if you want to see physics debug visuals."
+    )]
+    public World PhysicsSim;
 
-    // Root GameObjects for each tile's visual hierarchy
-    private GameObject renderRoot1;
-    private GameObject renderRoot2;
+    // Track mapping between RuntimeId and their visual GameObject representations
+    private Dictionary<ulong, GameObject> idToGameObject = new Dictionary<ulong, GameObject>();
 
-    // Track which IDs were seen during the last UpdateRendering pass for each tile
-    private HashSet<ulong> tile1SeenIds = new HashSet<ulong>();
-    private HashSet<ulong> tile2SeenIds = new HashSet<ulong>();
+    // Root GameObject for the visual hierarchy
+    private GameObject renderRoot;
 
-    private void Update()
-    {
-        if (AutoUpdate)
-        {
-            UpdateRendering();
-        }
-    }
+    // Track which IDs were seen during the last UpdateRendering pass
+    private HashSet<ulong> seenIds = new HashSet<ulong>();
+
+    // Track the currently rendered tile to detect when it changes
+    private GameTileBase currentGameTile;
 
     /// <summary>
-    /// Update rendering for both GameTiles from GameCore.
-    /// This method automatically syncs the visual representation with the GameCore state,
-    /// even after deserialization.
+    /// Update rendering for the assigned GameTile.
+    /// This method automatically syncs the visual representation with the RuntimeObj tree,
+    /// even after deserialization. Adds a GameTileBinding component to the root for debugging.
     /// </summary>
-    public void UpdateRendering()
+    public void Render(GameTileBase gameTile)
     {
-        if (GameManager.Inst == null || GameManager.Inst.GameCore == null)
-            return;
+        // Detect if we're rendering a completely different tile
+        bool tileChanged = currentGameTile != gameTile;
 
-        GameCore gameCore = GameManager.Inst.GameCore;
-
-        // Update GameTile1
-        UpdateGameTile(
-            gameCore.GameTile1,
-            ref renderRoot1,
-            tile1IdToGameObject,
-            tile1SeenIds,
-            "GameTile1",
-            TileOrchestrator.GameTile1Origin
-        );
-
-        // Update GameTile2
-        UpdateGameTile(
-            gameCore.GameTile2,
-            ref renderRoot2,
-            tile2IdToGameObject,
-            tile2SeenIds,
-            "GameTile2",
-            TileOrchestrator.GameTile2Origin
-        );
-    }
-
-    /// <summary>
-    /// Update rendering for a specific GameTile
-    /// </summary>
-    private void UpdateGameTile(
-        GameTileBase gameTile,
-        ref GameObject renderRoot,
-        Dictionary<ulong, GameObject> idToGameObject,
-        HashSet<ulong> seenIds,
-        string tileName,
-        Transform originTransform
-    )
-    {
         if (gameTile == null || gameTile.TileRoot == null)
         {
-            // If the tile or its root is null, clean up any existing rendering
+            // If the game tile is null, clean up any existing rendering
             if (renderRoot != null)
             {
                 DestroyGameObject(renderRoot);
                 renderRoot = null;
                 idToGameObject.Clear();
             }
+            currentGameTile = null;
             return;
         }
 
-        // Use the TileRoot's name directly - this matches the prefab name from Unity
-        string expectedRootName = gameTile.TileRoot.Name;
+        // If tile changed, clear everything and start fresh
+        if (tileChanged)
+        {
+            if (renderRoot != null)
+            {
+                DestroyGameObject(renderRoot);
+                renderRoot = null;
+                idToGameObject.Clear();
+            }
+            currentGameTile = gameTile;
+        }
+
+        RuntimeObj tileRoot = gameTile.TileRoot;
+
+        // Determine the root name
+        string expectedRootName = tileRoot.Name;
 
         // Ensure we have a render root
         if (renderRoot == null)
         {
             renderRoot = new GameObject(expectedRootName);
-            renderRoot.transform.SetParent(originTransform);
+            renderRoot.transform.SetParent(transform);
             renderRoot.transform.localPosition = Vector3.zero;
             renderRoot.transform.localRotation = Quaternion.identity;
             renderRoot.transform.localScale = Vector3.one;
 
-            // Add GameTileBinding component
-            var tileBinding = renderRoot.AddComponent<GameTileBinding>();
-            tileBinding.GameTile = gameTile;
+            var gameTileBinding = renderRoot.AddComponent<GameTileBinding>();
+            gameTileBinding.GameTile = gameTile;
         }
         else
         {
-            // Update name if game type changed (e.g., after loading a different game)
+            // Update name if it changed
             if (renderRoot.name != expectedRootName)
             {
                 renderRoot.name = expectedRootName;
             }
 
-            // Update the GameTileBinding reference in case the GameTile instance changed
-            var tileBinding = renderRoot.GetComponent<GameTileBinding>();
-            if (tileBinding != null && tileBinding.GameTile != gameTile)
+            // Always keep the binding up to date
+            var gameTileBinding = renderRoot.GetComponent<GameTileBinding>();
+            if (gameTileBinding != null)
             {
-                tileBinding.GameTile = gameTile;
+                gameTileBinding.GameTile = gameTile;
             }
         }
 
@@ -137,13 +111,7 @@ public class GameCoreRenderer : MonoBehaviour
 
         // Traverse the RuntimeObj tree and create/update GameObjects as needed
         // isInsidePrefabHierarchy = false at root level
-        UpdateRuntimeObjRecursive(
-            gameTile.TileRoot,
-            renderRoot.transform,
-            idToGameObject,
-            seenIds,
-            false
-        );
+        UpdateRuntimeObjRecursive(tileRoot, renderRoot.transform, false);
 
         // Destroy any GameObjects whose RuntimeIds were not seen (they've been removed from the tree)
         List<ulong> idsToRemove = new List<ulong>();
@@ -171,13 +139,9 @@ public class GameCoreRenderer : MonoBehaviour
     /// <summary>
     /// Recursively update or create GameObjects for RuntimeObjs in the hierarchy.
     /// </summary>
-    /// <param name="isInsidePrefabHierarchy">True if we're processing children of an instantiated prefab.
-    /// When true, non-prefab-root children should be found in the existing hierarchy rather than created new.</param>
     private void UpdateRuntimeObjRecursive(
         RuntimeObj runtimeObj,
         Transform parentTransform,
-        Dictionary<ulong, GameObject> idToGameObject,
-        HashSet<ulong> seenIds,
         bool isInsidePrefabHierarchy
     )
     {
@@ -189,13 +153,7 @@ public class GameCoreRenderer : MonoBehaviour
             {
                 foreach (var child in runtimeObj.Children)
                 {
-                    UpdateRuntimeObjRecursive(
-                        child,
-                        parentTransform,
-                        idToGameObject,
-                        seenIds,
-                        false
-                    );
+                    UpdateRuntimeObjRecursive(child, parentTransform, false);
                 }
             }
             return;
@@ -215,7 +173,6 @@ public class GameCoreRenderer : MonoBehaviour
                 UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
 
                 // Process children with this GameObject as parent
-                // Children inherit the isInsidePrefabHierarchy status (they're still inside the same prefab)
                 if (runtimeObj.Children != null)
                 {
                     foreach (var child in runtimeObj.Children)
@@ -223,8 +180,6 @@ public class GameCoreRenderer : MonoBehaviour
                         UpdateRuntimeObjRecursive(
                             child,
                             visualObj.transform,
-                            idToGameObject,
-                            seenIds,
                             isInsidePrefabHierarchy
                         );
                     }
@@ -233,40 +188,22 @@ public class GameCoreRenderer : MonoBehaviour
             else
             {
                 // GameObject was destroyed externally - recreate it
-                CreateGameObjectForRuntimeObj(
-                    runtimeObj,
-                    parentTransform,
-                    idToGameObject,
-                    seenIds,
-                    isInsidePrefabHierarchy
-                );
+                CreateGameObjectForRuntimeObj(runtimeObj, parentTransform, isInsidePrefabHierarchy);
             }
         }
         else
         {
             // GameObject doesn't exist yet - create or find it
-            CreateGameObjectForRuntimeObj(
-                runtimeObj,
-                parentTransform,
-                idToGameObject,
-                seenIds,
-                isInsidePrefabHierarchy
-            );
+            CreateGameObjectForRuntimeObj(runtimeObj, parentTransform, isInsidePrefabHierarchy);
         }
     }
 
     /// <summary>
     /// Create or find a GameObject for a RuntimeObj that doesn't have one yet.
-    /// This can happen after deserialization or when new objects are added to the tree.
     /// </summary>
-    /// <param name="isInsidePrefabHierarchy">True if we're inside an instantiated prefab's hierarchy.
-    /// When true and the RuntimeObj is not a prefab root, we try to find the existing child GO
-    /// rather than creating a new one.</param>
     private void CreateGameObjectForRuntimeObj(
         RuntimeObj runtimeObj,
         Transform parentTransform,
-        Dictionary<ulong, GameObject> idToGameObject,
-        HashSet<ulong> seenIds,
         bool isInsidePrefabHierarchy
     )
     {
@@ -284,7 +221,7 @@ public class GameCoreRenderer : MonoBehaviour
                 if (existingChild != null)
                 {
                     visualObj = existingChild.gameObject;
-                    didInstantiatePrefab = true; // Children are from this nested prefab
+                    didInstantiatePrefab = true;
                     if (ShowDebugInfo)
                     {
                         Debug.Log(
@@ -355,7 +292,6 @@ public class GameCoreRenderer : MonoBehaviour
         }
         else
         {
-            // Update the existing binding's reference
             existingBinding.RuntimeObj = runtimeObj;
         }
 
@@ -363,38 +299,31 @@ public class GameCoreRenderer : MonoBehaviour
         idToGameObject[runtimeObj.RuntimeId] = visualObj;
 
         // Recursively process children
-        // If we instantiated a prefab, children are inside that prefab hierarchy
         if (runtimeObj.Children != null)
         {
             bool childrenInsidePrefab = didInstantiatePrefab || isInsidePrefabHierarchy;
             foreach (var child in runtimeObj.Children)
             {
-                UpdateRuntimeObjRecursive(
-                    child,
-                    visualObj.transform,
-                    idToGameObject,
-                    seenIds,
-                    childrenInsidePrefab
-                );
+                UpdateRuntimeObjRecursive(child, visualObj.transform, childrenInsidePrefab);
             }
         }
     }
 
     /// <summary>
-    /// Get prefab by RenderPrefabID. Uses 0-based indexing.
-    /// ID -1 = no prefab, ID 0 = first prefab in list, etc.
+    /// Get prefab by RenderPrefabID from the registry.
     /// </summary>
     private GameObject GetPrefabByID(int prefabID)
     {
-        if (prefabID < 0)
-            return null;
-
-        if (prefabID >= 0 && prefabID < renderPrefabs.Count)
+        if (prefabRegistry == null)
         {
-            return renderPrefabs[prefabID];
+            if (ShowDebugInfo)
+            {
+                Debug.LogWarning("TileRenderer: No RenderPrefabRegistry assigned!");
+            }
+            return null;
         }
 
-        return null;
+        return prefabRegistry.GetPrefabByID(prefabID);
     }
 
     /// <summary>
@@ -402,7 +331,6 @@ public class GameCoreRenderer : MonoBehaviour
     /// </summary>
     private bool IsLevelRoot(RuntimeObj runtimeObj)
     {
-        // Check for LevelRootComponent marker
         return runtimeObj.HasComponent<LevelRootComponent>();
     }
 
@@ -414,7 +342,6 @@ public class GameCoreRenderer : MonoBehaviour
         if (go == null || fpTransform == null)
             return;
 
-        // Convert fixed-point values to Unity floats
         Vector3 position = new Vector3(
             fpTransform.LocalPosition.X.ToFloat(),
             fpTransform.LocalPosition.Y.ToFloat(),
@@ -440,22 +367,9 @@ public class GameCoreRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// Clear all rendered GameObjects for both tiles
+    /// Clear all rendered GameObjects
     /// </summary>
     public void ClearRendering()
-    {
-        ClearTileRendering(ref renderRoot1, tile1IdToGameObject, tile1SeenIds);
-        ClearTileRendering(ref renderRoot2, tile2IdToGameObject, tile2SeenIds);
-    }
-
-    /// <summary>
-    /// Clear rendering for a specific tile
-    /// </summary>
-    private void ClearTileRendering(
-        ref GameObject renderRoot,
-        Dictionary<ulong, GameObject> idToGameObject,
-        HashSet<ulong> seenIds
-    )
     {
         if (renderRoot != null)
         {
@@ -465,6 +379,7 @@ public class GameCoreRenderer : MonoBehaviour
 
         idToGameObject.Clear();
         seenIds.Clear();
+        currentGameTile = null;
     }
 
     /// <summary>
@@ -489,29 +404,27 @@ public class GameCoreRenderer : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (!ShowDebugInfo || GameManager.Inst == null || GameManager.Inst.GameCore == null)
+        if (!ShowDebugInfo || PhysicsSim == null)
             return;
 
-        // Draw physics bodies for both tiles
-        DrawPhysicsGizmos(GameManager.Inst.GameCore.GameTile1);
-        DrawPhysicsGizmos(GameManager.Inst.GameCore.GameTile2);
+        DrawPhysicsGizmos(PhysicsSim);
     }
 
     /// <summary>
-    /// Draw physics debug gizmos for a specific GameTile
+    /// Draw physics debug gizmos for the assigned simulation
     /// </summary>
-    private void DrawPhysicsGizmos(GameTileBase gameTile)
+    private void DrawPhysicsGizmos(World sim)
     {
-        if (gameTile == null || gameTile.Sim == null)
+        if (sim == null)
             return;
 
         Gizmos.color = Color.green;
 
-        foreach (var body in gameTile.Sim.Bodies)
+        foreach (var body in sim.Bodies)
         {
             Vector3 pos = new Vector3(body.Position.X.ToFloat(), body.Position.Y.ToFloat(), 0f);
 
-            if (body.ShapeType == LockSim.ShapeType.Box)
+            if (body.ShapeType == ShapeType.Box)
             {
                 Vector3 size = new Vector3(
                     (body.BoxShape.HalfWidth * FP.Two).ToFloat(),
@@ -525,7 +438,7 @@ public class GameCoreRenderer : MonoBehaviour
                 Gizmos.DrawWireCube(Vector3.zero, size);
                 Gizmos.matrix = Matrix4x4.identity;
             }
-            else if (body.ShapeType == LockSim.ShapeType.Circle)
+            else if (body.ShapeType == ShapeType.Circle)
             {
                 Gizmos.DrawWireSphere(pos, body.CircleShape.Radius.ToFloat());
             }

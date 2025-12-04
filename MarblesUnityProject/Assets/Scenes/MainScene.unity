@@ -152,7 +152,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: -27.504742}
+  m_AnchoredPosition: {x: 0.00012207031, y: -27.50501}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0.5, y: 0.95}
 --- !u!1 &94175520
@@ -164,6 +164,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 94175521}
+  - component: {fileID: 94175522}
   m_Layer: 0
   m_Name: GameTile2Origin
   m_TagString: Untagged
@@ -186,6 +187,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1098268960}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &94175522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 94175520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd04b4df16848df44a4036f38443a6a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TileRenderer
+  AutoUpdate: 1
+  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  OriginTransform: {fileID: 94175521}
+  ShowDebugInfo: 0
 --- !u!1 &211776907
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,7 +251,8 @@ MonoBehaviour:
   GameCore:
     Seq: 0
   Game1JSON_PATH: C:\Users\merob\Desktop\CurrentProjects\marbles2\MarblesUnityProject\Temp\LevelJSONs\TestAuthoringWorld.json
-  GameCoreRenderer: {fileID: 1098268961}
+  GameTile1Renderer: {fileID: 1496100695}
+  GameTile2Renderer: {fileID: 94175522}
   _authManager: {fileID: 931444009}
   _stdb: {fileID: 1423701285}
 --- !u!1 &218470313
@@ -1282,7 +1300,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1098268960}
-  - component: {fileID: 1098268961}
   - component: {fileID: 1098268962}
   m_Layer: 0
   m_Name: GameCoreRenderer
@@ -1309,27 +1326,6 @@ Transform:
   - {fileID: 94175521}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1098268961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1098268958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f2aba6eb6511d7448fac4a23b3872d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameCoreRenderer
-  AutoUpdate: 1
-  renderPrefabs:
-  - {fileID: 5728080844889452456, guid: 9f2fab90907ffea44800bf48d971cc47, type: 3}
-  - {fileID: 1073688982425294196, guid: 0965a81b8e02e27439aa19b46271ab33, type: 3}
-  - {fileID: 6795843947873832426, guid: 03d597c05dc5274408125f36079def78, type: 3}
-  - {fileID: 8627050739790726732, guid: 27407d322ea4b9948a9ed629475944e8, type: 3}
-  - {fileID: 6668244075672124559, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
-  TileOrchestrator: {fileID: 1098268962}
-  ShowDebugInfo: 1
 --- !u!114 &1098268962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1432,7 +1428,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1018939884}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999597
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1678,6 +1674,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1496100694}
+  - component: {fileID: 1496100695}
   m_Layer: 0
   m_Name: GameTile1Origin
   m_TagString: Untagged
@@ -1700,6 +1697,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1098268960}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1496100695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1496100693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd04b4df16848df44a4036f38443a6a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TileRenderer
+  AutoUpdate: 1
+  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  OriginTransform: {fileID: 1496100694}
+  ShowDebugInfo: 0
 --- !u!1 &1503107462
 GameObject:
   m_ObjectHideFlags: 0
