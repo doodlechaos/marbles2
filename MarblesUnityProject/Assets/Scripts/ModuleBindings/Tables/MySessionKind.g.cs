@@ -13,7 +13,7 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteTables
     {
-        public sealed class MySessionKindHandle : RemoteTableHandle<EventContext, MySessionKindRow>
+        public sealed class MySessionKindHandle : RemoteTableHandle<EventContext, MySessionKindContainer>
         {
             protected override string RemoteTableName => "MySessionKind";
 

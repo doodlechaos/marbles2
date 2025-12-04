@@ -26,17 +26,17 @@ public static partial class Module
     }
 
     [Type]
-    public partial struct MySessionKindRow
+    public partial struct MySessionKindContainer
     {
         public SessionKind Kind;
     }
 
     [View(Name = "MySessionKind", Public = true)]
-    public static MySessionKindRow? MySessionKind(ViewContext ctx)
+    public static MySessionKindContainer? MySessionKind(ViewContext ctx)
     {
         if (ctx.Db.Session.Identity.Find(ctx.Sender) is Session s)
         {
-            return new MySessionKindRow { Kind = s.Kind };
+            return new MySessionKindContainer { Kind = s.Kind };
         }
 
         return null;

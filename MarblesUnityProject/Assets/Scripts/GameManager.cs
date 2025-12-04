@@ -70,10 +70,9 @@ public class GameManager : MonoBehaviour
 
     private void HandleLogout()
     {
-        Debug.Log("[GameManager] Logout, disconnecting and reconnecting as anonymous...");
-        _stdb.Disconnect();
-
-        // Reconnect as anonymous (tokens are already cleared by AuthManager)
+        Debug.Log("[GameManager] Logout, reconnecting as anonymous...");
+        // InitStdbConnection handles disconnecting any existing connection internally
+        // Tokens are already cleared by AuthManager, so this will connect anonymously
         _stdb.InitStdbConnection();
     }
 

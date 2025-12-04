@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameCoreLib;
 using MemoryPack;
+using SpacetimeDB;
 using SpacetimeDB.Types;
 using UnityEngine;
 
@@ -25,36 +26,54 @@ public class Synchronizer : MonoBehaviour
     [SerializeField]
     private bool restoreRequestedFlag = false;
 
-    private void Start()
+    public void SetCallbacks(DbConnection conn)
     {
-        STDB.Conn.Db.GameCoreSnap.OnInsert += (EventContext ctx, GameCoreSnap row) =>
+        // Reset state for fresh sync
+        safeSeqEdge = 0;
+        latestServerSeq = 0;
+        oldestSeq = 0;
+        clientTargetSeq = 0;
+        targetToSafeEdgeDist = 0;
+        restoreRequestedFlag = false;
+
+        conn.Db.GameCoreSnap.OnInsert += OnGameCoreSnapInsert;
+        conn.Db.GameCoreSnap.OnUpdate += OnGameCoreSnapUpdate;
+        conn.Db.AuthFrame.OnInsert += OnAuthFrameInsert;
+
+        Debug.Log("[Synchronizer] Callbacks registered");
+    }
+
+    public void CleanupCallbacks(DbConnection conn)
+    {
+        conn.Db.GameCoreSnap.OnInsert -= OnGameCoreSnapInsert;
+        conn.Db.GameCoreSnap.OnUpdate -= OnGameCoreSnapUpdate;
+        conn.Db.AuthFrame.OnInsert -= OnAuthFrameInsert;
+        Debug.Log("[Synchronizer] Cleaned up callbacks");
+    }
+
+    private void OnGameCoreSnapInsert(EventContext ctx, GameCoreSnap row)
+    {
+        ApplySnapshot(row.BinaryData.ToArray());
+    }
+
+    private void OnGameCoreSnapUpdate(EventContext ctx, GameCoreSnap oldRow, GameCoreSnap newRow)
+    {
+        ApplySnapshot(newRow.BinaryData.ToArray());
+    }
+
+    private void OnAuthFrameInsert(EventContext ctx, AuthFrame row)
+    {
+        foreach (InputFrame inputFrame in row.Frames)
         {
-            ApplySnapshot(row.BinaryData.ToArray());
-        };
-        STDB.Conn.Db.GameCoreSnap.OnUpdate += (
-            EventContext ctx,
-            GameCoreSnap oldRow,
-            GameCoreSnap newRow
-        ) =>
-        {
-            ApplySnapshot(newRow.BinaryData.ToArray());
-        };
-        STDB.Conn.Db.AuthFrame.OnInsert += (EventContext ctx, AuthFrame row) =>
-        {
-            foreach (InputFrame inputFrame in row.Frames)
-            {
-                if (inputFrame.Seq.IsAhead(latestServerSeq))
-                    latestServerSeq = inputFrame.Seq;
-                /*                 else
-                                    Debug.Log(
-                                        "AuthFrame inserted! Skipping input frame "
-                                            + inputFrame.Seq
-                                            + " because it's behind the latest server seq "
-                                            + latestServerSeq
-                                    ); */
-            }
-        };
-        RequestRestore();
+            if (inputFrame.Seq.IsAhead(latestServerSeq))
+                latestServerSeq = inputFrame.Seq;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (STDB.Conn != null)
+            CleanupCallbacks(STDB.Conn);
     }
 
     private void ApplySnapshot(byte[] gameCoreData)
@@ -70,6 +89,11 @@ public class Synchronizer : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (STDB.Conn == null)
+            return;
+        if (!STDB.Conn.IsActive)
+            return;
+
         if (!EnsureClientHasntFallenTooFarBehind())
             return;
 
@@ -83,7 +107,7 @@ public class Synchronizer : MonoBehaviour
             InputFrame inputFrame = FindInputFrame(GameManager.Inst.GameCore.Seq);
             if (inputFrame == null)
             {
-                Debug.LogError("No input frame found for seq " + GameManager.Inst.GameCore.Seq);
+                Debug.LogWarning("No input frame found for seq " + GameManager.Inst.GameCore.Seq);
                 break;
             }
 

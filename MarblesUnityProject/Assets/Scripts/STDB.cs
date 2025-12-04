@@ -43,7 +43,7 @@ public class STDB : MonoBehaviour
     public static DbConnection Conn { get; private set; }
 
     [SerializeField]
-    private GameObject _synchronizer;
+    private Synchronizer _synchronizer;
 
     [SerializeField]
     private AuthManager _authManager; // Soft dependency - only used to read profile picture URL
@@ -70,6 +70,12 @@ public class STDB : MonoBehaviour
     public TextMeshProUGUI _pointsText;
 
     public string ConnectedIdentity = "";
+
+    /// <summary>
+    /// Reference to the connection we registered callbacks on.
+    /// Used for proper cleanup when connection changes.
+    /// </summary>
+    private DbConnection _callbackConnection;
 
     // Events
     /// <summary>Raised when connection is established</summary>
@@ -159,18 +165,57 @@ public class STDB : MonoBehaviour
 
     private void CreateTableCallbacks(DbConnection conn)
     {
-        Debug.Log("Initialized table callbacks.");
+        Debug.Log("[STDB] Initializing table callbacks...");
+
+        // Store reference for cleanup
+        _callbackConnection = conn;
+
+        // Set callbacks on all handlers
         _bidDisplayPanel.SetCallbacks(conn);
         _uiManager.SetCallbacks(conn);
+        _synchronizer.SetCallbacks(conn);
 
-        conn.Db.MyAccount.OnInsert += (EventContext ctx, Account account) =>
-        {
-            UpdateAccountStats(account);
-        };
-        conn.Db.MyAccount.OnUpdate += (EventContext ctx, Account oldAccount, Account newAccount) =>
-        {
-            UpdateAccountStats(newAccount);
-        };
+        // Register STDB's own callbacks using method references
+        conn.Db.MyAccount.OnInsert += OnMyAccountInsert;
+        conn.Db.MyAccount.OnUpdate += OnMyAccountUpdate;
+
+        Debug.Log("[STDB] All table callbacks initialized");
+    }
+
+    // Callback method handlers for STDB's own callbacks
+    private void OnMyAccountInsert(EventContext ctx, Account account)
+    {
+        UpdateAccountStats(account);
+    }
+
+    private void OnMyAccountUpdate(EventContext ctx, Account oldAccount, Account newAccount)
+    {
+        UpdateAccountStats(newAccount);
+    }
+
+    /// <summary>
+    /// Cleanup all registered callbacks from all handlers.
+    /// Call this before disconnecting or when changing connections.
+    /// Safe to call multiple times.
+    /// </summary>
+    private void CleanupAllCallbacks()
+    {
+        if (_callbackConnection == null)
+            return;
+
+        Debug.Log("[STDB] Cleaning up all callbacks...");
+
+        // Cleanup all handler callbacks (pass the connection they registered on)
+        _synchronizer.CleanupCallbacks(_callbackConnection);
+        _uiManager.CleanupCallbacks(_callbackConnection);
+        _bidDisplayPanel.CleanupCallbacks(_callbackConnection);
+
+        // Cleanup STDB's own callbacks
+        _callbackConnection.Db.MyAccount.OnInsert -= OnMyAccountInsert;
+        _callbackConnection.Db.MyAccount.OnUpdate -= OnMyAccountUpdate;
+        _callbackConnection = null;
+
+        Debug.Log("[STDB] All callbacks cleaned up");
     }
 
     private void UpdateAccountStats(Account account)
@@ -239,8 +284,6 @@ public class STDB : MonoBehaviour
 
         // Save the SpacetimeDB session token for future connections
         SessionToken.SaveToken(token);
-
-        _synchronizer.SetActive(true);
 
         // Notify listeners that connection is established
         OnSTDBConnect?.Invoke();
@@ -360,10 +403,27 @@ public class STDB : MonoBehaviour
     /// </summary>
     public void Disconnect()
     {
-        if (Conn != null && Conn.IsActive)
+        // Cleanup ALL callbacks BEFORE disconnecting to unregister them
+        // and prevent handlers from running with stale state while we're reconnecting
+        CleanupAllCallbacks();
+
+        if (Conn != null)
         {
-            Conn.Disconnect();
-            Debug.Log("[STDB] Disconnected from SpacetimeDB.");
+            Debug.Log($"[STDB] Disconnect() called. IsActive={Conn.IsActive}");
+            try
+            {
+                Conn.Disconnect();
+                Debug.Log("[STDB] Disconnected from SpacetimeDB.");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[STDB] Error during disconnect: {ex.Message}");
+            }
+            Conn = null; // Clear reference
+        }
+        else
+        {
+            Debug.LogWarning("[STDB] No connection to disconnect from.");
         }
     }
 

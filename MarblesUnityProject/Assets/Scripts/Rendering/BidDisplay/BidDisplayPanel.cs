@@ -40,40 +40,66 @@ public class BidDisplayPanel : MonoBehaviour
 
     public void SetCallbacks(DbConnection conn)
     {
-        conn.Db.AccountBid.OnInsert += (EventContext ctx, AccountBid accountBid) =>
-        {
-            RefreshBidDisplay(ctx.Db);
-        };
-        conn.Db.AccountBid.OnUpdate += (
-            EventContext ctx,
-            AccountBid oldAccountBid,
-            AccountBid newAccountBid
-        ) =>
-        {
-            RefreshBidDisplay(ctx.Db);
-        };
-        conn.Db.AccountBid.OnDelete += (EventContext ctx, AccountBid accountBid) =>
-        {
-            RefreshBidDisplay(ctx.Db);
-        };
-        conn.Db.BiddingStateS.OnUpdate += (
-            EventContext ctx,
-            BiddingStateS oldBiddingState,
-            BiddingStateS newBiddingState
-        ) =>
-        {
-            _currentBidWorldId = newBiddingState.CurrBidWorldId;
-            _bidStateText.SetText(
-                $"OtherTileReadyForBidding: {newBiddingState.OtherTileReadyForBidding}, CurrBidWorldId: {newBiddingState.CurrBidWorldId}"
-            );
-        };
-        conn.Db.BidTimeS.OnUpdate += (EventContext ctx, BidTimeS oldBidTime, BidTimeS newBidTime) =>
-        {
-            var ts = TimeSpan.FromTicks(newBidTime.MicrosecondsRemaining * 10);
+        conn.Db.AccountBid.OnInsert += OnAccountBidInsert;
+        conn.Db.AccountBid.OnUpdate += OnAccountBidUpdate;
+        conn.Db.AccountBid.OnDelete += OnAccountBidDelete;
+        conn.Db.BiddingStateS.OnUpdate += OnBiddingStateSUpdate;
+        conn.Db.BidTimeS.OnUpdate += OnBidTimeSUpdate;
+        Debug.Log("[BidDisplayPanel] Callbacks registered");
+    }
 
-            _bidTimeText.SetText(ts.ToString(@"mm\:ss"));
-        };
-        Debug.Log("Set callbacks for BidDisplayPanel table.");
+    public void CleanupCallbacks(DbConnection conn)
+    {
+        conn.Db.AccountBid.OnInsert -= OnAccountBidInsert;
+        conn.Db.AccountBid.OnUpdate -= OnAccountBidUpdate;
+        conn.Db.AccountBid.OnDelete -= OnAccountBidDelete;
+        conn.Db.BiddingStateS.OnUpdate -= OnBiddingStateSUpdate;
+        conn.Db.BidTimeS.OnUpdate -= OnBidTimeSUpdate;
+        Debug.Log("[BidDisplayPanel] Callbacks cleaned up");
+    }
+
+    void OnDestroy()
+    {
+        if (STDB.Conn != null)
+            CleanupCallbacks(STDB.Conn);
+    }
+
+    // Callback method handlers
+    private void OnAccountBidInsert(EventContext ctx, AccountBid accountBid)
+    {
+        RefreshBidDisplay(ctx.Db);
+    }
+
+    private void OnAccountBidUpdate(
+        EventContext ctx,
+        AccountBid oldAccountBid,
+        AccountBid newAccountBid
+    )
+    {
+        RefreshBidDisplay(ctx.Db);
+    }
+
+    private void OnAccountBidDelete(EventContext ctx, AccountBid accountBid)
+    {
+        RefreshBidDisplay(ctx.Db);
+    }
+
+    private void OnBiddingStateSUpdate(
+        EventContext ctx,
+        BiddingStateS oldBiddingState,
+        BiddingStateS newBiddingState
+    )
+    {
+        _currentBidWorldId = newBiddingState.CurrBidWorldId;
+        _bidStateText.SetText(
+            $"OtherTileReadyForBidding: {newBiddingState.OtherTileReadyForBidding}, CurrBidWorldId: {newBiddingState.CurrBidWorldId}"
+        );
+    }
+
+    private void OnBidTimeSUpdate(EventContext ctx, BidTimeS oldBidTime, BidTimeS newBidTime)
+    {
+        var ts = TimeSpan.FromTicks(newBidTime.MicrosecondsRemaining * 10);
+        _bidTimeText.SetText(ts.ToString(@"mm\:ss"));
     }
 
     void Update()

@@ -1,6 +1,5 @@
 using System.Collections;
 using SpacetimeDB.Types;
-using SpacetimeDB.Types;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UIElements;
@@ -52,30 +51,48 @@ public class UIManager : MonoBehaviour
 
     public void SetCallbacks(DbConnection conn)
     {
-        conn.Db.MySessionKind.OnInsert += (EventContext ctx, MySessionKindRow mySessionKind) =>
-        {
-            UpdateAuthUI(mySessionKind.Kind);
-        };
-        conn.Db.MySessionKind.OnUpdate += (
-            EventContext ctx,
-            MySessionKindRow oldMySessionKind,
-            MySessionKindRow newMySessionKind
-        ) =>
-        {
-            UpdateAuthUI(newMySessionKind.Kind);
-        };
-        conn.Db.MySessionKind.OnDelete += (EventContext ctx, MySessionKindRow mySessionKind) =>
-        {
-            UpdateAuthUI(mySessionKind.Kind);
-        };
+        conn.Db.MySessionKind.OnInsert += OnMySessionKindInsert;
+        conn.Db.MySessionKind.OnUpdate += OnMySessionKindUpdate;
+        conn.Db.MySessionKind.OnDelete += OnMySessionKindDelete;
+        Debug.Log("[UIManager] Callbacks registered");
+    }
+
+    public void CleanupCallbacks(DbConnection conn)
+    {
+        conn.Db.MySessionKind.OnInsert -= OnMySessionKindInsert;
+        conn.Db.MySessionKind.OnUpdate -= OnMySessionKindUpdate;
+        conn.Db.MySessionKind.OnDelete -= OnMySessionKindDelete;
+        Debug.Log("[UIManager] Callbacks cleaned up");
+    }
+
+    // Callback method handlers
+    private void OnMySessionKindInsert(EventContext ctx, MySessionKindContainer mySessionKind)
+    {
+        UpdateAuthUI(mySessionKind.Kind);
+    }
+
+    private void OnMySessionKindUpdate(
+        EventContext ctx,
+        MySessionKindContainer oldMySessionKind,
+        MySessionKindContainer newMySessionKind
+    )
+    {
+        UpdateAuthUI(newMySessionKind.Kind);
+    }
+
+    private void OnMySessionKindDelete(EventContext ctx, MySessionKindContainer mySessionKind)
+    {
+        UpdateAuthUI(mySessionKind.Kind);
     }
 
     void OnDestroy()
     {
+        // Cleanup STDB callbacks if connection still exists
+        if (STDB.Conn != null)
+            CleanupCallbacks(STDB.Conn);
+
         if (_authManager != null)
-        {
             _authManager.OnLogout -= OnLogout;
-        }
     }
 
     private void OnLoginClicked()
