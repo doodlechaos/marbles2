@@ -105,8 +105,12 @@ import LastAuthFrameTimestampRow from "./last_auth_frame_timestamp_table";
 export { LastAuthFrameTimestampRow };
 import MyAccountRow from "./my_account_table";
 export { MyAccountRow };
+import MySessionKindRow from "./my_session_kind_table";
+export { MySessionKindRow };
 import SeqRow from "./seq_table";
 export { SeqRow };
+import SessionRow from "./session_table";
+export { SessionRow };
 import StepsSinceLastAuthFrameRow from "./steps_since_last_auth_frame_table";
 export { StepsSinceLastAuthFrameRow };
 import StepsSinceLastBatchRow from "./steps_since_last_batch_table";
@@ -149,8 +153,14 @@ import InputFrame from "./input_frame_type";
 export { InputFrame };
 import LastAuthFrameTimestamp from "./last_auth_frame_timestamp_type";
 export { LastAuthFrameTimestamp };
+import MySessionKindRow from "./my_session_kind_row_type";
+export { MySessionKindRow };
 import Seq from "./seq_type";
 export { Seq };
+import Session from "./session_type";
+export { Session };
+import SessionKind from "./session_kind_type";
+export { SessionKind };
 import StepsSinceLastAuthFrame from "./steps_since_last_auth_frame_type";
 export { StepsSinceLastAuthFrame };
 import StepsSinceLastBatch from "./steps_since_last_batch_type";
@@ -368,6 +378,17 @@ const tablesSchema = __schema(
     ],
   }, SeqRow),
   __table({
+    name: 'Session',
+    indexes: [
+      { name: 'Identity', algorithm: 'btree', columns: [
+        'identity',
+      ] },
+    ],
+    constraints: [
+      { name: 'Session_Identity_key', constraint: 'unique', columns: ['identity'] },
+    ],
+  }, SessionRow),
+  __table({
     name: 'StepsSinceLastAuthFrame',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
@@ -396,6 +417,13 @@ const tablesSchema = __schema(
     constraints: [
     ],
   }, MyAccountRow),
+  __table({
+    name: 'MySessionKind',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, MySessionKindRow),
 );
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */

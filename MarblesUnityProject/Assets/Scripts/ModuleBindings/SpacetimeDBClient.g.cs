@@ -47,7 +47,9 @@ namespace SpacetimeDB.Types
             AddTable(InputFrame = new(conn));
             AddTable(LastAuthFrameTimestamp = new(conn));
             AddTable(MyAccount = new(conn));
+            AddTable(MySessionKind = new(conn));
             AddTable(Seq = new(conn));
+            AddTable(Session = new(conn));
             AddTable(StepsSinceLastAuthFrame = new(conn));
             AddTable(StepsSinceLastBatch = new(conn));
         }

@@ -11,6 +11,11 @@ using System.Net;
 using System.Threading;
 #endif
 
+/// <summary>
+/// AuthManager is the source of truth for OAuth login state and ID tokens.
+/// It handles the OAuth/PKCE dance for both WebGL and Editor.
+/// It does NOT know about SpacetimeDB connections directly - use events to wire up.
+/// </summary>
 public class AuthManager : MonoBehaviour
 {
     [Header("SpacetimeAuth Configuration")]
@@ -24,16 +29,18 @@ public class AuthManager : MonoBehaviour
     public string scopes = "openid profile email";
 
     [Header("Runtime State")]
-    public bool isAuthenticated = false;
-
-    public Toggle isAuthenticatedVisualToggle;
     public string idToken = null;
     public UserProfile userProfile = null;
 
     // Events
+    /// <summary>Raised when authentication succeeds (either via login or session restore)</summary>
     public event Action OnAuthenticationSuccess;
-    public event Action<string> OnAuthenticationError;
+
+    /// <summary>Raised when user logs out</summary>
     public event Action OnLogout;
+
+    /// <summary>Raised when authentication fails with an error message</summary>
+    public event Action<string> OnAuthenticationError;
 
     // Private state
     private string codeVerifier;
@@ -97,14 +104,6 @@ public class AuthManager : MonoBehaviour
         RestoreSession();
     }
 
-    void Update()
-    {
-        if (isAuthenticatedVisualToggle != null)
-        {
-            isAuthenticatedVisualToggle.isOn = isAuthenticated;
-        }
-    }
-
     void OnDestroy()
     {
 #if UNITY_EDITOR
@@ -141,33 +140,31 @@ public class AuthManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Logout and clear session
+    /// Logout and clear all OAuth session data.
+    /// Listeners should disconnect from STDB and reconnect as anonymous.
     /// </summary>
     public void Logout()
     {
         Debug.Log("[AuthManager] Logging out...");
 
-        // Clear tokens and profile
+        // Clear in-memory tokens and profile
         idToken = null;
         userProfile = null;
-        isAuthenticated = false;
 
-        // Clear stored session
+        // Clear stored OAuth session
         PlayerPrefs.DeleteKey(STORAGE_KEY_ID_TOKEN);
         PlayerPrefs.DeleteKey(STORAGE_KEY_USER_PROFILE);
         PlayerPrefs.DeleteKey("pkce_verifier");
         PlayerPrefs.DeleteKey("oauth_state");
         PlayerPrefs.Save();
 
+        // Clear SpacetimeDB token as well (owned by SessionToken but we clear on logout)
+        SessionToken.ClearToken();
+
+        // Notify listeners - they should disconnect and reconnect as anonymous
         OnLogout?.Invoke();
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        // In WebGL, refresh the page to clear any in-memory state
-        string currentPage = GetCurrentPageUrlWithoutQuery();
-        RedirectToUrl(currentPage);
-#else
-        Debug.Log("[AuthManager] Logout complete (Editor/Standalone mode - no page refresh)");
-#endif
+        Debug.Log("[AuthManager] Logout complete");
     }
 
     /// <summary>
@@ -179,11 +176,12 @@ public class AuthManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Check if user is authenticated
+    /// Check if user has a local OAuth ID token.
+    /// Note: For authoritative auth state, use the server's session kind.
     /// </summary>
-    public bool IsAuthenticated()
+    public bool HasIdToken()
     {
-        return isAuthenticated && !string.IsNullOrEmpty(idToken);
+        return !string.IsNullOrEmpty(idToken);
     }
 
     /// <summary>
@@ -209,11 +207,20 @@ public class AuthManager : MonoBehaviour
 #endif
     }
 
-    public void ClearPlayerPrefs()
+    /// <summary>
+    /// Clears all stored credentials including in-memory tokens.
+    /// Used for recovery from invalid token errors.
+    /// </summary>
+    public void ClearAllCredentials()
     {
+        // Clear in-memory state
+        idToken = null;
+        userProfile = null;
+
+        // Clear all PlayerPrefs (includes both SpacetimeDB token and OAuth tokens)
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
-        Debug.Log("[AuthManager] PlayerPrefs cleared");
+        Debug.Log("[AuthManager] All credentials cleared (memory + storage)");
     }
 
     #region WebGL OAuth Flow
@@ -605,18 +612,18 @@ public class AuthManager : MonoBehaviour
                 // Parse and store user profile from ID token
                 userProfile = ParseIdToken(idToken);
 
-                // Mark as authenticated
-                isAuthenticated = true;
-
+                // Clear any existing SpacetimeDB token so we authenticate fresh with the new ID token
                 SessionToken.ClearToken();
 
-                // Persist session
+                // Persist OAuth session
                 SaveSession();
 
                 Debug.Log($"[AuthManager] Authentication successful! User: {userProfile?.sub}");
 
                 // Clean URL (WebGL only) and notify success
                 CleanUrlParameters();
+
+                // Notify listeners - STDB will connect via this event
                 OnAuthenticationSuccess?.Invoke();
             }
             catch (Exception ex)
@@ -698,10 +705,8 @@ public class AuthManager : MonoBehaviour
             }
 
             // TODO: Validate token hasn't expired
-            // For now, just mark as authenticated if token exists
             if (!string.IsNullOrEmpty(idToken))
             {
-                isAuthenticated = true;
                 Debug.Log($"[AuthManager] Restored session for user: {userProfile?.sub}");
             }
         }

@@ -10,6 +10,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
+/// <summary>
+/// STDB is the source of truth for SpacetimeDB connections and table subscriptions.
+/// It does NOT know about OAuth flows - use events to communicate auth state changes.
+/// </summary>
 public class STDB : MonoBehaviour
 {
     // Fallback values for non-WebGL builds (Editor, standalone)
@@ -42,10 +46,19 @@ public class STDB : MonoBehaviour
     private GameObject _synchronizer;
 
     [SerializeField]
-    private AuthManager _authManager;
+    private AuthManager _authManager; // Soft dependency - only used to read profile picture URL
+
+    [SerializeField]
+    private UIManager _uiManager;
 
     [SerializeField]
     private string _tokenConnectedWith;
+
+    /// <summary>
+    /// Tracks whether we've already attempted to clear an invalid token and retry.
+    /// Prevents infinite reconnection loops.
+    /// </summary>
+    private bool _hasAttemptedTokenClear = false;
 
     [SerializeField]
     private BidDisplayPanel _bidDisplayPanel;
@@ -58,8 +71,29 @@ public class STDB : MonoBehaviour
 
     public string ConnectedIdentity = "";
 
+    // Events
+    /// <summary>Raised when connection is established</summary>
+    public event Action OnSTDBConnect;
+
+    /// <summary>Raised when disconnected</summary>
+    public event Action OnSTDBDisconnect;
+
+    /// <summary>Raised when subscriptions are applied and ready</summary>
+    public event Action OnSubscriptionsReady;
+
+    /// <summary>Raised when an authentication error occurs (e.g., invalid token)</summary>
+    public event Action<Exception> OnSTDBConnectError;
+
+    /// <summary>
+    /// Initialize and connect to SpacetimeDB.
+    /// Uses SessionToken.Token if available (which may be the STDB token or ID token).
+    /// Automatically disconnects any existing connection first.
+    /// </summary>
     public void InitStdbConnection()
     {
+        // Disconnect any existing connection to avoid orphaned sessions on the server
+        Disconnect();
+
         // Log the resolved config (useful for debugging WebGL builds)
         Debug.Log($"[STDB] Connecting to SpacetimeDB - Host: {ServerUrl}, Module: {ModuleName}");
 
@@ -73,34 +107,28 @@ public class STDB : MonoBehaviour
             .WithUri(ServerUrl)
             .WithModuleName(ModuleName);
 
-        _tokenConnectedWith = SessionToken.Token;
+        _tokenConnectedWith = GetConnectionToken();
 
         // Debug: Log token status before connecting
-        bool hasToken = SessionToken.HasToken();
-        string currentToken = SessionToken.Token;
-        Debug.Log($"[STDB] SessionToken.HasToken() = {hasToken}");
-        Debug.Log(
-            $"[STDB] SessionToken.Token is null? {currentToken == null}, empty? {string.IsNullOrEmpty(currentToken)}"
-        );
-        if (!string.IsNullOrEmpty(currentToken) && currentToken.Length > 50)
+        bool hasToken = !string.IsNullOrEmpty(_tokenConnectedWith);
+        Debug.Log($"[STDB] HasToken = {hasToken}");
+        if (hasToken && _tokenConnectedWith.Length > 50)
         {
-            Debug.Log($"[STDB] Token preview: {currentToken.Substring(0, 50)}...");
+            Debug.Log($"[STDB] Token preview: {_tokenConnectedWith.Substring(0, 50)}...");
         }
 
-        // If the user has a SpacetimeDB auth token stored in the Unity PlayerPrefs,
-        // we can use it to authenticate the connection.
+        // If we have a token, use it to authenticate the connection
         if (hasToken)
         {
-            Debug.Log("[STDB] Connecting WITH existing token");
-            builder = builder.WithToken(currentToken);
+            Debug.Log("[STDB] Connecting WITH token");
+            builder = builder.WithToken(_tokenConnectedWith);
         }
         else
         {
-            Debug.Log("[STDB] Connecting WITHOUT token (will get new identity)");
+            Debug.Log("[STDB] Connecting ANONYMOUSLY WITHOUT token");
         }
 
-        // Building the connection will establish a connection to the SpacetimeDB
-        // server.
+        // Building the connection will establish a connection to the SpacetimeDB server
         Conn = builder.Build();
 
         CreateTableCallbacks(Conn);
@@ -108,10 +136,32 @@ public class STDB : MonoBehaviour
         Debug.Log($"[STDB] Connection initiated");
     }
 
+    /// <summary>
+    /// Gets the token to use for connection.
+    /// Prioritizes stored STDB token, then falls back to OAuth ID token.
+    /// </summary>
+    private string GetConnectionToken()
+    {
+        // First check for stored SpacetimeDB session token
+        if (SessionToken.HasToken())
+        {
+            return SessionToken.Token;
+        }
+
+        // Fall back to OAuth ID token for initial authentication
+        if (_authManager != null && _authManager.HasIdToken())
+        {
+            return _authManager.GetIdToken();
+        }
+
+        return "";
+    }
+
     private void CreateTableCallbacks(DbConnection conn)
     {
         Debug.Log("Initialized table callbacks.");
         _bidDisplayPanel.SetCallbacks(conn);
+        _uiManager.SetCallbacks(conn);
 
         conn.Db.MyAccount.OnInsert += (EventContext ctx, Account account) =>
         {
@@ -128,8 +178,8 @@ public class STDB : MonoBehaviour
         Debug.Log(
             $"[STDB] Updating account stats: {account.Marbles} marbles, {account.Points} points"
         );
-        _marbleCountText.SetText($"Marbles: {account.Marbles.ToString()}");
-        _pointsText.SetText($"Points: {account.Points.ToString()}");
+        _marbleCountText.SetText($"Marbles: {account.Marbles}");
+        _pointsText.SetText($"Points: {account.Points}");
     }
 
     void CheckIfNeedsToUploadProfilePicture(SubscriptionEventContext ctx)
@@ -153,20 +203,14 @@ public class STDB : MonoBehaviour
             return;
         }
 
-        if (
-            localAccountCustomization.PfpVersion == 0
-            && !string.IsNullOrEmpty(_authManager.userProfile?.picture)
-        )
+        // Soft dependency on AuthManager - only for reading profile picture URL
+        string pictureUrl = _authManager?.userProfile?.picture;
+
+        if (localAccountCustomization.PfpVersion == 0 && !string.IsNullOrEmpty(pictureUrl))
         {
-            Debug.Log(
-                $"[STDB] Account has no profile picture, uploading from OAuth: {_authManager.userProfile.picture}"
-            );
+            Debug.Log($"[STDB] Account has no profile picture, uploading from OAuth: {pictureUrl}");
             StartCoroutine(
-                UploadProfilePictureFromUrl(
-                    _authManager.userProfile?.picture,
-                    SessionToken.Token,
-                    localAccount.Identity
-                )
+                UploadProfilePictureFromUrl(pictureUrl, SessionToken.Token, localAccount.Identity)
             );
         }
         else
@@ -180,6 +224,9 @@ public class STDB : MonoBehaviour
     // Called when we connect to SpacetimeDB and receive our client identity
     void HandleConnect(DbConnection _conn, Identity identity, string token)
     {
+        // Reset the token clear flag on successful connection
+        _hasAttemptedTokenClear = false;
+
         ConnectedIdentity = identity.ToString();
         Debug.Log($"[STDB] HandleConnect called!");
         Debug.Log($"[STDB] Received identity: {identity}");
@@ -190,9 +237,13 @@ public class STDB : MonoBehaviour
             $"[STDB] Previous token we connected with: {(_tokenConnectedWith?.Length > 50 ? _tokenConnectedWith.Substring(0, 50) : _tokenConnectedWith)}..."
         );
 
+        // Save the SpacetimeDB session token for future connections
         SessionToken.SaveToken(token);
 
         _synchronizer.SetActive(true);
+
+        // Notify listeners that connection is established
+        OnSTDBConnect?.Invoke();
 
         // Request all tables
         Conn.SubscriptionBuilder()
@@ -201,6 +252,9 @@ public class STDB : MonoBehaviour
                 {
                     Debug.Log("Subscription applied!");
                     CheckIfNeedsToUploadProfilePicture(ctx);
+
+                    // Notify listeners that we're fully ready
+                    OnSubscriptionsReady?.Invoke();
                 }
             )
             .OnError(
@@ -214,6 +268,7 @@ public class STDB : MonoBehaviour
                 {
                     "SELECT * FROM AuthFrame",
                     "SELECT * FROM MyAccount",
+                    "SELECT * FROM MySessionKind",
                     "SELECT * FROM AccountCustomization",
                     "SELECT * FROM BaseCfg",
                     "SELECT * FROM AccountBid",
@@ -225,16 +280,101 @@ public class STDB : MonoBehaviour
 
     void HandleConnectError(Exception ex)
     {
-        Debug.LogError($"Connection error: {ex}");
+        Debug.LogError($"[STDB] Connection error: {ex}");
+
+        // Check if this is an authentication error (401 Unauthorized / invalid token)
+        bool isAuthError = IsAuthenticationError(ex);
+
+        if (isAuthError && !_hasAttemptedTokenClear && SessionToken.HasToken())
+        {
+            Debug.LogWarning(
+                "[STDB] Detected authentication error with stored token. Clearing token and reconnecting..."
+            );
+
+            // Mark that we've attempted to clear the token to prevent infinite loops
+            _hasAttemptedTokenClear = true;
+
+            // Clear the invalid SpacetimeDB session token (our responsibility)
+            SessionToken.ClearToken();
+
+            // Notify listeners about the auth error so they can clear OAuth credentials if needed
+            OnSTDBConnectError?.Invoke(ex);
+
+            // Reconnect without the invalid token (will connect anonymously)
+            Debug.Log("[STDB] Reconnecting after clearing invalid token...");
+            InitStdbConnection();
+        }
+        else if (isAuthError && _hasAttemptedTokenClear)
+        {
+            Debug.LogError(
+                "[STDB] Authentication error persists after clearing token. User may need to log in again."
+            );
+            // Notify listeners so they can show login UI
+            OnSTDBConnectError?.Invoke(ex);
+        }
+    }
+
+    /// <summary>
+    /// Checks if the exception indicates an authentication/authorization error.
+    /// This includes 401 Unauthorized responses and token verification failures.
+    /// </summary>
+    private bool IsAuthenticationError(Exception ex)
+    {
+        if (ex == null)
+            return false;
+
+        string message = ex.ToString().ToLowerInvariant();
+
+        // Specific auth failure patterns (not just mentioned in help text)
+        if (
+            message.Contains("failed to verify token")
+            || message.Contains("invalid token")
+            || message.Contains("token expired")
+            || message.Contains("authentication failed")
+            || message.Contains("401")
+            || message.Contains("unauthorized")
+            || message.Contains("failed to verify token")
+        )
+        {
+            return true;
+        }
+
+        // In WebGL, auth failures often come as generic "Failed to connect WebSocket"
+        // The actual 401 is only visible in browser console (JavaScript layer)
+        // If we have a token and get this error, it's likely a bad token
+#if UNITY_WEBGL && !UNITY_EDITOR
+        if (message.Contains("failed to connect websocket"))
+        {
+            Debug.Log(
+                "[STDB] WebGL connection failure detected - may be auth-related if token is present"
+            );
+            return true;
+        }
+#endif
+
+        return false;
+    }
+
+    /// <summary>
+    /// Disconnect from SpacetimeDB.
+    /// </summary>
+    public void Disconnect()
+    {
+        if (Conn != null && Conn.IsActive)
+        {
+            Conn.Disconnect();
+            Debug.Log("[STDB] Disconnected from SpacetimeDB.");
+        }
     }
 
     void HandleDisconnect(DbConnection _conn, Exception ex)
     {
-        Debug.Log("Disconnected.");
+        Debug.Log("[STDB] Disconnected.");
         if (ex != null)
         {
             Debug.LogException(ex);
         }
+        OnSTDBDisconnect?.Invoke();
     }
 
     /// <summary>
@@ -283,7 +423,7 @@ public class STDB : MonoBehaviour
 
     void OnDestroy()
     {
-        Conn.Disconnect();
+        Disconnect();
     }
 
 #if UNITY_EDITOR

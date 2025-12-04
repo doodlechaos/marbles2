@@ -8,6 +8,10 @@ using SpacetimeDB;
 using SpacetimeDB.Types;
 using UnityEngine;
 
+/// <summary>
+/// GameManager serves as the bootstrap for the game.
+/// It wires together AuthManager and STDB via events, keeping their responsibilities separate.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     public static GameManager Inst { get; private set; }
@@ -25,9 +29,6 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private STDB _stdb;
 
-    [SerializeField]
-    private bool _stdbInitialized = false;
-
     private void Awake()
     {
         GameCoreLib.Logger.Log = Debug.Log;
@@ -36,19 +37,75 @@ public class GameManager : MonoBehaviour
         Inst = this;
         Application.targetFrameRate = 60;
 
+        // Wire up events between AuthManager and STDB
+        WireAuthAndStdbEvents();
+
+        // Initialize AuthManager and try to restore session
         _authManager.InitAndTryRestoreSession();
-        _authManager.OnAuthenticationSuccess += OnAuthSuccess;
+    }
+
+    /// <summary>
+    /// Wires events between AuthManager and STDB so they communicate via events
+    /// rather than direct method calls. This keeps responsibilities clean:
+    /// - AuthManager owns OAuth/login state
+    /// - STDB owns SpacetimeDB connection
+    /// </summary>
+    private void WireAuthAndStdbEvents()
+    {
+        // When auth succeeds (either via login or session restore callback), connect to STDB
+        _authManager.OnAuthenticationSuccess += HandleAuthSuccess;
+
+        // When logout happens, disconnect STDB
+        _authManager.OnLogout += HandleLogout;
+
+        // When STDB hits an auth error, ask AuthManager to clear OAuth credentials
+        _stdb.OnSTDBConnectError += HandleStdbAuthError;
+    }
+
+    private void HandleAuthSuccess()
+    {
+        Debug.Log("[GameManager] Auth success, connecting to STDB...");
+        _stdb.InitStdbConnection();
+    }
+
+    private void HandleLogout()
+    {
+        Debug.Log("[GameManager] Logout, disconnecting and reconnecting as anonymous...");
+        _stdb.Disconnect();
+
+        // Reconnect as anonymous (tokens are already cleared by AuthManager)
+        _stdb.InitStdbConnection();
+    }
+
+    private void HandleStdbAuthError(Exception ex)
+    {
+        Debug.LogWarning($"[GameManager] STDB auth error: {ex}. Clearing OAuth credentials.");
+        _authManager.ClearAllCredentials();
+        // Note: STDB will automatically reconnect anonymously after clearing its token
     }
 
     private void Start()
     {
+        // Check for OAuth callback (WebGL only - this might trigger OnAuthenticationSuccess)
         _authManager.CheckForOAuthCallback();
-        TryInitStdbConnection();
+
+        // If user already has a stored SpacetimeDB token or ID token, connect now
+        // (If CheckForOAuthCallback triggered auth success, this is redundant but safe)
+        _stdb.InitStdbConnection();
     }
 
     private void OnDestroy()
     {
-        _authManager.OnAuthenticationSuccess -= OnAuthSuccess;
+        // Clean up event subscriptions
+        if (_authManager != null)
+        {
+            _authManager.OnAuthenticationSuccess -= HandleAuthSuccess;
+            _authManager.OnLogout -= HandleLogout;
+        }
+        if (_stdb != null)
+        {
+            _stdb.OnSTDBConnectError -= HandleStdbAuthError;
+        }
     }
 
     [ProButton]
@@ -83,31 +140,5 @@ public class GameManager : MonoBehaviour
         );
         Debug.Log("Deserialized GameCore successfully");
         Debug.Log($"Deserialized GameCore hash: {GameCore.GetDeterministicHashHex()}");
-    }
-
-    private void OnAuthSuccess()
-    {
-        // We only establish the SpacetimeDB connection once we know the auth token,
-        // otherwise the connection uses a fresh local identity that won't match the
-        // authenticated account (and profile picture upload never triggers).
-        TryInitStdbConnection();
-    }
-
-    private void TryInitStdbConnection()
-    {
-        if (_stdbInitialized)
-        {
-            return;
-        }
-
-        // Only connect once we have a token (either a restored SpacetimeDB session
-        // token or the newly acquired SpacetimeAuth ID token).
-        if (!SessionToken.HasToken())
-        {
-            return;
-        }
-
-        _stdb.InitStdbConnection();
-        _stdbInitialized = true;
     }
 }

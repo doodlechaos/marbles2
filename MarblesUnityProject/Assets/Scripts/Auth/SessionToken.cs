@@ -1,47 +1,22 @@
 using UnityEngine;
 
 /// <summary>
-/// Helper class for managing SpacetimeDB authentication tokens
-/// This class can work with both traditional SpacetimeDB tokens and SpacetimeAuth ID tokens
+/// Helper class for managing SpacetimeDB session tokens.
+/// This class ONLY manages the long-lived SpacetimeDB token.
+/// OAuth/ID tokens are managed by AuthManager.
 /// </summary>
 public static class SessionToken
 {
     private const string TOKEN_KEY = "spacetimedb_auth_token";
 
     /// <summary>
-    /// Get the current authentication token
-    /// Prioritizes stored SpacetimeDB session token (long-lived), then falls back to OAuth ID token (short-lived)
+    /// Get the stored SpacetimeDB session token.
+    /// Returns empty string if no token is stored.
     /// </summary>
-    public static string Token
-    {
-        get
-        {
-            // First, check for stored SpacetimeDB session token (this has no expiration)
-            string storedToken = PlayerPrefs.GetString(TOKEN_KEY, "");
-            if (!string.IsNullOrEmpty(storedToken))
-            {
-                return storedToken;
-            }
-
-            // Fall back to OAuth ID token for initial authentication
-            // This token has a short expiration (~60 seconds) and should only be used once
-            AuthManager authManager = Object.FindFirstObjectByType<AuthManager>();
-            if (authManager != null && authManager.IsAuthenticated())
-            {
-                string idToken = authManager.GetIdToken();
-                if (!string.IsNullOrEmpty(idToken))
-                {
-                    return idToken;
-                }
-            }
-
-            return "";
-        }
-    }
+    public static string Token => PlayerPrefs.GetString(TOKEN_KEY, "");
 
     /// <summary>
-    /// Save a SpacetimeDB token (not SpacetimeAuth ID token)
-    /// ID tokens from SpacetimeAuth are managed by AuthManager
+    /// Save a SpacetimeDB session token.
     /// </summary>
     public static void SaveToken(string token)
     {
@@ -49,25 +24,22 @@ public static class SessionToken
         {
             PlayerPrefs.SetString(TOKEN_KEY, token);
             PlayerPrefs.Save();
-            Debug.Log("[AuthToken] SpacetimeDB token saved");
+            Debug.Log("[SessionToken] SpacetimeDB token saved");
         }
     }
 
     /// <summary>
-    /// Clear the stored token
+    /// Clear the stored SpacetimeDB session token.
     /// </summary>
     public static void ClearToken()
     {
         PlayerPrefs.DeleteKey(TOKEN_KEY);
         PlayerPrefs.Save();
-        Debug.Log("[AuthToken] Token cleared");
+        Debug.Log("[SessionToken] Token cleared");
     }
 
     /// <summary>
-    /// Check if we have any authentication token available
+    /// Check if we have a stored SpacetimeDB session token.
     /// </summary>
-    public static bool HasToken()
-    {
-        return !string.IsNullOrEmpty(Token);
-    }
+    public static bool HasToken() => !string.IsNullOrEmpty(Token);
 }
