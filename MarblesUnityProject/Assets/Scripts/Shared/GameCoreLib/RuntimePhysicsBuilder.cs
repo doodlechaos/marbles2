@@ -170,6 +170,7 @@ namespace GameCoreLib
 
             // Add body to world and store binding
             int bodyId = sim.AddBody(body);
+            obj.PhysicsBodyId = bodyId; // Store on RuntimeObj for safe teleporting
             physicsBindings[obj.RuntimeId] = new PhysicsBinding
             {
                 BodyId = bodyId,
@@ -238,6 +239,7 @@ namespace GameCoreLib
 
             // Add body to world and store binding
             int bodyId = sim.AddBody(body);
+            obj.PhysicsBodyId = bodyId; // Store on RuntimeObj for safe teleporting
             physicsBindings[obj.RuntimeId] = new PhysicsBinding
             {
                 BodyId = bodyId,

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FPMathLib;
+using LockSim;
 using MemoryPack;
 
 namespace GameCoreLib
@@ -42,6 +43,20 @@ namespace GameCoreLib
         /// </summary>
         [MemoryPackOrder(5)]
         public int RenderPrefabID = -1;
+
+        /// <summary>
+        /// Physics body ID in the LockSim world. -1 means no physics body.
+        /// Set by RuntimePhysicsBuilder when a physics body is created for this object.
+        /// Use Teleport() to move objects with physics bodies to ensure synchronization.
+        /// </summary>
+        [MemoryPackOrder(6)]
+        public int PhysicsBodyId = -1;
+
+        /// <summary>
+        /// True if this RuntimeObj has an associated physics body.
+        /// </summary>
+        [MemoryPackIgnore]
+        public bool HasPhysicsBody => PhysicsBodyId >= 0;
 
         /// <summary>
         /// True if this RuntimeObj is the root of a prefab and should be instantiated.
@@ -214,6 +229,121 @@ namespace GameCoreLib
                 }
             }
             return null;
+        }
+
+        #endregion
+
+        #region Position Management
+
+        /// <summary>
+        /// Teleport this RuntimeObj to a new position, synchronizing its physics body if it has one.
+        /// This is the safe way to move RuntimeObjs - do not set Transform.LocalPosition directly
+        /// on objects with physics bodies, as this will cause position desync.
+        /// </summary>
+        /// <param name="newPosition">The new position in tile-local coordinates</param>
+        /// <param name="sim">The physics world (required if this object has a physics body)</param>
+        /// <param name="resetVelocity">If true, resets linear and angular velocity on teleport</param>
+        public void Teleport(FPVector3 newPosition, World sim = null, bool resetVelocity = true)
+        {
+            // Update transform position
+            Transform.LocalPosition = newPosition;
+
+            // Sync physics body if present
+            if (HasPhysicsBody)
+            {
+                if (sim == null)
+                {
+                    Logger.Error(
+                        $"RuntimeObj.Teleport: Object '{Name}' has physics body but no World provided. "
+                            + "Physics body position not updated - this will cause desync!"
+                    );
+                    return;
+                }
+
+                try
+                {
+                    var body = sim.GetBody(PhysicsBodyId);
+                    body.Position = new FPVector2(newPosition.X, newPosition.Y);
+
+                    if (resetVelocity)
+                    {
+                        body.LinearVelocity = FPVector2.Zero;
+                        body.AngularVelocity = FP.Zero;
+                    }
+
+                    sim.SetBody(PhysicsBodyId, body);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(
+                        $"RuntimeObj.Teleport: Failed to update physics body: {e.Message}"
+                    );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Teleport this RuntimeObj and sync all physics bodies in the hierarchy.
+        /// Only the root's LocalPosition is changed - children maintain their relative positions.
+        /// Physics bodies are updated to match the computed world positions.
+        /// </summary>
+        /// <param name="newRootPosition">The new position for the root object</param>
+        /// <param name="sim">The physics world</param>
+        /// <param name="resetVelocity">If true, resets velocity on all physics bodies</param>
+        public void TeleportHierarchy(
+            FPVector3 newRootPosition,
+            World sim,
+            bool resetVelocity = true
+        )
+        {
+            // Set this object's position
+            Transform.LocalPosition = newRootPosition;
+
+            // Sync physics for entire hierarchy, computing world positions
+            SyncPhysicsPositionsRecursive(newRootPosition, sim, resetVelocity);
+        }
+
+        private void SyncPhysicsPositionsRecursive(
+            FPVector3 worldPosition,
+            World sim,
+            bool resetVelocity
+        )
+        {
+            // Sync physics body if present
+            if (HasPhysicsBody && sim != null)
+            {
+                try
+                {
+                    var body = sim.GetBody(PhysicsBodyId);
+                    body.Position = new FPVector2(worldPosition.X, worldPosition.Y);
+
+                    if (resetVelocity)
+                    {
+                        body.LinearVelocity = FPVector2.Zero;
+                        body.AngularVelocity = FP.Zero;
+                    }
+
+                    sim.SetBody(PhysicsBodyId, body);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(
+                        $"RuntimeObj.TeleportHierarchy: Failed to update physics for '{Name}': {e.Message}"
+                    );
+                }
+            }
+
+            // Recursively sync children's physics bodies
+            // Children keep their LocalPosition (relative offset), but we compute their world position
+            // for physics by adding their LocalPosition to our world position
+            if (Children != null)
+            {
+                foreach (var child in Children)
+                {
+                    FPVector3 childWorldPos = worldPosition + child.Transform.LocalPosition;
+                    child.SyncPhysicsPositionsRecursive(childWorldPos, sim, resetVelocity);
+                }
+            }
         }
 
         #endregion

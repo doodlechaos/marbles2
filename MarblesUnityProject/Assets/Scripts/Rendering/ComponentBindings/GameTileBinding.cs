@@ -1,5 +1,7 @@
 using System;
+using FPMathLib;
 using GameCoreLib;
+using LockSim;
 using UnityEngine;
 
 /// <summary>
@@ -14,6 +16,13 @@ public sealed class GameTileBinding : MonoBehaviour
     /// </summary>
     [SerializeField]
     private GameTileBase gameTile;
+
+    /// <summary>
+    /// When enabled, draws wireframe outlines for LockSim physics colliders.
+    /// Green = dynamic bodies, Blue = static bodies.
+    /// </summary>
+    [SerializeField]
+    private bool showLockSimColliders = false;
 
     /// <summary>
     /// The GameTile this binding is associated with.
@@ -132,5 +141,85 @@ public sealed class GameTileBinding : MonoBehaviour
         GUI.Label(stepsRect, stepsText, labelStyle);
 
         GUI.backgroundColor = Color.white;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!showLockSimColliders || gameTile?.Sim == null)
+            return;
+
+        var world = gameTile.Sim;
+        foreach (var body in world.Bodies)
+        {
+            // Set color based on body type
+            Gizmos.color = body.BodyType == BodyType.Dynamic ? Color.green : Color.blue;
+
+            // Convert 2D physics position to 3D world position
+            // The tile root's position provides the offset for this tile
+            Vector3 tileOffset = transform.position;
+            Vector3 bodyPos =
+                new Vector3(body.Position.X.ToFloat(), body.Position.Y.ToFloat(), 0f) + tileOffset;
+
+            float rotation = body.Rotation.ToFloat(); // radians
+
+            if (body.ShapeType == ShapeType.Box)
+            {
+                DrawWireBox(bodyPos, body.BoxShape, rotation);
+            }
+            else if (body.ShapeType == ShapeType.Circle)
+            {
+                DrawWireCircle(bodyPos, body.CircleShape.Radius.ToFloat());
+            }
+        }
+    }
+
+    private void DrawWireBox(Vector3 center, BoxShape box, float rotationRad)
+    {
+        float hw = box.HalfWidth.ToFloat();
+        float hh = box.HalfHeight.ToFloat();
+
+        // Compute rotated corners
+        float cos = Mathf.Cos(rotationRad);
+        float sin = Mathf.Sin(rotationRad);
+
+        // Local corners (before rotation)
+        Vector2[] localCorners = new Vector2[]
+        {
+            new Vector2(-hw, -hh),
+            new Vector2(hw, -hh),
+            new Vector2(hw, hh),
+            new Vector2(-hw, hh),
+        };
+
+        // Rotate and translate corners to world space
+        Vector3[] worldCorners = new Vector3[4];
+        for (int i = 0; i < 4; i++)
+        {
+            float rx = localCorners[i].x * cos - localCorners[i].y * sin;
+            float ry = localCorners[i].x * sin + localCorners[i].y * cos;
+            worldCorners[i] = center + new Vector3(rx, ry, 0f);
+        }
+
+        // Draw the 4 edges
+        Gizmos.DrawLine(worldCorners[0], worldCorners[1]);
+        Gizmos.DrawLine(worldCorners[1], worldCorners[2]);
+        Gizmos.DrawLine(worldCorners[2], worldCorners[3]);
+        Gizmos.DrawLine(worldCorners[3], worldCorners[0]);
+    }
+
+    private void DrawWireCircle(Vector3 center, float radius)
+    {
+        const int segments = 32;
+        float angleStep = 2f * Mathf.PI / segments;
+
+        Vector3 prevPoint = center + new Vector3(radius, 0f, 0f);
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = i * angleStep;
+            Vector3 point =
+                center + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
+            Gizmos.DrawLine(prevPoint, point);
+            prevPoint = point;
+        }
     }
 }

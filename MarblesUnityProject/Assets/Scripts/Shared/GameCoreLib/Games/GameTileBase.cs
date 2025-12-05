@@ -276,7 +276,8 @@ namespace GameCoreLib
         }
 
         /// <summary>
-        /// Add a physics body to an existing RuntimeObj
+        /// Add a physics body to an existing RuntimeObj.
+        /// After calling this, use obj.Teleport() or obj.TeleportHierarchy() to move the object.
         /// </summary>
         protected void AddPhysicsBody(RuntimeObj obj)
         {
@@ -300,24 +301,34 @@ namespace GameCoreLib
             if (TileRoot == null)
                 return;
 
-            SyncPhysicsRecursive(TileRoot);
+            // Start with zero parent offset (TileRoot is the origin of the tile-local coordinate space)
+            SyncPhysicsRecursive(TileRoot, FPVector3.Zero);
         }
 
-        private void SyncPhysicsRecursive(RuntimeObj runtimeObj)
+        private void SyncPhysicsRecursive(RuntimeObj runtimeObj, FPVector3 parentWorldPos)
         {
+            // Compute this object's current world position (before physics sync)
+            // This is needed to properly compute child world positions
+            FPVector3 currentWorldPos = parentWorldPos + runtimeObj.Transform.LocalPosition;
+
             if (physicsBindings.TryGetValue(runtimeObj.RuntimeId, out PhysicsBinding binding))
             {
                 try
                 {
                     var body = Sim.GetBody(binding.BodyId);
 
-                    // Sync position for all bodies
-                    FPVector3 newPosition = new FPVector3(
+                    // Physics body position is in world (tile-local) coordinates.
+                    // Convert to local-to-parent coordinates for proper Unity hierarchy rendering.
+                    FPVector3 bodyWorldPos = new FPVector3(
                         body.Position.X,
                         body.Position.Y,
                         runtimeObj.Transform.LocalPosition.Z
                     );
-                    runtimeObj.Transform.LocalPosition = newPosition;
+                    FPVector3 localPos = bodyWorldPos - parentWorldPos;
+                    runtimeObj.Transform.LocalPosition = localPos;
+
+                    // Update current world position to match physics (for children to use)
+                    currentWorldPos = bodyWorldPos;
 
                     // Only sync rotation for dynamic bodies.
                     // Static bodies can't rotate in physics, so preserve their original visual rotation.
@@ -350,7 +361,7 @@ namespace GameCoreLib
             {
                 foreach (var child in runtimeObj.Children)
                 {
-                    SyncPhysicsRecursive(child);
+                    SyncPhysicsRecursive(child, currentWorldPos);
                 }
             }
         }

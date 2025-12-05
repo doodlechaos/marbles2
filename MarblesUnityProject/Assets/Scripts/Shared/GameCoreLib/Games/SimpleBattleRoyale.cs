@@ -133,7 +133,7 @@ namespace GameCoreLib
             }
 
             // Clone the serialized template hierarchy
-            var marble = CloneRuntimeObjSubtree(PlayerMarbleTemplate);
+            RuntimeObj marble = CloneRuntimeObjSubtree(PlayerMarbleTemplate);
 
             if (marble == null)
             {
@@ -141,9 +141,8 @@ namespace GameCoreLib
                 return;
             }
 
-            // Customize name and initial placement
+            // Customize name
             marble.Name = $"PlayerMarble_{entrant.AccountId}";
-            marble.Transform.LocalPosition = SpawnPipe.Transform.Position;
 
             // Attach to tile hierarchy
             if (TileRoot.Children == null)
@@ -172,8 +171,13 @@ namespace GameCoreLib
             playerComp.IsAlive = true;
             playerComp.EliminationOrder = 0;
 
-            // Create physics bodies from authored collider/rigidbody components
+            // Create physics bodies from authored collider/rigidbody components.
+            // This sets PhysicsBodyId on each RuntimeObj that gets a physics body.
             AddPhysicsBody(marble);
+
+            // Teleport the entire marble hierarchy to the spawn pipe location.
+            // This safely moves both RuntimeObj transforms and their physics bodies together.
+            marble.TeleportHierarchy(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
 
             PlayerMarbles.Add(playerComp);
             Logger.Log($"Player {entrant.AccountId} spawned via template");
