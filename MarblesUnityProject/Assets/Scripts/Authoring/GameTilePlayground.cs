@@ -1,6 +1,7 @@
 using com.cyborgAssets.inspectorButtonPro;
 using GameCoreLib;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// GameTilePlayground allows testing GameTiles independently from networking.
@@ -60,6 +61,19 @@ public class GameTilePlayground : MonoBehaviour
             tileRenderer.Render(GameTile);
             tileRenderer.PhysicsSim = GameTile?.Sim;
         }
+
+        var keyboard = Keyboard.current;
+        if (keyboard == null)
+            return; // no keyboard available (e.g. on some devices)
+
+        if (keyboard.spaceKey.wasPressedThisFrame)
+            _isRunning = !_isRunning;
+
+        if (keyboard.rKey.wasPressedThisFrame)
+            RestartSimulation();
+
+        if (keyboard.rightArrowKey.wasPressedThisFrame)
+            StepOnce();
     }
 
     private void FixedUpdate()
@@ -90,26 +104,9 @@ public class GameTilePlayground : MonoBehaviour
         if (GameTile != null)
         {
             GameTile.Initialize(1);
-            _isRunning = false;
 
             Debug.Log($"[GameTilePlayground] Loaded: {GameTile.TileRoot?.Name ?? "Unknown"}");
         }
-    }
-
-    /// <summary>
-    /// Start the simulation (or resume if paused).
-    /// </summary>
-    [ProButton]
-    public void StartSimulation()
-    {
-        if (GameTile == null)
-        {
-            Debug.LogWarning("[GameTilePlayground] No GameTile loaded");
-            return;
-        }
-
-        _isRunning = true;
-        Debug.Log("[GameTilePlayground] Simulation started");
     }
 
     private void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
@@ -123,16 +120,6 @@ public class GameTilePlayground : MonoBehaviour
         GameTile.StartGameplay(gameplayStartInput, LastOutputEvents);
 
         Debug.Log($"[GameTilePlayground] Gameplay started with {gameplayStartInput} test entrants");
-    }
-
-    /// <summary>
-    /// Pause the simulation.
-    /// </summary>
-    [ProButton]
-    public void PauseSimulation()
-    {
-        _isRunning = false;
-        Debug.Log($"[GameTilePlayground] Simulation paused");
     }
 
     /// <summary>
