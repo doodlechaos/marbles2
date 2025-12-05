@@ -130,7 +130,7 @@ public static partial class Module
         BiddingStateS biddingState = BiddingStateS.Inst(ctx);
 
         // Create an input event with the entrants list and insert it into the input collector
-        InputEvent.StartGameTile startGameTileEvent = new InputEvent.StartGameTile(
+        InputEvent.GameplayStartInput startGameTileEvent = new InputEvent.StartGameTile(
             entrants.ToArray(),
             totalMarblesBidByAll,
             biddingState.CurrBidWorldId

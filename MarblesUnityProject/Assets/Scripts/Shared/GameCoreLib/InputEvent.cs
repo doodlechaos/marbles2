@@ -12,27 +12,29 @@ namespace GameCoreLib
     [MemoryPackUnion(3, typeof(SetIntegrationParameter))]
     [MemoryPackUnion(4, typeof(StartCloseDoorAnimation))]
     [MemoryPackUnion(5, typeof(SpinToNewGameTile))]
-    [MemoryPackUnion(6, typeof(StartGameTile))]
+    [MemoryPackUnion(6, typeof(GameplayStartInput))]
+    [Serializable]
     public abstract partial class InputEvent
     {
         protected InputEvent() { }
 
         [MemoryPackable(SerializeLayout.Explicit)]
-        public partial class StartGameTile : InputEvent
+        [Serializable]
+        public partial class GameplayStartInput : InputEvent
         {
             [MemoryPackOrder(0)]
-            public Entrant[] Entrants { get; set; } = Array.Empty<Entrant>();
+            public Entrant[] Entrants = Array.Empty<Entrant>();
 
             [MemoryPackOrder(1)]
-            public uint TotalMarblesBid { get; set; }
+            public uint TotalMarblesBid;
 
             [MemoryPackOrder(2)]
-            public byte WorldId { get; set; } // u8
+            public byte WorldId; // u8
 
             [MemoryPackConstructor]
-            public StartGameTile() { }
+            public GameplayStartInput() { }
 
-            public StartGameTile(Entrant[] entrants, uint totalMarblesBid, byte worldId)
+            public GameplayStartInput(Entrant[] entrants, uint totalMarblesBid, byte worldId)
             {
                 Entrants = entrants;
                 TotalMarblesBid = totalMarblesBid;
@@ -44,14 +46,15 @@ namespace GameCoreLib
         public partial class FinishGameplay : InputEvent
         {
             [MemoryPackOrder(0)]
-            public byte WorldId { get; set; } // u8
+            public byte WorldId; // u8
 
             [MemoryPackConstructor]
             public FinishGameplay() { }
         }
 
         [MemoryPackable]
-        public partial struct Entrant
+        [Serializable]
+        public partial class Entrant
         {
             public ulong AccountId;
             public uint TotalBid;
@@ -61,10 +64,10 @@ namespace GameCoreLib
         public partial class Attack : InputEvent
         {
             [MemoryPackOrder(0)]
-            public ulong AccountId { get; set; } // u64
+            public ulong AccountId; // u64
 
             [MemoryPackOrder(1)]
-            public uint Points { get; set; } // u32
+            public uint Points; // u32
 
             [MemoryPackConstructor]
             public Attack() { }
@@ -80,13 +83,13 @@ namespace GameCoreLib
         public partial class SpawnMarble : InputEvent
         {
             [MemoryPackOrder(0)]
-            public byte WorldId { get; set; } // u8
+            public byte WorldId; // u8
 
             [MemoryPackOrder(1)]
-            public ulong AccountId { get; set; } // u64
+            public ulong AccountId; // u64
 
             [MemoryPackOrder(2)]
-            public ulong SpawnerRuntimeId { get; set; } // u64
+            public ulong SpawnerRuntimeId; // u64
 
             [MemoryPackConstructor]
             public SpawnMarble() { }
@@ -109,7 +112,7 @@ namespace GameCoreLib
         public partial class SetIntegrationParameter : InputEvent
         {
             [MemoryPackOrder(0)]
-            public string Value { get; set; } = string.Empty;
+            public string Value = string.Empty;
 
             [MemoryPackConstructor]
             public SetIntegrationParameter() { }
@@ -121,7 +124,7 @@ namespace GameCoreLib
         public partial class StartCloseDoorAnimation : InputEvent
         {
             [MemoryPackOrder(0)]
-            public byte WorldId { get; set; } // u8
+            public byte WorldId; // u8
 
             [MemoryPackConstructor]
             public StartCloseDoorAnimation() { }
@@ -141,10 +144,10 @@ namespace GameCoreLib
             /// Initialize(tileId) called to assign RuntimeIds and set up physics.
             /// </summary>
             [MemoryPackOrder(0)]
-            public GameTileBase NewGameTile { get; set; }
+            public GameTileBase NewGameTile;
 
             [MemoryPackOrder(1)]
-            public byte WorldId { get; set; } // u8
+            public byte WorldId; // u8
 
             [MemoryPackConstructor]
             public SpinToNewGameTile() { }

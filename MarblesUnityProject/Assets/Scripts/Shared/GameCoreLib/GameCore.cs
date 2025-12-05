@@ -58,7 +58,7 @@ namespace GameCoreLib
                     // Load the pre-deserialized GameTile into the appropriate slot
                     LoadGameTileIntoSlot(worldId, spinLoadGameTile.NewGameTile);
                 }
-                else if (inputEvent is InputEvent.StartGameTile startGameTile)
+                else if (inputEvent is InputEvent.GameplayStartInput startGameTile)
                 {
                     byte worldId = startGameTile.WorldId;
                     var gameTile = worldId == 1 ? GameTile1 : GameTile2;

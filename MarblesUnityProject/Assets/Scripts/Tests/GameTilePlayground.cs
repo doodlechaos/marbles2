@@ -14,6 +14,9 @@ public class GameTilePlayground : MonoBehaviour
     private GameTileAuthBase inputGameTileAuthPrefab;
 
     [SerializeField]
+    private InputEvent.GameplayStartInput _gameplayStartInput;
+
+    [SerializeField]
     private RenderPrefabRegistry prefabRegistry;
 
     [Header("Rendering")]
@@ -21,20 +24,9 @@ public class GameTilePlayground : MonoBehaviour
     [SerializeField]
     private TileRenderer tileRenderer;
 
-    [Header("Simulation Control")]
-    [Tooltip("Whether to automatically step the simulation each FixedUpdate")]
-    public bool AutoStep = true;
-
-    [Tooltip("Time scale for the simulation (1 = normal speed)")]
-    [Range(0.1f, 3f)]
-    public float TimeScale = 1f;
-
     [Header("Debug Info")]
     [SerializeField]
     private bool _isRunning;
-
-    [SerializeField]
-    private int _stepCount;
 
     /// <summary>
     /// The GameTile currently being tested.
@@ -46,7 +38,6 @@ public class GameTilePlayground : MonoBehaviour
     /// </summary>
     public OutputEventBuffer LastOutputEvents { get; private set; } = new();
 
-    private float _stepAccumulator;
     private const float FIXED_TIMESTEP = 1f / 60f;
 
     private void Awake()
@@ -74,16 +65,10 @@ public class GameTilePlayground : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!_isRunning || !AutoStep || GameTile == null)
+        if (!_isRunning || GameTile == null)
             return;
 
-        _stepAccumulator += Time.fixedDeltaTime * TimeScale;
-
-        while (_stepAccumulator >= FIXED_TIMESTEP)
-        {
-            _stepAccumulator -= FIXED_TIMESTEP;
-            StepOnce();
-        }
+        StepOnce();
     }
 
     /// <summary>
@@ -106,7 +91,6 @@ public class GameTilePlayground : MonoBehaviour
         if (GameTile != null)
         {
             GameTile.Initialize(1);
-            _stepCount = 0;
             _isRunning = false;
 
             Debug.Log($"[GameTilePlayground] Loaded: {GameTile.TileRoot?.Name ?? "Unknown"}");
@@ -167,7 +151,7 @@ public class GameTilePlayground : MonoBehaviour
     public void PauseSimulation()
     {
         _isRunning = false;
-        Debug.Log($"[GameTilePlayground] Simulation paused at step {_stepCount}");
+        Debug.Log($"[GameTilePlayground] Simulation paused");
     }
 
     /// <summary>
@@ -184,7 +168,6 @@ public class GameTilePlayground : MonoBehaviour
 
         LastOutputEvents.Clear();
         GameTile.Step(LastOutputEvents);
-        _stepCount++;
     }
 
     /// <summary>
@@ -194,69 +177,6 @@ public class GameTilePlayground : MonoBehaviour
     public void RestartSimulation()
     {
         LoadFromPrefab();
-        _stepAccumulator = 0f;
         Debug.Log("[GameTilePlayground] Simulation restarted");
-    }
-
-    /// <summary>
-    /// Clear the current GameTile.
-    /// </summary>
-    [ProButton]
-    public void ClearTile()
-    {
-        GameTile = null;
-        _stepCount = 0;
-        _isRunning = false;
-
-        if (tileRenderer != null)
-        {
-            tileRenderer.Render(null);
-            tileRenderer.PhysicsSim = null;
-            tileRenderer.ClearRendering();
-        }
-
-        Debug.Log("[GameTilePlayground] Tile cleared");
-    }
-
-    /// <summary>
-    /// Log current state info for debugging.
-    /// </summary>
-    [ProButton]
-    public void LogStateInfo()
-    {
-        if (GameTile == null)
-        {
-            Debug.Log("[GameTilePlayground] No GameTile loaded");
-            return;
-        }
-
-        Debug.Log($"=== GameTile State ===");
-        Debug.Log($"  Step Count: {_stepCount}");
-        Debug.Log($"  Is Running: {_isRunning}");
-        Debug.Log($"  State: {GameTile.State}");
-
-        if (GameTile.Sim != null)
-        {
-            Debug.Log($"  Physics Bodies: {GameTile.Sim.Bodies.Count}");
-        }
-
-        if (GameTile.TileRoot != null)
-        {
-            int objCount = CountRuntimeObjects(GameTile.TileRoot);
-            Debug.Log($"  RuntimeObj Count: {objCount}");
-        }
-    }
-
-    private int CountRuntimeObjects(RuntimeObj obj)
-    {
-        int count = 1;
-        if (obj.Children != null)
-        {
-            foreach (var child in obj.Children)
-            {
-                count += CountRuntimeObjects(child);
-            }
-        }
-        return count;
     }
 }

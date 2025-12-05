@@ -160,7 +160,8 @@ public class Synchronizer : MonoBehaviour
         }
 
         if (
-            GameManager.Inst.GameCore.Seq.IsBehind(oldestSeq.Value)
+            GameManager.Inst.GameCore.Seq.ClosestDiffTo(latestServerSeq) > 120
+            || GameManager.Inst.GameCore.Seq.IsBehind(oldestSeq.Value)
             || GameManager.Inst.GameCore.Seq.IsAhead(latestServerSeq)
         )
         {

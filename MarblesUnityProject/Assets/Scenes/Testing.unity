@@ -414,12 +414,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameTilePlayground
   inputGameTileAuthPrefab: {fileID: 1568423892521891110, guid: a00bb9e38b6a7394993dcf05ec295045, type: 3}
+  _gameplayStartInput:
+    Entrants: []
+    TotalMarblesBid: 0
+    WorldId: 0
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
   tileRenderer: {fileID: 1161191525}
-  AutoStep: 0
-  TimeScale: 1
   _isRunning: 0
-  _stepCount: 0
 --- !u!4 &1161191524
 Transform:
   m_ObjectHideFlags: 0
