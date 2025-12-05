@@ -7,23 +7,26 @@ namespace GameCoreLib
     /// <summary>
     /// Builds LockSim physics bodies from GameCore RuntimeObj hierarchies.
     /// Translates authored GameComponents (colliders, rigidbodies, etc.) into physics bodies
-    /// and maintains the RuntimeId → BodyId mapping.
+    /// and maintains the RuntimeId → PhysicsBinding mapping.
     /// </summary>
     public static class RuntimePhysicsBuilder
     {
         /// <summary>
         /// Build physics bodies for an entire RuntimeObj hierarchy.
         /// </summary>
+        /// <param name="root">The root RuntimeObj to process</param>
+        /// <param name="sim">The physics world to add bodies to</param>
+        /// <param name="physicsBindings">Output: mapping from RuntimeId to PhysicsBinding</param>
         public static void BuildPhysics(
             RuntimeObj root,
             World sim,
-            Dictionary<ulong, int> runtimeIdToBodyId
+            Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
-            if (root == null || sim == null || runtimeIdToBodyId == null)
+            if (root == null || sim == null || physicsBindings == null)
                 return;
 
-            ProcessRuntimeObjHierarchy(root, sim, runtimeIdToBodyId);
+            ProcessRuntimeObjHierarchy(root, sim, physicsBindings);
         }
 
         /// <summary>
@@ -31,36 +34,39 @@ namespace GameCoreLib
         /// Mirrors Unity's behaviour where a Rigidbody + colliders can live
         /// on children of a spawned prefab.
         /// </summary>
+        /// <param name="obj">The RuntimeObj to add physics for</param>
+        /// <param name="sim">The physics world to add bodies to</param>
+        /// <param name="physicsBindings">Output: mapping from RuntimeId to PhysicsBinding</param>
         public static void AddPhysicsBody(
             RuntimeObj obj,
             World sim,
-            Dictionary<ulong, int> runtimeIdToBodyId
+            Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
-            if (obj == null || sim == null || runtimeIdToBodyId == null)
+            if (obj == null || sim == null || physicsBindings == null)
                 return;
 
             // Re‑use the same hierarchical traversal that BuildPhysics uses so that
             // spawned RuntimeObj trees (like player marbles) get all of their
             // child colliders/rigidbodies picked up.
-            ProcessRuntimeObjHierarchy(obj, sim, runtimeIdToBodyId);
+            ProcessRuntimeObjHierarchy(obj, sim, physicsBindings);
         }
 
         private static void ProcessRuntimeObjHierarchy(
             RuntimeObj obj,
             World sim,
-            Dictionary<ulong, int> runtimeIdToBodyId
+            Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
             // Process components to create physics bodies
-            ProcessComponents(obj, sim, runtimeIdToBodyId);
+            ProcessComponents(obj, sim, physicsBindings);
 
             // Recursively process children
             if (obj.Children != null)
             {
                 foreach (var child in obj.Children)
                 {
-                    ProcessRuntimeObjHierarchy(child, sim, runtimeIdToBodyId);
+                    ProcessRuntimeObjHierarchy(child, sim, physicsBindings);
                 }
             }
         }
@@ -71,7 +77,7 @@ namespace GameCoreLib
         private static void ProcessComponents(
             RuntimeObj obj,
             World sim,
-            Dictionary<ulong, int> runtimeIdToBodyId
+            Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
             if (obj.GameComponents == null || obj.GameComponents.Count == 0)
@@ -101,11 +107,11 @@ namespace GameCoreLib
             // Create physics body if there's a collider
             if (boxCollider != null)
             {
-                CreatePhysicsBody(obj, boxCollider, rigidbody, sim, runtimeIdToBodyId);
+                CreatePhysicsBody(obj, boxCollider, rigidbody, sim, physicsBindings);
             }
             else if (circleCollider != null)
             {
-                CreatePhysicsBody(obj, circleCollider, rigidbody, sim, runtimeIdToBodyId);
+                CreatePhysicsBody(obj, circleCollider, rigidbody, sim, physicsBindings);
             }
         }
 
@@ -117,11 +123,19 @@ namespace GameCoreLib
             BoxCollider2DComponent collider,
             Rigidbody2DComponent rigidbody,
             World sim,
-            Dictionary<ulong, int> runtimeIdToBodyId
+            Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
-            // Convert degrees to radians for physics engine
-            FP rotationRad = obj.Transform.EulerAngles.Z * FP.Deg2Rad;
+            // Extract the Z rotation for physics (twist component around Z axis)
+            // We use the twist for physics initialization, and store the swing for sync
+            FPQuaternion currentRotation = obj.Transform.LocalRotation;
+            FPQuaternion twist = FPQuaternion.ExtractTwist(currentRotation, FPVector3.Forward);
+            FPQuaternion swing = FPQuaternion.ExtractSwing(currentRotation, FPVector3.Forward);
+
+            // Get the Z angle from the twist quaternion for physics
+            // twist = (0, 0, sin(θ/2), cos(θ/2)) for rotation around Z
+            // θ = 2 * atan2(z, w)
+            FP rotationRad = FP.Two * FPMath.Atan2(twist.Z, twist.W);
 
             // Apply collider offset rotated by Z rotation
             FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotationRad);
@@ -154,9 +168,14 @@ namespace GameCoreLib
             body.Friction = FP.FromFloat(0.5f);
             body.Restitution = FP.FromFloat(0.2f);
 
-            // Add body to world and store mapping
+            // Add body to world and store binding
             int bodyId = sim.AddBody(body);
-            runtimeIdToBodyId[obj.RuntimeId] = bodyId;
+            physicsBindings[obj.RuntimeId] = new PhysicsBinding
+            {
+                BodyId = bodyId,
+                // Store swing for dynamic bodies; static bodies get identity
+                BaseSwing = isStatic ? FPQuaternion.Identity : swing,
+            };
 
             Logger.Log(
                 $"Created box physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, Size=({width}, {height})"
@@ -171,11 +190,19 @@ namespace GameCoreLib
             CircleCollider2DComponent collider,
             Rigidbody2DComponent rigidbody,
             World sim,
-            Dictionary<ulong, int> runtimeIdToBodyId
+            Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
-            // Convert degrees to radians for physics engine
-            FP rotationRad = obj.Transform.EulerAngles.Z * FP.Deg2Rad;
+            // Extract the Z rotation for physics (twist component around Z axis)
+            // We use the twist for physics initialization, and store the swing for sync
+            FPQuaternion currentRotation = obj.Transform.LocalRotation;
+            FPQuaternion twist = FPQuaternion.ExtractTwist(currentRotation, FPVector3.Forward);
+            FPQuaternion swing = FPQuaternion.ExtractSwing(currentRotation, FPVector3.Forward);
+
+            // Get the Z angle from the twist quaternion for physics
+            // twist = (0, 0, sin(θ/2), cos(θ/2)) for rotation around Z
+            // θ = 2 * atan2(z, w)
+            FP rotationRad = FP.Two * FPMath.Atan2(twist.Z, twist.W);
 
             // Apply collider offset rotated by Z rotation
             FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotationRad);
@@ -209,9 +236,14 @@ namespace GameCoreLib
             body.Friction = FP.FromFloat(0.5f);
             body.Restitution = FP.FromFloat(0.2f);
 
-            // Add body to world and store mapping
+            // Add body to world and store binding
             int bodyId = sim.AddBody(body);
-            runtimeIdToBodyId[obj.RuntimeId] = bodyId;
+            physicsBindings[obj.RuntimeId] = new PhysicsBinding
+            {
+                BodyId = bodyId,
+                // Store swing for dynamic bodies; static bodies get identity
+                BaseSwing = isStatic ? FPQuaternion.Identity : swing,
+            };
 
             Logger.Log(
                 $"Created circle physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, Radius={radius}"

@@ -121,7 +121,6 @@ public class GameTilePlayground : MonoBehaviour
         }
 
         GameTile.StartGameplay(gameplayStartInput, LastOutputEvents);
-        _isRunning = true;
 
         Debug.Log($"[GameTilePlayground] Gameplay started with {gameplayStartInput} test entrants");
     }

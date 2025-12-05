@@ -493,34 +493,6 @@ namespace FPMathLib
             );
         }
 
-        private static FPVector3 QuaternionToEuler(FPQuaternion q)
-        {
-            FPVector3 euler;
-
-            // Roll (x-axis rotation)
-            FP sinr_cosp = FP.Two * (q.W * q.X + q.Y * q.Z);
-            FP cosr_cosp = FP.One - FP.Two * (q.X * q.X + q.Y * q.Y);
-            euler.X = FPMath.Atan2(sinr_cosp, cosr_cosp);
-
-            // Pitch (y-axis rotation)
-            FP sinp = FP.Two * (q.W * q.Y - q.Z * q.X);
-            if (FPMath.Abs(sinp) >= FP.One)
-            {
-                euler.Y = FPMath.Sign(sinp) * FP.PiOver2; // Use 90 degrees if out of range
-            }
-            else
-            {
-                euler.Y = FPMath.Asin(sinp);
-            }
-
-            // Yaw (z-axis rotation)
-            FP siny_cosp = FP.Two * (q.W * q.Z + q.X * q.Y);
-            FP cosy_cosp = FP.One - FP.Two * (q.Y * q.Y + q.Z * q.Z);
-            euler.Z = FPMath.Atan2(siny_cosp, cosy_cosp);
-
-            return euler;
-        }
-
         #endregion
 
         public override string ToString()

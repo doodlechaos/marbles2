@@ -68,7 +68,8 @@ namespace FPMathLib
 
         /// <summary>
         /// Converts this quaternion to Euler angles (in degrees).
-        /// Returns angles in the order (X, Y, Z) matching Unity's ZXY rotation order.
+        /// Returns angles in the order (X, Y, Z) using Unity's ZXY rotation order.
+        /// ZXY means: apply Z rotation first, then X, then Y.
         /// </summary>
         public FPVector3 EulerAngles
         {
@@ -76,22 +77,25 @@ namespace FPMathLib
             {
                 FPVector3 euler;
 
-                // Roll (X-axis rotation)
-                FP sinr_cosp = FP.Two * (W * X + Y * Z);
-                FP cosr_cosp = FP.One - FP.Two * (X * X + Y * Y);
-                euler.X = FPMath.Atan2(sinr_cosp, cosr_cosp) * FP.Rad2Deg;
-
-                // Pitch (Y-axis rotation)
-                FP sinp = FP.Two * (W * Y - Z * X);
-                if (FPMath.Abs(sinp) >= FP.One)
-                    euler.Y = (sinp >= FP.Zero ? FP.PiOver2 : -FP.PiOver2) * FP.Rad2Deg; // Gimbal lock
+                // X rotation (pitch - applied second in ZXY order)
+                // sinX = 2*(w*x - y*z)
+                FP sinX = FP.Two * (W * X - Y * Z);
+                if (FPMath.Abs(sinX) >= FP.One)
+                    euler.X = (sinX >= FP.Zero ? FP.FromInt(90) : FP.FromInt(-90)); // Gimbal lock at ±90°
                 else
-                    euler.Y = FPMath.Asin(sinp) * FP.Rad2Deg;
+                    euler.X = FPMath.Asin(sinX) * FP.Rad2Deg;
 
-                // Yaw (Z-axis rotation)
-                FP siny_cosp = FP.Two * (W * Z + X * Y);
-                FP cosy_cosp = FP.One - FP.Two * (Y * Y + Z * Z);
-                euler.Z = FPMath.Atan2(siny_cosp, cosy_cosp) * FP.Rad2Deg;
+                // Y rotation (yaw - applied last in ZXY order)
+                // sinY = 2*(w*y + x*z), cosY = 1 - 2*(x² + y²)
+                FP sinY = FP.Two * (W * Y + X * Z);
+                FP cosY = FP.One - FP.Two * (X * X + Y * Y);
+                euler.Y = FPMath.Atan2(sinY, cosY) * FP.Rad2Deg;
+
+                // Z rotation (roll - applied first in ZXY order)
+                // sinZ = 2*(w*z + x*y), cosZ = 1 - 2*(x² + z²)
+                FP sinZ = FP.Two * (W * Z + X * Y);
+                FP cosZ = FP.One - FP.Two * (X * X + Z * Z);
+                euler.Z = FPMath.Atan2(sinZ, cosZ) * FP.Rad2Deg;
 
                 return euler;
             }
@@ -106,7 +110,8 @@ namespace FPMathLib
 
         /// <summary>
         /// Creates a quaternion from Euler angles specified in DEGREES.
-        /// Rotation order: ZXY (Unity's default).
+        /// Rotation order: ZXY (Unity's default) - applies Z first, then X, then Y.
+        /// This matches Unity's Quaternion.Euler() behavior.
         /// </summary>
         /// <param name="xDegrees">Rotation around X-axis in degrees</param>
         /// <param name="yDegrees">Rotation around Y-axis in degrees</param>
@@ -125,11 +130,12 @@ namespace FPMathLib
             FP sy = FPMath.Sin(yRad * FP.Half);
             FP sz = FPMath.Sin(zRad * FP.Half);
 
+            // ZXY rotation order: Q = Qy * Qx * Qz
             FPQuaternion q;
-            q.X = sx * cy * cz + cx * sy * sz;
-            q.Y = cx * sy * cz - sx * cy * sz;
-            q.Z = cx * cy * sz - sx * sy * cz;
-            q.W = cx * cy * cz + sx * sy * sz;
+            q.W = cy * cx * cz + sy * sx * sz;
+            q.X = cy * sx * cz + sy * cx * sz;
+            q.Y = sy * cx * cz - cy * sx * sz;
+            q.Z = cy * cx * sz - sy * sx * cz;
 
             return q;
         }
@@ -283,6 +289,76 @@ namespace FPMathLib
                 );
             }
             return Identity;
+        }
+
+        /// <summary>
+        /// Decomposes a quaternion into swing and twist components around the given axis.
+        /// Swing is the rotation perpendicular to the axis (e.g., X/Y rotation when axis is Z).
+        /// Twist is the rotation around the axis (e.g., Z rotation when axis is Z).
+        /// Original rotation = swing * twist (twist applied first, then swing).
+        /// </summary>
+        /// <param name="rotation">The quaternion to decompose</param>
+        /// <param name="twistAxis">The axis to decompose around (should be normalized)</param>
+        /// <param name="swing">Output: rotation perpendicular to the axis</param>
+        /// <param name="twist">Output: rotation around the axis</param>
+        public static void DecomposeSwingTwist(
+            FPQuaternion rotation,
+            FPVector3 twistAxis,
+            out FPQuaternion swing,
+            out FPQuaternion twist
+        )
+        {
+            // Project the quaternion's vector part onto the twist axis
+            FPVector3 rotationAxis = new FPVector3(rotation.X, rotation.Y, rotation.Z);
+            FP dot = FPVector3.Dot(rotationAxis, twistAxis);
+
+            // Twist quaternion: rotation around the twist axis only
+            FPVector3 projectedAxis = twistAxis * dot;
+            twist = new FPQuaternion(projectedAxis.X, projectedAxis.Y, projectedAxis.Z, rotation.W);
+
+            // Handle near-zero twist (rotation is pure swing)
+            FP twistMagSq =
+                twist.X * twist.X + twist.Y * twist.Y + twist.Z * twist.Z + twist.W * twist.W;
+            if (twistMagSq < FP.Epsilon)
+            {
+                twist = Identity;
+                swing = rotation;
+                return;
+            }
+
+            // Normalize twist
+            twist = twist.Normalized;
+
+            // Swing = rotation * inverse(twist)
+            // This gives us the rotation that, when combined with twist, produces the original
+            swing = rotation * Inverse(twist);
+        }
+
+        /// <summary>
+        /// Extracts the swing component (rotation perpendicular to axis) from a quaternion.
+        /// For axis = Forward (Z), this extracts the X/Y rotation without the Z rotation.
+        /// Useful for separating visual tilt from physics rotation.
+        /// </summary>
+        /// <param name="rotation">The quaternion to extract swing from</param>
+        /// <param name="twistAxis">The axis to remove rotation around (should be normalized)</param>
+        /// <returns>The swing component (rotation perpendicular to the axis)</returns>
+        public static FPQuaternion ExtractSwing(FPQuaternion rotation, FPVector3 twistAxis)
+        {
+            DecomposeSwingTwist(rotation, twistAxis, out FPQuaternion swing, out _);
+            return swing;
+        }
+
+        /// <summary>
+        /// Extracts the twist component (rotation around axis) from a quaternion.
+        /// For axis = Forward (Z), this extracts just the Z rotation.
+        /// </summary>
+        /// <param name="rotation">The quaternion to extract twist from</param>
+        /// <param name="twistAxis">The axis to extract rotation around (should be normalized)</param>
+        /// <returns>The twist component (rotation around the axis)</returns>
+        public static FPQuaternion ExtractTwist(FPQuaternion rotation, FPVector3 twistAxis)
+        {
+            DecomposeSwingTwist(rotation, twistAxis, out _, out FPQuaternion twist);
+            return twist;
         }
 
         // Operators

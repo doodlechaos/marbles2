@@ -16,6 +16,22 @@ namespace GameCoreLib
         Finished,
     }
 
+    /// <summary>
+    /// Holds physics data for a RuntimeObj that has a physics body.
+    /// </summary>
+    [MemoryPackable]
+    public partial struct PhysicsBinding
+    {
+        public int BodyId;
+
+        /// <summary>
+        /// The swing component (X/Y tilt without Z) of the original rotation.
+        /// Used to preserve visual rotation while applying physics Z rotation.
+        /// Only needed for dynamic bodies; static bodies can leave it as identity.
+        /// </summary>
+        public FPQuaternion BaseSwing;
+    }
+
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
     [MemoryPackUnion(0, typeof(SimpleBattleRoyale))]
@@ -28,11 +44,11 @@ namespace GameCoreLib
         public World Sim;
 
         /// <summary>
-        /// Track mapping between RuntimeId and their physics body IDs.
+        /// Maps RuntimeId to physics binding (body ID + base swing rotation).
         /// Uses stable IDs instead of object references, so it survives serialization.
         /// </summary>
         [MemoryPackOrder(2), MemoryPackInclude]
-        protected Dictionary<ulong, int> runtimeIdToBodyId = new Dictionary<ulong, int>();
+        protected Dictionary<ulong, PhysicsBinding> physicsBindings = new();
 
         /// <summary>
         /// GameCore Unique identifier for this tile. Used as the upper 16 bits of RuntimeIds
@@ -119,7 +135,7 @@ namespace GameCoreLib
             SetState(GameTileState.Spinning, null);
 
             // Clear and recreate physics world
-            runtimeIdToBodyId.Clear();
+            physicsBindings.Clear();
             Sim = new World();
             Sim.Gravity = FPVector2.FromFloats(0f, -9.81f);
 
@@ -136,7 +152,8 @@ namespace GameCoreLib
             TileRoot.RebuildComponentReferences();
 
             // Process the hierarchy recursively to set up physics
-            RuntimePhysicsBuilder.BuildPhysics(TileRoot, Sim, runtimeIdToBodyId);
+            // Also stores base rotations (swing component) for gimbal-lock-free sync
+            RuntimePhysicsBuilder.BuildPhysics(TileRoot, Sim, physicsBindings);
 
             // Post-load hook for derived classes
             OnLevelLoaded();
@@ -263,13 +280,13 @@ namespace GameCoreLib
         /// </summary>
         protected void AddPhysicsBody(RuntimeObj obj)
         {
-            RuntimePhysicsBuilder.AddPhysicsBody(obj, Sim, runtimeIdToBodyId);
+            RuntimePhysicsBuilder.AddPhysicsBody(obj, Sim, physicsBindings);
         }
 
         public void Clear()
         {
             TileRoot = null;
-            runtimeIdToBodyId.Clear();
+            physicsBindings.Clear();
 
             if (Sim != null)
             {
@@ -288,11 +305,11 @@ namespace GameCoreLib
 
         private void SyncPhysicsRecursive(RuntimeObj runtimeObj)
         {
-            if (runtimeIdToBodyId.TryGetValue(runtimeObj.RuntimeId, out int bodyId))
+            if (physicsBindings.TryGetValue(runtimeObj.RuntimeId, out PhysicsBinding binding))
             {
                 try
                 {
-                    var body = Sim.GetBody(bodyId);
+                    var body = Sim.GetBody(binding.BodyId);
 
                     // Sync position for all bodies
                     FPVector3 newPosition = new FPVector3(
@@ -304,18 +321,21 @@ namespace GameCoreLib
 
                     // Only sync rotation for dynamic bodies.
                     // Static bodies can't rotate in physics, so preserve their original visual rotation.
-                    // Only update Z rotation from physics, preserving any X/Y visual rotations.
                     if (body.BodyType == BodyType.Dynamic)
                     {
-                        // EulerAngles returns degrees, FPQuaternion.Euler() accepts degrees
-                        // body.Rotation is in radians from physics, so convert to degrees
-                        var currentEulerDegrees = runtimeObj.Transform.LocalRotation.EulerAngles;
-                        FP zRotationDegrees = body.Rotation * FP.Rad2Deg;
-                        runtimeObj.Transform.LocalRotation = FPQuaternion.Euler(
-                            currentEulerDegrees.X,
-                            currentEulerDegrees.Y,
-                            zRotationDegrees
+                        // Use quaternion math to avoid gimbal lock at 90° X rotation.
+                        // The base rotation (swing) contains the X/Y tilt without Z rotation.
+                        // We apply the physics Z rotation (twist) to this base.
+                        // Create twist quaternion from physics Z rotation (in radians)
+                        FP physicsZDegrees = body.Rotation * FP.Rad2Deg;
+                        FPQuaternion physicsTwist = FPQuaternion.AngleAxis(
+                            physicsZDegrees,
+                            FPVector3.Forward
                         );
+
+                        // Combine: twist first (world Z rotation), then swing (visual tilt)
+                        // This preserves the X/Y tilt while applying physics Z rotation
+                        runtimeObj.Transform.LocalRotation = physicsTwist * binding.BaseSwing;
                     }
                 }
                 catch (Exception e)
