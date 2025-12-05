@@ -456,6 +456,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 836525471852717791}
+  - component: {fileID: 8653397145424359985}
   - component: {fileID: 5924502645149895256}
   m_Layer: 0
   m_Name: Player
@@ -482,6 +483,20 @@ Transform:
   - {fileID: 2440111270643125057}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8653397145424359985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8627050739790726732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d41c1de1b7c6f04088c41258c445154, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMarbleAuth
+  testAccountId: 0
+  testBidAmount: 0
 --- !u!114 &5924502645149895256
 MonoBehaviour:
   m_ObjectHideFlags: 0

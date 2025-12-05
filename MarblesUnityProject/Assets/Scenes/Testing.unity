@@ -415,8 +415,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameTilePlayground
   inputGameTileAuthPrefab: {fileID: 1568423892521891110, guid: a00bb9e38b6a7394993dcf05ec295045, type: 3}
   _gameplayStartInput:
-    Entrants: []
-    TotalMarblesBid: 0
+    Entrants:
+    - AccountId: 1
+      TotalBid: 10
+    - AccountId: 2
+      TotalBid: 5
+    TotalMarblesBid: 14
     WorldId: 0
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
   tileRenderer: {fileID: 1161191525}

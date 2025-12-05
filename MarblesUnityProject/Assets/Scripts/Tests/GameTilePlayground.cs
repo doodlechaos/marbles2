@@ -38,8 +38,6 @@ public class GameTilePlayground : MonoBehaviour
     /// </summary>
     public OutputEventBuffer LastOutputEvents { get; private set; } = new();
 
-    private const float FIXED_TIMESTEP = 1f / 60f;
-
     private void Awake()
     {
         GameCoreLib.Logger.Log = Debug.Log;
@@ -51,6 +49,7 @@ public class GameTilePlayground : MonoBehaviour
         if (inputGameTileAuthPrefab != null)
         {
             LoadFromPrefab();
+            StartGameplay(_gameplayStartInput);
         }
     }
 
@@ -113,11 +112,7 @@ public class GameTilePlayground : MonoBehaviour
         Debug.Log("[GameTilePlayground] Simulation started");
     }
 
-    /// <summary>
-    /// Start gameplay with test entrants.
-    /// </summary>
-    [ProButton]
-    public void StartGameplayWithTestEntrants()
+    private void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
     {
         if (GameTile == null)
         {
@@ -125,23 +120,10 @@ public class GameTilePlayground : MonoBehaviour
             return;
         }
 
-        var testEntrants = new InputEvent.Entrant[]
-        {
-            new() { AccountId = 1, TotalBid = 10 },
-            new() { AccountId = 2, TotalBid = 15 },
-            new() { AccountId = 3, TotalBid = 20 },
-        };
-
-        uint totalMarbles = 0;
-        foreach (var e in testEntrants)
-            totalMarbles += e.TotalBid;
-
-        GameTile.StartGameplay(testEntrants, totalMarbles, LastOutputEvents);
+        GameTile.StartGameplay(gameplayStartInput, LastOutputEvents);
         _isRunning = true;
 
-        Debug.Log(
-            $"[GameTilePlayground] Gameplay started with {testEntrants.Length} test entrants"
-        );
+        Debug.Log($"[GameTilePlayground] Gameplay started with {gameplayStartInput} test entrants");
     }
 
     /// <summary>
@@ -177,6 +159,7 @@ public class GameTilePlayground : MonoBehaviour
     public void RestartSimulation()
     {
         LoadFromPrefab();
+        StartGameplay(_gameplayStartInput);
         Debug.Log("[GameTilePlayground] Simulation restarted");
     }
 }

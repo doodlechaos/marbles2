@@ -171,10 +171,7 @@ public class Synchronizer : MonoBehaviour
                 return false;
             }
         }
-        else
-        {
-            //Debug.Log(GameManager.Inst.GameCore.Seq + " is not behind " + oldestSeq.Value);
-        }
+
 
         return true;
     }

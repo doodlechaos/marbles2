@@ -55,6 +55,14 @@ namespace GameCoreLib
         protected int stateSteps = 0;
 
         /// <summary>
+        /// Serialized template for the player marble RuntimeObj hierarchy.
+        /// Built from the PlayerMarbleAuth prefab on the Unity side and cloned at runtime when spawning.
+        /// Shared by all game tile types that spawn player marbles.
+        /// </summary>
+        [MemoryPackOrder(7)]
+        public RuntimeObj PlayerMarbleTemplate;
+
+        /// <summary>
         /// Number of simulation steps spent in the current state.
         /// </summary>
         [MemoryPackIgnore]
@@ -128,7 +136,7 @@ namespace GameCoreLib
             TileRoot.RebuildComponentReferences();
 
             // Process the hierarchy recursively to set up physics
-            ProcessRuntimeObjHierarchy(TileRoot);
+            RuntimePhysicsBuilder.BuildPhysics(TileRoot, Sim, runtimeIdToBodyId);
 
             // Post-load hook for derived classes
             OnLevelLoaded();
@@ -144,8 +152,7 @@ namespace GameCoreLib
         protected virtual void OnLevelLoaded() { }
 
         public virtual void StartGameplay(
-            InputEvent.Entrant[] entrants,
-            uint totalMarblesBid,
+            InputEvent.GameplayStartInput gameplayStartInput,
             OutputEventBuffer outputEvents
         )
         {
@@ -201,7 +208,7 @@ namespace GameCoreLib
             State = state;
         }
 
-        private void AssignRuntimeIds(RuntimeObj obj)
+        protected internal void AssignRuntimeIds(RuntimeObj obj)
         {
             obj.RuntimeId = GenerateRuntimeId();
 
@@ -214,162 +221,20 @@ namespace GameCoreLib
             }
         }
 
-        private void ProcessRuntimeObjHierarchy(RuntimeObj obj)
-        {
-            // Process components to create physics bodies
-            ProcessComponents(obj);
-
-            // Recursively process children
-            if (obj.Children != null)
-            {
-                foreach (var child in obj.Children)
-                {
-                    ProcessRuntimeObjHierarchy(child);
-                }
-            }
-        }
-
         /// <summary>
-        /// Process strongly-typed components on a RuntimeObj to create physics bodies
+        /// Deep-clone a RuntimeObj subtree for dynamic spawning.
+        /// Uses MemoryPack to preserve all authored components, children, and transform data.
+        /// New RuntimeIds are assigned separately via AssignRuntimeIds().
         /// </summary>
-        private void ProcessComponents(RuntimeObj obj)
+        protected RuntimeObj CloneRuntimeObjSubtree(RuntimeObj source)
         {
-            if (obj.GameComponents == null || obj.GameComponents.Count == 0)
-                return;
+            if (source == null)
+                return null;
 
-            // Find collider and rigidbody components
-            BoxCollider2DComponent boxCollider = null;
-            CircleCollider2DComponent circleCollider = null;
-            Rigidbody2DComponent rigidbody = null;
-
-            foreach (var component in obj.GameComponents)
-            {
-                switch (component)
-                {
-                    case BoxCollider2DComponent box:
-                        boxCollider = box;
-                        break;
-                    case CircleCollider2DComponent circle:
-                        circleCollider = circle;
-                        break;
-                    case Rigidbody2DComponent rb:
-                        rigidbody = rb;
-                        break;
-                }
-            }
-
-            // Create physics body if there's a collider
-            if (boxCollider != null)
-            {
-                CreatePhysicsBody(obj, boxCollider, rigidbody);
-            }
-            else if (circleCollider != null)
-            {
-                CreatePhysicsBody(obj, circleCollider, rigidbody);
-            }
-        }
-
-        /// <summary>
-        /// Create a physics body from a BoxCollider2DComponent
-        /// </summary>
-        private void CreatePhysicsBody(
-            RuntimeObj obj,
-            BoxCollider2DComponent collider,
-            Rigidbody2DComponent rigidbody
-        )
-        {
-            FP rotation = obj.Transform.EulerAngles.Z;
-
-            // Apply collider offset rotated by Z rotation
-            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotation);
-            FPVector2 position = new FPVector2(
-                obj.Transform.Position.X + rotatedOffset.X,
-                obj.Transform.Position.Y + rotatedOffset.Y
-            );
-
-            // Determine if static or dynamic
-            bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
-            FP mass = rigidbody?.Mass ?? FP.One;
-
-            // Create body
-            RigidBodyLS body;
-            if (isStatic)
-            {
-                body = RigidBodyLS.CreateStatic(0, position, rotation);
-            }
-            else
-            {
-                body = RigidBodyLS.CreateDynamic(0, position, rotation, mass);
-            }
-
-            // Apply scale to size
-            FP width = collider.Size.X * FPMath.Abs(obj.Transform.LossyScale.X);
-            FP height = collider.Size.Y * FPMath.Abs(obj.Transform.LossyScale.Y);
-            body.SetBoxShape(width, height);
-
-            // Set material properties
-            body.Friction = FP.FromFloat(0.5f);
-            body.Restitution = FP.FromFloat(0.2f);
-
-            // Add body to world and store mapping
-            int bodyId = Sim.AddBody(body);
-            runtimeIdToBodyId[obj.RuntimeId] = bodyId;
-
-            Logger.Log(
-                $"Created box physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, Size=({width}, {height})"
-            );
-        }
-
-        /// <summary>
-        /// Create a physics body from a CircleCollider2DComponent
-        /// </summary>
-        private void CreatePhysicsBody(
-            RuntimeObj obj,
-            CircleCollider2DComponent collider,
-            Rigidbody2DComponent rigidbody
-        )
-        {
-            FP rotation = obj.Transform.EulerAngles.Z;
-
-            // Apply collider offset rotated by Z rotation
-            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotation);
-            FPVector2 position = new FPVector2(
-                obj.Transform.Position.X + rotatedOffset.X,
-                obj.Transform.Position.Y + rotatedOffset.Y
-            );
-
-            // Determine if static or dynamic
-            bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
-            FP mass = rigidbody?.Mass ?? FP.One;
-
-            // Create body
-            RigidBodyLS body;
-            if (isStatic)
-            {
-                body = RigidBodyLS.CreateStatic(0, position, rotation);
-            }
-            else
-            {
-                body = RigidBodyLS.CreateDynamic(0, position, rotation, mass);
-            }
-
-            // Apply scale to radius (use max of x/y scale)
-            FP scaleX = FPMath.Abs(obj.Transform.LossyScale.X);
-            FP scaleY = FPMath.Abs(obj.Transform.LossyScale.Y);
-            FP radius = collider.Radius * FPMath.Max(scaleX, scaleY);
-            body.SetCircleShape(radius);
-
-            // Set material properties
-            body.Friction = FP.FromFloat(0.5f);
-            body.Restitution = FP.FromFloat(0.2f);
-
-            // Add body to world and store mapping
-            int bodyId = Sim.AddBody(body);
-            runtimeIdToBodyId[obj.RuntimeId] = bodyId;
-
-            Logger.Log(
-                $"Created circle physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, Radius={radius}"
-            );
+            // Serialize + deserialize to get a deep copy of the object graph.
+            // RuntimeIds will be overwritten after cloning via AssignRuntimeIds().
+            var bytes = MemoryPack.MemoryPackSerializer.Serialize(source);
+            return MemoryPack.MemoryPackSerializer.Deserialize<RuntimeObj>(bytes);
         }
 
         /// <summary>
@@ -398,7 +263,7 @@ namespace GameCoreLib
         /// </summary>
         protected void AddPhysicsBody(RuntimeObj obj)
         {
-            ProcessComponents(obj);
+            RuntimePhysicsBuilder.AddPhysicsBody(obj, Sim, runtimeIdToBodyId);
         }
 
         public void Clear()

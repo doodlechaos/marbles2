@@ -30,22 +30,22 @@ namespace GameCoreLib
         /// Counter for assigning elimination order.
         /// Serialized so it continues correctly after deserialize.
         /// </summary>
-        [MemoryPackOrder(7)] // Base class uses 0-6, derived must continue from 7
+        [MemoryPackOrder(8)] // Base class uses 0-7, derived must continue from 8
         public int NextEliminationOrder = 1;
 
         /// <summary>
         /// Queue of players waiting to spawn.
         /// </summary>
-        [MemoryPackOrder(8)]
+        [MemoryPackOrder(9)]
         public List<InputEvent.Entrant> SpawnQueue = new List<InputEvent.Entrant>();
 
-        [MemoryPackOrder(9)]
+        [MemoryPackOrder(10)]
         public int SpawnTickCounter = 0;
 
-        [MemoryPackOrder(10)]
+        [MemoryPackOrder(11)]
         public int TicksBetweenSpawns = 30;
 
-        [MemoryPackOrder(11)]
+        [MemoryPackOrder(12)]
         public uint TotalMarblesBid;
 
         public SimpleBattleRoyale() { }
@@ -76,18 +76,17 @@ namespace GameCoreLib
         }
 
         public override void StartGameplay(
-            InputEvent.Entrant[] entrants,
-            uint totalMarblesBid,
+            InputEvent.GameplayStartInput gameplayStartInput,
             OutputEventBuffer outputEvents
         )
         {
-            TotalMarblesBid = totalMarblesBid;
+            TotalMarblesBid = gameplayStartInput.TotalMarblesBid;
             PlayerMarbles.Clear();
             SpawnQueue.Clear();
             SpawnTickCounter = 0;
             NextEliminationOrder = 1;
 
-            foreach (var entrant in entrants)
+            foreach (var entrant in gameplayStartInput.Entrants)
                 SpawnQueue.Add(entrant);
 
             // Transition to Gameplay state (controlled by server bidding logic)
@@ -118,53 +117,83 @@ namespace GameCoreLib
 
         private void SpawnPlayerMarble(InputEvent.Entrant entrant)
         {
-            var marble = SpawnRuntimeObj(
-                $"PlayerMarble_{entrant.AccountId}",
-                SpawnPipe.Transform.Position
-            );
+            if (PlayerMarbleTemplate == null)
+            {
+                Logger.Error(
+                    "PlayerMarbleTemplate is null – cannot spawn player marble. "
+                        + "Ensure PlayerMarblePrefab is assigned on the tile auth and export was successful."
+                );
+                return;
+            }
 
-            var playerComp = marble.AddComponent(
-                new PlayerMarbleComponent
-                {
-                    AccountId = entrant.AccountId,
-                    BidAmount = entrant.TotalBid,
-                    IsAlive = true,
-                    EliminationOrder = 0,
-                }
-            );
+            if (SpawnPipe == null)
+            {
+                Logger.Error("SpawnPipe is null – cannot spawn player marble.");
+                return;
+            }
 
-            marble.AddComponent(
-                new CircleCollider2DComponent { Radius = FP.FromFloat(0.5f), IsTrigger = false }
-            );
+            // Clone the serialized template hierarchy
+            var marble = CloneRuntimeObjSubtree(PlayerMarbleTemplate);
 
-            marble.AddComponent(
-                new Rigidbody2DComponent
-                {
-                    BodyType = Rigidbody2DType.Dynamic,
-                    Mass = FP.One,
-                    GravityScale = FP.One,
-                }
-            );
+            if (marble == null)
+            {
+                Logger.Error("Failed to clone PlayerMarbleTemplate – spawn aborted.");
+                return;
+            }
 
+            // Customize name and initial placement
+            marble.Name = $"PlayerMarble_{entrant.AccountId}";
+            marble.Transform.LocalPosition = SpawnPipe.Transform.Position;
+
+            // Attach to tile hierarchy
+            if (TileRoot.Children == null)
+                TileRoot.Children = new List<RuntimeObj>();
+            TileRoot.Children.Add(marble);
+
+            // Assign fresh RuntimeIds to the new subtree
+            AssignRuntimeIdsForSpawn(marble);
+
+            // Rebuild component → RuntimeObj references just for this subtree
+            marble.RebuildComponentReferences();
+
+            // Fetch the PlayerMarbleComponent that was authored on the prefab template
+            var playerComp = marble.GetComponent<PlayerMarbleComponent>();
+            if (playerComp == null)
+            {
+                Logger.Error(
+                    "PlayerMarbleTemplate is missing PlayerMarbleComponent – cannot spawn player marble."
+                );
+                return;
+            }
+
+            // Apply per‑player data
+            playerComp.AccountId = entrant.AccountId;
+            playerComp.BidAmount = entrant.TotalBid;
+            playerComp.IsAlive = true;
+            playerComp.EliminationOrder = 0;
+
+            // Create physics bodies from authored collider/rigidbody components
             AddPhysicsBody(marble);
+
             PlayerMarbles.Add(playerComp);
+            Logger.Log($"Player {entrant.AccountId} spawned via template");
         }
 
         private void CheckEliminations(OutputEventBuffer outputEvents)
         {
-            FP eliminationY = FP.FromFloat(-20f);
-
-            foreach (var player in PlayerMarbles)
-            {
-                if (player.IsAlive && player.Transform.Position.Y < eliminationY)
-                {
-                    player.IsAlive = false;
-                    player.EliminationOrder = NextEliminationOrder++;
-                    Logger.Log(
-                        $"Player {player.AccountId} eliminated (order: {player.EliminationOrder})"
-                    );
-                }
-            }
+            /*             FP eliminationY = FP.FromFloat(-20f);
+            
+                        foreach (var player in PlayerMarbles)
+                        {
+                            if (player.IsAlive && player.Transform.Position.Y < eliminationY)
+                            {
+                                player.IsAlive = false;
+                                player.EliminationOrder = NextEliminationOrder++;
+                                Logger.Log(
+                                    $"Player {player.AccountId} eliminated (order: {player.EliminationOrder})"
+                                );
+                            }
+                        } */
 
             // Count survivors
             int aliveCount = 0;
@@ -189,6 +218,26 @@ namespace GameCoreLib
             else if (aliveCount == 0 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 0)
             {
                 Logger.Log("All players eliminated!");
+            }
+        }
+
+        /// <summary>
+        /// Assign fresh RuntimeIds to a newly spawned subtree.
+        /// Uses the same ID generation scheme as the base tile.
+        /// </summary>
+        private void AssignRuntimeIdsForSpawn(RuntimeObj obj)
+        {
+            if (obj == null)
+                return;
+
+            obj.RuntimeId = GenerateRuntimeId();
+
+            if (obj.Children != null)
+            {
+                foreach (var child in obj.Children)
+                {
+                    AssignRuntimeIdsForSpawn(child);
+                }
             }
         }
 

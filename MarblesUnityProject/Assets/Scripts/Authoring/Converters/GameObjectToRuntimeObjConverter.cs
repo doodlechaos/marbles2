@@ -1,65 +1,21 @@
-using System;
 using System.Collections.Generic;
 using FPMathLib;
 using GameCoreLib;
 using UnityEngine;
 
 /// <summary>
-/// Converts Unity GameObjects with GameTileAuth components into GameTileBase data.
-/// Shared between GameTileExporter (Editor) and GameTilePlayground (Runtime).
+/// Generic Unity-side converter that turns a GameObject hierarchy into RuntimeObj data.
+/// Used by authoring tools (e.g. GameTileConverter) to serialize authored content
+/// into GameCore runtime structures.
 /// </summary>
-public static class GameTileConverter
+public static class GameObjectToRuntimeObjConverter
 {
     /// <summary>
-    /// Convert a GameObject with a GameTileAuthBase into a fully populated GameTileBase.
+    /// Entry point helper: convert a GameObject and its children into a RuntimeObj tree.
     /// </summary>
-    /// <param name="prefab">The GameObject with a GameTileAuthBase component</param>
-    /// <param name="prefabRegistry">The RenderPrefabRegistry for looking up RenderPrefabIDs via RenderPrefabIdentifier components</param>
-    /// <returns>A populated GameTileBase, or null if conversion fails</returns>
-    public static GameTileBase ConvertToGameTile(
-        GameObject prefab,
-        RenderPrefabRegistry prefabRegistry
-    )
+    public static RuntimeObj Convert(GameObject go, RenderPrefabRegistry prefabRegistry)
     {
-        if (prefab == null)
-        {
-            Debug.LogError("[GameTileConverter] Prefab is null");
-            return null;
-        }
-
-        var gameTileAuth = prefab.GetComponent<GameTileAuthBase>();
-        if (gameTileAuth == null)
-        {
-            Debug.LogError($"[GameTileConverter] No GameTileAuthBase found on {prefab.name}");
-            return null;
-        }
-
-        GameTileBase gameTile = CreateGameTileFromAuth(gameTileAuth);
-        if (gameTile == null)
-        {
-            Debug.LogError(
-                $"[GameTileConverter] Unknown game tile auth type: {gameTileAuth.GetType().Name}"
-            );
-            return null;
-        }
-
-        gameTile.TileRoot = SerializeGameObject(prefab, prefabRegistry);
-        return gameTile;
-    }
-
-    /// <summary>
-    /// Create the appropriate GameTileBase subtype based on the auth component type.
-    /// </summary>
-    public static GameTileBase CreateGameTileFromAuth(GameTileAuthBase gameTileAuth)
-    {
-        return gameTileAuth switch
-        {
-            SimpleBattleRoyaleAuth => new SimpleBattleRoyale(),
-            // Add other game modes here as they're created:
-            // SurvivalAuth => new Survival(),
-            // RaceAuth => new Race(),
-            _ => null,
-        };
+        return SerializeGameObject(go, prefabRegistry);
     }
 
     /// <summary>
@@ -69,15 +25,16 @@ public static class GameTileConverter
     {
         if (prefabRegistry == null)
         {
-            Debug.LogError($"[GameTileConverter] Prefab registry is null");
+            Debug.LogError("[GameObjectToRuntimeObjConverter] Prefab registry is null");
         }
+
         RuntimeObj runtimeObj = new RuntimeObj
         {
             Name = go.name,
             Children = new List<RuntimeObj>(),
             Transform = ConvertToFPTransform(go.transform),
             GameComponents = SerializeGameComponents(go),
-            RenderPrefabID = prefabRegistry.GetPrefabID(go),
+            RenderPrefabID = prefabRegistry != null ? prefabRegistry.GetPrefabID(go) : 0,
         };
 
         // Add LevelRootComponent for objects with GameTileAuth
@@ -122,10 +79,10 @@ public static class GameTileConverter
                     components.Add(gameComponent);
                 }
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 Debug.LogWarning(
-                    $"[GameTileConverter] Failed to export {auth.GetType().Name} on {go.name}: {e.Message}"
+                    $"[GameObjectToRuntimeObjConverter] Failed to export {auth.GetType().Name} on {go.name}: {e.Message}"
                 );
             }
         }

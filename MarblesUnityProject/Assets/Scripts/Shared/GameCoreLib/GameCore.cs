@@ -58,18 +58,14 @@ namespace GameCoreLib
                     // Load the pre-deserialized GameTile into the appropriate slot
                     LoadGameTileIntoSlot(worldId, spinLoadGameTile.NewGameTile);
                 }
-                else if (inputEvent is InputEvent.GameplayStartInput startGameTile)
+                else if (inputEvent is InputEvent.GameplayStartInput gameplayStartInput)
                 {
-                    byte worldId = startGameTile.WorldId;
+                    byte worldId = gameplayStartInput.WorldId;
                     var gameTile = worldId == 1 ? GameTile1 : GameTile2;
 
                     if (gameTile != null)
                     {
-                        gameTile.StartGameplay(
-                            startGameTile.Entrants,
-                            startGameTile.TotalMarblesBid,
-                            OutputEvents
-                        );
+                        gameTile.StartGameplay(gameplayStartInput, OutputEvents);
                     }
                 }
                 else if (inputEvent is InputEvent.FinishGameplay finishGameplay)
