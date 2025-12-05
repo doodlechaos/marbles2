@@ -21,7 +21,7 @@ namespace GameCoreLib
     [MemoryPackUnion(3, typeof(SpawnPipeComponent))]
     [MemoryPackUnion(4, typeof(PlayerMarbleComponent))]
     [MemoryPackUnion(5, typeof(LevelRootComponent))]
-    public abstract partial class GameComponent
+    public abstract partial class RuntimeObjComponent
     {
         [MemoryPackOrder(0)]
         public bool Enabled = true;
@@ -46,7 +46,7 @@ namespace GameCoreLib
 
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class BoxCollider2DComponent : GameComponent
+    public partial class BoxCollider2DComponent : RuntimeObjComponent
     {
         [MemoryPackOrder(1)]
         public FPVector2 Size = FPVector2.One;
@@ -60,7 +60,7 @@ namespace GameCoreLib
 
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class CircleCollider2DComponent : GameComponent
+    public partial class CircleCollider2DComponent : RuntimeObjComponent
     {
         [MemoryPackOrder(1)]
         public FP Radius = FP.Half;
@@ -74,7 +74,7 @@ namespace GameCoreLib
 
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class Rigidbody2DComponent : GameComponent
+    public partial class Rigidbody2DComponent : RuntimeObjComponent
     {
         [MemoryPackOrder(1)]
         public Rigidbody2DType BodyType = Rigidbody2DType.Dynamic;
@@ -111,7 +111,7 @@ namespace GameCoreLib
     /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class SpawnPipeComponent : GameComponent
+    public partial class SpawnPipeComponent : RuntimeObjComponent
     {
         /// <summary>
         /// Delay in seconds between spawning each player
@@ -126,7 +126,7 @@ namespace GameCoreLib
     /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class PlayerMarbleComponent : GameComponent
+    public partial class PlayerMarbleComponent : RuntimeObjComponent
     {
         [MemoryPackOrder(1)]
         public ulong AccountId;
@@ -154,7 +154,7 @@ namespace GameCoreLib
     /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class LevelRootComponent : GameComponent
+    public partial class LevelRootComponent : RuntimeObjComponent
     {
         /// <summary>
         /// The game mode type for this level (e.g., "SimpleBattleRoyale")

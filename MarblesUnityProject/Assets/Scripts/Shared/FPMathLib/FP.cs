@@ -33,6 +33,8 @@ namespace FPMathLib
         public static readonly FP MinValue = new FP(long.MinValue);
         public static readonly FP Pi = new FP(205887L); // ~3.14159
         public static readonly FP PiOver2 = new FP(102944L); // ~1.5708
+        public static readonly FP Rad2Deg = new FP(3754936L); // ~57.2957795 (180/π)
+        public static readonly FP Deg2Rad = new FP(1144L); // ~0.0174533 (π/180)
         public static readonly FP Epsilon = new FP(1L);
 
         // Conversions
@@ -112,4 +114,3 @@ namespace FPMathLib
         public override string ToString() => ToDouble().ToString("F4");
     }
 }
-

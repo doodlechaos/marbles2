@@ -63,9 +63,9 @@ public static class GameObjectToRuntimeObjConverter
     /// Serialize all GameComponentAuth components on a GameObject to GameComponents.
     /// Also auto-exports Unity physics components if no explicit auth component exists.
     /// </summary>
-    public static List<GameComponent> SerializeGameComponents(GameObject go)
+    public static List<RuntimeObjComponent> SerializeGameComponents(GameObject go)
     {
-        List<GameComponent> components = new List<GameComponent>();
+        List<RuntimeObjComponent> components = new List<RuntimeObjComponent>();
 
         // First, export all explicit GameComponentAuth components
         GameComponentAuth[] authComponents = go.GetComponents<GameComponentAuth>();
@@ -73,7 +73,7 @@ public static class GameObjectToRuntimeObjConverter
         {
             try
             {
-                GameComponent gameComponent = auth.ToGameComponent();
+                RuntimeObjComponent gameComponent = auth.ToGameComponent();
                 if (gameComponent != null)
                 {
                     components.Add(gameComponent);
@@ -98,7 +98,7 @@ public static class GameObjectToRuntimeObjConverter
     /// </summary>
     public static void AutoExportUnityPhysicsComponents(
         GameObject go,
-        List<GameComponent> components
+        List<RuntimeObjComponent> components
     )
     {
         // Check if we already have these component types from auth

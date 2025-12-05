@@ -9,7 +9,6 @@ namespace FPMathLib
     /// Deterministic fixed-point 3D transform similar to Unity's Transform component
     /// Supports position, rotation (quaternion), and scale with parent-child hierarchy
     /// </summary>
-
     [JsonObject(MemberSerialization.OptIn)]
     [MemoryPackable(SerializeLayout.Explicit)]
     public partial class FPTransform3D
@@ -66,6 +65,7 @@ namespace FPMathLib
                 MarkWorldDirty();
             }
         }
+
         [JsonProperty("localRotation")]
         [MemoryPackOrder(1)]
         public FPQuaternion LocalRotation
@@ -78,6 +78,7 @@ namespace FPMathLib
                 MarkWorldDirty();
             }
         }
+
         [JsonProperty("localScale")]
         [MemoryPackOrder(2)]
         public FPVector3 LocalScale
@@ -91,10 +92,13 @@ namespace FPMathLib
             }
         }
 
+        /// <summary>
+        /// Local Euler angles in degrees.
+        /// </summary>
         [MemoryPackIgnore]
         public FPVector3 LocalEulerAngles
         {
-            get => QuaternionToEuler(_localRotation);
+            get => _localRotation.EulerAngles;
             set => _localRotation = FPQuaternion.Euler(value);
         }
 
@@ -122,11 +126,15 @@ namespace FPMathLib
                     // Convert world position to local space
                     FPVector3 diff = value - _parent._worldPosition;
                     _localPosition = FPQuaternion.Inverse(_parent._worldRotation) * diff;
-                    _localPosition = FPVector3.Scale(_localPosition, InverseScale(_parent._worldScale));
+                    _localPosition = FPVector3.Scale(
+                        _localPosition,
+                        InverseScale(_parent._worldScale)
+                    );
                 }
                 MarkWorldDirty();
             }
         }
+
         [MemoryPackIgnore]
         public FPQuaternion Rotation
         {
@@ -150,6 +158,7 @@ namespace FPMathLib
                 MarkWorldDirty();
             }
         }
+
         [MemoryPackIgnore]
         public FPVector3 LossyScale
         {
@@ -159,10 +168,14 @@ namespace FPMathLib
                 return _worldScale;
             }
         }
+
+        /// <summary>
+        /// World Euler angles in degrees.
+        /// </summary>
         [MemoryPackIgnore]
         public FPVector3 EulerAngles
         {
-            get => QuaternionToEuler(Rotation);
+            get => Rotation.EulerAngles;
             set => Rotation = FPQuaternion.Euler(value);
         }
 
@@ -253,10 +266,15 @@ namespace FPMathLib
             }
         }
 
+        /// <summary>
+        /// Applies a rotation to the transform.
+        /// </summary>
+        /// <param name="eulerAnglesDegrees">Euler angles in DEGREES (X, Y, Z)</param>
+        /// <param name="worldSpace">If true, rotates in world space; otherwise in local space</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Rotate(FPVector3 eulerAngles, bool worldSpace = true)
+        public void Rotate(FPVector3 eulerAnglesDegrees, bool worldSpace = true)
         {
-            FPQuaternion rotation = FPQuaternion.Euler(eulerAngles);
+            FPQuaternion rotation = FPQuaternion.Euler(eulerAnglesDegrees);
             if (worldSpace)
             {
                 Rotation = rotation * Rotation;
@@ -267,6 +285,11 @@ namespace FPMathLib
             }
         }
 
+        /// <summary>
+        /// Applies a quaternion rotation to the transform.
+        /// </summary>
+        /// <param name="rotation">The quaternion rotation to apply</param>
+        /// <param name="worldSpace">If true, rotates in world space; otherwise in local space</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Rotate(FPQuaternion rotation, bool worldSpace = true)
         {
@@ -280,11 +303,17 @@ namespace FPMathLib
             }
         }
 
+        /// <summary>
+        /// Rotates the transform around a point in world space.
+        /// </summary>
+        /// <param name="point">The point to rotate around</param>
+        /// <param name="axis">The axis to rotate around</param>
+        /// <param name="angleDegrees">The rotation angle in DEGREES</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void RotateAround(FPVector3 point, FPVector3 axis, FP angle)
+        public void RotateAround(FPVector3 point, FPVector3 axis, FP angleDegrees)
         {
             FPVector3 worldPos = Position;
-            FPQuaternion rotation = FPQuaternion.AngleAxis(angle, axis);
+            FPQuaternion rotation = FPQuaternion.AngleAxis(angleDegrees, axis);
             FPVector3 diff = worldPos - point;
             diff = rotation * diff;
             Position = point + diff;
@@ -500,4 +529,3 @@ namespace FPMathLib
         }
     }
 }
-

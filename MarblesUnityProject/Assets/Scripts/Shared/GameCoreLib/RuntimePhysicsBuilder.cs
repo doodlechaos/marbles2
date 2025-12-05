@@ -27,7 +27,9 @@ namespace GameCoreLib
         }
 
         /// <summary>
-        /// Add physics bodies for a single RuntimeObj (and optionally its children, if you call BuildPhysics).
+        /// Add physics bodies for a RuntimeObj and its entire subtree.
+        /// Mirrors Unity's behaviour where a Rigidbody + colliders can live
+        /// on children of a spawned prefab.
         /// </summary>
         public static void AddPhysicsBody(
             RuntimeObj obj,
@@ -38,7 +40,10 @@ namespace GameCoreLib
             if (obj == null || sim == null || runtimeIdToBodyId == null)
                 return;
 
-            ProcessComponents(obj, sim, runtimeIdToBodyId);
+            // Re‑use the same hierarchical traversal that BuildPhysics uses so that
+            // spawned RuntimeObj trees (like player marbles) get all of their
+            // child colliders/rigidbodies picked up.
+            ProcessRuntimeObjHierarchy(obj, sim, runtimeIdToBodyId);
         }
 
         private static void ProcessRuntimeObjHierarchy(
@@ -115,10 +120,11 @@ namespace GameCoreLib
             Dictionary<ulong, int> runtimeIdToBodyId
         )
         {
-            FP rotation = obj.Transform.EulerAngles.Z;
+            // Convert degrees to radians for physics engine
+            FP rotationRad = obj.Transform.EulerAngles.Z * FP.Deg2Rad;
 
             // Apply collider offset rotated by Z rotation
-            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotation);
+            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotationRad);
             FPVector2 position = new FPVector2(
                 obj.Transform.Position.X + rotatedOffset.X,
                 obj.Transform.Position.Y + rotatedOffset.Y
@@ -132,11 +138,11 @@ namespace GameCoreLib
             RigidBodyLS body;
             if (isStatic)
             {
-                body = RigidBodyLS.CreateStatic(0, position, rotation);
+                body = RigidBodyLS.CreateStatic(0, position, rotationRad);
             }
             else
             {
-                body = RigidBodyLS.CreateDynamic(0, position, rotation, mass);
+                body = RigidBodyLS.CreateDynamic(0, position, rotationRad, mass);
             }
 
             // Apply scale to size
@@ -168,10 +174,11 @@ namespace GameCoreLib
             Dictionary<ulong, int> runtimeIdToBodyId
         )
         {
-            FP rotation = obj.Transform.EulerAngles.Z;
+            // Convert degrees to radians for physics engine
+            FP rotationRad = obj.Transform.EulerAngles.Z * FP.Deg2Rad;
 
             // Apply collider offset rotated by Z rotation
-            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotation);
+            FPVector2 rotatedOffset = FPVector2.Rotate(collider.Offset, rotationRad);
             FPVector2 position = new FPVector2(
                 obj.Transform.Position.X + rotatedOffset.X,
                 obj.Transform.Position.Y + rotatedOffset.Y
@@ -185,11 +192,11 @@ namespace GameCoreLib
             RigidBodyLS body;
             if (isStatic)
             {
-                body = RigidBodyLS.CreateStatic(0, position, rotation);
+                body = RigidBodyLS.CreateStatic(0, position, rotationRad);
             }
             else
             {
-                body = RigidBodyLS.CreateDynamic(0, position, rotation, mass);
+                body = RigidBodyLS.CreateDynamic(0, position, rotationRad, mass);
             }
 
             // Apply scale to radius (use max of x/y scale)

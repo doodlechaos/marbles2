@@ -47,7 +47,7 @@ public static partial class Module
         {
             Name = "DefaultLevel",
             Children = new List<RuntimeObj>(),
-            GameComponents = new List<GameComponent>
+            GameComponents = new List<RuntimeObjComponent>
             {
                 new LevelRootComponent { GameModeType = "SimpleBattleRoyale" },
             },

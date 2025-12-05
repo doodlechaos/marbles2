@@ -14,10 +14,13 @@ namespace FPMathLib
     {
         [JsonProperty("x")]
         public FP X;
+
         [JsonProperty("y")]
         public FP Y;
+
         [JsonProperty("z")]
         public FP Z;
+
         [JsonProperty("w")]
         public FP W;
 
@@ -31,7 +34,12 @@ namespace FPMathLib
         }
 
         // Constants
-        public static readonly FPQuaternion Identity = new FPQuaternion(FP.Zero, FP.Zero, FP.Zero, FP.One);
+        public static readonly FPQuaternion Identity = new FPQuaternion(
+            FP.Zero,
+            FP.Zero,
+            FP.Zero,
+            FP.One
+        );
 
         // Properties
         public FP Magnitude
@@ -58,6 +66,37 @@ namespace FPMathLib
             get => new FPQuaternion(-X, -Y, -Z, W);
         }
 
+        /// <summary>
+        /// Converts this quaternion to Euler angles (in degrees).
+        /// Returns angles in the order (X, Y, Z) matching Unity's ZXY rotation order.
+        /// </summary>
+        public FPVector3 EulerAngles
+        {
+            get
+            {
+                FPVector3 euler;
+
+                // Roll (X-axis rotation)
+                FP sinr_cosp = FP.Two * (W * X + Y * Z);
+                FP cosr_cosp = FP.One - FP.Two * (X * X + Y * Y);
+                euler.X = FPMath.Atan2(sinr_cosp, cosr_cosp) * FP.Rad2Deg;
+
+                // Pitch (Y-axis rotation)
+                FP sinp = FP.Two * (W * Y - Z * X);
+                if (FPMath.Abs(sinp) >= FP.One)
+                    euler.Y = (sinp >= FP.Zero ? FP.PiOver2 : -FP.PiOver2) * FP.Rad2Deg; // Gimbal lock
+                else
+                    euler.Y = FPMath.Asin(sinp) * FP.Rad2Deg;
+
+                // Yaw (Z-axis rotation)
+                FP siny_cosp = FP.Two * (W * Z + X * Y);
+                FP cosy_cosp = FP.One - FP.Two * (Y * Y + Z * Z);
+                euler.Z = FPMath.Atan2(siny_cosp, cosy_cosp) * FP.Rad2Deg;
+
+                return euler;
+            }
+        }
+
         // Static methods
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FP Dot(FPQuaternion a, FPQuaternion b)
@@ -65,16 +104,26 @@ namespace FPMathLib
             return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
         }
 
-        public static FPQuaternion Euler(FP x, FP y, FP z)
+        /// <summary>
+        /// Creates a quaternion from Euler angles specified in DEGREES.
+        /// Rotation order: ZXY (Unity's default).
+        /// </summary>
+        /// <param name="xDegrees">Rotation around X-axis in degrees</param>
+        /// <param name="yDegrees">Rotation around Y-axis in degrees</param>
+        /// <param name="zDegrees">Rotation around Z-axis in degrees</param>
+        public static FPQuaternion Euler(FP xDegrees, FP yDegrees, FP zDegrees)
         {
-            // Convert Euler angles (in radians) to quaternion
-            // Order: ZXY (Unity's default)
-            FP cx = FPMath.Cos(x * FP.Half);
-            FP cy = FPMath.Cos(y * FP.Half);
-            FP cz = FPMath.Cos(z * FP.Half);
-            FP sx = FPMath.Sin(x * FP.Half);
-            FP sy = FPMath.Sin(y * FP.Half);
-            FP sz = FPMath.Sin(z * FP.Half);
+            // Convert degrees to radians for trig functions
+            FP xRad = xDegrees * FP.Deg2Rad;
+            FP yRad = yDegrees * FP.Deg2Rad;
+            FP zRad = zDegrees * FP.Deg2Rad;
+
+            FP cx = FPMath.Cos(xRad * FP.Half);
+            FP cy = FPMath.Cos(yRad * FP.Half);
+            FP cz = FPMath.Cos(zRad * FP.Half);
+            FP sx = FPMath.Sin(xRad * FP.Half);
+            FP sy = FPMath.Sin(yRad * FP.Half);
+            FP sz = FPMath.Sin(zRad * FP.Half);
 
             FPQuaternion q;
             q.X = sx * cy * cz + cx * sy * sz;
@@ -85,25 +134,31 @@ namespace FPMathLib
             return q;
         }
 
+        /// <summary>
+        /// Creates a quaternion from Euler angles specified in DEGREES.
+        /// Rotation order: ZXY (Unity's default).
+        /// </summary>
+        /// <param name="eulerDegrees">Euler angles (X, Y, Z) in degrees</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FPQuaternion Euler(FPVector3 euler)
+        public static FPQuaternion Euler(FPVector3 eulerDegrees)
         {
-            return Euler(euler.X, euler.Y, euler.Z);
+            return Euler(eulerDegrees.X, eulerDegrees.Y, eulerDegrees.Z);
         }
 
-        public static FPQuaternion AngleAxis(FP angle, FPVector3 axis)
+        /// <summary>
+        /// Creates a quaternion representing a rotation of angleDegrees around axis.
+        /// </summary>
+        /// <param name="angleDegrees">Rotation angle in DEGREES</param>
+        /// <param name="axis">Axis to rotate around (will be normalized)</param>
+        public static FPQuaternion AngleAxis(FP angleDegrees, FPVector3 axis)
         {
             axis = axis.Normalized;
-            FP halfAngle = angle * FP.Half;
+            FP angleRad = angleDegrees * FP.Deg2Rad;
+            FP halfAngle = angleRad * FP.Half;
             FP sin = FPMath.Sin(halfAngle);
             FP cos = FPMath.Cos(halfAngle);
 
-            return new FPQuaternion(
-                axis.X * sin,
-                axis.Y * sin,
-                axis.Z * sin,
-                cos
-            );
+            return new FPQuaternion(axis.X * sin, axis.Y * sin, axis.Z * sin, cos);
         }
 
         public static FPQuaternion LookRotation(FPVector3 forward, FPVector3 up)
@@ -220,7 +275,12 @@ namespace FPMathLib
             if (lengthSq > FP.Epsilon)
             {
                 FP invLength = FP.One / lengthSq;
-                return new FPQuaternion(-q.X * invLength, -q.Y * invLength, -q.Z * invLength, q.W * invLength);
+                return new FPQuaternion(
+                    -q.X * invLength,
+                    -q.Y * invLength,
+                    -q.Z * invLength,
+                    q.W * invLength
+                );
             }
             return Identity;
         }
@@ -287,7 +347,12 @@ namespace FPMathLib
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(X.GetHashCode(), Y.GetHashCode(), Z.GetHashCode(), W.GetHashCode());
+            return HashCode.Combine(
+                X.GetHashCode(),
+                Y.GetHashCode(),
+                Z.GetHashCode(),
+                W.GetHashCode()
+            );
         }
 
         public override string ToString()
@@ -298,8 +363,12 @@ namespace FPMathLib
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FPQuaternion FromFloats(float x, float y, float z, float w)
         {
-            return new FPQuaternion(FP.FromFloat(x), FP.FromFloat(y), FP.FromFloat(z), FP.FromFloat(w));
+            return new FPQuaternion(
+                FP.FromFloat(x),
+                FP.FromFloat(y),
+                FP.FromFloat(z),
+                FP.FromFloat(w)
+            );
         }
     }
 }
-

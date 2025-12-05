@@ -13,6 +13,5 @@ public sealed class RuntimeBinding : MonoBehaviour
     /// This ID persists through save/load cycles.
     /// </summary>
     //public ulong RuntimeId;
-    [SerializeField]
     public RuntimeObj RuntimeObj;
 }

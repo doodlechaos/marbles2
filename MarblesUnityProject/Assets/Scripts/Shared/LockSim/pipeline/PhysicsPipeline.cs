@@ -1,4 +1,3 @@
-
 /// The main physics simulation engine that runs your physics world forward in time.
 ///
 /// Think of this as the "game loop" for your physics simulation. Each frame, you call
@@ -36,6 +35,9 @@ namespace LockSim
             {
                 context = new WorldSimulationContext();
             }
+
+            //GameCoreLib.Logger.Log($"[PhysicsPipeline] Stepping with deltaTime: {deltaTime}");
+            //GameCoreLib.Logger.Log($"[PhysicsPipeline] World has {world.Bodies.Count} bodies");
 
             // 1. Integrate forces (apply gravity and forces to velocities)
             Integration.IntegrateForces(world, deltaTime);

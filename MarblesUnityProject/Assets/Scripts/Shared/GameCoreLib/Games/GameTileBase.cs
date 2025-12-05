@@ -249,7 +249,7 @@ namespace GameCoreLib
                 Name = name,
                 Children = new List<RuntimeObj>(),
                 Transform = new FPTransform3D(position, FPQuaternion.Identity, FPVector3.One),
-                GameComponents = new List<GameComponent>(),
+                GameComponents = new List<RuntimeObjComponent>(),
             };
 
             // Add to root's children
@@ -304,11 +304,17 @@ namespace GameCoreLib
 
                     // Only sync rotation for dynamic bodies.
                     // Static bodies can't rotate in physics, so preserve their original visual rotation.
+                    // Only update Z rotation from physics, preserving any X/Y visual rotations.
                     if (body.BodyType == BodyType.Dynamic)
                     {
-                        runtimeObj.Transform.LocalRotation = FPQuaternion.AngleAxis(
-                            body.Rotation,
-                            FPVector3.Forward
+                        // EulerAngles returns degrees, FPQuaternion.Euler() accepts degrees
+                        // body.Rotation is in radians from physics, so convert to degrees
+                        var currentEulerDegrees = runtimeObj.Transform.LocalRotation.EulerAngles;
+                        FP zRotationDegrees = body.Rotation * FP.Rad2Deg;
+                        runtimeObj.Transform.LocalRotation = FPQuaternion.Euler(
+                            currentEulerDegrees.X,
+                            currentEulerDegrees.Y,
+                            zRotationDegrees
                         );
                     }
                 }

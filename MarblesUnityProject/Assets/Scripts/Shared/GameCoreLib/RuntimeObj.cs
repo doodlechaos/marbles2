@@ -6,7 +6,6 @@ using MemoryPack;
 namespace GameCoreLib
 {
     [MemoryPackable(SerializeLayout.Explicit)]
-    [Serializable]
     public partial class RuntimeObj
     {
         /// <summary>
@@ -31,7 +30,7 @@ namespace GameCoreLib
         /// These are the components that GameCore actually uses.
         /// </summary>
         [MemoryPackOrder(4)]
-        public List<GameComponent> GameComponents = new List<GameComponent>();
+        public List<RuntimeObjComponent> GameComponents = new List<RuntimeObjComponent>();
 
         /// <summary>
         /// ID referencing which prefab to use for rendering.
@@ -99,9 +98,9 @@ namespace GameCoreLib
         /// Sets the component's RuntimeObj reference automatically.
         /// </summary>
         public T AddComponent<T>(T component)
-            where T : GameComponent
+            where T : RuntimeObjComponent
         {
-            GameComponents ??= new List<GameComponent>();
+            GameComponents ??= new List<RuntimeObjComponent>();
             component.RuntimeObj = this;
             GameComponents.Add(component);
             return component;
