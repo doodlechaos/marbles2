@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4100475710299567461}
   - component: {fileID: 6724765359845290498}
   - component: {fileID: 2902526558195787246}
-  - component: {fileID: -8961356437038789634}
+  - component: {fileID: 6260989939549823964}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -90,7 +90,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-8961356437038789634
+--- !u!114 &6260989939549823964
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5728080844889452456}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f8a2b5c4d6e7f8a9b0c1d2e3f4a5b6c, type: 3}
+  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
   renderPrefabID: 0

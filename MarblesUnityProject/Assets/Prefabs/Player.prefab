@@ -564,7 +564,7 @@ GameObject:
   m_Component:
   - component: {fileID: 836525471852717791}
   - component: {fileID: 8653397145424359985}
-  - component: {fileID: 5924502645149895256}
+  - component: {fileID: 7982006795619838304}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -604,7 +604,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMarbleAuth
   testAccountId: 0
   testBidAmount: 0
---- !u!114 &5924502645149895256
+--- !u!114 &7982006795619838304
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -613,7 +613,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8627050739790726732}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f8a2b5c4d6e7f8a9b0c1d2e3f4a5b6c, type: 3}
+  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
   renderPrefabID: 2

@@ -239,6 +239,7 @@ public class TileRenderer : MonoBehaviour
                 {
                     visualObj = Instantiate(prefabToInstantiate, parentTransform);
                     visualObj.name = runtimeObj.Name;
+                    StripAuthoringComponents(visualObj);
                     didInstantiatePrefab = true;
                     if (ShowDebugInfo)
                     {
@@ -442,6 +443,45 @@ public class TileRenderer : MonoBehaviour
             {
                 Gizmos.DrawWireSphere(pos, body.CircleShape.Radius.ToFloat());
             }
+        } 
+    }
+    
+    /// <summary>
+    /// Strip out authoring-only components from instantiated prefabs so the runtime view
+    /// only shows client-side visuals.
+    /// </summary>
+    /// <param name="root">The instantiated prefab root.</param>
+    private void StripAuthoringComponents(GameObject root)
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        RemoveComponentsInChildren<GameComponentAuth>(root);
+        RemoveComponentsInChildren<Rigidbody2D>(root);
+        RemoveComponentsInChildren<Collider2D>(root);
+    }
+
+    private void RemoveComponentsInChildren<T>(GameObject root) where T : Component
+    {
+        T[] components = root.GetComponentsInChildren<T>(true);
+        foreach (T component in components)
+        {
+            if (component == null)
+            {
+                continue;
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(component);
+            }
+            else
+            {
+                DestroyImmediate(component);
+            }
         }
     }
+
 }
