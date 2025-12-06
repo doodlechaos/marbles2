@@ -27,6 +27,10 @@ namespace LockSim
                     world.TryGetCollider(contact.ColliderAId, out ColliderLS colliderA);
                     world.TryGetCollider(contact.ColliderBId, out ColliderLS colliderB);
 
+                    // Skip physics resolution for trigger colliders
+                    if (colliderA.IsTrigger || colliderB.IsTrigger)
+                        continue;
+
                     FP restitution = FPMath.Min(colliderA.Restitution, colliderB.Restitution);
                     FP friction = FPMath.Max(colliderA.Friction, colliderB.Friction);
 
@@ -61,6 +65,12 @@ namespace LockSim
                         !TryGetBodyById(bodies, contact.BodyAId, out RigidBodyLS bodyA)
                         || !TryGetBodyById(bodies, contact.BodyBId, out RigidBodyLS bodyB)
                     )
+                        continue;
+
+                    // Skip position correction for trigger colliders
+                    world.TryGetCollider(contact.ColliderAId, out ColliderLS colliderA);
+                    world.TryGetCollider(contact.ColliderBId, out ColliderLS colliderB);
+                    if (colliderA.IsTrigger || colliderB.IsTrigger)
                         continue;
 
                     PositionCorrection(ref bodyA, ref bodyB, contact.Normal, contact.Penetration);

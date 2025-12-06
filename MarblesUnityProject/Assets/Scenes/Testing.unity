@@ -449,6 +449,10 @@ MonoBehaviour:
       TotalBid: 4
     - AccountId: 2
       TotalBid: 3
+    - AccountId: 2
+      TotalBid: 3
+    - AccountId: 2
+      TotalBid: 3
     TotalMarblesBid: 7
     WorldId: 0
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}

@@ -35,11 +35,18 @@ namespace LockSim
         public FP Friction;
         public FP Restitution;
 
+        /// <summary>
+        /// If true, this collider detects overlaps but doesn't resolve physics.
+        /// Triggers generate OnTriggerEnter/Stay/Exit events instead of OnCollision events.
+        /// </summary>
+        public bool IsTrigger;
+
         public static ColliderLS CreateBox(
             int id,
             FP width,
             FP height,
-            int parentBodyId = InvalidBodyId
+            int parentBodyId = InvalidBodyId,
+            bool isTrigger = false
         )
         {
             return new ColliderLS
@@ -53,10 +60,16 @@ namespace LockSim
                 CircleShape = default,
                 Friction = FP.FromFloat(0.5f),
                 Restitution = FP.FromFloat(0.2f),
+                IsTrigger = isTrigger,
             };
         }
 
-        public static ColliderLS CreateCircle(int id, FP radius, int parentBodyId = InvalidBodyId)
+        public static ColliderLS CreateCircle(
+            int id,
+            FP radius,
+            int parentBodyId = InvalidBodyId,
+            bool isTrigger = false
+        )
         {
             return new ColliderLS
             {
@@ -69,6 +82,7 @@ namespace LockSim
                 CircleShape = new CircleShape(radius),
                 Friction = FP.FromFloat(0.5f),
                 Restitution = FP.FromFloat(0.2f),
+                IsTrigger = isTrigger,
             };
         }
 

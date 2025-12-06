@@ -22,7 +22,7 @@ public sealed class GameTileBinding : MonoBehaviour
     /// Green = dynamic bodies, Blue = static bodies.
     /// </summary>
     [SerializeField]
-    private bool showLockSimColliders = false;
+    private bool showLockSimDebug = false;
 
     /// <summary>
     /// The GameTile this binding is associated with.
@@ -145,12 +145,21 @@ public sealed class GameTileBinding : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (!showLockSimColliders || gameTile?.Sim == null)
+        if (gameTile?.Sim == null)
             return;
 
         var world = gameTile.Sim;
         Vector3 tileOffset = transform.position;
 
+        if (showLockSimDebug)
+        {
+            DrawLockSimColliders(world, tileOffset);
+            DrawActiveCollisions(world, tileOffset);
+        }
+    }
+
+    private void DrawLockSimColliders(World world, Vector3 tileOffset)
+    {
         foreach (var collider in world.Colliders)
         {
             // Get world transform from parent body if attached
@@ -182,6 +191,51 @@ public sealed class GameTileBinding : MonoBehaviour
             else if (collider.ShapeType == ShapeType.Circle)
             {
                 DrawWireCircle(colliderPos, collider.CircleShape.Radius.ToFloat());
+            }
+        }
+    }
+
+    private void DrawActiveCollisions(World world, Vector3 tileOffset)
+    {
+        var pairs = world.ActiveCollisionPairs;
+        var dataList = world.ActiveCollisionData;
+
+        if (pairs == null || dataList == null)
+            return;
+
+        const float contactRadius = 0.05f;
+        const float normalLength = 0.4f;
+
+        int count = Math.Min(pairs.Count, dataList.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            var data = dataList[i];
+
+            // Contact point in world space
+            Vector3 contactPos =
+                new Vector3(data.ContactPoint.X.ToFloat(), data.ContactPoint.Y.ToFloat(), 0f)
+                + tileOffset;
+
+            // Color: solid vs trigger
+            Gizmos.color = data.IsTrigger ? Color.yellow : Color.red;
+            Gizmos.DrawWireSphere(contactPos, contactRadius);
+
+            // Normal arrow
+            Vector3 n = new Vector3(data.Normal.X.ToFloat(), data.Normal.Y.ToFloat(), 0f);
+
+            if (n.sqrMagnitude > 0.0001f)
+            {
+                Vector3 dir = n.normalized;
+                Vector3 end = contactPos + dir * normalLength;
+
+                Gizmos.DrawLine(contactPos, end);
+
+                // Tiny arrow head
+                Vector3 right = Quaternion.AngleAxis(20f, Vector3.forward) * (-dir);
+                Vector3 left = Quaternion.AngleAxis(-20f, Vector3.forward) * (-dir);
+                Gizmos.DrawLine(end, end + right * 0.1f);
+                Gizmos.DrawLine(end, end + left * 0.1f);
             }
         }
     }

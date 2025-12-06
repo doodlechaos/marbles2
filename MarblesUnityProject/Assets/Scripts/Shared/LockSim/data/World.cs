@@ -30,11 +30,33 @@ namespace LockSim
         [MemoryPackOrder(4), MemoryPackInclude]
         private int nextColliderId = 0;
 
+        // Active collision pairs from the previous frame (for Enter/Stay/Exit detection)
+        // Using parallel lists instead of Dictionary for deterministic serialization order
+        [MemoryPackOrder(5), MemoryPackInclude]
+        private List<ColliderPair> activeCollisionPairs = new List<ColliderPair>();
+
+        [MemoryPackOrder(6), MemoryPackInclude]
+        private List<CollisionPairData> activeCollisionData = new List<CollisionPairData>();
+
         [MemoryPackIgnore]
         public IReadOnlyList<RigidBodyLS> Bodies => bodies;
 
         [MemoryPackIgnore]
         public IReadOnlyList<ColliderLS> Colliders => colliders;
+
+        /// <summary>
+        /// Active collision pairs from the previous frame.
+        /// Exposed as read-only for debug/visualization. Serialized via the backing list.
+        /// </summary>
+        [MemoryPackIgnore]
+        public IReadOnlyList<ColliderPair> ActiveCollisionPairs => activeCollisionPairs;
+
+        /// <summary>
+        /// Active collision pair data (normals/contact points) from the previous frame.
+        /// Exposed as read-only for debug/visualization. Serialized via the backing list.
+        /// </summary>
+        [MemoryPackIgnore]
+        public IReadOnlyList<CollisionPairData> ActiveCollisionData => activeCollisionData;
 
         #region Body Management
 
@@ -60,7 +82,10 @@ namespace LockSim
             {
                 if (colliders[i].ParentBodyId == bodyId)
                 {
+                    int colliderId = colliders[i].Id;
                     colliders.RemoveAt(i);
+                    // Clean up any active collision pairs referencing this collider
+                    RemoveCollisionPairsForCollider(colliderId);
                 }
             }
         }
@@ -146,6 +171,8 @@ namespace LockSim
                 if (colliders[i].Id == colliderId)
                 {
                     colliders.RemoveAt(i);
+                    // Clean up any active collision pairs referencing this collider
+                    RemoveCollisionPairsForCollider(colliderId);
                     return;
                 }
             }
@@ -196,9 +223,59 @@ namespace LockSim
         {
             bodies.Clear();
             colliders.Clear();
+            activeCollisionPairs.Clear();
+            activeCollisionData.Clear();
             nextBodyId = 0;
             nextColliderId = 0;
         }
+
+        #region Collision Pair Tracking
+
+        /// <summary>
+        /// Checks if a collision pair is currently active from the previous frame.
+        /// </summary>
+        public bool HasActiveCollisionPair(ColliderPair pair, out CollisionPairData data)
+        {
+            for (int i = 0; i < activeCollisionPairs.Count; i++)
+            {
+                if (activeCollisionPairs[i] == pair)
+                {
+                    data = activeCollisionData[i];
+                    return true;
+                }
+            }
+            data = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Removes all active collision pairs that reference the given collider.
+        /// Called when a collider is removed to keep state consistent.
+        /// </summary>
+        private void RemoveCollisionPairsForCollider(int colliderId)
+        {
+            for (int i = activeCollisionPairs.Count - 1; i >= 0; i--)
+            {
+                ColliderPair pair = activeCollisionPairs[i];
+                if (pair.ColliderIdA == colliderId || pair.ColliderIdB == colliderId)
+                {
+                    activeCollisionPairs.RemoveAt(i);
+                    activeCollisionData.RemoveAt(i);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets all active collision pairs from the previous frame (mutable for physics pipeline).
+        /// </summary>
+        internal List<ColliderPair> GetActiveCollisionPairsMutable() => activeCollisionPairs;
+
+        /// <summary>
+        /// Gets all active collision pair data from the previous frame (mutable for physics pipeline).
+        /// </summary>
+        internal List<CollisionPairData> GetActiveCollisionDataMutable() => activeCollisionData;
+
+        #endregion
 
         // Internal access for physics pipeline
         internal List<RigidBodyLS> GetBodiesMutable() => bodies;

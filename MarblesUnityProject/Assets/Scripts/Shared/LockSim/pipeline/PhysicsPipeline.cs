@@ -45,10 +45,13 @@ namespace LockSim
             // 2. Detect collisions (broad + narrow handled inside NarrowPhase)
             NarrowPhase.DetectCollisions(world, context);
 
-            // 3. Solve collision constraints (resolve contacts)
+            // 3. Process collision events (Enter/Stay/Exit for both collisions and triggers)
+            CollisionEventProcessor.ProcessEvents(world, context);
+
+            // 4. Solve collision constraints (resolve contacts, skips triggers)
             ConstraintSolver.SolveContacts(world, deltaTime, context);
 
-            // 4. Integrate velocities (update positions based on velocities)
+            // 5. Integrate velocities (update positions based on velocities)
             Integration.IntegrateVelocities(world, deltaTime);
         }
     }
