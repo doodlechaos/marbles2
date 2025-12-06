@@ -421,31 +421,45 @@ public class TileRenderer : MonoBehaviour
 
         Gizmos.color = Color.green;
 
-        foreach (var body in sim.Bodies)
+        foreach (var collider in sim.Colliders)
         {
-            Vector3 pos = new Vector3(body.Position.X.ToFloat(), body.Position.Y.ToFloat(), 0f);
+            // Get world transform from parent body if attached
+            FPVector2 pos;
+            FP rot;
+            if (sim.TryGetBody(collider.ParentBodyId, out var body))
+            {
+                pos = collider.GetWorldPosition(body);
+                rot = collider.GetWorldRotation(body);
+            }
+            else
+            {
+                pos = collider.LocalPosition;
+                rot = collider.LocalRotation;
+            }
 
-            if (body.ShapeType == ShapeType.Box)
+            Vector3 worldPos = new Vector3(pos.X.ToFloat(), pos.Y.ToFloat(), 0f);
+
+            if (collider.ShapeType == ShapeType.Box)
             {
                 Vector3 size = new Vector3(
-                    (body.BoxShape.HalfWidth * FP.Two).ToFloat(),
-                    (body.BoxShape.HalfHeight * FP.Two).ToFloat(),
+                    (collider.BoxShape.HalfWidth * FP.Two).ToFloat(),
+                    (collider.BoxShape.HalfHeight * FP.Two).ToFloat(),
                     0.1f
                 );
 
-                Quaternion rot = Quaternion.Euler(0, 0, body.Rotation.ToFloat() * Mathf.Rad2Deg);
-                Matrix4x4 matrix = Matrix4x4.TRS(pos, rot, Vector3.one);
+                Quaternion rotation = Quaternion.Euler(0, 0, rot.ToFloat() * Mathf.Rad2Deg);
+                Matrix4x4 matrix = Matrix4x4.TRS(worldPos, rotation, Vector3.one);
                 Gizmos.matrix = matrix;
                 Gizmos.DrawWireCube(Vector3.zero, size);
                 Gizmos.matrix = Matrix4x4.identity;
             }
-            else if (body.ShapeType == ShapeType.Circle)
+            else if (collider.ShapeType == ShapeType.Circle)
             {
-                Gizmos.DrawWireSphere(pos, body.CircleShape.Radius.ToFloat());
+                Gizmos.DrawWireSphere(worldPos, collider.CircleShape.Radius.ToFloat());
             }
-        } 
+        }
     }
-    
+
     /// <summary>
     /// Strip out authoring-only components from instantiated prefabs so the runtime view
     /// only shows client-side visuals.
@@ -463,7 +477,8 @@ public class TileRenderer : MonoBehaviour
         RemoveComponentsInChildren<Collider2D>(root);
     }
 
-    private void RemoveComponentsInChildren<T>(GameObject root) where T : Component
+    private void RemoveComponentsInChildren<T>(GameObject root)
+        where T : Component
     {
         T[] components = root.GetComponentsInChildren<T>(true);
         foreach (T component in components)
@@ -483,5 +498,4 @@ public class TileRenderer : MonoBehaviour
             }
         }
     }
-
 }

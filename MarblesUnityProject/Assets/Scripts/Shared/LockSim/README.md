@@ -7,28 +7,32 @@ A simple, deterministic fixed-point 2D physics engine written in C# for use in b
 LockSim provides:
 - **Deterministic simulation**: Uses Q16.16 fixed-point math for cross-platform determinism
 - **2D rigid body dynamics**: Position, velocity, rotation, angular velocity
+- **Separate colliders**: Colliders are independent from bodies, supporting multiple colliders per body
 - **Collision detection**: Box-box, circle-circle, and box-circle collisions
 - **Physics constraints**: Contact resolution with friction and restitution
 - **Snapshot/restore**: Easy state management for rollback and replay
 
 ## Architecture
 
-### Math (`math/`)
-- `FP.cs` - Q16.16 fixed-point number type
-- `FPMath.cs` - Fixed-point math functions (sqrt, sin, cos, atan2, etc.)
-- `FPVector2.cs` - 2D vector using fixed-point components
+The architecture follows Rapier/Box2D patterns with separate rigid bodies and colliders.
 
 ### Data (`data/`)
-- `World.cs` - Main world container with snapshot/restore capabilities
-- `RigidBody.cs` - Rigid body with transform, velocity, and material properties
+- `World.cs` - Main world container managing bodies and colliders
+- `RigidBodyLS.cs` - Rigid body with transform, velocity, and mass properties
+- `ColliderLS.cs` - Collider with shape, local transform, and material properties
 - `Shape.cs` - Shape types (Box, Circle) and AABB for broad phase
 - `Contact.cs` - Contact manifolds for collision resolution
+- `WorldSimulationContext.cs` - Non-serialized runtime state (contacts, iteration settings)
 
 ### Pipeline (`pipeline/`)
 - `PhysicsPipeline.cs` - Main entry point for stepping simulation
+
+### Dynamics (`dynamics/`)
 - `Integration.cs` - Force/velocity integration
-- `NarrowPhase.cs` - Broad and narrow phase collision detection
 - `ConstraintSolver.cs` - Iterative impulse-based constraint solver
+
+### Geometry (`geometry/`)
+- `NarrowPhase.cs` - Broad and narrow phase collision detection
 
 ## Usage
 
@@ -46,80 +50,101 @@ WorldSimulationContext context = new WorldSimulationContext();
 context.VelocityIterations = 8;
 context.PositionIterations = 3;
 
-// Create static ground
-RigidBodyLS ground = RigidBodyLS.CreateStatic(
-    0, 
-    FPVector2.FromFloats(0f, -5f), 
-    FP.Zero
-);
-ground.SetBoxShape(FP.FromFloat(10f), FP.FromFloat(1f));
-world.AddBody(ground);
+// Create static ground body
+RigidBodyLS ground = RigidBodyLS.CreateStatic(0, FPVector2.FromFloats(0f, -5f), FP.Zero);
+int groundId = world.AddBody(ground);
 
-// Create dynamic box
-RigidBodyLS box = RigidBodyLS.CreateDynamic(
-    1, 
-    FPVector2.FromFloats(0f, 5f), 
-    FP.Zero, 
-    FP.One // mass
-);
-box.SetBoxShape(FP.One, FP.One);
-world.AddBody(box);
+// Attach a box collider to the ground
+ColliderLS groundCollider = ColliderLS.CreateBox(0, FP.FromFloat(10f), FP.FromFloat(1f), groundId);
+world.AddCollider(groundCollider);
+
+// Create dynamic box body
+RigidBodyLS box = RigidBodyLS.CreateDynamic(0, FPVector2.FromFloats(0f, 5f), FP.Zero, FP.One);
+int boxId = world.AddBody(box);
+
+// Attach a box collider and update inertia
+ColliderLS boxCollider = ColliderLS.CreateBox(0, FP.One, FP.One, boxId);
+world.AddCollider(boxCollider);
+
+// Update body inertia from collider shape
+box = world.GetBody(boxId);
+box.SetInertiaFromCollider(boxCollider);
+world.SetBody(boxId, box);
 
 // Step simulation
 FP deltaTime = FP.FromFloat(1f / 60f);
 PhysicsPipeline.Step(world, deltaTime, context);
 ```
 
+### Multiple Colliders Per Body
+
+```csharp
+// Create a body
+RigidBodyLS body = RigidBodyLS.CreateDynamic(0, FPVector2.Zero, FP.Zero, FP.FromFloat(2f));
+int bodyId = world.AddBody(body);
+
+// Attach multiple colliders with local offsets
+ColliderLS collider1 = ColliderLS.CreateBox(0, FP.One, FP.One, bodyId);
+collider1.LocalPosition = FPVector2.FromFloats(-1f, 0f);
+world.AddCollider(collider1);
+
+ColliderLS collider2 = ColliderLS.CreateBox(0, FP.One, FP.One, bodyId);
+collider2.LocalPosition = FPVector2.FromFloats(1f, 0f);
+world.AddCollider(collider2);
+```
+
+### Collider Material Properties
+
+```csharp
+// Material properties are on the collider, not the body
+ColliderLS collider = ColliderLS.CreateCircle(0, FP.One, bodyId);
+collider.Friction = FP.FromFloat(0.3f);
+collider.Restitution = FP.FromFloat(0.8f); // Bouncy!
+world.AddCollider(collider);
+```
+
 ### Snapshot and Restore
 
 ```csharp
-// Take snapshot
-World.Snapshot snapshot = world.TakeSnapshot();
+// Take snapshot (serializes both bodies and colliders)
+byte[] snapshot = world.ToSnapshot();
 
 // Run simulation...
 PhysicsPipeline.Step(world, deltaTime);
 
 // Restore to previous state
-world.RestoreSnapshot(snapshot);
+world = MemoryPackSerializer.Deserialize<World>(snapshot);
 ```
 
-### Unity Integration
+## Key Types
 
-Attach the `LockSimDemo` component to a GameObject in your scene:
+### RigidBodyLS
+Represents the dynamics of a physical object:
+- Position and rotation (transform)
+- Linear and angular velocity
+- Mass and inertia
+- Forces and torques (cleared each frame)
 
-```csharp
-// The demo will automatically:
-// 1. Create a world with a ground plane
-// 2. Spawn a stack of boxes
-// 3. Step the simulation each frame
-// 4. Visualize bodies using Gizmos
-```
+### ColliderLS
+Defines the shape and material for collision detection:
+- Shape type (Box or Circle)
+- Local position and rotation relative to parent body
+- Friction and restitution (material properties)
+- Parent body ID (or -1 for orphan/sensor colliders)
 
-### SpacetimeDB Integration
-
-```csharp
-// In your SpacetimeDB reducer:
-[SpacetimeDB.Reducer]
-public static void StepPhysics(ReducerContext ctx)
-{
-    // Load world state from database
-    World world = LoadWorldFromDB();
-    
-    // Step simulation
-    FP deltaTime = FP.FromFloat(1f / 20f);
-    PhysicsPipeline.Step(world, deltaTime);
-    
-    // Save world state back to database
-    SaveWorldToDB(world);
-}
-```
+### World
+Container for all physics state:
+- Bodies collection (dynamics)
+- Colliders collection (shapes)
+- Gravity setting
+- Serializable with MemoryPack
 
 ## Features
 
 ### Deterministic Ordering
 - All collections use `List<T>` with deterministic iteration order
-- Bodies are assigned sequential IDs
-- Contact resolution processes bodies in ID order
+- Bodies and colliders are assigned sequential IDs
+- Contact resolution processes in deterministic order
 
 ### Fixed-Point Math
 - Q16.16 format: 16 bits integer, 16 bits fractional
@@ -140,29 +165,12 @@ public static void StepPhysics(ReducerContext ctx)
 - Position correction to prevent sinking (Baumgarte stabilization)
 - Configurable iteration counts for accuracy vs performance
 
-## Demo
-
-The included `LockSimDemo` creates a simple scene:
-- Static ground box at the bottom
-- Stack of 5 dynamic boxes
-- Boxes fall due to gravity and topple realistically
-- UI controls for pause/resume and reset
-
-### Controls
-- **Pause/Resume**: Toggle simulation
-- **Reset**: Recreate the world from scratch
-
-### Visualization
-- Gray wireframes: Static bodies
-- Cyan wireframes: Dynamic bodies
-- Red spheres + rays: Contact points and normals
-
 ## Performance
 
 Typical performance for simple scenes:
-- 10 bodies: < 0.1ms per step
-- 50 bodies: < 1ms per step
-- 100 bodies: < 5ms per step
+- 10 colliders: < 0.1ms per step
+- 50 colliders: < 1ms per step
+- 100 colliders: < 5ms per step
 
 Complexity: O(n²) collision detection (suitable for small-medium simulations)
 
@@ -175,16 +183,6 @@ Complexity: O(n²) collision detection (suitable for small-medium simulations)
 - No continuous collision detection (CCD)
 - Fixed-point precision limits maximum velocities and sizes
 
-## Future Enhancements
-
-Potential improvements:
-- Spatial partitioning (quadtree) for O(n log n) broad phase
-- More shape types (polygons, capsules)
-- Joint constraints (distance, revolute, prismatic)
-- Continuous collision detection for fast-moving objects
-- Island detection for sleeping bodies
-
 ## License
 
 This is part of the Marbles project. Feel free to use and modify as needed.
-

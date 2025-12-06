@@ -1,4 +1,3 @@
-
 namespace LockSim
 {
     using System;
@@ -8,9 +7,13 @@ namespace LockSim
     public enum BodyType : byte
     {
         Static = 0,
-        Dynamic = 1
+        Dynamic = 1,
     }
 
+    /// <summary>
+    /// A rigid body that represents the dynamics (position, velocity, mass) of a physical object.
+    /// Shape and material properties are now defined by attached ColliderLS instances.
+    /// </summary>
     [Serializable]
     [MemoryPackable]
     public partial struct RigidBodyLS
@@ -39,15 +42,6 @@ namespace LockSim
         public FP Inertia;
         public FP InverseInertia;
 
-        // Material properties
-        public FP Restitution; // Bounciness (0 = no bounce, 1 = perfect bounce)
-        public FP Friction;
-
-        // Shape data
-        public ShapeType ShapeType;
-        public BoxShape BoxShape;
-        public CircleShape CircleShape;
-
         public static RigidBodyLS CreateStatic(int id, FPVector2 position, FP rotation)
         {
             return new RigidBodyLS
@@ -64,8 +58,6 @@ namespace LockSim
                 InverseMass = FP.Zero,
                 Inertia = FP.Zero,
                 InverseInertia = FP.Zero,
-                Restitution = FP.FromFloat(0.2f),
-                Friction = FP.FromFloat(0.5f)
             };
         }
 
@@ -85,68 +77,21 @@ namespace LockSim
                 Torque = FP.Zero,
                 Mass = mass,
                 InverseMass = invMass,
-                Inertia = FP.One,
+                Inertia = FP.One, // Should be set after attaching colliders
                 InverseInertia = FP.One,
-                Restitution = FP.FromFloat(0.2f),
-                Friction = FP.FromFloat(0.5f)
             };
         }
 
-        public void SetBoxShape(FP width, FP height)
+        /// <summary>
+        /// Sets the inertia from a collider's shape and this body's mass.
+        /// Call this after attaching a collider to compute proper rotational inertia.
+        /// </summary>
+        public void SetInertiaFromCollider(in ColliderLS collider)
         {
-            ShapeType = ShapeType.Box;
-            BoxShape = BoxShape.FromSize(width, height);
-
-            // Calculate inertia for box: I = mass * (width^2 + height^2) / 12
             if (BodyType == BodyType.Dynamic && Mass > FP.Zero)
             {
-                FP w2 = width * width;
-                FP h2 = height * height;
-                Inertia = Mass * (w2 + h2) / FP.FromInt(12);
-                InverseInertia = FP.One / Inertia;
-            }
-        }
-
-        public void SetCircleShape(FP radius)
-        {
-            ShapeType = ShapeType.Circle;
-            CircleShape = new CircleShape(radius);
-
-            // Calculate inertia for circle: I = mass * radius^2 / 2
-            if (BodyType == BodyType.Dynamic && Mass > FP.Zero)
-            {
-                Inertia = Mass * radius * radius * FP.Half;
-                InverseInertia = FP.One / Inertia;
-            }
-        }
-
-        public AABB ComputeAABB()
-        {
-            if (ShapeType == ShapeType.Box)
-            {
-                // Compute oriented box corners and find min/max
-                FP cos = FPMath.Cos(Rotation);
-                FP sin = FPMath.Sin(Rotation);
-
-                FP hw = BoxShape.HalfWidth;
-                FP hh = BoxShape.HalfHeight;
-
-                // Compute the maximum extent in each axis
-                FP extentX = FPMath.Abs(hw * cos) + FPMath.Abs(hh * sin);
-                FP extentY = FPMath.Abs(hw * sin) + FPMath.Abs(hh * cos);
-
-                return new AABB(
-                    new FPVector2(Position.X - extentX, Position.Y - extentY),
-                    new FPVector2(Position.X + extentX, Position.Y + extentY)
-                );
-            }
-            else // Circle
-            {
-                FP radius = CircleShape.Radius;
-                return new AABB(
-                    new FPVector2(Position.X - radius, Position.Y - radius),
-                    new FPVector2(Position.X + radius, Position.Y + radius)
-                );
+                Inertia = collider.ComputeInertia(Mass);
+                InverseInertia = Inertia > FP.Zero ? FP.One / Inertia : FP.Zero;
             }
         }
 
@@ -163,7 +108,8 @@ namespace LockSim
             if (BodyType == BodyType.Dynamic)
             {
                 LinearVelocity = LinearVelocity + impulse * InverseMass;
-                AngularVelocity = AngularVelocity + FPVector2.Cross(contactVector, impulse) * InverseInertia;
+                AngularVelocity =
+                    AngularVelocity + FPVector2.Cross(contactVector, impulse) * InverseInertia;
             }
         }
 
@@ -174,4 +120,3 @@ namespace LockSim
         }
     }
 }
-

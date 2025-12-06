@@ -8,14 +8,26 @@ namespace LockSim
     {
         public int BodyAId;
         public int BodyBId;
+        public int ColliderAId;
+        public int ColliderBId;
         public FPVector2 Position;
         public FPVector2 Normal; // Points from A to B
         public FP Penetration;
 
-        public Contact(int bodyAId, int bodyBId, FPVector2 position, FPVector2 normal, FP penetration)
+        public Contact(
+            int bodyAId,
+            int bodyBId,
+            int colliderAId,
+            int colliderBId,
+            FPVector2 position,
+            FPVector2 normal,
+            FP penetration
+        )
         {
             BodyAId = bodyAId;
             BodyBId = bodyBId;
+            ColliderAId = colliderAId;
+            ColliderBId = colliderBId;
             Position = position;
             Normal = normal;
             Penetration = penetration;
@@ -27,6 +39,8 @@ namespace LockSim
     {
         public int BodyAId;
         public int BodyBId;
+        public int ColliderAId;
+        public int ColliderBId;
         public FPVector2 Normal; // Points from A to B
         public FP Penetration;
         public int ContactCount;
@@ -35,10 +49,12 @@ namespace LockSim
         public FPVector2 ContactPoint1;
         public FPVector2 ContactPoint2;
 
-        public ContactManifold(int bodyAId, int bodyBId)
+        public ContactManifold(int bodyAId, int bodyBId, int colliderAId, int colliderBId)
         {
             BodyAId = bodyAId;
             BodyBId = bodyBId;
+            ColliderAId = colliderAId;
+            ColliderBId = colliderBId;
             Normal = FPVector2.Zero;
             Penetration = FP.Zero;
             ContactCount = 0;
@@ -66,4 +82,3 @@ namespace LockSim
         }
     }
 }
-

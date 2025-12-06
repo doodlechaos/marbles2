@@ -23,6 +23,7 @@ namespace GameCoreLib
     public partial struct PhysicsBinding
     {
         public int BodyId;
+        public int ColliderId;
 
         /// <summary>
         /// The swing component (X/Y tilt without Z) of the original rotation.

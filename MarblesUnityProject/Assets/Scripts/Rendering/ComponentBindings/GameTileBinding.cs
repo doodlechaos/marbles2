@@ -149,26 +149,39 @@ public sealed class GameTileBinding : MonoBehaviour
             return;
 
         var world = gameTile.Sim;
-        foreach (var body in world.Bodies)
+        Vector3 tileOffset = transform.position;
+
+        foreach (var collider in world.Colliders)
         {
-            // Set color based on body type
-            Gizmos.color = body.BodyType == BodyType.Dynamic ? Color.green : Color.blue;
+            // Get world transform from parent body if attached
+            FPVector2 pos;
+            FP rot;
+            bool isDynamic = false;
 
-            // Convert 2D physics position to 3D world position
-            // The tile root's position provides the offset for this tile
-            Vector3 tileOffset = transform.position;
-            Vector3 bodyPos =
-                new Vector3(body.Position.X.ToFloat(), body.Position.Y.ToFloat(), 0f) + tileOffset;
-
-            float rotation = body.Rotation.ToFloat(); // radians
-
-            if (body.ShapeType == ShapeType.Box)
+            if (world.TryGetBody(collider.ParentBodyId, out var body))
             {
-                DrawWireBox(bodyPos, body.BoxShape, rotation);
+                pos = collider.GetWorldPosition(body);
+                rot = collider.GetWorldRotation(body);
+                isDynamic = body.BodyType == BodyType.Dynamic;
             }
-            else if (body.ShapeType == ShapeType.Circle)
+            else
             {
-                DrawWireCircle(bodyPos, body.CircleShape.Radius.ToFloat());
+                pos = collider.LocalPosition;
+                rot = collider.LocalRotation;
+            }
+
+            Gizmos.color = isDynamic ? Color.green : Color.blue;
+
+            Vector3 colliderPos = new Vector3(pos.X.ToFloat(), pos.Y.ToFloat(), 0f) + tileOffset;
+            float rotation = rot.ToFloat();
+
+            if (collider.ShapeType == ShapeType.Box)
+            {
+                DrawWireBox(colliderPos, collider.BoxShape, rotation);
+            }
+            else if (collider.ShapeType == ShapeType.Circle)
+            {
+                DrawWireCircle(colliderPos, collider.CircleShape.Radius.ToFloat());
             }
         }
     }

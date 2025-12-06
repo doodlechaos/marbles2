@@ -165,7 +165,6 @@ public class LockSimTestWindow : EditorWindow
             _results.Add(ctx.ToResult());
         }
 
-        // Optionally also log a compact summary to the Console:
         int pass = 0;
         foreach (var r in _results)
             if (r.Passed)
@@ -227,36 +226,31 @@ public class LockSimTestWindow : EditorWindow
         t.Expect(d.Mass == FP.FromInt(2), "Dynamic mass = 2");
         t.Expect(d.InverseMass == FP.Half, "Dynamic inverse mass = 0.5");
 
-        d.SetBoxShape(FP.One, FP.One);
-        t.Expect(d.ShapeType == ShapeType.Box, "Box shape set");
+        // Test collider creation
+        var boxCollider = ColliderLS.CreateBox(0, FP.One, FP.One);
+        t.Expect(boxCollider.ShapeType == ShapeType.Box, "Box collider shape type");
+
+        var circleCollider = ColliderLS.CreateCircle(0, FP.One);
+        t.Expect(circleCollider.ShapeType == ShapeType.Circle, "Circle collider shape type");
+
+        // Test inertia computation
+        d.SetInertiaFromCollider(boxCollider);
         t.Expect(d.Inertia > FP.Zero, "Box inertia > 0");
     }
 
     private static void TestSnapshotRestoreDeterminism(TestContext t)
     {
-        // Create fresh world
         var world = new World();
         world.Gravity = FPVector2.FromFloats(0f, -9.81f);
         var context = new WorldSimulationContext();
 
-        // Spawn static walls to contain everything
-        var ground = RigidBodyLS.CreateStatic(0, FPVector2.FromFloats(0f, -10f), FP.Zero);
-        ground.SetBoxShape(FP.FromInt(20), FP.One);
-        world.AddBody(ground);
+        // Spawn static walls
+        AddStaticBox(world, FPVector2.FromFloats(0f, -10f), FP.FromInt(20), FP.One);
+        AddStaticBox(world, FPVector2.FromFloats(-10f, 0f), FP.One, FP.FromInt(20));
+        AddStaticBox(world, FPVector2.FromFloats(10f, 0f), FP.One, FP.FromInt(20));
+        AddStaticBox(world, FPVector2.FromFloats(0f, 10f), FP.FromInt(20), FP.One);
 
-        var leftWall = RigidBodyLS.CreateStatic(0, FPVector2.FromFloats(-10f, 0f), FP.Zero);
-        leftWall.SetBoxShape(FP.One, FP.FromInt(20));
-        world.AddBody(leftWall);
-
-        var rightWall = RigidBodyLS.CreateStatic(0, FPVector2.FromFloats(10f, 0f), FP.Zero);
-        rightWall.SetBoxShape(FP.One, FP.FromInt(20));
-        world.AddBody(rightWall);
-
-        var ceiling = RigidBodyLS.CreateStatic(0, FPVector2.FromFloats(0f, 10f), FP.Zero);
-        ceiling.SetBoxShape(FP.FromInt(20), FP.One);
-        world.AddBody(ceiling);
-
-        // Spawn 20 random rigid bodies inside
+        // Spawn random rigid bodies
         int seed = 12345;
         System.Random random = new System.Random(seed);
 
@@ -267,56 +261,51 @@ public class LockSimTestWindow : EditorWindow
             FP rotation = FP.FromFloat((float)(random.NextDouble() * 6.28));
             FP mass = FP.FromFloat((float)(random.NextDouble() * 2 + 0.5));
 
-            var body = RigidBodyLS.CreateDynamic(
-                0,
-                FPVector2.FromFloats(x.ToFloat(), y.ToFloat()),
-                rotation,
-                mass
-            );
+            var body = RigidBodyLS.CreateDynamic(0, new FPVector2(x, y), rotation, mass);
+            int bodyId = world.AddBody(body);
 
+            ColliderLS collider;
             if (random.Next(2) == 0)
             {
                 FP size = FP.FromFloat((float)(random.NextDouble() * 0.5 + 0.3));
-                body.SetBoxShape(size, size);
+                collider = ColliderLS.CreateBox(0, size, size, bodyId);
             }
             else
             {
                 FP radius = FP.FromFloat((float)(random.NextDouble() * 0.5 + 0.3));
-                body.SetCircleShape(radius);
+                collider = ColliderLS.CreateCircle(0, radius, bodyId);
             }
 
-            world.AddBody(body);
+            world.AddCollider(collider);
+
+            // Update inertia
+            body = world.GetBody(bodyId);
+            body.SetInertiaFromCollider(collider);
+            world.SetBody(bodyId, body);
         }
 
-        // Simulate 100 steps
         FP dt = FP.FromFloat(1f / 60f);
         for (int i = 0; i < 100; i++)
         {
             PhysicsPipeline.Step(world, dt, context);
         }
 
-        // Take snapshot
         byte[] snapshotData = world.ToSnapshot();
 
-        // Simulate 100 more steps
         for (int i = 0; i < 100; i++)
         {
             PhysicsPipeline.Step(world, dt, context);
         }
 
-        // Get hash of the entire world state
         string hash1 = world.GetDeterministicHashHex();
 
-        // Restore from the snapshot
         world = MemoryPackSerializer.Deserialize<World>(snapshotData);
 
-        // Simulate 100 more steps
         for (int i = 0; i < 100; i++)
         {
             PhysicsPipeline.Step(world, dt, context);
         }
 
-        // Check if this hash of the world state matches the previous
         string hash2 = world.GetDeterministicHashHex();
 
         t.Expect(
@@ -331,14 +320,20 @@ public class LockSimTestWindow : EditorWindow
         world.Gravity = FPVector2.FromFloats(0f, -10f);
 
         var box = RigidBodyLS.CreateDynamic(0, FPVector2.FromFloats(0f, 10f), FP.Zero, FP.One);
-        box.SetBoxShape(FP.One, FP.One);
-        world.AddBody(box);
+        int bodyId = world.AddBody(box);
+
+        var collider = ColliderLS.CreateBox(0, FP.One, FP.One, bodyId);
+        world.AddCollider(collider);
+
+        box = world.GetBody(bodyId);
+        box.SetInertiaFromCollider(collider);
+        world.SetBody(bodyId, box);
 
         FP dt = FP.FromFloat(1f / 60f);
         for (int i = 0; i < 60; i++)
             PhysicsPipeline.Step(world, dt);
 
-        box = world.GetBody(0);
+        box = world.GetBody(bodyId);
         t.Expect(box.Position.Y < FP.FromFloat(10f), "Box fell below start height");
         t.Expect(box.LinearVelocity.Y < FP.Zero, "Box has downward velocity");
     }
@@ -372,24 +367,28 @@ public class LockSimTestWindow : EditorWindow
         world.Gravity = FPVector2.Zero;
         var context = new WorldSimulationContext();
 
+        // Static box
         var box1 = RigidBodyLS.CreateStatic(0, FPVector2.Zero, FP.Zero);
-        box1.SetBoxShape(FP.Two, FP.Two);
-        world.AddBody(box1);
+        int body1Id = world.AddBody(box1);
+        var collider1 = ColliderLS.CreateBox(0, FP.Two, FP.Two, body1Id);
+        world.AddCollider(collider1);
 
-        var box2 = RigidBodyLS.CreateDynamic(1, FPVector2.Zero, FP.Zero, FP.One);
-        box2.SetBoxShape(FP.One, FP.One);
-        world.AddBody(box2);
+        // Dynamic box at same position (overlapping)
+        var box2 = RigidBodyLS.CreateDynamic(0, FPVector2.Zero, FP.Zero, FP.One);
+        int body2Id = world.AddBody(box2);
+        var collider2 = ColliderLS.CreateBox(0, FP.One, FP.One, body2Id);
+        world.AddCollider(collider2);
+
+        box2 = world.GetBody(body2Id);
+        box2.SetInertiaFromCollider(collider2);
+        world.SetBody(body2Id, box2);
 
         NarrowPhase.DetectCollisions(world, context);
 
         bool hasCollision = context.Contacts.Count > 0;
         if (!hasCollision)
         {
-            var aabb1 = box1.ComputeAABB();
-            var aabb2 = box2.ComputeAABB();
-            t.Fail(
-                $"No collision detected. Box1 AABB: {aabb1.Min}..{aabb1.Max}, Box2 AABB: {aabb2.Min}..{aabb2.Max}"
-            );
+            t.Fail("No collision detected between overlapping boxes");
         }
         else
         {
@@ -402,15 +401,28 @@ public class LockSimTestWindow : EditorWindow
         var world = new World();
         world.Gravity = FPVector2.FromFloats(0f, -9.81f);
 
-        var ground = RigidBodyLS.CreateStatic(0, FPVector2.FromFloats(0f, -5f), FP.Zero);
-        ground.SetBoxShape(FP.FromInt(10), FP.One);
-        world.AddBody(ground);
+        // Ground
+        AddStaticBox(world, FPVector2.FromFloats(0f, -5f), FP.FromInt(10), FP.One);
 
-        var box = RigidBodyLS.CreateDynamic(1, FPVector2.FromFloats(0f, 5f), FP.Zero, FP.One);
-        box.SetBoxShape(FP.One, FP.One);
-        world.AddBody(box);
+        // Falling box
+        var box = RigidBodyLS.CreateDynamic(0, FPVector2.FromFloats(0f, 5f), FP.Zero, FP.One);
+        int bodyId = world.AddBody(box);
+        var collider = ColliderLS.CreateBox(0, FP.One, FP.One, bodyId);
+        world.AddCollider(collider);
+
+        box = world.GetBody(bodyId);
+        box.SetInertiaFromCollider(collider);
+        world.SetBody(bodyId, box);
 
         return world;
+    }
+
+    private static void AddStaticBox(World world, FPVector2 position, FP width, FP height)
+    {
+        var body = RigidBodyLS.CreateStatic(0, position, FP.Zero);
+        int bodyId = world.AddBody(body);
+        var collider = ColliderLS.CreateBox(0, width, height, bodyId);
+        world.AddCollider(collider);
     }
 
     // ---------- Harness types ----------
