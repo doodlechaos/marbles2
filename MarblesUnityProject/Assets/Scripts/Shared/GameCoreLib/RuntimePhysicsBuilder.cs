@@ -126,13 +126,13 @@ namespace GameCoreLib
 
             int bodyId = sim.AddBody(body);
 
-            // Create and attach collider
+            // Create and attach collider with authored material properties
             FP width = colliderComponent.Size.X * FPMath.Abs(obj.Transform.LossyScale.X);
             FP height = colliderComponent.Size.Y * FPMath.Abs(obj.Transform.LossyScale.Y);
 
             var collider = ColliderLS.CreateBox(0, width, height, bodyId);
-            collider.Friction = FP.FromFloat(0.5f);
-            collider.Restitution = FP.FromFloat(0.2f);
+            collider.Friction = colliderComponent.Friction;
+            collider.Restitution = colliderComponent.Restitution;
 
             int colliderId = sim.AddCollider(collider);
 
@@ -183,14 +183,14 @@ namespace GameCoreLib
 
             int bodyId = sim.AddBody(body);
 
-            // Create and attach collider
+            // Create and attach collider with authored material properties
             FP scaleX = FPMath.Abs(obj.Transform.LossyScale.X);
             FP scaleY = FPMath.Abs(obj.Transform.LossyScale.Y);
             FP radius = colliderComponent.Radius * FPMath.Max(scaleX, scaleY);
 
             var collider = ColliderLS.CreateCircle(0, radius, bodyId);
-            collider.Friction = FP.FromFloat(0.5f);
-            collider.Restitution = FP.FromFloat(0.2f);
+            collider.Friction = colliderComponent.Friction;
+            collider.Restitution = colliderComponent.Restitution;
 
             int colliderId = sim.AddCollider(collider);
 

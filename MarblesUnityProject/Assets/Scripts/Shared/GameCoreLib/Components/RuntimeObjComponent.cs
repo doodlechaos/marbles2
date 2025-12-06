@@ -56,6 +56,18 @@ namespace GameCoreLib
 
         [MemoryPackOrder(3)]
         public bool IsTrigger = false;
+
+        /// <summary>
+        /// Physics material friction. Authored from Unity PhysicsMaterial2D.friction.
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public FP Friction = FP.FromFloat(0.5f);
+
+        /// <summary>
+        /// Physics material restitution (bounciness). Authored from Unity PhysicsMaterial2D.bounciness.
+        /// </summary>
+        [MemoryPackOrder(5)]
+        public FP Restitution = FP.Zero;
     }
 
     [Serializable]
@@ -70,6 +82,18 @@ namespace GameCoreLib
 
         [MemoryPackOrder(3)]
         public bool IsTrigger = false;
+
+        /// <summary>
+        /// Physics material friction. Authored from Unity PhysicsMaterial2D.friction.
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public FP Friction = FP.FromFloat(0.5f);
+
+        /// <summary>
+        /// Physics material restitution (bounciness). Authored from Unity PhysicsMaterial2D.bounciness.
+        /// </summary>
+        [MemoryPackOrder(5)]
+        public FP Restitution = FP.Zero;
     }
 
     [Serializable]

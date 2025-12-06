@@ -122,6 +122,13 @@ public static class GameObjectToRuntimeObjConverter
             var boxCollider = go.GetComponent<BoxCollider2D>();
             if (boxCollider != null)
             {
+                // Read physics material properties (friction, bounciness) from Unity's PhysicsMaterial2D
+                GetPhysicsMaterialProperties(
+                    boxCollider.sharedMaterial,
+                    out float friction,
+                    out float restitution
+                );
+
                 components.Add(
                     new BoxCollider2DComponent
                     {
@@ -129,6 +136,8 @@ public static class GameObjectToRuntimeObjConverter
                         Size = FPVector2.FromFloats(boxCollider.size.x, boxCollider.size.y),
                         Offset = FPVector2.FromFloats(boxCollider.offset.x, boxCollider.offset.y),
                         IsTrigger = boxCollider.isTrigger,
+                        Friction = FP.FromFloat(friction),
+                        Restitution = FP.FromFloat(restitution),
                     }
                 );
             }
@@ -140,6 +149,13 @@ public static class GameObjectToRuntimeObjConverter
             var circleCollider = go.GetComponent<CircleCollider2D>();
             if (circleCollider != null)
             {
+                // Read physics material properties (friction, bounciness) from Unity's PhysicsMaterial2D
+                GetPhysicsMaterialProperties(
+                    circleCollider.sharedMaterial,
+                    out float friction,
+                    out float restitution
+                );
+
                 components.Add(
                     new CircleCollider2DComponent
                     {
@@ -150,6 +166,8 @@ public static class GameObjectToRuntimeObjConverter
                             circleCollider.offset.y
                         ),
                         IsTrigger = circleCollider.isTrigger,
+                        Friction = FP.FromFloat(friction),
+                        Restitution = FP.FromFloat(restitution),
                     }
                 );
             }
@@ -186,6 +204,29 @@ public static class GameObjectToRuntimeObjConverter
             RigidbodyType2D.Static => Rigidbody2DType.Static,
             _ => Rigidbody2DType.Dynamic,
         };
+    }
+
+    /// <summary>
+    /// Extracts friction and restitution from a Unity PhysicsMaterial2D.
+    /// Uses sensible defaults when no material is assigned.
+    /// </summary>
+    private static void GetPhysicsMaterialProperties(
+        PhysicsMaterial2D material,
+        out float friction,
+        out float restitution
+    )
+    {
+        if (material != null)
+        {
+            friction = material.friction;
+            restitution = material.bounciness;
+        }
+        else
+        {
+            // Sensible defaults when no material is assigned
+            friction = 0.5f;
+            restitution = 0f;
+        }
     }
 
     public static FPTransform3D ConvertToFPTransform(Transform t)
