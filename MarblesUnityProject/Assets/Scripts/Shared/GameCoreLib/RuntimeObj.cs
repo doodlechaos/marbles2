@@ -188,11 +188,11 @@ namespace GameCoreLib
         /// <summary>
         /// Rebuild component RuntimeObj references after deserialization.
         /// Call this on the root after MemoryPack deserialization to restore
-        /// the component.RuntimeObj back-references.
+        /// the component.RuntimeObj back-references and component-specific references.
         /// </summary>
         public void RebuildComponentReferences()
         {
-            // Set RuntimeObj reference for all components on this object
+            // First pass: Set RuntimeObj reference for all components on this object
             if (GameComponents != null)
             {
                 foreach (var comp in GameComponents)
@@ -201,12 +201,46 @@ namespace GameCoreLib
                 }
             }
 
-            // Recursively rebuild for children
+            // Recursively rebuild for children (first pass)
             if (Children != null)
             {
                 foreach (var child in Children)
                 {
                     child.RebuildComponentReferences();
+                }
+            }
+
+            // Second pass: Resolve component-specific cross-references
+            // This happens after all RuntimeObj references are set, so components
+            // can find other RuntimeObjs in the hierarchy
+            ResolveComponentCrossReferences();
+        }
+
+        /// <summary>
+        /// Second pass of reference rebuilding: resolve cross-references between components.
+        /// Called after all RuntimeObj back-references are set.
+        /// </summary>
+        private void ResolveComponentCrossReferences()
+        {
+            if (GameComponents != null)
+            {
+                foreach (var comp in GameComponents)
+                {
+                    // PlayerMarbleComponent needs to find its rigidbody child
+                    if (comp is PlayerMarbleComponent playerMarble)
+                    {
+                        playerMarble.FindRigidbodyReference();
+                    }
+                    // Add other component-specific reference resolution here as needed
+                }
+            }
+
+            // Recursively resolve for children
+            if (Children != null)
+            {
+                foreach (var child in Children)
+                {
+                    child.ResolveComponentCrossReferences();
                 }
             }
         }

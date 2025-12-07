@@ -10,6 +10,12 @@ using UnityEngine;
 /// </summary>
 public class PlayerMarbleAuth : GameComponentAuth<PlayerMarbleComponent>
 {
+    [Tooltip(
+        "Reference to the Rigidbody2D component on this marble (can be on a child object). "
+            + "Used for physics-aware positioning and teleportation."
+    )]
+    public Rigidbody2D RB2D;
+
     [Tooltip("For testing in editor - the account ID this marble belongs to")]
     public ulong testAccountId = 0;
 
@@ -18,11 +24,20 @@ public class PlayerMarbleAuth : GameComponentAuth<PlayerMarbleComponent>
 
     protected override PlayerMarbleComponent CreateComponent()
     {
+        // Get the name of the GameObject that has the rigidbody
+        // This allows us to find the corresponding RuntimeObj after serialization
+        string rigidbodyChildName = "";
+        if (RB2D != null)
+        {
+            rigidbodyChildName = RB2D.gameObject.name;
+        }
+
         return new PlayerMarbleComponent
         {
             AccountId = testAccountId,
             BidAmount = testBidAmount,
             IsAlive = true,
+            RigidbodyChildName = rigidbodyChildName,
         };
     }
 }

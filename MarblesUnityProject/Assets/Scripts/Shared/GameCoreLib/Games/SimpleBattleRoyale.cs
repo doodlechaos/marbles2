@@ -175,9 +175,20 @@ namespace GameCoreLib
             // This sets PhysicsBodyId on each RuntimeObj that gets a physics body.
             AddPhysicsBody(marble);
 
-            // Teleport the entire marble hierarchy to the spawn pipe location.
-            // This safely moves both RuntimeObj transforms and their physics bodies together.
-            marble.SetHierarchyWorldPos(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
+            // Position the marble at the spawn pipe.
+            // Use the rigidbody's RuntimeObj if available (handles child rigidbodies correctly),
+            // otherwise fall back to the marble root.
+            RuntimeObj targetObj = playerComp.RigidbodyRuntimeObj ?? marble;
+            if (targetObj.HasPhysicsBody)
+            {
+                // Directly set the physics body position - this is the authoritative position
+                targetObj.SetWorldPos(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
+            }
+            else
+            {
+                // Fallback: move entire hierarchy
+                marble.SetHierarchyWorldPos(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
+            }
 
             PlayerMarbles.Add(playerComp);
             Logger.Log($"Player {entrant.AccountId} spawned via template");

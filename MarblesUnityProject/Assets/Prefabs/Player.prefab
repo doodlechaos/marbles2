@@ -602,6 +602,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d41c1de1b7c6f04088c41258c445154, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMarbleAuth
+  RB2D: {fileID: 1644062234708253594}
   testAccountId: 0
   testBidAmount: 0
 --- !u!114 &7982006795619838304

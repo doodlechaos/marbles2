@@ -406,16 +406,24 @@ namespace GameCoreLib
             if (targetBody.BodyType != BodyType.Dynamic)
                 return;
 
+            // Get the current world position from the physics body itself.
+            // We cannot rely on target.Transform.Position because RuntimeObj transforms
+            // don't have parent relationships set up, so Position returns LocalPosition
+            // which may be relative to a parent that has moved.
+            FPVector2 currentPhysicsPos = targetBody.Position;
+
             // Teleport the target by the offset, preserving velocity
-            FPVector3 newWorldPosition =
-                target.Transform.Position
-                + new FPVector3(teleportComponent.Offset.X, teleportComponent.Offset.Y, FP.Zero);
+            FPVector3 newWorldPosition = new FPVector3(
+                currentPhysicsPos.X + teleportComponent.Offset.X,
+                currentPhysicsPos.Y + teleportComponent.Offset.Y,
+                target.Transform.LocalPosition.Z
+            );
 
             // Use SetWorldPos with resetVelocity=false to preserve momentum
             target.SetWorldPos(newWorldPosition, Sim, resetVelocity: false);
 
             Logger.Log(
-                $"TeleportWrap: Teleported '{target.Name}' by offset ({teleportComponent.Offset.X}, {teleportComponent.Offset.Y})"
+                $"TeleportWrap: Teleported '{target.Name}' from ({currentPhysicsPos.X}, {currentPhysicsPos.Y}) by offset ({teleportComponent.Offset.X}, {teleportComponent.Offset.Y})"
             );
         }
 
