@@ -25,7 +25,7 @@ public class PlayerMarbleAuth : GameComponentAuth<PlayerMarbleComponent>
     protected override PlayerMarbleComponent CreateComponent()
     {
         // Get the name of the GameObject that has the rigidbody
-        // This allows us to find the corresponding RuntimeObj after serialization
+        // This allows us to find the corresponding gamecoreobj after serialization
         string rigidbodyChildName = "";
         if (RB2D != null)
         {
