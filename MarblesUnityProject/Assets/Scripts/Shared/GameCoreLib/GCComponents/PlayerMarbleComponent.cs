@@ -9,7 +9,7 @@ namespace GameCoreLib
     /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class PlayerMarbleComponent : RuntimeObjComponent
+    public partial class PlayerMarbleComponent : GCComponent
     {
         [MemoryPackOrder(1)]
         public ulong AccountId;
@@ -45,7 +45,7 @@ namespace GameCoreLib
         /// Can be null if no rigidbody is found in the hierarchy.
         /// </summary>
         [MemoryPackIgnore]
-        public RuntimeObj? RigidbodyRuntimeObj { get; private set; }
+        public GameCoreObj? RigidbodyRuntimeObj { get; private set; }
 
         /// <summary>
         /// Finds and caches the rigidbody RuntimeObj reference.
@@ -53,28 +53,28 @@ namespace GameCoreLib
         /// </summary>
         public void FindRigidbodyReference()
         {
-            if (RuntimeObj == null)
+            if (GCObj == null)
                 return;
 
             // First try to find by name if specified
             if (!string.IsNullOrEmpty(RigidbodyChildName))
             {
-                RigidbodyRuntimeObj = FindChildByName(RuntimeObj, RigidbodyChildName);
+                RigidbodyRuntimeObj = FindChildByName(GCObj, RigidbodyChildName);
                 if (RigidbodyRuntimeObj != null)
                     return;
             }
 
             // Fallback: search for first child with Rigidbody2DComponent
-            RigidbodyRuntimeObj = RuntimeObj.FindChildWithComponent<Rigidbody2DComponent>();
+            RigidbodyRuntimeObj = GCObj.FindChildWithComponent<Rigidbody2DComponent>();
 
             // If still null, check if self has the rigidbody
-            if (RigidbodyRuntimeObj == null && RuntimeObj.HasComponent<Rigidbody2DComponent>())
+            if (RigidbodyRuntimeObj == null && GCObj.HasComponent<Rigidbody2DComponent>())
             {
-                RigidbodyRuntimeObj = RuntimeObj;
+                RigidbodyRuntimeObj = GCObj;
             }
         }
 
-        private static RuntimeObj FindChildByName(RuntimeObj parent, string name)
+        private static GameCoreObj FindChildByName(GameCoreObj parent, string name)
         {
             if (parent.Name == name)
                 return parent;

@@ -6,10 +6,10 @@ namespace GameCoreLib
 {
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class CircleCollider2DComponent : RuntimeObjComponent
+    public partial class BoxCollider2DComponent : GCComponent
     {
         [MemoryPackOrder(1)]
-        public FP Radius = FP.Half;
+        public FPVector2 Size = FPVector2.One;
 
         [MemoryPackOrder(2)]
         public FPVector2 Offset = FPVector2.Zero;

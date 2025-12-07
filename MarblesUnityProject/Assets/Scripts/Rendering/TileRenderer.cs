@@ -73,7 +73,7 @@ public class TileRenderer : MonoBehaviour
             currentGameTile = gameTile;
         }
 
-        RuntimeObj tileRoot = gameTile.TileRoot;
+        GameCoreObj tileRoot = gameTile.TileRoot;
 
         // Determine the root name
         string expectedRootName = tileRoot.Name;
@@ -140,7 +140,7 @@ public class TileRenderer : MonoBehaviour
     /// Recursively update or create GameObjects for RuntimeObjs in the hierarchy.
     /// </summary>
     private void UpdateRuntimeObjRecursive(
-        RuntimeObj runtimeObj,
+        GameCoreObj runtimeObj,
         Transform parentTransform,
         bool isInsidePrefabHierarchy
     )
@@ -202,7 +202,7 @@ public class TileRenderer : MonoBehaviour
     /// Create or find a GameObject for a RuntimeObj that doesn't have one yet.
     /// </summary>
     private void CreateGameObjectForRuntimeObj(
-        RuntimeObj runtimeObj,
+        GameCoreObj runtimeObj,
         Transform parentTransform,
         bool isInsidePrefabHierarchy
     )
@@ -285,15 +285,15 @@ public class TileRenderer : MonoBehaviour
         UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
 
         // Add RuntimeBinding component if not already present
-        var existingBinding = visualObj.GetComponent<RuntimeBinding>();
+        var existingBinding = visualObj.GetComponent<GCObjBinding>();
         if (existingBinding == null)
         {
-            var binding = visualObj.AddComponent<RuntimeBinding>();
-            binding.RuntimeObj = runtimeObj;
+            var binding = visualObj.AddComponent<GCObjBinding>();
+            binding.GameCoreObj = runtimeObj;
         }
         else
         {
-            existingBinding.RuntimeObj = runtimeObj;
+            existingBinding.GameCoreObj = runtimeObj;
         }
 
         // Store in mapping
@@ -330,7 +330,7 @@ public class TileRenderer : MonoBehaviour
     /// <summary>
     /// Check if a RuntimeObj is a level root (should not be rendered directly)
     /// </summary>
-    private bool IsLevelRoot(RuntimeObj runtimeObj)
+    private bool IsLevelRoot(GameCoreObj runtimeObj)
     {
         return runtimeObj.HasComponent<LevelRootComponent>();
     }

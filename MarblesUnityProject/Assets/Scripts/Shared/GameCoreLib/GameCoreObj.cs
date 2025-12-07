@@ -7,7 +7,7 @@ using MemoryPack;
 namespace GameCoreLib
 {
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class RuntimeObj
+    public partial class GameCoreObj
     {
         /// <summary>
         /// Stable, unique ID that persists through serialization.
@@ -21,7 +21,7 @@ namespace GameCoreLib
 
         [MemoryPackOrder(2)]
         [NonSerialized]
-        public List<RuntimeObj> Children = new List<RuntimeObj>();
+        public List<GameCoreObj> Children = new List<GameCoreObj>();
 
         [MemoryPackOrder(3)]
         public FPTransform3D Transform = new FPTransform3D();
@@ -31,7 +31,7 @@ namespace GameCoreLib
         /// These are the components that GameCore actually uses.
         /// </summary>
         [MemoryPackOrder(4)]
-        public List<RuntimeObjComponent> GameComponents = new List<RuntimeObjComponent>();
+        public List<GCComponent> GameComponents = new List<GCComponent>();
 
         /// <summary>
         /// ID referencing which prefab to use for rendering.
@@ -113,10 +113,10 @@ namespace GameCoreLib
         /// Sets the component's RuntimeObj reference automatically.
         /// </summary>
         public T AddComponent<T>(T component)
-            where T : RuntimeObjComponent
+            where T : GCComponent
         {
-            GameComponents ??= new List<RuntimeObjComponent>();
-            component.RuntimeObj = this;
+            GameComponents ??= new List<GCComponent>();
+            component.GCObj = this;
             GameComponents.Add(component);
             return component;
         }
@@ -167,7 +167,7 @@ namespace GameCoreLib
         /// Find the first child (recursively) that has a component of type T.
         /// Returns the RuntimeObj, not the component.
         /// </summary>
-        public RuntimeObj FindChildWithComponent<T>()
+        public GameCoreObj FindChildWithComponent<T>()
             where T : class
         {
             if (HasComponent<T>())
@@ -197,7 +197,7 @@ namespace GameCoreLib
             {
                 foreach (var comp in GameComponents)
                 {
-                    comp.RuntimeObj = this;
+                    comp.GCObj = this;
                 }
             }
 
@@ -248,7 +248,7 @@ namespace GameCoreLib
         /// <summary>
         /// Find a RuntimeObj by its RuntimeId in this hierarchy.
         /// </summary>
-        public RuntimeObj FindByRuntimeId(ulong id)
+        public GameCoreObj FindByRuntimeId(ulong id)
         {
             if (RuntimeId == id)
                 return this;

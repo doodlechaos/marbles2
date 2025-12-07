@@ -17,7 +17,7 @@ public abstract class GameComponentAuth : MonoBehaviour
     /// Creates the GameCore component from this Unity authoring component.
     /// Override this to populate the component with your serialized data.
     /// </summary>
-    public abstract RuntimeObjComponent ToGameComponent();
+    public abstract GCComponent ToGameComponent();
 }
 
 /// <summary>
@@ -25,9 +25,9 @@ public abstract class GameComponentAuth : MonoBehaviour
 /// </summary>
 /// <typeparam name="T">The GameComponent type this auth component exports to</typeparam>
 public abstract class GameComponentAuth<T> : GameComponentAuth
-    where T : RuntimeObjComponent, new()
+    where T : GCComponent, new()
 {
-    public override RuntimeObjComponent ToGameComponent()
+    public override GCComponent ToGameComponent()
     {
         var component = CreateComponent();
         component.Enabled = enabled;

@@ -39,7 +39,7 @@ namespace GameCoreLib
     public abstract partial class GameTileBase
     {
         [MemoryPackOrder(0)]
-        public RuntimeObj TileRoot;
+        public GameCoreObj TileRoot;
 
         [MemoryPackOrder(1)]
         public World Sim;
@@ -77,7 +77,7 @@ namespace GameCoreLib
         /// Shared by all game tile types that spawn player marbles.
         /// </summary>
         [MemoryPackOrder(7)]
-        public RuntimeObj PlayerMarbleTemplate;
+        public GameCoreObj PlayerMarbleTemplate;
 
         /// <summary>
         /// Number of simulation steps spent in the current state.
@@ -253,7 +253,7 @@ namespace GameCoreLib
             State = state;
         }
 
-        protected internal void AssignRuntimeIds(RuntimeObj obj)
+        protected internal void AssignRuntimeIds(GameCoreObj obj)
         {
             obj.RuntimeId = GenerateRuntimeId();
 
@@ -271,7 +271,7 @@ namespace GameCoreLib
         /// Uses MemoryPack to preserve all authored components, children, and transform data.
         /// New RuntimeIds are assigned separately via AssignRuntimeIds().
         /// </summary>
-        protected RuntimeObj CloneRuntimeObjSubtree(RuntimeObj source)
+        protected GameCoreObj CloneRuntimeObjSubtree(GameCoreObj source)
         {
             if (source == null)
                 return null;
@@ -279,22 +279,22 @@ namespace GameCoreLib
             // Serialize + deserialize to get a deep copy of the object graph.
             // RuntimeIds will be overwritten after cloning via AssignRuntimeIds().
             var bytes = MemoryPack.MemoryPackSerializer.Serialize(source);
-            return MemoryPack.MemoryPackSerializer.Deserialize<RuntimeObj>(bytes);
+            return MemoryPack.MemoryPackSerializer.Deserialize<GameCoreObj>(bytes);
         }
 
         /// <summary>
         /// Spawn a RuntimeObj dynamically at runtime and add it to the hierarchy.
         /// Components added via AddComponent will have their RuntimeObj reference set automatically.
         /// </summary>
-        protected RuntimeObj SpawnRuntimeObj(string name, FPVector3 position)
+        protected GameCoreObj SpawnRuntimeObj(string name, FPVector3 position)
         {
-            var obj = new RuntimeObj
+            var obj = new GameCoreObj
             {
                 RuntimeId = GenerateRuntimeId(),
                 Name = name,
-                Children = new List<RuntimeObj>(),
+                Children = new List<GameCoreObj>(),
                 Transform = new FPTransform3D(position, FPQuaternion.Identity, FPVector3.One),
-                GameComponents = new List<RuntimeObjComponent>(),
+                GameComponents = new List<GCComponent>(),
             };
 
             // Add to root's children
@@ -307,7 +307,7 @@ namespace GameCoreLib
         /// Add a physics body to an existing RuntimeObj.
         /// After calling this, use obj.SetWorldPos() or obj.SetHierarchyWorldPos() to move the object.
         /// </summary>
-        protected void AddPhysicsBody(RuntimeObj obj)
+        protected void AddPhysicsBody(GameCoreObj obj)
         {
             RuntimePhysicsBuilder.AddPhysicsBody(obj, Sim, physicsBindings);
             // Update reverse lookup for the new body
@@ -331,7 +331,7 @@ namespace GameCoreLib
         /// Find a RuntimeObj by its physics body ID.
         /// Returns null if the body ID is not associated with any RuntimeObj.
         /// </summary>
-        protected RuntimeObj FindRuntimeObjByBodyId(int bodyId)
+        protected GameCoreObj FindRuntimeObjByBodyId(int bodyId)
         {
             if (bodyIdToRuntimeId.TryGetValue(bodyId, out ulong runtimeId))
             {
@@ -363,8 +363,8 @@ namespace GameCoreLib
         private void ProcessTeleportWrapEvent(CollisionEvent evt)
         {
             // Find the RuntimeObjs involved
-            RuntimeObj objA = FindRuntimeObjByBodyId(evt.BodyIdA);
-            RuntimeObj objB = FindRuntimeObjByBodyId(evt.BodyIdB);
+            GameCoreObj objA = FindRuntimeObjByBodyId(evt.BodyIdA);
+            GameCoreObj objB = FindRuntimeObjByBodyId(evt.BodyIdB);
 
             if (objA == null || objB == null)
                 return;
@@ -374,8 +374,8 @@ namespace GameCoreLib
             TeleportWrapComponent teleportB = objB.GetComponent<TeleportWrapComponent>();
 
             // Determine which is the teleporter and which is the target
-            RuntimeObj teleporter = null;
-            RuntimeObj target = null;
+            GameCoreObj teleporter = null;
+            GameCoreObj target = null;
             TeleportWrapComponent teleportComponent = null;
 
             if (teleportA != null && teleportB == null)
@@ -450,7 +450,7 @@ namespace GameCoreLib
             SyncPhysicsRecursive(TileRoot, FPVector3.Zero);
         }
 
-        private void SyncPhysicsRecursive(RuntimeObj runtimeObj, FPVector3 parentWorldPos)
+        private void SyncPhysicsRecursive(GameCoreObj runtimeObj, FPVector3 parentWorldPos)
         {
             // Compute this object's current world position (before physics sync)
             // This is needed to properly compute child world positions

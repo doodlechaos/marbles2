@@ -6,7 +6,7 @@ namespace GameCoreLib
 {
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class Rigidbody2DComponent : RuntimeObjComponent
+    public partial class Rigidbody2DComponent : GCComponent
     {
         [MemoryPackOrder(1)]
         public Rigidbody2DType BodyType = Rigidbody2DType.Dynamic;

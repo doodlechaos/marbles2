@@ -41,10 +41,7 @@ public static class GameTileConverter
             return null;
         }
 
-        gameTile.TileRoot = GameObjectToRuntimeObjConverter.SerializeGameObject(
-            prefab,
-            prefabRegistry
-        );
+        gameTile.TileRoot = GameObjectToGCObj.SerializeGameObject(prefab, prefabRegistry);
         return gameTile;
     }
 
@@ -88,7 +85,7 @@ public static class GameTileConverter
         }
         else
         {
-            gameTile.PlayerMarbleTemplate = GameObjectToRuntimeObjConverter.SerializeGameObject(
+            gameTile.PlayerMarbleTemplate = GameObjectToGCObj.SerializeGameObject(
                 gameTileAuth.PlayerMarblePrefab.gameObject,
                 prefabRegistry
             );

@@ -15,7 +15,7 @@ namespace GameCoreLib
         /// Build physics bodies for an entire RuntimeObj hierarchy.
         /// </summary>
         public static void BuildPhysics(
-            RuntimeObj root,
+            GameCoreObj root,
             World sim,
             Dictionary<ulong, PhysicsBinding> physicsBindings
         )
@@ -30,7 +30,7 @@ namespace GameCoreLib
         /// Add physics bodies for a RuntimeObj and its entire subtree.
         /// </summary>
         public static void AddPhysicsBody(
-            RuntimeObj obj,
+            GameCoreObj obj,
             World sim,
             Dictionary<ulong, PhysicsBinding> physicsBindings
         )
@@ -42,7 +42,7 @@ namespace GameCoreLib
         }
 
         private static void ProcessRuntimeObjHierarchy(
-            RuntimeObj obj,
+            GameCoreObj obj,
             World sim,
             Dictionary<ulong, PhysicsBinding> physicsBindings
         )
@@ -59,7 +59,7 @@ namespace GameCoreLib
         }
 
         private static void ProcessComponents(
-            RuntimeObj obj,
+            GameCoreObj obj,
             World sim,
             Dictionary<ulong, PhysicsBinding> physicsBindings
         )
@@ -98,7 +98,7 @@ namespace GameCoreLib
         }
 
         private static void CreatePhysicsBody(
-            RuntimeObj obj,
+            GameCoreObj obj,
             BoxCollider2DComponent colliderComponent,
             Rigidbody2DComponent rigidbody,
             World sim,
@@ -161,7 +161,7 @@ namespace GameCoreLib
         }
 
         private static void CreatePhysicsBody(
-            RuntimeObj obj,
+            GameCoreObj obj,
             CircleCollider2DComponent colliderComponent,
             Rigidbody2DComponent rigidbody,
             World sim,

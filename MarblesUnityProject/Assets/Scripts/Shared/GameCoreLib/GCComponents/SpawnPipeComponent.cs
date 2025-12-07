@@ -9,7 +9,7 @@ namespace GameCoreLib
     /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class SpawnPipeComponent : RuntimeObjComponent
+    public partial class SpawnPipeComponent : GCComponent
     {
         /// <summary>
         /// Delay in seconds between spawning each player

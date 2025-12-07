@@ -22,7 +22,7 @@ namespace GameCoreLib
     [MemoryPackUnion(4, typeof(PlayerMarbleComponent))]
     [MemoryPackUnion(5, typeof(LevelRootComponent))]
     [MemoryPackUnion(6, typeof(TeleportWrapComponent))]
-    public abstract partial class RuntimeObjComponent
+    public abstract partial class GCComponent
     {
         [MemoryPackOrder(0)]
         public bool Enabled = true;
@@ -33,13 +33,13 @@ namespace GameCoreLib
         /// Not serialized - rebuilt after deserialization via RuntimeObj.RebuildComponentReferences()
         /// </summary>
         [MemoryPackIgnore]
-        public RuntimeObj RuntimeObj { get; internal set; }
+        public GameCoreObj GCObj { get; internal set; }
 
         /// <summary>
         /// Convenience accessor for the owning RuntimeObj's transform.
         /// Similar to Unity's component.transform.
         /// </summary>
         [MemoryPackIgnore]
-        public FPTransform3D Transform => RuntimeObj?.Transform;
+        public FPTransform3D Transform => GCObj?.Transform;
     }
 }

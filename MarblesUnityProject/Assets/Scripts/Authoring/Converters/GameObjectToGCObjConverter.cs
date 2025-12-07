@@ -8,12 +8,12 @@ using UnityEngine;
 /// Used by authoring tools (e.g. GameTileConverter) to serialize authored content
 /// into GameCore runtime structures.
 /// </summary>
-public static class GameObjectToRuntimeObjConverter
+public static class GameObjectToGCObj
 {
     /// <summary>
     /// Entry point helper: convert a GameObject and its children into a RuntimeObj tree.
     /// </summary>
-    public static RuntimeObj Convert(GameObject go, RenderPrefabRegistry prefabRegistry)
+    public static GameCoreObj Convert(GameObject go, RenderPrefabRegistry prefabRegistry)
     {
         return SerializeGameObject(go, prefabRegistry);
     }
@@ -21,17 +21,20 @@ public static class GameObjectToRuntimeObjConverter
     /// <summary>
     /// Recursively serialize a GameObject and all its children into RuntimeObj.
     /// </summary>
-    public static RuntimeObj SerializeGameObject(GameObject go, RenderPrefabRegistry prefabRegistry)
+    public static GameCoreObj SerializeGameObject(
+        GameObject go,
+        RenderPrefabRegistry prefabRegistry
+    )
     {
         if (prefabRegistry == null)
         {
             Debug.LogError("[GameObjectToRuntimeObjConverter] Prefab registry is null");
         }
 
-        RuntimeObj runtimeObj = new RuntimeObj
+        GameCoreObj runtimeObj = new GameCoreObj
         {
             Name = go.name,
-            Children = new List<RuntimeObj>(),
+            Children = new List<GameCoreObj>(),
             Transform = ConvertToFPTransform(go.transform),
             GameComponents = SerializeGameComponents(go),
             RenderPrefabID = prefabRegistry != null ? prefabRegistry.GetPrefabID(go) : 0,
@@ -52,7 +55,7 @@ public static class GameObjectToRuntimeObjConverter
         // Recursively serialize all children
         foreach (Transform child in go.transform)
         {
-            RuntimeObj childObj = SerializeGameObject(child.gameObject, prefabRegistry);
+            GameCoreObj childObj = SerializeGameObject(child.gameObject, prefabRegistry);
             runtimeObj.Children.Add(childObj);
         }
 
@@ -63,9 +66,9 @@ public static class GameObjectToRuntimeObjConverter
     /// Serialize all GameComponentAuth components on a GameObject to GameComponents.
     /// Also auto-exports Unity physics components if no explicit auth component exists.
     /// </summary>
-    public static List<RuntimeObjComponent> SerializeGameComponents(GameObject go)
+    public static List<GCComponent> SerializeGameComponents(GameObject go)
     {
-        List<RuntimeObjComponent> components = new List<RuntimeObjComponent>();
+        List<GCComponent> components = new List<GCComponent>();
 
         // First, export all explicit GameComponentAuth components
         GameComponentAuth[] authComponents = go.GetComponents<GameComponentAuth>();
@@ -73,7 +76,7 @@ public static class GameObjectToRuntimeObjConverter
         {
             try
             {
-                RuntimeObjComponent gameComponent = auth.ToGameComponent();
+                GCComponent gameComponent = auth.ToGameComponent();
                 if (gameComponent != null)
                 {
                     components.Add(gameComponent);
@@ -96,10 +99,7 @@ public static class GameObjectToRuntimeObjConverter
     /// <summary>
     /// Automatically export Unity physics components that don't have explicit auth components.
     /// </summary>
-    public static void AutoExportUnityPhysicsComponents(
-        GameObject go,
-        List<RuntimeObjComponent> components
-    )
+    public static void AutoExportUnityPhysicsComponents(GameObject go, List<GCComponent> components)
     {
         // Check if we already have these component types from auth
         bool hasBoxCollider = false;

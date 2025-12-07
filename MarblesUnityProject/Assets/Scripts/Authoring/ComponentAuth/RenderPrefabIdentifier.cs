@@ -31,5 +31,5 @@ public class RenderPrefabIdentifier : GameComponentAuth
     /// Returns null since this component is purely for authoring and doesn't export a runtime component.
     /// The prefab ID is read directly by the converter via RenderPrefabRegistry.GetPrefabID().
     /// </summary>
-    public override RuntimeObjComponent ToGameComponent() => null;
+    public override GCComponent ToGameComponent() => null;
 }

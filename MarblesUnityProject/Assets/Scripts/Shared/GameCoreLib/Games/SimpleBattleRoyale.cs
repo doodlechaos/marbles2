@@ -133,7 +133,7 @@ namespace GameCoreLib
             }
 
             // Clone the serialized template hierarchy
-            RuntimeObj marble = CloneRuntimeObjSubtree(PlayerMarbleTemplate);
+            GameCoreObj marble = CloneRuntimeObjSubtree(PlayerMarbleTemplate);
 
             if (marble == null)
             {
@@ -146,7 +146,7 @@ namespace GameCoreLib
 
             // Attach to tile hierarchy
             if (TileRoot.Children == null)
-                TileRoot.Children = new List<RuntimeObj>();
+                TileRoot.Children = new List<GameCoreObj>();
             TileRoot.Children.Add(marble);
 
             // Assign fresh RuntimeIds to the new subtree
@@ -178,7 +178,7 @@ namespace GameCoreLib
             // Position the marble at the spawn pipe.
             // Use the rigidbody's RuntimeObj if available (handles child rigidbodies correctly),
             // otherwise fall back to the marble root.
-            RuntimeObj targetObj = playerComp.RigidbodyRuntimeObj ?? marble;
+            GameCoreObj targetObj = playerComp.RigidbodyRuntimeObj ?? marble;
             if (targetObj.HasPhysicsBody)
             {
                 // Directly set the physics body position - this is the authoritative position
@@ -240,7 +240,7 @@ namespace GameCoreLib
         /// Assign fresh RuntimeIds to a newly spawned subtree.
         /// Uses the same ID generation scheme as the base tile.
         /// </summary>
-        private void AssignRuntimeIdsForSpawn(RuntimeObj obj)
+        private void AssignRuntimeIdsForSpawn(GameCoreObj obj)
         {
             if (obj == null)
                 return;

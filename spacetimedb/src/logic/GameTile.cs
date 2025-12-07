@@ -43,11 +43,11 @@ public static partial class Module
     {
         var gameTile = new SimpleBattleRoyale();
         // Create a minimal TileRoot
-        gameTile.TileRoot = new RuntimeObj
+        gameTile.TileRoot = new GameCoreObj
         {
             Name = "DefaultLevel",
-            Children = new List<RuntimeObj>(),
-            GameComponents = new List<RuntimeObjComponent>
+            Children = new List<GameCoreObj>(),
+            GameComponents = new List<GameCoreComponent>
             {
                 new LevelRootComponent { GameModeType = "SimpleBattleRoyale" },
             },
