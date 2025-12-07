@@ -177,7 +177,7 @@ namespace GameCoreLib
 
             // Teleport the entire marble hierarchy to the spawn pipe location.
             // This safely moves both RuntimeObj transforms and their physics bodies together.
-            marble.TeleportHierarchy(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
+            marble.SetHierarchyWorldPos(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
 
             PlayerMarbles.Add(playerComp);
             Logger.Log($"Player {entrant.AccountId} spawned via template");

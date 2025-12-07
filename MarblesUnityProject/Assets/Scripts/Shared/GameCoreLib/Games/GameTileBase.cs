@@ -305,7 +305,7 @@ namespace GameCoreLib
 
         /// <summary>
         /// Add a physics body to an existing RuntimeObj.
-        /// After calling this, use obj.Teleport() or obj.TeleportHierarchy() to move the object.
+        /// After calling this, use obj.SetWorldPos() or obj.SetHierarchyWorldPos() to move the object.
         /// </summary>
         protected void AddPhysicsBody(RuntimeObj obj)
         {
@@ -407,12 +407,12 @@ namespace GameCoreLib
                 return;
 
             // Teleport the target by the offset, preserving velocity
-            FPVector3 newPosition =
-                target.Transform.LocalPosition
+            FPVector3 newWorldPosition =
+                target.Transform.Position
                 + new FPVector3(teleportComponent.Offset.X, teleportComponent.Offset.Y, FP.Zero);
 
-            // Use Teleport with resetVelocity=false to preserve momentum
-            target.Teleport(newPosition, Sim, resetVelocity: false);
+            // Use SetWorldPos with resetVelocity=false to preserve momentum
+            target.SetWorldPos(newWorldPosition, Sim, resetVelocity: false);
 
             Logger.Log(
                 $"TeleportWrap: Teleported '{target.Name}' by offset ({teleportComponent.Offset.X}, {teleportComponent.Offset.Y})"

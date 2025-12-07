@@ -47,7 +47,7 @@ namespace GameCoreLib
         /// <summary>
         /// Physics body ID in the LockSim world. -1 means no physics body.
         /// Set by RuntimePhysicsBuilder when a physics body is created for this object.
-        /// Use Teleport() to move objects with physics bodies to ensure synchronization.
+        /// Use SetWorldPos() to move objects with physics bodies to ensure synchronization.
         /// </summary>
         [MemoryPackOrder(6)]
         public int PhysicsBodyId = -1;
@@ -236,17 +236,17 @@ namespace GameCoreLib
         #region Position Management
 
         /// <summary>
-        /// Teleport this RuntimeObj to a new position, synchronizing its physics body if it has one.
+        /// Set this RuntimeObj's world position, synchronizing its physics body if it has one.
         /// This is the safe way to move RuntimeObjs - do not set Transform.LocalPosition directly
         /// on objects with physics bodies, as this will cause position desync.
         /// </summary>
-        /// <param name="newPosition">The new position in tile-local coordinates</param>
+        /// <param name="newPosition">The new position in world coordinates</param>
         /// <param name="sim">The physics world (required if this object has a physics body)</param>
         /// <param name="resetVelocity">If true, resets linear and angular velocity on teleport</param>
-        public void Teleport(FPVector3 newPosition, World sim = null, bool resetVelocity = true)
+        public void SetWorldPos(FPVector3 newPosition, World sim = null, bool resetVelocity = true)
         {
             // Update transform position
-            Transform.LocalPosition = newPosition;
+            Transform.Position = newPosition;
 
             // Sync physics body if present
             if (HasPhysicsBody)
@@ -254,7 +254,7 @@ namespace GameCoreLib
                 if (sim == null)
                 {
                     Logger.Error(
-                        $"RuntimeObj.Teleport: Object '{Name}' has physics body but no World provided. "
+                        $"RuntimeObj.SetWorldPos: Object '{Name}' has physics body but no World provided. "
                             + "Physics body position not updated - this will cause desync!"
                     );
                     return;
@@ -276,28 +276,28 @@ namespace GameCoreLib
                 catch (Exception e)
                 {
                     Logger.Error(
-                        $"RuntimeObj.Teleport: Failed to update physics body: {e.Message}"
+                        $"RuntimeObj.SetWorldPos: Failed to update physics body: {e.Message}"
                     );
                 }
             }
         }
 
         /// <summary>
-        /// Teleport this RuntimeObj and sync all physics bodies in the hierarchy.
-        /// Only the root's LocalPosition is changed - children maintain their relative positions.
+        /// Set this RuntimeObj's world position and sync all physics bodies in the hierarchy.
+        /// Only the root's Position is changed - children maintain their relative positions.
         /// Physics bodies are updated to match the computed world positions.
         /// </summary>
-        /// <param name="newRootPosition">The new position for the root object</param>
+        /// <param name="newRootPosition">The new world position for the root object</param>
         /// <param name="sim">The physics world</param>
         /// <param name="resetVelocity">If true, resets velocity on all physics bodies</param>
-        public void TeleportHierarchy(
+        public void SetHierarchyWorldPos(
             FPVector3 newRootPosition,
             World sim,
             bool resetVelocity = true
         )
         {
             // Set this object's position
-            Transform.LocalPosition = newRootPosition;
+            Transform.Position = newRootPosition;
 
             // Sync physics for entire hierarchy, computing world positions
             SyncPhysicsPositionsRecursive(newRootPosition, sim, resetVelocity);
@@ -328,7 +328,7 @@ namespace GameCoreLib
                 catch (Exception e)
                 {
                     Logger.Error(
-                        $"RuntimeObj.TeleportHierarchy: Failed to update physics for '{Name}': {e.Message}"
+                        $"RuntimeObj.SetHierarchyWorldPos: Failed to update physics for '{Name}': {e.Message}"
                     );
                 }
             }
