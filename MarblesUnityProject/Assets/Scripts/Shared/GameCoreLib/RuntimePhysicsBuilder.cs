@@ -130,7 +130,13 @@ namespace GameCoreLib
             FP width = colliderComponent.Size.X * FPMath.Abs(obj.Transform.LossyScale.X);
             FP height = colliderComponent.Size.Y * FPMath.Abs(obj.Transform.LossyScale.Y);
 
-            var collider = ColliderLS.CreateBox(0, width, height, bodyId);
+            var collider = ColliderLS.CreateBox(
+                0,
+                width,
+                height,
+                bodyId,
+                colliderComponent.IsTrigger
+            );
             collider.Friction = colliderComponent.Friction;
             collider.Restitution = colliderComponent.Restitution;
 
@@ -188,7 +194,7 @@ namespace GameCoreLib
             FP scaleY = FPMath.Abs(obj.Transform.LossyScale.Y);
             FP radius = colliderComponent.Radius * FPMath.Max(scaleX, scaleY);
 
-            var collider = ColliderLS.CreateCircle(0, radius, bodyId);
+            var collider = ColliderLS.CreateCircle(0, radius, bodyId, colliderComponent.IsTrigger);
             collider.Friction = colliderComponent.Friction;
             collider.Restitution = colliderComponent.Restitution;
 

@@ -21,6 +21,7 @@ namespace GameCoreLib
     [MemoryPackUnion(3, typeof(SpawnPipeComponent))]
     [MemoryPackUnion(4, typeof(PlayerMarbleComponent))]
     [MemoryPackUnion(5, typeof(LevelRootComponent))]
+    [MemoryPackUnion(6, typeof(TeleportWrapComponent))]
     public abstract partial class RuntimeObjComponent
     {
         [MemoryPackOrder(0)]
@@ -142,6 +143,14 @@ namespace GameCoreLib
         /// </summary>
         [MemoryPackOrder(1)]
         public FP SpawnDelay = FP.FromFloat(0.5f);
+    }
+
+    [Serializable]
+    [MemoryPackable(SerializeLayout.Explicit)]
+    public partial class TeleportWrapComponent : RuntimeObjComponent
+    {
+        [MemoryPackOrder(1)]
+        public FPVector2 Offset = FPVector2.Zero;
     }
 
     /// <summary>

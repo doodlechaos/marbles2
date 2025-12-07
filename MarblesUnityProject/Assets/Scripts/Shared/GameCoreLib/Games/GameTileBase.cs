@@ -85,6 +85,20 @@ namespace GameCoreLib
         [MemoryPackIgnore]
         public int StateSteps => stateSteps;
 
+        /// <summary>
+        /// Reusable simulation context for physics stepping.
+        /// Contains collision/trigger events from the last step.
+        /// </summary>
+        [MemoryPackIgnore]
+        protected WorldSimulationContext simContext = new();
+
+        /// <summary>
+        /// Reverse lookup: BodyId → RuntimeId.
+        /// Rebuilt from physicsBindings when needed, cleared on Initialize.
+        /// </summary>
+        [MemoryPackIgnore]
+        private Dictionary<int, ulong> bodyIdToRuntimeId = new();
+
         public GameTileBase()
         {
             Sim = new World();
@@ -137,6 +151,8 @@ namespace GameCoreLib
 
             // Clear and recreate physics world
             physicsBindings.Clear();
+            bodyIdToRuntimeId.Clear();
+            simContext.Clear();
             Sim = new World();
             Sim.Gravity = FPVector2.FromFloats(0f, -9.81f);
 
@@ -155,6 +171,9 @@ namespace GameCoreLib
             // Process the hierarchy recursively to set up physics
             // Also stores base rotations (swing component) for gimbal-lock-free sync
             RuntimePhysicsBuilder.BuildPhysics(TileRoot, Sim, physicsBindings);
+
+            // Build reverse lookup from BodyId to RuntimeId
+            RebuildBodyIdLookup();
 
             // Post-load hook for derived classes
             OnLevelLoaded();
@@ -212,7 +231,15 @@ namespace GameCoreLib
                     SetState(GameTileState.Finished, outputEvents);
             }
 
-            PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), new WorldSimulationContext());
+            // Clear previous frame's events before stepping
+            simContext.Clear();
+
+            // Step physics with reusable context to capture collision/trigger events
+            PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), simContext);
+
+            // Process trigger events (e.g., TeleportWrap)
+            ProcessTriggerEvents();
+
             SyncPhysicsToRuntimeObjs();
             stateSteps++;
         }
@@ -283,12 +310,121 @@ namespace GameCoreLib
         protected void AddPhysicsBody(RuntimeObj obj)
         {
             RuntimePhysicsBuilder.AddPhysicsBody(obj, Sim, physicsBindings);
+            // Update reverse lookup for the new body
+            RebuildBodyIdLookup();
+        }
+
+        /// <summary>
+        /// Rebuild the BodyId → RuntimeId reverse lookup from physicsBindings.
+        /// Called after physics setup or when bodies are added/removed.
+        /// </summary>
+        private void RebuildBodyIdLookup()
+        {
+            bodyIdToRuntimeId.Clear();
+            foreach (var kvp in physicsBindings)
+            {
+                bodyIdToRuntimeId[kvp.Value.BodyId] = kvp.Key;
+            }
+        }
+
+        /// <summary>
+        /// Find a RuntimeObj by its physics body ID.
+        /// Returns null if the body ID is not associated with any RuntimeObj.
+        /// </summary>
+        protected RuntimeObj FindRuntimeObjByBodyId(int bodyId)
+        {
+            if (bodyIdToRuntimeId.TryGetValue(bodyId, out ulong runtimeId))
+            {
+                return TileRoot?.FindByRuntimeId(runtimeId);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Process trigger events from the last physics step.
+        /// Handles TeleportWrap and other trigger-based game logic.
+        /// </summary>
+        private void ProcessTriggerEvents()
+        {
+            foreach (var evt in simContext.TriggerEvents)
+            {
+                // Only process Enter events (avoid repeated teleports during Stay)
+                if (evt.EventType != CollisionEventType.Enter)
+                    continue;
+
+                ProcessTeleportWrapEvent(evt);
+            }
+        }
+
+        /// <summary>
+        /// Handle TeleportWrap trigger collisions.
+        /// When a dynamic body enters a TeleportWrap trigger, teleport it by the offset.
+        /// </summary>
+        private void ProcessTeleportWrapEvent(CollisionEvent evt)
+        {
+            // Find the RuntimeObjs involved
+            RuntimeObj objA = FindRuntimeObjByBodyId(evt.BodyIdA);
+            RuntimeObj objB = FindRuntimeObjByBodyId(evt.BodyIdB);
+
+            if (objA == null || objB == null)
+                return;
+
+            // Check which one has the TeleportWrap component
+            TeleportWrapComponent teleportA = objA.GetComponent<TeleportWrapComponent>();
+            TeleportWrapComponent teleportB = objB.GetComponent<TeleportWrapComponent>();
+
+            // Determine which is the teleporter and which is the target
+            RuntimeObj teleporter = null;
+            RuntimeObj target = null;
+            TeleportWrapComponent teleportComponent = null;
+
+            if (teleportA != null && teleportB == null)
+            {
+                teleporter = objA;
+                target = objB;
+                teleportComponent = teleportA;
+            }
+            else if (teleportB != null && teleportA == null)
+            {
+                teleporter = objB;
+                target = objA;
+                teleportComponent = teleportB;
+            }
+            else
+            {
+                // Both have TeleportWrap or neither does - ignore
+                return;
+            }
+
+            // Only teleport dynamic bodies (not static/kinematic)
+            if (!target.HasPhysicsBody)
+                return;
+
+            if (!Sim.TryGetBody(target.PhysicsBodyId, out RigidBodyLS targetBody))
+                return;
+
+            if (targetBody.BodyType != BodyType.Dynamic)
+                return;
+
+            // Teleport the target by the offset, preserving velocity
+            FPVector3 newPosition =
+                target.Transform.LocalPosition
+                + new FPVector3(teleportComponent.Offset.X, teleportComponent.Offset.Y, FP.Zero);
+
+            // Use Teleport with resetVelocity=false to preserve momentum
+            target.Teleport(newPosition, Sim, resetVelocity: false);
+
+            Logger.Log(
+                $"TeleportWrap: Teleported '{target.Name}' by offset ({teleportComponent.Offset.X}, {teleportComponent.Offset.Y})"
+            );
         }
 
         public void Clear()
         {
             TileRoot = null;
             physicsBindings.Clear();
+            bodyIdToRuntimeId.Clear();
+            simContext.Clear();
 
             if (Sim != null)
             {
