@@ -192,46 +192,55 @@ namespace GameCoreLib
         /// </summary>
         public void RebuildComponentReferences()
         {
-            // First pass: Set RuntimeObj reference for all components on this object
+            var componentMap = new Dictionary<ulong, GCComponent>();
+            BuildComponentLookup(componentMap);
+            ResolveComponentCrossReferences(componentMap);
+        }
+
+        private void BuildComponentLookup(Dictionary<ulong, GCComponent> componentMap)
+        {
             if (GameComponents != null)
             {
                 foreach (var comp in GameComponents)
                 {
                     comp.GCObj = this;
+
+                    if (comp.ComponentId != 0)
+                    {
+                        if (!componentMap.TryAdd(comp.ComponentId, comp))
+                        {
+                            Logger.Error(
+                                $"Duplicate ComponentId {comp.ComponentId} detected on '{Name}'. "
+                                    + "Cross-component references may be unreliable."
+                            );
+                        }
+                    }
                 }
             }
 
-            // Recursively rebuild for children (first pass)
             if (Children != null)
             {
                 foreach (var child in Children)
                 {
-                    child.RebuildComponentReferences();
+                    child.BuildComponentLookup(componentMap);
                 }
             }
-
-            // Second pass: Resolve component-specific cross-references
-            // This happens after all RuntimeObj references are set, so components
-            // can find other RuntimeObjs in the hierarchy
-            ResolveComponentCrossReferences();
         }
 
         /// <summary>
         /// Second pass of reference rebuilding: resolve cross-references between components.
         /// Called after all RuntimeObj back-references are set.
         /// </summary>
-        private void ResolveComponentCrossReferences()
+        private void ResolveComponentCrossReferences(Dictionary<ulong, GCComponent> componentMap)
         {
             if (GameComponents != null)
             {
                 foreach (var comp in GameComponents)
                 {
-                    // PlayerMarbleComponent needs to find its rigidbody child
-                    if (comp is PlayerMarbleComponent playerMarble)
+                    if (comp is IGCComponentReferenceResolver resolver)
                     {
-                        playerMarble.FindRigidbodyReference();
+                        resolver.ResolveReferences(componentMap);
                     }
-                    // Add other component-specific reference resolution here as needed
                 }
             }
 
@@ -240,7 +249,7 @@ namespace GameCoreLib
             {
                 foreach (var child in Children)
                 {
-                    child.ResolveComponentCrossReferences();
+                    child.ResolveComponentCrossReferences(componentMap);
                 }
             }
         }

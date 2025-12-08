@@ -21,9 +21,18 @@ public static class GameObjectToGCObj
     /// <summary>
     /// Recursively serialize a GameObject and all its children into RuntimeObj.
     /// </summary>
-    public static GameCoreObj SerializeGameObject(
+    public static GameCoreObj SerializeGameObject(GameObject go, RenderPrefabRegistry prefabRegistry)
+    {
+        var context = new ComponentExportContext();
+        var result = SerializeGameObject(go, prefabRegistry, context);
+        context.ResolveDeferredReferences();
+        return result;
+    }
+
+    private static GameCoreObj SerializeGameObject(
         GameObject go,
-        RenderPrefabRegistry prefabRegistry
+        RenderPrefabRegistry prefabRegistry,
+        ComponentExportContext context
     )
     {
         if (prefabRegistry == null)
@@ -36,7 +45,7 @@ public static class GameObjectToGCObj
             Name = go.name,
             Children = new List<GameCoreObj>(),
             Transform = ConvertToFPTransform(go.transform),
-            GameComponents = SerializeGameComponents(go),
+            GameComponents = SerializeGameComponents(go, context),
             RenderPrefabID = prefabRegistry != null ? prefabRegistry.GetPrefabID(go) : 0,
         };
 
@@ -44,18 +53,18 @@ public static class GameObjectToGCObj
         GameTileAuthBase gameTileAuth = go.GetComponent<GameTileAuthBase>();
         if (gameTileAuth != null)
         {
-            runtimeObj.GameComponents.Add(
-                new LevelRootComponent
-                {
-                    GameModeType = gameTileAuth.GetType().Name.Replace("Auth", ""),
-                }
-            );
+            var levelRoot = new LevelRootComponent
+            {
+                GameModeType = gameTileAuth.GetType().Name.Replace("Auth", ""),
+            };
+            context.RegisterComponent(null, levelRoot);
+            runtimeObj.GameComponents.Add(levelRoot);
         }
 
         // Recursively serialize all children
         foreach (Transform child in go.transform)
         {
-            GameCoreObj childObj = SerializeGameObject(child.gameObject, prefabRegistry);
+            GameCoreObj childObj = SerializeGameObject(child.gameObject, prefabRegistry, context);
             runtimeObj.Children.Add(childObj);
         }
 
@@ -66,7 +75,10 @@ public static class GameObjectToGCObj
     /// Serialize all GameComponentAuth components on a GameObject to GameComponents.
     /// Also auto-exports Unity physics components if no explicit auth component exists.
     /// </summary>
-    public static List<GCComponent> SerializeGameComponents(GameObject go)
+    public static List<GCComponent> SerializeGameComponents(
+        GameObject go,
+        ComponentExportContext context
+    )
     {
         List<GCComponent> components = new List<GCComponent>();
 
@@ -77,10 +89,16 @@ public static class GameObjectToGCObj
             try
             {
                 GCComponent gameComponent = auth.ToGameComponent();
-                if (gameComponent != null)
+                if (gameComponent == null)
+                    continue;
+
+                context.RegisterComponent(auth, gameComponent);
+                if (auth is IComponentReferenceAuthoring referenceAuthoring)
                 {
-                    components.Add(gameComponent);
+                    context.RegisterDeferredResolver(referenceAuthoring, gameComponent);
                 }
+
+                components.Add(gameComponent);
             }
             catch (System.Exception e)
             {
@@ -91,7 +109,7 @@ public static class GameObjectToGCObj
         }
 
         // Auto-export Unity physics components if no explicit auth exists
-        AutoExportUnityPhysicsComponents(go, components);
+        AutoExportUnityPhysicsComponents(go, components, context);
 
         return components;
     }
@@ -99,7 +117,11 @@ public static class GameObjectToGCObj
     /// <summary>
     /// Automatically export Unity physics components that don't have explicit auth components.
     /// </summary>
-    public static void AutoExportUnityPhysicsComponents(GameObject go, List<GCComponent> components)
+    public static void AutoExportUnityPhysicsComponents(
+        GameObject go,
+        List<GCComponent> components,
+        ComponentExportContext context
+    )
     {
         // Check if we already have these component types from auth
         bool hasBoxCollider = false;
@@ -129,7 +151,8 @@ public static class GameObjectToGCObj
                     out float restitution
                 );
 
-                components.Add(
+                var component = context.RegisterComponent(
+                    boxCollider,
                     new BoxCollider2DComponent
                     {
                         Enabled = boxCollider.enabled,
@@ -140,6 +163,7 @@ public static class GameObjectToGCObj
                         Restitution = FP.FromFloat(restitution),
                     }
                 );
+                components.Add(component);
             }
         }
 
@@ -156,7 +180,8 @@ public static class GameObjectToGCObj
                     out float restitution
                 );
 
-                components.Add(
+                var component = context.RegisterComponent(
+                    circleCollider,
                     new CircleCollider2DComponent
                     {
                         Enabled = circleCollider.enabled,
@@ -170,6 +195,7 @@ public static class GameObjectToGCObj
                         Restitution = FP.FromFloat(restitution),
                     }
                 );
+                components.Add(component);
             }
         }
 
@@ -179,7 +205,8 @@ public static class GameObjectToGCObj
             var rigidbody = go.GetComponent<Rigidbody2D>();
             if (rigidbody != null)
             {
-                components.Add(
+                var component = context.RegisterComponent(
+                    rigidbody,
                     new Rigidbody2DComponent
                     {
                         Enabled = rigidbody.simulated,
@@ -191,6 +218,7 @@ public static class GameObjectToGCObj
                         FreezeRotation = rigidbody.freezeRotation,
                     }
                 );
+                components.Add(component);
             }
         }
     }

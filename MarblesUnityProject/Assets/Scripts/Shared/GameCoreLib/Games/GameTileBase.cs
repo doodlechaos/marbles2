@@ -80,6 +80,13 @@ namespace GameCoreLib
         public GameCoreObj PlayerMarbleTemplate;
 
         /// <summary>
+        /// Counter for globally unique component IDs within this tile instance.
+        /// Used to remap component references when cloning authored templates.
+        /// </summary>
+        [MemoryPackOrder(8)]
+        public ulong NextComponentId = 1;
+
+        /// <summary>
         /// Number of simulation steps spent in the current state.
         /// </summary>
         [MemoryPackIgnore]
@@ -123,6 +130,8 @@ namespace GameCoreLib
             // Rebuild component -> RuntimeObj references in the hierarchy
             TileRoot?.RebuildComponentReferences();
 
+            RefreshComponentIdCounter();
+
             // Let derived classes rebuild their game-specific references
             OnAfterDeserialize();
         }
@@ -146,6 +155,8 @@ namespace GameCoreLib
             // Set the tile ID BEFORE SetState so the event has the correct WorldId
             TileWorldId = tileWorldId;
             NextLocalId = 1;
+
+            RefreshComponentIdCounter();
 
             SetState(GameTileState.Spinning, null);
 
@@ -279,7 +290,117 @@ namespace GameCoreLib
             // Serialize + deserialize to get a deep copy of the object graph.
             // RuntimeIds will be overwritten after cloning via AssignRuntimeIds().
             var bytes = MemoryPack.MemoryPackSerializer.Serialize(source);
-            return MemoryPack.MemoryPackSerializer.Deserialize<GameCoreObj>(bytes);
+            var clone = MemoryPack.MemoryPackSerializer.Deserialize<GameCoreObj>(bytes);
+
+            if (clone != null)
+            {
+                AssignComponentIdsForSpawn(clone);
+            }
+
+            return clone;
+        }
+
+        /// <summary>
+        /// Assigns fresh component IDs to a spawned subtree and remaps any cross-component
+        /// references to the new IDs.
+        /// </summary>
+        protected void AssignComponentIdsForSpawn(GameCoreObj obj)
+        {
+            if (obj == null)
+                return;
+
+            var idRemap = new Dictionary<ulong, ulong>();
+            AssignComponentIdsRecursive(obj, idRemap);
+            RemapComponentIdReferences(obj, idRemap);
+        }
+
+        private void RefreshComponentIdCounter()
+        {
+            ulong maxComponentId = GetMaxComponentId(TileRoot);
+
+            if (NextComponentId <= maxComponentId)
+            {
+                NextComponentId = maxComponentId + 1;
+            }
+        }
+
+        private ulong GetMaxComponentId(GameCoreObj obj)
+        {
+            if (obj == null)
+                return 0;
+
+            ulong maxId = 0;
+
+            if (obj.GameComponents != null)
+            {
+                foreach (var component in obj.GameComponents)
+                {
+                    if (component.ComponentId > maxId)
+                        maxId = component.ComponentId;
+                }
+            }
+
+            if (obj.Children != null)
+            {
+                foreach (var child in obj.Children)
+                {
+                    ulong childMax = GetMaxComponentId(child);
+                    if (childMax > maxId)
+                        maxId = childMax;
+                }
+            }
+
+            return maxId;
+        }
+
+        private void AssignComponentIdsRecursive(GameCoreObj obj, Dictionary<ulong, ulong> idRemap)
+        {
+            if (obj.GameComponents != null)
+            {
+                foreach (var component in obj.GameComponents)
+                {
+                    ulong originalId = component.ComponentId;
+                    component.ComponentId = NextComponentId++;
+
+                    if (originalId != 0)
+                    {
+                        idRemap[originalId] = component.ComponentId;
+                    }
+                }
+            }
+
+            if (obj.Children != null)
+            {
+                foreach (var child in obj.Children)
+                {
+                    AssignComponentIdsRecursive(child, idRemap);
+                }
+            }
+        }
+
+        private void RemapComponentIdReferences(
+            GameCoreObj obj,
+            Dictionary<ulong, ulong> idRemap
+        )
+        {
+            if (obj.GameComponents != null)
+            {
+                foreach (var component in obj.GameComponents)
+                {
+                    if (component is IGCComponentIdRemapper remapper)
+                    {
+                        remapper.RemapComponentIds(idRemap);
+                    }
+                }
+            }
+
+            if (obj.Children != null)
+            {
+                foreach (var child in obj.Children)
+                {
+                    RemapComponentIdReferences(child, idRemap);
+                }
+            }
         }
 
         /// <summary>

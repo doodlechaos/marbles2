@@ -8,7 +8,9 @@ using UnityEngine;
 ///
 /// The AccountId and BidAmount are set at runtime when spawning.
 /// </summary>
-public class PlayerMarbleAuth : GameComponentAuth<PlayerMarbleComponent>
+public class PlayerMarbleAuth
+    : GameComponentAuth<PlayerMarbleComponent>,
+        IComponentReferenceAuthoring
 {
     [Tooltip(
         "Reference to the Rigidbody2D component on this marble (can be on a child object). "
@@ -24,20 +26,28 @@ public class PlayerMarbleAuth : GameComponentAuth<PlayerMarbleComponent>
 
     protected override PlayerMarbleComponent CreateComponent()
     {
-        // Get the name of the GameObject that has the rigidbody
-        // This allows us to find the corresponding gamecoreobj after serialization
-        string rigidbodyChildName = "";
-        if (RB2D != null)
-        {
-            rigidbodyChildName = RB2D.gameObject.name;
-        }
-
         return new PlayerMarbleComponent
         {
             AccountId = testAccountId,
             BidAmount = testBidAmount,
             IsAlive = true,
-            RigidbodyChildName = rigidbodyChildName,
         };
+    }
+
+    public void ResolveReferences(GCComponent component, ComponentExportContext context)
+    {
+        if (component is not PlayerMarbleComponent playerComponent)
+            return;
+
+        if (RB2D != null && context.TryGetComponentId(RB2D, out var componentId))
+        {
+            playerComponent.RigidbodyComponentId = componentId;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[PlayerMarbleAuth] Unable to resolve Rigidbody2D reference. Falling back to hierarchy search at runtime."
+            );
+        }
     }
 }

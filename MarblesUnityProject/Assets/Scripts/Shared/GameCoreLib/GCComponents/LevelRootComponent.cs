@@ -14,7 +14,7 @@ namespace GameCoreLib
         /// <summary>
         /// The game mode type for this level (e.g., "SimpleBattleRoyale")
         /// </summary>
-        [MemoryPackOrder(1)]
+        [MemoryPackOrder(2)]
         public string GameModeType = "";
     }
 }

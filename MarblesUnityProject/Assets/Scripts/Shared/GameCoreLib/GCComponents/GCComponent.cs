@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FPMathLib;
 using MemoryPack;
 
@@ -28,6 +29,13 @@ namespace GameCoreLib
         public bool Enabled = true;
 
         /// <summary>
+        /// Stable identifier used for cross-component references.
+        /// Assigned during authoring conversion and preserved through serialization.
+        /// </summary>
+        [MemoryPackOrder(1)]
+        public ulong ComponentId;
+
+        /// <summary>
         /// Reference to the RuntimeObj that owns this component.
         /// Similar to Unity's component.gameObject.
         /// Not serialized - rebuilt after deserialization via RuntimeObj.RebuildComponentReferences()
@@ -41,5 +49,15 @@ namespace GameCoreLib
         /// </summary>
         [MemoryPackIgnore]
         public FPTransform3D Transform => GCObj?.Transform;
+    }
+
+    public interface IGCComponentReferenceResolver
+    {
+        void ResolveReferences(Dictionary<ulong, GCComponent> componentMap);
+    }
+
+    public interface IGCComponentIdRemapper
+    {
+        void RemapComponentIds(Dictionary<ulong, ulong> idMap);
     }
 }

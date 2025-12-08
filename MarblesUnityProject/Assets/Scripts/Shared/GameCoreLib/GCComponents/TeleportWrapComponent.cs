@@ -8,7 +8,7 @@ namespace GameCoreLib
     [MemoryPackable(SerializeLayout.Explicit)]
     public partial class TeleportWrapComponent : GCComponent
     {
-        [MemoryPackOrder(1)]
+        [MemoryPackOrder(2)]
         public FPVector2 Offset = FPVector2.Zero;
     }
 }

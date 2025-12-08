@@ -14,7 +14,7 @@ namespace GameCoreLib
         /// <summary>
         /// Delay in seconds between spawning each player
         /// </summary>
-        [MemoryPackOrder(1)]
+        [MemoryPackOrder(2)]
         public FP SpawnDelay = FP.FromFloat(0.5f);
     }
 }

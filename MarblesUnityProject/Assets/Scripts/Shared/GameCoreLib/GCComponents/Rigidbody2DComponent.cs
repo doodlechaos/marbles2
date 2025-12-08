@@ -8,22 +8,22 @@ namespace GameCoreLib
     [MemoryPackable(SerializeLayout.Explicit)]
     public partial class Rigidbody2DComponent : GCComponent
     {
-        [MemoryPackOrder(1)]
+        [MemoryPackOrder(2)]
         public Rigidbody2DType BodyType = Rigidbody2DType.Dynamic;
 
-        [MemoryPackOrder(2)]
+        [MemoryPackOrder(3)]
         public FP Mass = FP.One;
 
-        [MemoryPackOrder(3)]
+        [MemoryPackOrder(4)]
         public FP LinearDrag = FP.Zero;
 
-        [MemoryPackOrder(4)]
+        [MemoryPackOrder(5)]
         public FP AngularDrag = FP.FromFloat(0.05f);
 
-        [MemoryPackOrder(5)]
+        [MemoryPackOrder(6)]
         public FP GravityScale = FP.One;
 
-        [MemoryPackOrder(6)]
+        [MemoryPackOrder(7)]
         public bool FreezeRotation = false;
     }
 

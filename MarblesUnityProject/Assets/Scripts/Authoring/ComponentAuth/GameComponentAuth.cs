@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameCoreLib;
 using UnityEngine;
 
@@ -39,4 +40,69 @@ public abstract class GameComponentAuth<T> : GameComponentAuth
     /// Default implementation creates an empty component.
     /// </summary>
     protected virtual T CreateComponent() => new T();
+}
+
+public interface IComponentReferenceAuthoring
+{
+    void ResolveReferences(GCComponent component, ComponentExportContext context);
+}
+
+public class ComponentExportContext
+{
+    private ulong nextComponentId = 1;
+
+    private readonly Dictionary<Component, GCComponent> unityToGameCore = new();
+
+    private readonly Dictionary<ulong, GCComponent> idToComponent = new();
+
+    private readonly List<(IComponentReferenceAuthoring resolver, GCComponent component)> deferredResolutions =
+        new();
+
+    public T RegisterComponent<T>(Component unityComponent, T gameComponent)
+        where T : GCComponent
+    {
+        if (gameComponent == null)
+            return null;
+
+        gameComponent.ComponentId = nextComponentId++;
+        idToComponent[gameComponent.ComponentId] = gameComponent;
+
+        if (unityComponent != null)
+        {
+            unityToGameCore[unityComponent] = gameComponent;
+        }
+
+        return gameComponent;
+    }
+
+    public bool TryGetComponentId(Component unityComponent, out ulong componentId)
+    {
+        if (unityComponent != null && unityToGameCore.TryGetValue(unityComponent, out var component))
+        {
+            componentId = component.ComponentId;
+            return true;
+        }
+
+        componentId = 0;
+        return false;
+    }
+
+    public bool TryGetComponent(ulong componentId, out GCComponent component) =>
+        idToComponent.TryGetValue(componentId, out component);
+
+    public void RegisterDeferredResolver(IComponentReferenceAuthoring resolver, GCComponent component)
+    {
+        if (resolver == null || component == null)
+            return;
+
+        deferredResolutions.Add((resolver, component));
+    }
+
+    public void ResolveDeferredReferences()
+    {
+        foreach (var (resolver, component) in deferredResolutions)
+        {
+            resolver.ResolveReferences(component, this);
+        }
+    }
 }
