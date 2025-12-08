@@ -47,8 +47,9 @@ public static partial class Module
         {
             Name = "DefaultLevel",
             Children = new List<GameCoreObj>(),
-            GameComponents = new List<GameCoreComponent>
+            GameComponents = new List<GCComponent>
             {
+                //TODO This isn't assigning a component id correctly here?
                 new LevelRootComponent { GameModeType = "SimpleBattleRoyale" },
             },
             Transform = new FPMathLib.FPTransform3D(

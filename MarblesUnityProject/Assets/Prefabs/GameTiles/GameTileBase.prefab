@@ -511,6 +511,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TeleportWrap
       objectReference: {fileID: 0}
+    - target: {fileID: 7522995034608970020, guid: c1290b5d936b72d44859dd28665ec036, type: 3}
+      propertyPath: offset.y
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 8162131135712715922, guid: c1290b5d936b72d44859dd28665ec036, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
