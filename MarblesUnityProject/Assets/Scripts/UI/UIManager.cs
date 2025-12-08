@@ -22,6 +22,10 @@ public class UIManager : MonoBehaviour
     private Label _marbleCountLabel;
     private Label _pointsCountLabel;
 
+    // Profile modal elements
+    private VisualElement _profileModal;
+    private Button _logoutButton;
+
     private string _loadedProfilePictureUrl = null;
 
     void Awake()
@@ -52,14 +56,33 @@ public class UIManager : MonoBehaviour
         // Setup Points display
         _pointsCountLabel = _root.Q<Label>("points-count");
 
-        // Subscribe to auth logout event to clear profile picture
-        if (_authManager != null)
+        // Setup Profile modal
+        _profileModal = _root.Q<VisualElement>("profile-modal");
+        _logoutButton = _root.Q<Button>("btn-logout");
+
+        if (_logoutButton != null)
         {
-            _authManager.OnLogout += OnLogout;
+            _logoutButton.clicked += OnLogoutButtonClicked;
         }
 
-        // Initial state - show login until we hear from server
-        ShowLoginButton();
+        // New: close modal when clicking on the dimmed background
+        if (_profileModal != null)
+        {
+            // Click on background closes modal
+            _profileModal.RegisterCallback<ClickEvent>(OnProfileModalBackgroundClicked);
+
+            // Make clicks inside the card NOT close it
+            var modalContent = _profileModal.Q<VisualElement>(className: "profile-modal-content");
+            if (modalContent != null)
+            {
+                modalContent.RegisterCallback<ClickEvent>(evt =>
+                {
+                    evt.StopPropagation(); // prevent bubble to overlay
+                });
+            }
+        }
+
+        HideProfileModal();
     }
 
     public void SetCallbacks(DbConnection conn)
@@ -156,6 +179,9 @@ public class UIManager : MonoBehaviour
 
         if (_authManager != null)
             _authManager.OnLogout -= OnLogout;
+
+        if (_logoutButton != null)
+            _logoutButton.clicked -= OnLogoutButtonClicked;
     }
 
     private void OnLoginClicked()
@@ -173,13 +199,24 @@ public class UIManager : MonoBehaviour
 
     private void OnProfileClicked()
     {
-        Debug.Log("[UIManager] Profile button clicked");
-        // TODO: Open profile menu/dropdown
-        // For now, just logout for testing
+        Debug.Log("[UIManager] Profile button clicked - opening profile modal");
+        ShowProfileModal();
+    }
+
+    private void OnLogoutButtonClicked()
+    {
+        Debug.Log("[UIManager] Logout button clicked from profile modal");
+
         if (_authManager != null)
         {
             _authManager.Logout();
         }
+        else
+        {
+            Debug.LogError("[UIManager] AuthManager not assigned!");
+        }
+
+        HideProfileModal();
     }
 
     private void OnMarblesClicked()
@@ -192,6 +229,7 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("[UIManager] Logout event received");
         _loadedProfilePictureUrl = null;
+        HideProfileModal();
         ShowLoginButton();
     }
 
@@ -228,6 +266,23 @@ public class UIManager : MonoBehaviour
         _profileButton.style.display = DisplayStyle.Flex;
     }
 
+    private void ShowProfileModal()
+    {
+        if (_profileModal != null)
+        {
+            _profileModal.style.display = DisplayStyle.Flex;
+            _profileModal.BringToFront();
+        }
+    }
+
+    private void HideProfileModal()
+    {
+        if (_profileModal != null)
+        {
+            _profileModal.style.display = DisplayStyle.None;
+        }
+    }
+
     private IEnumerator LoadProfilePicture(string url)
     {
         Debug.Log($"[UIManager] Loading profile picture from: {url}");
@@ -249,5 +304,11 @@ public class UIManager : MonoBehaviour
                 // Keep showing profile button but without image
             }
         }
+    }
+
+    private void OnProfileModalBackgroundClicked(ClickEvent evt)
+    {
+        Debug.Log("[UIManager] Clicked outside profile modal, closing it");
+        HideProfileModal();
     }
 }

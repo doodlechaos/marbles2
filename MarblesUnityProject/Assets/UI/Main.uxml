@@ -27,4 +27,13 @@
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
+    <ui:VisualElement name="profile-modal" class="profile-modal" style="visibility: visible;">
+        <ui:VisualElement name="VisualElement" class="profile-modal-content" style="position: absolute; bottom: auto; opacity: 1;">
+            <ui:Label name="profile-modal-title" text="Profile" class="profile-modal-title" />
+            <ui:Label name="profile-modal-body" text="Profile details and settings will go here." class="profile-modal-body" />
+            <ui:Button name="btn-logout" class="logout-button">
+                <ui:Label text="Log Out" class="logout-label" />
+            </ui:Button>
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

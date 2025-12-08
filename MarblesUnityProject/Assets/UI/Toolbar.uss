@@ -226,3 +226,78 @@
     -unity-text-align: middle-center;
     margin-top: -2px;
 }
+
+/* PROFILE MODAL OVERLAY */
+.profile-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.55);
+    pointer-events: auto; /* important: allow clicks */
+    padding: 16px;
+}
+
+/* Modal card */
+.profile-modal-content {
+    min-width: 320px;
+    max-width: 420px;
+    min-height: 180px;
+
+    padding: 20px 24px;
+    border-radius: 16px;
+
+    background-color: rgb(255, 255, 255);
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.profile-modal-title {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(15, 23, 42);
+    margin-bottom: 4px;
+}
+
+.profile-modal-body {
+    font-size: 16px;
+    color: rgb(55, 65, 81);
+    -unity-font-style: normal;
+    flex-grow: 1;
+}
+
+/* Red pill-shaped logout button */
+.logout-button {
+    height: 48px;
+    border-radius: 24px;
+    border-width: 0;
+    background-color: rgb(239, 68, 68); /* red-500 vibes */
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.logout-button:hover {
+    background-color: rgb(220, 38, 38); /* red-600 */
+    scale: 1.02;
+}
+
+.logout-button:active {
+    background-color: rgb(185, 28, 28); /* red-700 */
+    scale: 0.98;
+}
+
+.logout-label {
+    color: rgb(255, 255, 255);
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
