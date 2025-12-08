@@ -1,38 +1,38 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Toolbar.uss?fileID=7433441132597879392&amp;guid=190eb1910434b77478871f6a34b280f1&amp;type=3#Toolbar" />
+    <Style src="project://database/Assets/UI/Toolbar.uss?fileID=7433441132597879392&amp;guid=190eb1910434b77478871f6a34b280f1&amp;type=3#Toolbar"/>
     <ui:VisualElement name="overlay-root" class="overlay-root">
         <ui:VisualElement name="top-bar" class="top-bar">
             <ui:VisualElement name="top-left-toolbar" class="toolbar toolbar-left">
                 <ui:Button name="btn-marbles" class="currency-pill currency-pill-marbles">
-                    <ui:Image name="icon-marble" class="currency-icon icon-marble" style="background-image: resource(&apos;Icons/marbleicon256x256&apos;); scale: 1.5 1.5;" />
-                    <ui:Label name="marble-count" text="0" class="currency-count" style="justify-content: flex-start; align-content: flex-start; margin-top: 0; margin-bottom: 0; font-size: 30px;" />
+                    <ui:Image name="icon-marble" class="currency-icon icon-marble" style="background-image: resource(&quot;Icons/marbleicon256x256&quot;); scale: 1.5 1.5;"/>
+                    <ui:Label name="marble-count" text="0" class="currency-count" style="justify-content: flex-start; align-content: flex-start; margin-top: 0; margin-bottom: 0; font-size: 30px;"/>
                     <ui:VisualElement class="currency-add-button" style="background-color: rgb(0, 167, 48);">
-                        <ui:Label text="+" class="currency-add-icon" style="padding-right: 0; padding-left: 0; padding-top: 0; padding-bottom: 4px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; align-content: center; -unity-text-align: middle-center; justify-content: center;" />
+                        <ui:Label text="+" class="currency-add-icon" style="padding-right: 0; padding-left: 0; padding-top: 0; padding-bottom: 4px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; align-content: center; -unity-text-align: middle-center; justify-content: center;"/>
                     </ui:VisualElement>
                 </ui:Button>
                 <ui:VisualElement name="points-display" class="currency-pill currency-pill-points" style="padding-left: 14px;">
-                    <ui:Label name="points-count" text="0" class="currency-count" style="margin-left: 4px; font-size: 30px; margin-top: 0; margin-bottom: 0;" />
+                    <ui:Label name="points-count" text="0" class="currency-count" style="margin-left: 4px; font-size: 30px; margin-top: 0; margin-bottom: 0;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="top-right-toolbar" class="toolbar toolbar-right">
                 <ui:Button name="btn-discord" class="icon-button icon-button-circle icon-button-discord" style="padding-left: 0; padding-right: 0; padding-bottom: 0; padding-top: 0;">
-                    <ui:Image name="icon-discord" class="icon icon-discord" />
+                    <ui:Image name="icon-discord" class="icon icon-discord"/>
                 </ui:Button>
                 <ui:Button name="btn-login" class="login-button" style="align-content: center; justify-content: center; margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 4px; padding-right: 18px; padding-left: 18px;">
-                    <ui:Label name="login-label" text="Log In" class="login-label" style="align-items: center; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; background-size: 100% 100%;" />
+                    <ui:Label name="login-label" text="Log In" class="login-label" style="align-items: center; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; background-size: 100% 100%;"/>
                 </ui:Button>
                 <ui:Button name="btn-profile" class="profile-button" style="display: none;">
-                    <ui:Image name="profile-picture" class="profile-picture" />
+                    <ui:Image name="profile-picture" class="profile-picture"/>
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:VisualElement name="profile-modal" class="profile-modal" style="visibility: visible;">
-        <ui:VisualElement name="VisualElement" class="profile-modal-content" style="position: absolute; bottom: auto; opacity: 1;">
-            <ui:Label name="profile-modal-title" text="Profile" class="profile-modal-title" />
-            <ui:Label name="profile-modal-body" text="Profile details and settings will go here." class="profile-modal-body" />
+        <ui:VisualElement name="VisualElement" class="profile-modal-content" style="position: absolute; bottom: auto; opacity: 1; display: flex;">
+            <ui:Label name="profile-modal-title" text="Profile" class="profile-modal-title"/>
+            <ui:Label name="profile-modal-body" text="Profile details and settings will go here." class="profile-modal-body"/>
             <ui:Button name="btn-logout" class="logout-button">
-                <ui:Label text="Log Out" class="logout-label" />
+                <ui:Label text="Log Out" class="logout-label"/>
             </ui:Button>
         </ui:VisualElement>
     </ui:VisualElement>
