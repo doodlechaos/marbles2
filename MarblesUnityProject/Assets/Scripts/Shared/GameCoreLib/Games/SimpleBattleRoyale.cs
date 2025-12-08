@@ -30,22 +30,22 @@ namespace GameCoreLib
         /// Counter for assigning elimination order.
         /// Serialized so it continues correctly after deserialize.
         /// </summary>
-        [MemoryPackOrder(8)] // Base class uses 0-7, derived must continue from 8
+        [MemoryPackOrder(9)] // Base class uses 0-7, derived must continue from 8
         public int NextEliminationOrder = 1;
 
         /// <summary>
         /// Queue of players waiting to spawn.
         /// </summary>
-        [MemoryPackOrder(9)]
+        [MemoryPackOrder(10)]
         public List<InputEvent.Entrant> SpawnQueue = new List<InputEvent.Entrant>();
 
-        [MemoryPackOrder(10)]
+        [MemoryPackOrder(11)]
         public int SpawnTickCounter = 0;
 
-        [MemoryPackOrder(11)]
+        [MemoryPackOrder(12)]
         public int TicksBetweenSpawns = 30;
 
-        [MemoryPackOrder(12)]
+        [MemoryPackOrder(13)]
         public uint TotalMarblesBid;
 
         public SimpleBattleRoyale() { }
