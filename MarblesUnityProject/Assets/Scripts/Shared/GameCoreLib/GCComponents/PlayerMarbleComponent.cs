@@ -21,24 +21,27 @@ namespace GameCoreLib
         [MemoryPackOrder(3)]
         public uint BidAmount;
 
+        [MemoryPackOrder(4)]
+        public uint Points; 
+
         /// <summary>
         /// Whether this player is still alive in the game
         /// </summary>
-        [MemoryPackOrder(4)]
+        [MemoryPackOrder(5)]
         public bool IsAlive = true;
 
         /// <summary>
         /// When this player was eliminated (0 = not eliminated yet, 1 = first eliminated, etc.)
         /// Higher number = eliminated later = better rank.
         /// </summary>
-        [MemoryPackOrder(5)]
+        [MemoryPackOrder(6)]
         public int EliminationOrder = 0;
 
         /// <summary>
         /// Component ID of the Rigidbody2DComponent associated with this player marble.
         /// Assigned during authoring using the PlayerMarbleAuth reference.
         /// </summary>
-        [MemoryPackOrder(6)]
+        [MemoryPackOrder(7)]
         public ulong RigidbodyComponentId;
 
         /// <summary>
