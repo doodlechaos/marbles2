@@ -13,6 +13,8 @@ namespace GameCoreLib
     [MemoryPackUnion(4, typeof(StartCloseDoorAnimation))]
     [MemoryPackUnion(5, typeof(SpinToNewGameTile))]
     [MemoryPackUnion(6, typeof(GameplayStartInput))]
+    [MemoryPackUnion(7, typeof(LoadThroneTile))]
+    [MemoryPackUnion(8, typeof(SetKing))]
     [Serializable]
     public abstract partial class InputEvent
     {
@@ -156,6 +158,42 @@ namespace GameCoreLib
             {
                 NewGameTile = newGameTile;
                 WorldId = worldId;
+            }
+        }
+
+        /// <summary>
+        /// Load a pre-serialized ThroneTile template.
+        /// </summary>
+        [MemoryPackable(SerializeLayout.Explicit)]
+        public partial class LoadThroneTile : InputEvent
+        {
+            [MemoryPackOrder(0)]
+            public ThroneTile NewThroneTile;
+
+            [MemoryPackConstructor]
+            public LoadThroneTile() { }
+
+            public LoadThroneTile(ThroneTile throneTile)
+            {
+                NewThroneTile = throneTile;
+            }
+        }
+
+        /// <summary>
+        /// Set or update the king on the throne.
+        /// </summary>
+        [MemoryPackable(SerializeLayout.Explicit)]
+        public partial class SetKing : InputEvent
+        {
+            [MemoryPackOrder(0)]
+            public ulong AccountId;
+
+            [MemoryPackConstructor]
+            public SetKing() { }
+
+            public SetKing(ulong accountId)
+            {
+                AccountId = accountId;
             }
         }
     }

@@ -13,27 +13,27 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteTables
     {
-        public sealed class GameTileHandle : RemoteTableHandle<EventContext, GameTile>
+        public sealed class ThroneTileDataHandle : RemoteTableHandle<EventContext, ThroneTileData>
         {
-            protected override string RemoteTableName => "GameTile";
+            protected override string RemoteTableName => "ThroneTileData";
 
             public sealed class UnityPrefabGuidUniqueIndex : UniqueIndexBase<string>
             {
-                protected override string GetKey(GameTile row) => row.UnityPrefabGuid;
+                protected override string GetKey(ThroneTileData row) => row.UnityPrefabGuid;
 
-                public UnityPrefabGuidUniqueIndex(GameTileHandle table) : base(table) { }
+                public UnityPrefabGuidUniqueIndex(ThroneTileDataHandle table) : base(table) { }
             }
 
             public readonly UnityPrefabGuidUniqueIndex UnityPrefabGuid;
 
-            internal GameTileHandle(DbConnection conn) : base(conn)
+            internal ThroneTileDataHandle(DbConnection conn) : base(conn)
             {
                 UnityPrefabGuid = new(this);
             }
 
-            protected override object GetPrimaryKey(GameTile row) => row.UnityPrefabGuid;
+            protected override object GetPrimaryKey(ThroneTileData row) => row.UnityPrefabGuid;
         }
 
-        public readonly GameTileHandle GameTile;
+        public readonly ThroneTileDataHandle ThroneTileData;
     }
 }

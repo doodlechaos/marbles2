@@ -332,7 +332,7 @@ public class TileRenderer : MonoBehaviour
     /// </summary>
     private bool IsLevelRoot(GameCoreObj runtimeObj)
     {
-        return runtimeObj.HasComponent<LevelRootComponent>();
+        return runtimeObj.HasComponent<TileRootComponent>();
     }
 
     /// <summary>

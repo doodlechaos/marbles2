@@ -74,8 +74,4 @@ public static partial class Module
         ctx.Db.Account.Insert(row);
     }
 
-    public static Account? GetById(ReducerContext ctx, ulong accountId)
-    {
-        return ctx.Db.Account.Id.Find(accountId);
-    }
 }

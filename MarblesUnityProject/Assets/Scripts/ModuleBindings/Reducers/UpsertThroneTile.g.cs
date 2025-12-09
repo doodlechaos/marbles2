@@ -12,17 +12,17 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void UpsertGameTileHandler(ReducerEventContext ctx, SpacetimeDB.Types.GameTileData gameTileData);
-        public event UpsertGameTileHandler? OnUpsertGameTile;
+        public delegate void UpsertThroneTileHandler(ReducerEventContext ctx, SpacetimeDB.Types.ThroneTileData throneTileData);
+        public event UpsertThroneTileHandler? OnUpsertThroneTile;
 
-        public void UpsertGameTile(SpacetimeDB.Types.GameTileData gameTileData)
+        public void UpsertThroneTile(SpacetimeDB.Types.ThroneTileData throneTileData)
         {
-            conn.InternalCallReducer(new Reducer.UpsertGameTile(gameTileData), this.SetCallReducerFlags.UpsertGameTileFlags);
+            conn.InternalCallReducer(new Reducer.UpsertThroneTile(throneTileData), this.SetCallReducerFlags.UpsertThroneTileFlags);
         }
 
-        public bool InvokeUpsertGameTile(ReducerEventContext ctx, Reducer.UpsertGameTile args)
+        public bool InvokeUpsertThroneTile(ReducerEventContext ctx, Reducer.UpsertThroneTile args)
         {
-            if (OnUpsertGameTile == null)
+            if (OnUpsertThroneTile == null)
             {
                 if (InternalOnUnhandledReducerError != null)
                 {
@@ -34,9 +34,9 @@ namespace SpacetimeDB.Types
                 }
                 return false;
             }
-            OnUpsertGameTile(
+            OnUpsertThroneTile(
                 ctx,
-                args.GameTileData
+                args.ThroneTileData
             );
             return true;
         }
@@ -46,28 +46,28 @@ namespace SpacetimeDB.Types
     {
         [SpacetimeDB.Type]
         [DataContract]
-        public sealed partial class UpsertGameTile : Reducer, IReducerArgs
+        public sealed partial class UpsertThroneTile : Reducer, IReducerArgs
         {
-            [DataMember(Name = "gameTileData")]
-            public GameTileData GameTileData;
+            [DataMember(Name = "throneTileData")]
+            public ThroneTileData ThroneTileData;
 
-            public UpsertGameTile(GameTileData GameTileData)
+            public UpsertThroneTile(ThroneTileData ThroneTileData)
             {
-                this.GameTileData = GameTileData;
+                this.ThroneTileData = ThroneTileData;
             }
 
-            public UpsertGameTile()
+            public UpsertThroneTile()
             {
-                this.GameTileData = new();
+                this.ThroneTileData = new();
             }
 
-            string IReducerArgs.ReducerName => "UpsertGameTile";
+            string IReducerArgs.ReducerName => "UpsertThroneTile";
         }
     }
 
     public sealed partial class SetReducerFlags
     {
-        internal CallReducerFlags UpsertGameTileFlags;
-        public void UpsertGameTile(CallReducerFlags flags) => UpsertGameTileFlags = flags;
+        internal CallReducerFlags UpsertThroneTileFlags;
+        public void UpsertThroneTile(CallReducerFlags flags) => UpsertThroneTileFlags = flags;
     }
 }

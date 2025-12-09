@@ -14,9 +14,12 @@ namespace GameCoreLib
         public ushort Seq;
 
         [MemoryPackOrder(1)]
-        public GameTileBase? GameTile1;
+        public ThroneTile? ThroneTile;
 
         [MemoryPackOrder(2)]
+        public GameTileBase? GameTile1;
+
+        [MemoryPackOrder(3)]
         public GameTileBase? GameTile2;
 
         [MemoryPackIgnore]
@@ -37,6 +40,7 @@ namespace GameCoreLib
             OutputEvents.Clear();
             HandleInputEvents(inputEvents);
 
+            ThroneTile?.Step(OutputEvents);
             GameTile1?.Step(OutputEvents);
             GameTile2?.Step(OutputEvents);
 
@@ -58,6 +62,10 @@ namespace GameCoreLib
                     // Load the pre-deserialized GameTile into the appropriate slot
                     LoadGameTileIntoSlot(worldId, spinLoadGameTile.NewGameTile);
                 }
+                else if (inputEvent is InputEvent.LoadThroneTile loadThroneTile)
+                {
+                    LoadThroneTile(loadThroneTile.NewThroneTile);
+                }
                 else if (inputEvent is InputEvent.GameplayStartInput gameplayStartInput)
                 {
                     byte worldId = gameplayStartInput.WorldId;
@@ -75,6 +83,10 @@ namespace GameCoreLib
                         GameTile2?.SetState(GameTileState.Finished, OutputEvents);
                     else
                         GameTile1?.SetState(GameTileState.Finished, OutputEvents);
+                }
+                else if (inputEvent is InputEvent.SetKing setKing)
+                {
+                    ThroneTile?.SetKing(setKing.AccountId);
                 }
             }
         }
@@ -104,6 +116,21 @@ namespace GameCoreLib
             {
                 Logger.Error($"Invalid world id: {worldId}");
             }
+        }
+
+        /// <summary>
+        /// Load a ThroneTile and initialize it.
+        /// </summary>
+        private void LoadThroneTile(ThroneTile throneTile)
+        {
+            if (throneTile == null)
+            {
+                Logger.Error("Cannot load null ThroneTile");
+                return;
+            }
+
+            ThroneTile = throneTile;
+            ThroneTile.Initialize(0); // ThroneTile uses world ID 0
         }
 
         public string GetDeterministicHashHex()

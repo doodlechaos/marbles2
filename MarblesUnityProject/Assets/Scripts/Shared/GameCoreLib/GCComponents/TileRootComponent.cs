@@ -9,7 +9,7 @@ namespace GameCoreLib
     /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class LevelRootComponent : GCComponent
+    public partial class TileRootComponent : GCComponent
     {
         /// <summary>
         /// The game mode type for this level (e.g., "SimpleBattleRoyale")

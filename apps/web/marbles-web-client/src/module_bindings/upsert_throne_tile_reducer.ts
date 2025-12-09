@@ -10,10 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import GameTileData from "./game_tile_data_type";
+import ThroneTileData from "./throne_tile_data_type";
 
 export default {
-  get gameTileData() {
-    return GameTileData;
+  get throneTileData() {
+    return ThroneTileData;
   },
 };

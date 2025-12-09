@@ -21,7 +21,10 @@ public static class GameObjectToGCObj
     /// <summary>
     /// Recursively serialize a GameObject and all its children into RuntimeObj.
     /// </summary>
-    public static GameCoreObj SerializeGameObject(GameObject go, RenderPrefabRegistry prefabRegistry)
+    public static GameCoreObj SerializeGameObject(
+        GameObject go,
+        RenderPrefabRegistry prefabRegistry
+    )
     {
         var context = new ComponentExportContext();
         var result = SerializeGameObject(go, prefabRegistry, context);
@@ -49,13 +52,13 @@ public static class GameObjectToGCObj
             RenderPrefabID = prefabRegistry != null ? prefabRegistry.GetPrefabID(go) : 0,
         };
 
-        // Add LevelRootComponent for objects with GameTileAuth
-        GameTileAuthBase gameTileAuth = go.GetComponent<GameTileAuthBase>();
-        if (gameTileAuth != null)
+        // Add LevelRootComponent for objects with TileAuthBase
+        TileAuthBase tileAuth = go.GetComponent<TileAuthBase>();
+        if (tileAuth != null)
         {
-            var levelRoot = new LevelRootComponent
+            var levelRoot = new TileRootComponent
             {
-                GameModeType = gameTileAuth.GetType().Name.Replace("Auth", ""),
+                GameModeType = tileAuth.GetType().Name.Replace("Auth", ""),
             };
             context.RegisterComponent(null, levelRoot);
             runtimeObj.GameComponents.Add(levelRoot);

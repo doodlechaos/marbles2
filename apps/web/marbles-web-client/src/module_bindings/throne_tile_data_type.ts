@@ -10,14 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("GameTile", {
+export default __t.object("ThroneTileData", {
   unityPrefabGuid: __t.string(),
   tileName: __t.string(),
-  rarity: __t.i32(),
-  minAuctionSpots: __t.i32(),
-  maxAuctionSpots: __t.i32(),
-  maxRaffleDraws: __t.i32(),
-  gameTileBinary: __t.byteArray(),
+  throneTileBinary: __t.byteArray(),
 });
 
 

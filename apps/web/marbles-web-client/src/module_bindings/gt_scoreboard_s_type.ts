@@ -9,11 +9,15 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import ScoreboardEntry from "./scoreboard_entry_type";
 
-import GameTileData from "./game_tile_data_type";
 
-export default {
-  get gameTileData() {
-    return GameTileData;
+export default __t.object("GtScoreboardS", {
+  id: __t.u8(),
+  gtUnityPrefabGuid: __t.string(),
+  get entries() {
+    return __t.array(ScoreboardEntry);
   },
-};
+});
+
+

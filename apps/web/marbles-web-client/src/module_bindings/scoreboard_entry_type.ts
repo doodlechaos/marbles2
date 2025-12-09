@@ -10,10 +10,9 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import GameTileData from "./game_tile_data_type";
+export default __t.object("ScoreboardEntry", {
+  accountId: __t.u64(),
+  pointsEarned: __t.i32(),
+});
 
-export default {
-  get gameTileData() {
-    return GameTileData;
-  },
-};
+

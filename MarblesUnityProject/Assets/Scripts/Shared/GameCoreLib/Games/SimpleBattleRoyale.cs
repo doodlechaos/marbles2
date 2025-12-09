@@ -30,7 +30,7 @@ namespace GameCoreLib
         /// Counter for assigning elimination order.
         /// Serialized so it continues correctly after deserialize.
         /// </summary>
-        [MemoryPackOrder(9)] // Base class uses 0-7, derived must continue from 8
+        [MemoryPackOrder(9)] // TileBase uses 0-6, GameTileBase uses 7-8, derived starts at 9
         public int NextEliminationOrder = 1;
 
         /// <summary>

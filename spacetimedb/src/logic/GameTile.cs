@@ -11,15 +11,15 @@ public static partial class Module
     public static GameTileBase GetRandomGameTile(ReducerContext ctx)
     {
         // If we have no game tile data stored, create a default one
-        if (ctx.Db.GameTile.Iter().Count() == 0)
+        if (ctx.Db.GameTileData.Iter().Count() == 0)
         {
             Log.Warn("No GameTileData found in database, creating default SimpleBattleRoyale");
             return CreateDefaultGameTile();
         }
 
         // Get a random game tile data
-        int randomIndex = ctx.Rng.Next(0, ctx.Db.GameTile.Iter().Count());
-        GameTile gameTileData = ctx.Db.GameTile.Iter().ToArray()[randomIndex];
+        int randomIndex = ctx.Rng.Next(0, ctx.Db.GameTileData.Iter().Count());
+        GameTileData gameTileData = ctx.Db.GameTileData.Iter().ToArray()[randomIndex];
 
         // Deserialize the game tile
         GameTileBase? gameTile = MemoryPackSerializer.Deserialize<GameTileBase>(
@@ -50,7 +50,7 @@ public static partial class Module
             GameComponents = new List<GCComponent>
             {
                 //TODO This isn't assigning a component id correctly here?
-                new LevelRootComponent { GameModeType = "SimpleBattleRoyale" },
+                new TileRootComponent { GameModeType = "SimpleBattleRoyale" },
             },
             Transform = new FPMathLib.FPTransform3D(
                 FPMathLib.FPVector3.Zero,

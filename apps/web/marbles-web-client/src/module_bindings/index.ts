@@ -63,6 +63,8 @@ import UpsertInputCollector from "./upsert_input_collector_reducer";
 export { UpsertInputCollector };
 import UpsertInputFrame from "./upsert_input_frame_reducer";
 export { UpsertInputFrame };
+import UpsertThroneTile from "./upsert_throne_tile_reducer";
+export { UpsertThroneTile };
 
 // Import and reexport all procedure arg types
 
@@ -93,10 +95,12 @@ import ClockScheduleRow from "./clock_schedule_table";
 export { ClockScheduleRow };
 import DeterminismCheckRow from "./determinism_check_table";
 export { DeterminismCheckRow };
+import GtScoreboardSRow from "./gt_scoreboard_s_table";
+export { GtScoreboardSRow };
 import GameCoreSnapRow from "./game_core_snap_table";
 export { GameCoreSnapRow };
-import GameTileRow from "./game_tile_table";
-export { GameTileRow };
+import GameTileDataRow from "./game_tile_data_table";
+export { GameTileDataRow };
 import InputCollectorRow from "./input_collector_table";
 export { InputCollectorRow };
 import InputFrameRow from "./input_frame_table";
@@ -107,6 +111,8 @@ import MyAccountRow from "./my_account_table";
 export { MyAccountRow };
 import MySessionKindRow from "./my_session_kind_table";
 export { MySessionKindRow };
+import ScoreboardEntryRow from "./scoreboard_entry_table";
+export { ScoreboardEntryRow };
 import SeqRow from "./seq_table";
 export { SeqRow };
 import SessionRow from "./session_table";
@@ -115,6 +121,8 @@ import StepsSinceLastAuthFrameRow from "./steps_since_last_auth_frame_table";
 export { StepsSinceLastAuthFrameRow };
 import StepsSinceLastBatchRow from "./steps_since_last_batch_table";
 export { StepsSinceLastBatchRow };
+import ThroneTileDataRow from "./throne_tile_data_table";
+export { ThroneTileDataRow };
 
 // Import and reexport all types
 import Account from "./account_type";
@@ -143,10 +151,12 @@ import ClockSchedule from "./clock_schedule_type";
 export { ClockSchedule };
 import DeterminismCheck from "./determinism_check_type";
 export { DeterminismCheck };
+import GtScoreboardS from "./gt_scoreboard_s_type";
+export { GtScoreboardS };
 import GameCoreSnap from "./game_core_snap_type";
 export { GameCoreSnap };
-import GameTile from "./game_tile_type";
-export { GameTile };
+import GameTileData from "./game_tile_data_type";
+export { GameTileData };
 import InputCollector from "./input_collector_type";
 export { InputCollector };
 import InputFrame from "./input_frame_type";
@@ -155,6 +165,8 @@ import LastAuthFrameTimestamp from "./last_auth_frame_timestamp_type";
 export { LastAuthFrameTimestamp };
 import MySessionKindContainer from "./my_session_kind_container_type";
 export { MySessionKindContainer };
+import ScoreboardEntry from "./scoreboard_entry_type";
+export { ScoreboardEntry };
 import Seq from "./seq_type";
 export { Seq };
 import Session from "./session_type";
@@ -165,6 +177,8 @@ import StepsSinceLastAuthFrame from "./steps_since_last_auth_frame_type";
 export { StepsSinceLastAuthFrame };
 import StepsSinceLastBatch from "./steps_since_last_batch_type";
 export { StepsSinceLastBatch };
+import ThroneTileData from "./throne_tile_data_type";
+export { ThroneTileData };
 
 /** The schema information for all tables in this module. This is defined the same was as the tables would have been defined in the server. */
 const tablesSchema = __schema(
@@ -316,6 +330,17 @@ const tablesSchema = __schema(
     ],
   }, DeterminismCheckRow),
   __table({
+    name: 'GTScoreboardS',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'GTScoreboardS_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, GtScoreboardSRow),
+  __table({
     name: 'GameCoreSnap',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
@@ -327,16 +352,16 @@ const tablesSchema = __schema(
     ],
   }, GameCoreSnapRow),
   __table({
-    name: 'GameTile',
+    name: 'GameTileData',
     indexes: [
       { name: 'UnityPrefabGUID', algorithm: 'btree', columns: [
         'unityPrefabGuid',
       ] },
     ],
     constraints: [
-      { name: 'GameTile_UnityPrefabGUID_key', constraint: 'unique', columns: ['unityPrefabGuid'] },
+      { name: 'GameTileData_UnityPrefabGUID_key', constraint: 'unique', columns: ['unityPrefabGuid'] },
     ],
-  }, GameTileRow),
+  }, GameTileDataRow),
   __table({
     name: 'InputCollector',
     indexes: [
@@ -366,6 +391,17 @@ const tablesSchema = __schema(
       { name: 'LastAuthFrameTimestamp_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, LastAuthFrameTimestampRow),
+  __table({
+    name: 'ScoreboardEntry',
+    indexes: [
+      { name: 'AccountId', algorithm: 'btree', columns: [
+        'accountId',
+      ] },
+    ],
+    constraints: [
+      { name: 'ScoreboardEntry_AccountId_key', constraint: 'unique', columns: ['accountId'] },
+    ],
+  }, ScoreboardEntryRow),
   __table({
     name: 'Seq',
     indexes: [
@@ -411,6 +447,17 @@ const tablesSchema = __schema(
     ],
   }, StepsSinceLastBatchRow),
   __table({
+    name: 'ThroneTileData',
+    indexes: [
+      { name: 'UnityPrefabGUID', algorithm: 'btree', columns: [
+        'unityPrefabGuid',
+      ] },
+    ],
+    constraints: [
+      { name: 'ThroneTileData_UnityPrefabGUID_key', constraint: 'unique', columns: ['unityPrefabGuid'] },
+    ],
+  }, ThroneTileDataRow),
+  __table({
     name: 'MyAccount',
     indexes: [
     ],
@@ -442,6 +489,7 @@ const reducersSchema = __reducers(
   __reducerSchema("UpsertGameTile", UpsertGameTile),
   __reducerSchema("UpsertInputCollector", UpsertInputCollector),
   __reducerSchema("UpsertInputFrame", UpsertInputFrame),
+  __reducerSchema("UpsertThroneTile", UpsertThroneTile),
 );
 
 /** The schema information for all procedures in this module. This is defined the same way as the procedures would have been defined in the server. */

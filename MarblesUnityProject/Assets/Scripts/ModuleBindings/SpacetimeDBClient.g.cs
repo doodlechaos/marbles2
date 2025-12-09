@@ -41,17 +41,20 @@ namespace SpacetimeDB.Types
             AddTable(Clock = new(conn));
             AddTable(ClockSchedule = new(conn));
             AddTable(DeterminismCheck = new(conn));
+            AddTable(GtScoreboardS = new(conn));
             AddTable(GameCoreSnap = new(conn));
-            AddTable(GameTile = new(conn));
+            AddTable(GameTileData = new(conn));
             AddTable(InputCollector = new(conn));
             AddTable(InputFrame = new(conn));
             AddTable(LastAuthFrameTimestamp = new(conn));
             AddTable(MyAccount = new(conn));
             AddTable(MySessionKind = new(conn));
+            AddTable(ScoreboardEntry = new(conn));
             AddTable(Seq = new(conn));
             AddTable(Session = new(conn));
             AddTable(StepsSinceLastAuthFrame = new(conn));
             AddTable(StepsSinceLastBatch = new(conn));
+            AddTable(ThroneTileData = new(conn));
         }
     }
 
@@ -628,6 +631,7 @@ namespace SpacetimeDB.Types
                 "UpsertGameTile" => BSATNHelpers.Decode<Reducer.UpsertGameTile>(encodedArgs),
                 "UpsertInputCollector" => BSATNHelpers.Decode<Reducer.UpsertInputCollector>(encodedArgs),
                 "UpsertInputFrame" => BSATNHelpers.Decode<Reducer.UpsertInputFrame>(encodedArgs),
+                "UpsertThroneTile" => BSATNHelpers.Decode<Reducer.UpsertThroneTile>(encodedArgs),
                 "" => throw new SpacetimeDBEmptyReducerNameException("Reducer name is empty"),
                 var reducer => throw new ArgumentOutOfRangeException("Reducer", $"Unknown reducer {reducer}")
             };
@@ -669,6 +673,7 @@ namespace SpacetimeDB.Types
                 Reducer.UpsertGameTile args => Reducers.InvokeUpsertGameTile(eventContext, args),
                 Reducer.UpsertInputCollector args => Reducers.InvokeUpsertInputCollector(eventContext, args),
                 Reducer.UpsertInputFrame args => Reducers.InvokeUpsertInputFrame(eventContext, args),
+                Reducer.UpsertThroneTile args => Reducers.InvokeUpsertThroneTile(eventContext, args),
                 _ => throw new ArgumentOutOfRangeException("Reducer", $"Unknown reducer {reducer}")
             };
         }

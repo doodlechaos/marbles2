@@ -21,7 +21,7 @@ namespace GameCoreLib
     [MemoryPackUnion(2, typeof(Rigidbody2DComponent))]
     [MemoryPackUnion(3, typeof(SpawnPipeComponent))]
     [MemoryPackUnion(4, typeof(MarbleComponent))]
-    [MemoryPackUnion(5, typeof(LevelRootComponent))]
+    [MemoryPackUnion(5, typeof(TileRootComponent))]
     [MemoryPackUnion(6, typeof(TeleportWrapComponent))]
     [MemoryPackUnion(7, typeof(MarbleDetectorComponent))]
     [MemoryPackUnion(8, typeof(MarbleEffectComponent))]

@@ -14,7 +14,7 @@ using UnityEngine;
 /// doesn't understand. We just inspect the live C# objects at runtime.
 /// </summary>
 [CustomEditor(typeof(GCObjBinding))]
-public sealed class RuntimeBindingEditor : Editor
+public sealed class GameCoreObjBindingEditor : Editor
 {
     private bool _showComponents = true;
 

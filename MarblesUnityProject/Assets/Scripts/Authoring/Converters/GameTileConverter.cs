@@ -3,8 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Converts Unity GameObjects with GameTileAuth components into GameTileBase data.
-/// Thin wrapper around the generic GameObjectToRuntimeObjConverter for tile-specific concerns.
-/// Shared between GameTileExporter (Editor) and GameTilePlayground (Runtime).
+/// Uses TileConverter utilities for shared conversion logic.
 /// </summary>
 public static class GameTileConverter
 {
@@ -12,7 +11,7 @@ public static class GameTileConverter
     /// Convert a GameObject with a GameTileAuthBase into a fully populated GameTileBase.
     /// </summary>
     /// <param name="prefab">The GameObject with a GameTileAuthBase component</param>
-    /// <param name="prefabRegistry">The RenderPrefabRegistry for looking up RenderPrefabIDs via RenderPrefabIdentifier components</param>
+    /// <param name="prefabRegistry">The RenderPrefabRegistry for looking up RenderPrefabIDs</param>
     /// <returns>A populated GameTileBase, or null if conversion fails</returns>
     public static GameTileBase ConvertToGameTile(
         GameObject prefab,
@@ -41,13 +40,13 @@ public static class GameTileConverter
             return null;
         }
 
-        gameTile.TileRoot = GameObjectToGCObj.SerializeGameObject(prefab, prefabRegistry);
+        gameTile.TileRoot = TileConverter.ConvertHierarchy(prefab, prefabRegistry);
         return gameTile;
     }
 
     /// <summary>
     /// Create the appropriate GameTileBase subtype based on the auth component type.
-    /// Also builds the shared PlayerMarbleTemplate from GameTileAuthBase.PlayerMarblePrefab, if assigned.
+    /// Also builds the shared PlayerMarbleTemplate from TileAuthBase.MarblePrefab.
     /// </summary>
     public static GameTileBase CreateGameTileFromAuth(
         GameTileAuthBase gameTileAuth,
@@ -70,24 +69,16 @@ public static class GameTileConverter
             return null;
         }
 
-        // Build the shared PlayerMarbleTemplate for all tile types that support spawning players.
-        if (gameTileAuth.MarblePrefab == null)
+        // Build the shared PlayerMarbleTemplate using TileConverter utility
+        gameTile.PlayerMarbleTemplate = TileConverter.BuildPlayerMarbleTemplate(
+            gameTileAuth,
+            prefabRegistry
+        );
+
+        if (gameTile.PlayerMarbleTemplate == null)
         {
             Debug.LogError(
-                $"[GameTileConverter] {gameTileAuth.GetType().Name} requires PlayerMarblePrefab to be assigned."
-            );
-        }
-        else if (prefabRegistry == null)
-        {
-            Debug.LogError(
-                "[GameTileConverter] PrefabRegistry is null – cannot serialize PlayerMarblePrefab."
-            );
-        }
-        else
-        {
-            gameTile.PlayerMarbleTemplate = GameObjectToGCObj.SerializeGameObject(
-                gameTileAuth.MarblePrefab.gameObject,
-                prefabRegistry
+                $"[GameTileConverter] {gameTileAuth.GetType().Name} requires MarblePrefab to be assigned."
             );
         }
 
