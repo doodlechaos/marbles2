@@ -61,21 +61,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c84b6358e312824ea991fd8810e1087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MarbleDetectorAuth
-  OnMarbleDetected:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 9167505250755677499}
-        m_TargetAssemblyTypeName: MarbleEffectAuth, Assembly-CSharp
-        m_MethodName: ApplyEffect
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  MarbleSignalReceivers:
+  - {fileID: 9167505250755677499}
+  RB2D: {fileID: 0}
   CollisionEnterDetection: 1
   TriggerEnterDetection: 1
   CollisionStayDetection: 0

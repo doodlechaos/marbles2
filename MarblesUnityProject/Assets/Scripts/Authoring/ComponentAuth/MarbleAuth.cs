@@ -8,9 +8,7 @@ using UnityEngine;
 ///
 /// The AccountId and BidAmount are set at runtime when spawning.
 /// </summary>
-public class PlayerMarbleAuth
-    : GameComponentAuth<PlayerMarbleComponent>,
-        IComponentReferenceAuthoring
+public class MarbleAuth : GameComponentAuth<MarbleComponent>, IComponentReferenceAuthoring
 {
     [Tooltip(
         "Reference to the Rigidbody2D component on this marble (can be on a child object). "
@@ -24,9 +22,9 @@ public class PlayerMarbleAuth
     [Tooltip("For testing in editor - the bid amount")]
     public uint testBidAmount = 0;
 
-    protected override PlayerMarbleComponent CreateComponent()
+    protected override MarbleComponent CreateComponent()
     {
-        return new PlayerMarbleComponent
+        return new MarbleComponent
         {
             AccountId = testAccountId,
             BidAmount = testBidAmount,
@@ -36,7 +34,7 @@ public class PlayerMarbleAuth
 
     public void ResolveReferences(GCComponent component, ComponentExportContext context)
     {
-        if (component is not PlayerMarbleComponent playerComponent)
+        if (component is not MarbleComponent playerComponent)
             return;
 
         if (RB2D != null && context.TryGetComponentId(RB2D, out var componentId))

@@ -20,7 +20,7 @@ namespace GameCoreLib
     [MemoryPackUnion(1, typeof(CircleCollider2DComponent))]
     [MemoryPackUnion(2, typeof(Rigidbody2DComponent))]
     [MemoryPackUnion(3, typeof(SpawnPipeComponent))]
-    [MemoryPackUnion(4, typeof(PlayerMarbleComponent))]
+    [MemoryPackUnion(4, typeof(MarbleComponent))]
     [MemoryPackUnion(5, typeof(LevelRootComponent))]
     [MemoryPackUnion(6, typeof(TeleportWrapComponent))]
     public abstract partial class GCComponent

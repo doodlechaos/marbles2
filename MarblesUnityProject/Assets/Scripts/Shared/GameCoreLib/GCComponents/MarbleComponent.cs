@@ -10,7 +10,7 @@ namespace GameCoreLib
     /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class PlayerMarbleComponent
+    public partial class MarbleComponent
         : GCComponent,
             IGCComponentReferenceResolver,
             IGCComponentIdRemapper
@@ -22,7 +22,7 @@ namespace GameCoreLib
         public uint BidAmount;
 
         [MemoryPackOrder(4)]
-        public uint Points; 
+        public uint Points;
 
         /// <summary>
         /// Whether this player is still alive in the game

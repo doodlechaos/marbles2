@@ -71,7 +71,7 @@ public static class GameTileConverter
         }
 
         // Build the shared PlayerMarbleTemplate for all tile types that support spawning players.
-        if (gameTileAuth.PlayerMarblePrefab == null)
+        if (gameTileAuth.MarblePrefab == null)
         {
             Debug.LogError(
                 $"[GameTileConverter] {gameTileAuth.GetType().Name} requires PlayerMarblePrefab to be assigned."
@@ -86,7 +86,7 @@ public static class GameTileConverter
         else
         {
             gameTile.PlayerMarbleTemplate = GameObjectToGCObj.SerializeGameObject(
-                gameTileAuth.PlayerMarblePrefab.gameObject,
+                gameTileAuth.MarblePrefab.gameObject,
                 prefabRegistry
             );
         }

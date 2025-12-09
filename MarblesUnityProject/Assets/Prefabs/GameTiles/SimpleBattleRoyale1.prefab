@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f50b5e742d31d54284f199f90b8a181, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleBattleRoyaleAuth
-  PlayerMarblePrefab: {fileID: 8653397145424359985, guid: 27407d322ea4b9948a9ed629475944e8, type: 3}
+  MarblePrefab: {fileID: 5299851290725159317, guid: 27407d322ea4b9948a9ed629475944e8, type: 3}
   AppearanceFrequency: 0
   MinAuctionSpots: 0
   MaxAuctionSpots: 10

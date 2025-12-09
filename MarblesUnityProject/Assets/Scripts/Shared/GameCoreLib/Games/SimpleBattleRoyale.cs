@@ -24,7 +24,7 @@ namespace GameCoreLib
         /// Query IsAlive/EliminationOrder for filtering.
         /// </summary>
         [MemoryPackIgnore]
-        public List<PlayerMarbleComponent> PlayerMarbles = new List<PlayerMarbleComponent>();
+        public List<MarbleComponent> PlayerMarbles = new List<MarbleComponent>();
 
         /// <summary>
         /// Counter for assigning elimination order.
@@ -156,7 +156,7 @@ namespace GameCoreLib
             marble.RebuildComponentReferences();
 
             // Fetch the PlayerMarbleComponent that was authored on the prefab template
-            var playerComp = marble.GetComponent<PlayerMarbleComponent>();
+            var playerComp = marble.GetComponent<MarbleComponent>();
             if (playerComp == null)
             {
                 Logger.Error(
@@ -212,7 +212,7 @@ namespace GameCoreLib
 
             // Count survivors
             int aliveCount = 0;
-            PlayerMarbleComponent lastAlive = null;
+            MarbleComponent lastAlive = null;
             foreach (var player in PlayerMarbles)
             {
                 if (player.IsAlive)
@@ -261,7 +261,7 @@ namespace GameCoreLib
         /// <summary>
         /// Get all surviving players.
         /// </summary>
-        public IEnumerable<PlayerMarbleComponent> GetSurvivors()
+        public IEnumerable<MarbleComponent> GetSurvivors()
         {
             foreach (var p in PlayerMarbles)
                 if (p.IsAlive)
@@ -271,10 +271,10 @@ namespace GameCoreLib
         /// <summary>
         /// Get eliminated players sorted by elimination order.
         /// </summary>
-        public IEnumerable<PlayerMarbleComponent> GetEliminatedInOrder()
+        public IEnumerable<MarbleComponent> GetEliminatedInOrder()
         {
             // Simple insertion sort since list is small
-            var eliminated = new List<PlayerMarbleComponent>();
+            var eliminated = new List<MarbleComponent>();
             foreach (var p in PlayerMarbles)
             {
                 if (!p.IsAlive)

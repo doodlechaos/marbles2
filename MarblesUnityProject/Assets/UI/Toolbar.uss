@@ -4,7 +4,6 @@
     left: 0;
     right: 0;
     bottom: auto;
-    pointer-events: none;
 }
 
 #top-bar {
@@ -13,17 +12,14 @@
     align-items: flex-start;
     padding: 8px 12px;
     height: auto;
-    pointer-events: none;
 }
 
 .toolbar {
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 8px;
-    pointer-events: auto;
-}
-
+} 
+ 
 .toolbar-left {
     justify-content: flex-start;
 }
@@ -185,7 +181,7 @@
 }
 
 .icon-marble {
-    background-image: resource('Icons/marble');
+    background-image: resource("Icons/marbleicon256x256");
 }
 
 .icon-points {
@@ -240,9 +236,8 @@
     align-items: center;
 
     background-color: rgba(0, 0, 0, 0.55);
-    pointer-events: auto; /* important: allow clicks */
     padding: 16px;
-}
+} 
 
 /* Modal card */
 .profile-modal-content {
@@ -257,8 +252,7 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: stretch;
-    gap: 12px;
-}
+} 
 
 .profile-modal-title {
     font-size: 22px;
