@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class MarbleEffectAuth : GameComponentAuth<MarbleEffectComponent>, IMarbleSignalReceiver
 {
+    [Tooltip("The effect to apply when a marble signal is received")]
     public MarbleEffect Effect;
 
-    public void ApplyEffect(MarbleAuth marble) { }
+    protected override MarbleEffectComponent CreateComponent()
+    {
+        return new MarbleEffectComponent { Effect = Effect };
+    }
 
     public void OnMarbleSignalReceived(MarbleAuth marble)
     {

@@ -186,6 +186,28 @@ namespace GameCoreLib
         }
 
         /// <summary>
+        /// Find the first component of type T in this hierarchy that matches a predicate.
+        /// </summary>
+        public T FindComponentByPredicate<T>(Func<T, bool> predicate)
+            where T : class
+        {
+            var comp = GetComponent<T>();
+            if (comp != null && predicate(comp))
+                return comp;
+
+            if (Children != null)
+            {
+                foreach (var child in Children)
+                {
+                    var found = child.FindComponentByPredicate(predicate);
+                    if (found != null)
+                        return found;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Rebuild component RuntimeObj references after deserialization.
         /// Call this on the root after MemoryPack deserialization to restore
         /// the component.RuntimeObj back-references and component-specific references.

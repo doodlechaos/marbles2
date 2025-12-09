@@ -70,9 +70,22 @@ namespace GameCoreLib
                 TicksBetweenSpawns = (int)(SpawnPipe.SpawnDelay.ToFloat() * 60);
             }
 
-            // Find all player marbles
+            // Find all player marbles (only alive ones after deserialize)
             PlayerMarbles.Clear();
             TileRoot?.FindAllComponentsInChildren(PlayerMarbles);
+        }
+
+        /// <summary>
+        /// Called when a marble is destroyed (e.g., by Explode effect).
+        /// Assigns elimination order and removes from active player list.
+        /// </summary>
+        protected override void OnMarbleEliminated(MarbleComponent marble)
+        {
+            marble.EliminationOrder = NextEliminationOrder++;
+            Logger.Log($"Player {marble.AccountId} eliminated (order: {marble.EliminationOrder})");
+
+            // Remove from active player list
+            PlayerMarbles.Remove(marble);
         }
 
         public override void StartGameplay(

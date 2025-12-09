@@ -106,6 +106,12 @@ namespace GameCoreLib
         [MemoryPackIgnore]
         private Dictionary<int, ulong> bodyIdToRuntimeId = new();
 
+        /// <summary>
+        /// Marbles queued for destruction this frame. Processed after all collision handling.
+        /// </summary>
+        [MemoryPackIgnore]
+        private List<MarbleComponent> pendingMarbleDestructions = new();
+
         public GameTileBase()
         {
             Sim = new World();
@@ -248,8 +254,14 @@ namespace GameCoreLib
             // Step physics with reusable context to capture collision/trigger events
             PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), simContext);
 
-            // Process trigger events (e.g., TeleportWrap)
+            // Process trigger events (e.g., TeleportWrap, MarbleDetector)
             ProcessTriggerEvents();
+
+            // Process collision events (e.g., MarbleDetector for solid collisions)
+            ProcessCollisionEvents();
+
+            // Process any pending marble destructions after all collision processing
+            ProcessPendingMarbleDestructions();
 
             SyncPhysicsToRuntimeObjs();
             stateSteps++;
@@ -378,10 +390,7 @@ namespace GameCoreLib
             }
         }
 
-        private void RemapComponentIdReferences(
-            GameCoreObj obj,
-            Dictionary<ulong, ulong> idRemap
-        )
+        private void RemapComponentIdReferences(GameCoreObj obj, Dictionary<ulong, ulong> idRemap)
         {
             if (obj.GameComponents != null)
             {
@@ -463,17 +472,210 @@ namespace GameCoreLib
 
         /// <summary>
         /// Process trigger events from the last physics step.
-        /// Handles TeleportWrap and other trigger-based game logic.
+        /// Handles TeleportWrap, MarbleDetector, and other trigger-based game logic.
         /// </summary>
         private void ProcessTriggerEvents()
         {
             foreach (var evt in simContext.TriggerEvents)
             {
-                // Only process Enter events (avoid repeated teleports during Stay)
-                if (evt.EventType != CollisionEventType.Enter)
-                    continue;
+                bool isEnter = evt.EventType == CollisionEventType.Enter;
+                bool isStay = evt.EventType == CollisionEventType.Stay;
 
-                ProcessTeleportWrapEvent(evt);
+                if (isEnter)
+                {
+                    ProcessTeleportWrapEvent(evt);
+                }
+
+                // Process marble detection for triggers
+                if (isEnter || isStay)
+                {
+                    ProcessMarbleDetectorEvent(evt, isTrigger: true, isEnter: isEnter);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Process collision events (solid colliders) from the last physics step.
+        /// </summary>
+        private void ProcessCollisionEvents()
+        {
+            foreach (var evt in simContext.CollisionEvents)
+            {
+                bool isEnter = evt.EventType == CollisionEventType.Enter;
+                bool isStay = evt.EventType == CollisionEventType.Stay;
+
+                // Process marble detection for solid collisions
+                if (isEnter || isStay)
+                {
+                    ProcessMarbleDetectorEvent(evt, isTrigger: false, isEnter: isEnter);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handle MarbleDetector collision/trigger events.
+        /// When a marble collides with a detector, send signals to registered receivers.
+        /// </summary>
+        private void ProcessMarbleDetectorEvent(CollisionEvent evt, bool isTrigger, bool isEnter)
+        {
+            GameCoreObj objA = FindRuntimeObjByBodyId(evt.BodyIdA);
+            GameCoreObj objB = FindRuntimeObjByBodyId(evt.BodyIdB);
+
+            if (objA == null || objB == null)
+                return;
+
+            // Check which one has the detector and which has the marble
+            MarbleDetectorComponent detectorA = objA.GetComponent<MarbleDetectorComponent>();
+            MarbleDetectorComponent detectorB = objB.GetComponent<MarbleDetectorComponent>();
+
+            // Find marble - could be on the object itself or its parent (marble root)
+            MarbleComponent marbleA = FindMarbleComponent(objA);
+            MarbleComponent marbleB = FindMarbleComponent(objB);
+
+            // Process detector A with marble B
+            if (detectorA != null && marbleB != null)
+            {
+                if (ShouldProcessDetection(detectorA, isTrigger, isEnter))
+                {
+                    detectorA.SendSignal(marbleB, this);
+                }
+            }
+
+            // Process detector B with marble A
+            if (detectorB != null && marbleA != null)
+            {
+                if (ShouldProcessDetection(detectorB, isTrigger, isEnter))
+                {
+                    detectorB.SendSignal(marbleA, this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Find the MarbleComponent for an object. Checks the object and its parent hierarchy.
+        /// Marbles have their rigidbody on a child object, so we need to search up the tree.
+        /// </summary>
+        private MarbleComponent FindMarbleComponent(GameCoreObj obj)
+        {
+            var marble = obj.GetComponent<MarbleComponent>();
+            if (marble != null)
+                return marble;
+
+            // Search parent hierarchy (for cases where rigidbody is on child)
+            return TileRoot?.FindComponentByPredicate<MarbleComponent>(m =>
+                m.RigidbodyRuntimeObj == obj
+            );
+        }
+
+        /// <summary>
+        /// Check if the detector's settings allow this type of detection.
+        /// </summary>
+        private static bool ShouldProcessDetection(
+            MarbleDetectorComponent detector,
+            bool isTrigger,
+            bool isEnter
+        )
+        {
+            if (isTrigger)
+            {
+                return isEnter ? detector.TriggerEnterDetection : detector.TriggerStayDetection;
+            }
+            else
+            {
+                return isEnter ? detector.CollisionEnterDetection : detector.CollisionStayDetection;
+            }
+        }
+
+        /// <summary>
+        /// Queue a marble for destruction. Called by MarbleEffectComponent with Explode effect.
+        /// The marble is destroyed after all collision processing is complete for this frame.
+        /// </summary>
+        public void ExplodeMarble(MarbleComponent marble)
+        {
+            if (marble == null || !marble.IsAlive)
+                return;
+
+            // Prevent duplicate queuing
+            if (!pendingMarbleDestructions.Contains(marble))
+            {
+                pendingMarbleDestructions.Add(marble);
+            }
+        }
+
+        /// <summary>
+        /// Process all pending marble destructions after collision handling is complete.
+        /// </summary>
+        private void ProcessPendingMarbleDestructions()
+        {
+            foreach (var marble in pendingMarbleDestructions)
+            {
+                DestroyMarble(marble);
+            }
+            pendingMarbleDestructions.Clear();
+        }
+
+        /// <summary>
+        /// Destroy a marble and remove it from the game.
+        /// Marks the player as eliminated and removes the physics body and hierarchy.
+        /// </summary>
+        protected virtual void DestroyMarble(MarbleComponent marble)
+        {
+            if (marble == null || !marble.IsAlive)
+                return;
+
+            // Mark as eliminated
+            marble.IsAlive = false;
+            OnMarbleEliminated(marble);
+
+            // Find the marble's root RuntimeObj (the one with MarbleComponent, not the rigidbody child)
+            GameCoreObj marbleRoot = marble.GCObj;
+            if (marbleRoot == null)
+            {
+                Logger.Error($"Could not find RuntimeObj for marble {marble.AccountId}");
+                return;
+            }
+
+            Logger.Log($"Destroying marble: {marbleRoot.Name} (AccountId: {marble.AccountId})");
+
+            // Remove physics bodies for the entire marble hierarchy
+            RemovePhysicsHierarchy(marbleRoot);
+
+            // Remove from parent's children list
+            if (TileRoot?.Children != null)
+            {
+                TileRoot.Children.Remove(marbleRoot);
+            }
+        }
+
+        /// <summary>
+        /// Called when a marble is eliminated. Override in derived classes to assign elimination order.
+        /// </summary>
+        protected virtual void OnMarbleEliminated(MarbleComponent marble) { }
+
+        /// <summary>
+        /// Recursively remove physics bodies for an entire hierarchy.
+        /// </summary>
+        private void RemovePhysicsHierarchy(GameCoreObj obj)
+        {
+            if (obj == null)
+                return;
+
+            // Remove physics body if present
+            if (physicsBindings.TryGetValue(obj.RuntimeId, out PhysicsBinding binding))
+            {
+                Sim.RemoveBody(binding.BodyId);
+                physicsBindings.Remove(obj.RuntimeId);
+                bodyIdToRuntimeId.Remove(binding.BodyId);
+                obj.PhysicsBodyId = -1;
+            }
+
+            // Recursively process children
+            if (obj.Children != null)
+            {
+                foreach (var child in obj.Children)
+                {
+                    RemovePhysicsHierarchy(child);
+                }
             }
         }
 
