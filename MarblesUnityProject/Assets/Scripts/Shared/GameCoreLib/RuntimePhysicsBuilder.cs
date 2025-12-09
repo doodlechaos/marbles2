@@ -8,11 +8,16 @@ namespace GameCoreLib
     /// Builds LockSim physics bodies and colliders from GameCore RuntimeObj hierarchies.
     /// Translates authored GameComponents (colliders, rigidbodies, etc.) into physics entities
     /// and maintains the RuntimeId → PhysicsBinding mapping.
+    /// 
+    /// IMPORTANT: SetupTransformHierarchy() must be called on the hierarchy root before
+    /// BuildPhysics() so that Transform.Position and Transform.LossyScale return correct
+    /// world-space values.
     /// </summary>
     public static class RuntimePhysicsBuilder
     {
         /// <summary>
         /// Build physics bodies for an entire RuntimeObj hierarchy.
+        /// Requires SetupTransformHierarchy() to have been called first.
         /// </summary>
         public static void BuildPhysics(
             GameCoreObj root,
@@ -28,6 +33,7 @@ namespace GameCoreLib
 
         /// <summary>
         /// Add physics bodies for a RuntimeObj and its entire subtree.
+        /// Requires SetupTransformHierarchy() to have been called first.
         /// </summary>
         public static void AddPhysicsBody(
             GameCoreObj obj,
@@ -105,15 +111,20 @@ namespace GameCoreLib
             Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
+            // Get world position and scale from the transform hierarchy
+            FPVector3 worldPosition = obj.Transform.Position;
+            FPVector3 worldScale = obj.Transform.LossyScale;
+
             FPQuaternion currentRotation = obj.Transform.LocalRotation;
             FPQuaternion twist = FPQuaternion.ExtractTwist(currentRotation, FPVector3.Forward);
             FPQuaternion swing = FPQuaternion.ExtractSwing(currentRotation, FPVector3.Forward);
             FP rotationRad = FP.Two * FPMath.Atan2(twist.Z, twist.W);
 
+            // Apply collider offset rotated by the object's Z rotation, then add to world position
             FPVector2 rotatedOffset = FPVector2.Rotate(colliderComponent.Offset, rotationRad);
             FPVector2 position = new FPVector2(
-                obj.Transform.Position.X + rotatedOffset.X,
-                obj.Transform.Position.Y + rotatedOffset.Y
+                worldPosition.X + rotatedOffset.X,
+                worldPosition.Y + rotatedOffset.Y
             );
 
             bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
@@ -127,8 +138,9 @@ namespace GameCoreLib
             int bodyId = sim.AddBody(body);
 
             // Create and attach collider with authored material properties
-            FP width = colliderComponent.Size.X * FPMath.Abs(obj.Transform.LossyScale.X);
-            FP height = colliderComponent.Size.Y * FPMath.Abs(obj.Transform.LossyScale.Y);
+            // Use world scale for proper sizing
+            FP width = colliderComponent.Size.X * FPMath.Abs(worldScale.X);
+            FP height = colliderComponent.Size.Y * FPMath.Abs(worldScale.Y);
 
             var collider = ColliderLS.CreateBox(
                 0,
@@ -156,7 +168,7 @@ namespace GameCoreLib
             };
 
             Logger.Log(
-                $"Created box physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, ColliderId={colliderId}, Size=({width}, {height})"
+                $"Created box physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, ColliderId={colliderId}, WorldPos=({position.X}, {position.Y}), Size=({width}, {height})"
             );
         }
 
@@ -168,15 +180,20 @@ namespace GameCoreLib
             Dictionary<ulong, PhysicsBinding> physicsBindings
         )
         {
+            // Get world position and scale from the transform hierarchy
+            FPVector3 worldPosition = obj.Transform.Position;
+            FPVector3 worldScale = obj.Transform.LossyScale;
+
             FPQuaternion currentRotation = obj.Transform.LocalRotation;
             FPQuaternion twist = FPQuaternion.ExtractTwist(currentRotation, FPVector3.Forward);
             FPQuaternion swing = FPQuaternion.ExtractSwing(currentRotation, FPVector3.Forward);
             FP rotationRad = FP.Two * FPMath.Atan2(twist.Z, twist.W);
 
+            // Apply collider offset rotated by the object's Z rotation, then add to world position
             FPVector2 rotatedOffset = FPVector2.Rotate(colliderComponent.Offset, rotationRad);
             FPVector2 position = new FPVector2(
-                obj.Transform.Position.X + rotatedOffset.X,
-                obj.Transform.Position.Y + rotatedOffset.Y
+                worldPosition.X + rotatedOffset.X,
+                worldPosition.Y + rotatedOffset.Y
             );
 
             bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
@@ -190,8 +207,9 @@ namespace GameCoreLib
             int bodyId = sim.AddBody(body);
 
             // Create and attach collider with authored material properties
-            FP scaleX = FPMath.Abs(obj.Transform.LossyScale.X);
-            FP scaleY = FPMath.Abs(obj.Transform.LossyScale.Y);
+            // Use world scale for proper sizing
+            FP scaleX = FPMath.Abs(worldScale.X);
+            FP scaleY = FPMath.Abs(worldScale.Y);
             FP radius = colliderComponent.Radius * FPMath.Max(scaleX, scaleY);
 
             var collider = ColliderLS.CreateCircle(0, radius, bodyId, colliderComponent.IsTrigger);
@@ -214,7 +232,7 @@ namespace GameCoreLib
             };
 
             Logger.Log(
-                $"Created circle physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, ColliderId={colliderId}, Radius={radius}"
+                $"Created circle physics body for {obj.Name}: RuntimeId={obj.RuntimeId}, BodyId={bodyId}, ColliderId={colliderId}, WorldPos=({position.X}, {position.Y}), Radius={radius}"
             );
         }
     }

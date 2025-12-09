@@ -168,6 +168,10 @@ namespace GameCoreLib
             // Rebuild component → RuntimeObj references just for this subtree
             marble.RebuildComponentReferences();
 
+            // Set up transform hierarchy for the marble subtree with TileRoot as parent
+            // This enables Transform.Position and Transform.LossyScale to work correctly
+            marble.SetupTransformHierarchy(TileRoot.Transform);
+
             // Fetch the PlayerMarbleComponent that was authored on the prefab template
             var playerComp = marble.GetComponent<MarbleComponent>();
             if (playerComp == null)

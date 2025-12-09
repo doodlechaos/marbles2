@@ -249,7 +249,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4100475710299567461, guid: 9f2fab90907ffea44800bf48d971cc47, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.1
+      value: 0.56
       objectReference: {fileID: 0}
     - target: {fileID: 4100475710299567461, guid: 9f2fab90907ffea44800bf48d971cc47, type: 3}
       propertyPath: m_LocalPosition.x
@@ -261,7 +261,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4100475710299567461, guid: 9f2fab90907ffea44800bf48d971cc47, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.2
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 4100475710299567461, guid: 9f2fab90907ffea44800bf48d971cc47, type: 3}
       propertyPath: m_LocalRotation.w
@@ -293,7 +293,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5728080844889452456, guid: 9f2fab90907ffea44800bf48d971cc47, type: 3}
       propertyPath: m_Name
-      value: Cube
+      value: Background
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

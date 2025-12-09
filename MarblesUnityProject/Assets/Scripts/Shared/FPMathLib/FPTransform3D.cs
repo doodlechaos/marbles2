@@ -249,6 +249,18 @@ namespace FPMathLib
             }
         }
 
+        /// <summary>
+        /// Sets the parent transform without modifying LocalPosition/LocalRotation.
+        /// Use this when setting up hierarchies from serialized data where LocalPosition
+        /// is already correct relative to the parent.
+        /// Unlike the Parent property setter, this does NOT preserve world position.
+        /// </summary>
+        public void SetParentDirect(FPTransform3D newParent)
+        {
+            _parent = newParent;
+            MarkWorldDirty();
+        }
+
         #endregion
 
         #region Transformation Methods

@@ -219,6 +219,34 @@ namespace GameCoreLib
             ResolveComponentCrossReferences(componentMap);
         }
 
+        /// <summary>
+        /// Sets up the FPTransform3D parent-child relationships for this hierarchy.
+        /// This enables Transform.Position and Transform.LossyScale to return correct
+        /// world-space values by traversing the parent chain.
+        /// Call this on the root after loading/deserializing.
+        /// </summary>
+        /// <param name="parentTransform">Optional parent transform for this object's root.
+        /// Pass null for top-level roots, or a parent's Transform when attaching subtrees.</param>
+        public void SetupTransformHierarchy(FPTransform3D parentTransform = null)
+        {
+            SetupTransformHierarchyRecursive(parentTransform);
+        }
+
+        private void SetupTransformHierarchyRecursive(FPTransform3D parentTransform)
+        {
+            // Set this object's transform parent (without changing LocalPosition)
+            Transform.SetParentDirect(parentTransform);
+
+            // Recursively set up children with this transform as their parent
+            if (Children != null)
+            {
+                foreach (var child in Children)
+                {
+                    child.SetupTransformHierarchyRecursive(Transform);
+                }
+            }
+        }
+
         private void BuildComponentLookup(Dictionary<ulong, GCComponent> componentMap)
         {
             if (GameComponents != null)

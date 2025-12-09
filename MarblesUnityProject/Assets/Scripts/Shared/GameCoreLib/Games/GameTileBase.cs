@@ -185,6 +185,10 @@ namespace GameCoreLib
             // Rebuild component -> RuntimeObj references
             TileRoot.RebuildComponentReferences();
 
+            // Set up transform parent-child relationships so Transform.Position
+            // and Transform.LossyScale return correct world-space values
+            TileRoot.SetupTransformHierarchy();
+
             // Process the hierarchy recursively to set up physics
             // Also stores base rotations (swing component) for gimbal-lock-free sync
             RuntimePhysicsBuilder.BuildPhysics(TileRoot, Sim, physicsBindings);
@@ -785,18 +789,22 @@ namespace GameCoreLib
                 {
                     var body = Sim.GetBody(binding.BodyId);
 
-                    // Physics body position is in world (tile-local) coordinates.
-                    // Convert to local-to-parent coordinates for proper Unity hierarchy rendering.
-                    FPVector3 bodyWorldPos = new FPVector3(
-                        body.Position.X,
-                        body.Position.Y,
-                        runtimeObj.Transform.LocalPosition.Z
-                    );
-                    FPVector3 localPos = bodyWorldPos - parentWorldPos;
-                    runtimeObj.Transform.LocalPosition = localPos;
+                    // Physics is 2D, so only X and Y are tracked by the physics body.
+                    // We compute local X,Y from physics world position and parent world position.
+                    // Z is not affected by physics, so we preserve the original LocalPosition.Z.
+                    FP localX = body.Position.X - parentWorldPos.X;
+                    FP localY = body.Position.Y - parentWorldPos.Y;
+                    FP localZ = runtimeObj.Transform.LocalPosition.Z; // Preserve original Z
+
+                    runtimeObj.Transform.LocalPosition = new FPVector3(localX, localY, localZ);
 
                     // Update current world position to match physics (for children to use)
-                    currentWorldPos = bodyWorldPos;
+                    // Note: World Z uses parent's world Z + local Z since physics doesn't track Z
+                    currentWorldPos = new FPVector3(
+                        body.Position.X,
+                        body.Position.Y,
+                        parentWorldPos.Z + localZ
+                    );
 
                     // Only sync rotation for dynamic bodies.
                     // Static bodies can't rotate in physics, so preserve their original visual rotation.
