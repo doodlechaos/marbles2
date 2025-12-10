@@ -81,7 +81,7 @@ namespace GameCoreLib
         /// <summary>
         /// Send marble signal to all registered receivers.
         /// </summary>
-        public void SendSignal(MarbleComponent marble, GameTileBase tile)
+        public void SendSignal(MarbleComponent marble, TileBase tile)
         {
             foreach (var receiver in Receivers)
             {

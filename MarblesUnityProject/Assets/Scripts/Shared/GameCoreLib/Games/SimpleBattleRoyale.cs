@@ -89,8 +89,7 @@ namespace GameCoreLib
         }
 
         public override void StartGameplay(
-            InputEvent.GameplayStartInput gameplayStartInput,
-            OutputEventBuffer outputEvents
+            InputEvent.GameplayStartInput gameplayStartInput
         )
         {
             TotalMarblesBid = gameplayStartInput.TotalMarblesBid;
@@ -103,14 +102,14 @@ namespace GameCoreLib
                 SpawnQueue.Add(entrant);
 
             // Transition to Gameplay state (controlled by server bidding logic)
-            SetState(GameTileState.Gameplay, outputEvents);
+            SetState(GameTileState.Gameplay);
         }
 
-        public override void Step(OutputEventBuffer outputEvents)
+        public override void Step()
         {
             ProcessSpawnQueue();
-            CheckEliminations(outputEvents);
-            base.Step(outputEvents);
+            CheckEliminations();
+            base.Step();
         }
 
         private void ProcessSpawnQueue()
@@ -211,7 +210,7 @@ namespace GameCoreLib
             Logger.Log($"Player {entrant.AccountId} spawned via template");
         }
 
-        private void CheckEliminations(OutputEventBuffer outputEvents)
+        private void CheckEliminations()
         {
             /*             FP eliminationY = FP.FromFloat(-20f);
             
@@ -243,7 +242,7 @@ namespace GameCoreLib
             if (aliveCount == 1 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 1)
             {
                 Logger.Log($"Player {lastAlive.AccountId} wins!");
-                outputEvents.Server.Add(
+                currentOutputEvents?.Server.Add(
                     new OutputToServerEvent.NewKing { AccountId = lastAlive.AccountId }
                 );
             }

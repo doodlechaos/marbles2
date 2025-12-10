@@ -18,7 +18,6 @@ namespace GameCoreLib
     /// <summary>
     /// Interface for GameCore components that can receive marble signals.
     /// Implemented by components that need to react when a marble is detected.
-    /// TODO: Should I move this to its own file?
     /// </summary>
     public interface IGCMarbleSignalReceiver
     {
@@ -26,8 +25,8 @@ namespace GameCoreLib
         /// Called when a marble signal is received from a MarbleDetectorComponent.
         /// </summary>
         /// <param name="marble">The marble component that triggered the signal</param>
-        /// <param name="tile">The game tile context for applying effects</param>
-        void OnMarbleSignal(MarbleComponent marble, GameTileBase tile);
+        /// <param name="tile">The tile context for applying effects</param>
+        void OnMarbleSignal(MarbleComponent marble, TileBase tile);
     }
 
     /// <summary>
@@ -44,7 +43,7 @@ namespace GameCoreLib
         [MemoryPackOrder(2)]
         public MarbleEffect Effect;
 
-        public void OnMarbleSignal(MarbleComponent marble, GameTileBase tile)
+        public void OnMarbleSignal(MarbleComponent marble, TileBase tile)
         {
             if (!Enabled || marble == null || !marble.IsAlive)
                 return;

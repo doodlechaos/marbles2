@@ -38,11 +38,15 @@ namespace GameCoreLib
         public OutputEventBuffer Step(List<InputEvent> inputEvents)
         {
             OutputEvents.Clear();
+            ThroneTile?.SetOutputEventsBufferReference(OutputEvents);
+            GameTile1?.SetOutputEventsBufferReference(OutputEvents);
+            GameTile2?.SetOutputEventsBufferReference(OutputEvents);
+
             HandleInputEvents(inputEvents);
 
-            ThroneTile?.Step(OutputEvents);
-            GameTile1?.Step(OutputEvents);
-            GameTile2?.Step(OutputEvents);
+            ThroneTile?.Step();
+            GameTile1?.Step();
+            GameTile2?.Step();
 
             Seq = Seq.WrappingAdd(1);
             return OutputEvents;
@@ -73,20 +77,20 @@ namespace GameCoreLib
 
                     if (gameTile != null)
                     {
-                        gameTile.StartGameplay(gameplayStartInput, OutputEvents);
+                        gameTile.StartGameplay(gameplayStartInput);
                     }
                 }
                 else if (inputEvent is InputEvent.FinishGameplay finishGameplay)
                 {
                     byte worldId = finishGameplay.WorldId;
                     if (worldId == 1)
-                        GameTile2?.SetState(GameTileState.Finished, OutputEvents);
+                        GameTile2?.SetState(GameTileState.Finished);
                     else
-                        GameTile1?.SetState(GameTileState.Finished, OutputEvents);
+                        GameTile1?.SetState(GameTileState.Finished);
                 }
-                else if (inputEvent is InputEvent.SetKing setKing)
+                else if (inputEvent is InputEvent.SetKing setKing) //This wouldn't happen from regular gameplay, it would be an admin action to force setting a king manually
                 {
-                    ThroneTile?.SetKing(setKing.AccountId);
+                    ThroneTile?.SetKingServerId(setKing.AccountId);
                 }
             }
         }

@@ -117,7 +117,7 @@ public class GameTilePlayground : MonoBehaviour
             return;
         }
 
-        GameTile.StartGameplay(gameplayStartInput, LastOutputEvents);
+        GameTile.StartGameplay(gameplayStartInput);
 
         Debug.Log($"[GameTilePlayground] Gameplay started with {gameplayStartInput} test entrants");
     }
@@ -135,7 +135,8 @@ public class GameTilePlayground : MonoBehaviour
         }
 
         LastOutputEvents.Clear();
-        GameTile.Step(LastOutputEvents);
+        GameTile.SetOutputEventsBufferReference(LastOutputEvents);
+        GameTile.Step();
     }
 
     /// <summary>

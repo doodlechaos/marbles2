@@ -6,7 +6,8 @@ using UnityEngine;
 /// </summary>
 public class ThroneTileAuthBase : TileAuthBase
 {
-    // Throne-specific authoring properties can be added here
+    public ThroneAuth Throne;
 
-    //public List<DefenseBrick> DefenseBricks;
+    //public List<DefenseBrick> DefenseBricks; Don't do this until we have working throne capture mechanics
+    public SpawnPipeAuth SpawnPipe;
 }

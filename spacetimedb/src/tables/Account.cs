@@ -12,7 +12,6 @@ public static partial class Module
         public ulong Id;
 
         public bool IsConnected;
-
         public uint Marbles;
         public uint Points;
         public uint Gold;
@@ -73,5 +72,4 @@ public static partial class Module
         ctx.Db.Account.Identity.Delete(row.Identity);
         ctx.Db.Account.Insert(row);
     }
-
 }

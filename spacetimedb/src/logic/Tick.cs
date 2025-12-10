@@ -206,6 +206,13 @@ public static partial class Module
             {
                 ProcessStateUpdate(ctx, stateUpdatedTo);
             }
+            else if (outputToServerEvent is OutputToServerEvent.NewKing newKing)
+            {
+                Throne throne = Throne.Inst(ctx);
+                throne.KingAccountId = newKing.AccountId;
+                ctx.Db.Throne.Id.Update(throne);
+                Log.Info($"New king crowned: {newKing.AccountId}");
+            }
         }
     }
 

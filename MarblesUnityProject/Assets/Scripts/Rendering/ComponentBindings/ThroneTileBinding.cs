@@ -34,16 +34,6 @@ public sealed class ThroneTileBinding : TileBinding
     /// </summary>
     public override bool IsValid => throneTile != null;
 
-    /// <summary>
-    /// The account ID of the current king.
-    /// </summary>
-    public ulong KingAccountId => throneTile?.KingAccountId ?? 0;
-
-    /// <summary>
-    /// Whether there is currently a king on the throne.
-    /// </summary>
-    public bool HasKing => throneTile?.HasKing ?? false;
-
     [SerializeField]
     private Vector2 screenOffset = new Vector2(0, 50);
     private GUIStyle labelStyle;
@@ -81,28 +71,6 @@ public sealed class ThroneTileBinding : TileBinding
         // Skip if behind camera
         if (screenPos.z < 0)
             return;
-
-        // Flip Y for GUI coordinates
-        float guiY = Screen.height - screenPos.y;
-
-        // Build display text
-        string kingText = HasKing ? $"King: {KingAccountId}" : "Throne Empty";
-
-        // Draw box with label
-        Rect boxRect = new Rect(
-            screenPos.x + screenOffset.x - 120,
-            guiY + screenOffset.y - 20,
-            240,
-            50
-        );
-
-        // Color based on throne state
-        GUI.backgroundColor = HasKing ? Color.yellow : Color.gray;
-        GUI.Box(boxRect, "", boxStyle);
-
-        // Draw king text
-        Rect textRect = new Rect(boxRect.x, boxRect.y + 10, boxRect.width, 30);
-        GUI.Label(textRect, kingText, labelStyle);
 
         GUI.backgroundColor = Color.white;
     }

@@ -9,8 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4756265987720367910}
+  - component: {fileID: 543733185785888649}
   m_Layer: 0
-  m_Name: King
+  m_Name: Throne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,6 +35,19 @@ Transform:
   - {fileID: 7129492377263381864}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &543733185785888649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4477485383600304053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dacafe4dc7cc728448359ea4de767655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThroneAuth
+  KingBodyCollider: {fileID: 7750299031005250545}
 --- !u!1 &8088647486235153832
 GameObject:
   m_ObjectHideFlags: 0
@@ -46,7 +60,7 @@ GameObject:
   - component: {fileID: 5522729470619304119}
   - component: {fileID: 7728276435043398781}
   m_Layer: 0
-  m_Name: blenderCrown
+  m_Name: Crown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
