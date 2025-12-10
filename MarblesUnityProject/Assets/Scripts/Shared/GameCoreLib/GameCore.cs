@@ -92,6 +92,10 @@ namespace GameCoreLib
                 {
                     ThroneTile?.SetKingServerId(setKing.AccountId);
                 }
+                else if(inputEvent is InputEvent.Attack attack)
+                {
+                    ThroneTile?.SpawnAttackMarble(attack.AccountId);
+                }
             }
         }
 

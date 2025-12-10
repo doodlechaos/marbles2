@@ -88,9 +88,7 @@ namespace GameCoreLib
             PlayerMarbles.Remove(marble);
         }
 
-        public override void StartGameplay(
-            InputEvent.GameplayStartInput gameplayStartInput
-        )
+        public override void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
         {
             TotalMarblesBid = gameplayStartInput.TotalMarblesBid;
             PlayerMarbles.Clear();
@@ -129,82 +127,27 @@ namespace GameCoreLib
 
         private void SpawnPlayerMarble(InputEvent.Entrant entrant)
         {
-            if (PlayerMarbleTemplate == null)
-            {
-                Logger.Error(
-                    "PlayerMarbleTemplate is null – cannot spawn player marble. "
-                        + "Ensure PlayerMarblePrefab is assigned on the tile auth and export was successful."
-                );
-                return;
-            }
-
             if (SpawnPipe == null)
             {
                 Logger.Error("SpawnPipe is null – cannot spawn player marble.");
                 return;
             }
 
-            // Clone the serialized template hierarchy
-            GameCoreObj marble = CloneRuntimeObjSubtree(PlayerMarbleTemplate);
-
-            if (marble == null)
-            {
-                Logger.Error("Failed to clone PlayerMarbleTemplate – spawn aborted.");
-                return;
-            }
-
-            // Customize name
-            marble.Name = $"PlayerMarble_{entrant.AccountId}";
-
-            // Attach to tile hierarchy
-            if (TileRoot.Children == null)
-                TileRoot.Children = new List<GameCoreObj>();
-            TileRoot.Children.Add(marble);
-
-            // Assign fresh RuntimeIds to the new subtree
-            AssignRuntimeIdsForSpawn(marble);
-
-            // Rebuild component → RuntimeObj references just for this subtree
-            marble.RebuildComponentReferences();
-
-            // Set up transform hierarchy for the marble subtree with TileRoot as parent
-            // This enables Transform.Position and Transform.LossyScale to work correctly
-            marble.SetupTransformHierarchy(TileRoot.Transform);
-
-            // Fetch the PlayerMarbleComponent that was authored on the prefab template
-            var playerComp = marble.GetComponent<MarbleComponent>();
+            // Use shared instantiation logic from TileBase
+            MarbleComponent? playerComp = InstantiatePlayerMarble(
+                entrant.AccountId,
+                entrant.TotalBid
+            );
             if (playerComp == null)
-            {
-                Logger.Error(
-                    "PlayerMarbleTemplate is missing PlayerMarbleComponent – cannot spawn player marble."
-                );
                 return;
-            }
 
-            // Apply per‑player data
-            playerComp.AccountId = entrant.AccountId;
-            playerComp.BidAmount = entrant.TotalBid;
-            playerComp.IsAlive = true;
-            playerComp.EliminationOrder = 0;
-
-            // Create physics bodies from authored collider/rigidbody components.
-            // This sets PhysicsBodyId on each RuntimeObj that gets a physics body.
-            AddPhysicsBody(marble);
-
-            // Position the marble at the spawn pipe.
-            // Use the rigidbody's RuntimeObj if available (handles child rigidbodies correctly),
-            // otherwise fall back to the marble root.
-            GameCoreObj targetObj = playerComp.RigidbodyRuntimeObj ?? marble;
-            if (targetObj.HasPhysicsBody)
-            {
-                // Directly set the physics body position - this is the authoritative position
-                targetObj.SetWorldPos(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
-            }
-            else
-            {
-                // Fallback: move entire hierarchy
-                marble.SetHierarchyWorldPos(SpawnPipe.Transform.Position, Sim, resetVelocity: true);
-            }
+            // Position the marble at the spawn pipe
+            playerComp.GCObj?.SetHierarchyWorldPos(
+                SpawnPipe.Transform.Position,
+                Sim,
+                resetVelocity: false
+            );
+            //PositionMarbleAt(playerComp, SpawnPipe.Transform.Position);
 
             PlayerMarbles.Add(playerComp);
             Logger.Log($"Player {entrant.AccountId} spawned via template");
@@ -249,26 +192,6 @@ namespace GameCoreLib
             else if (aliveCount == 0 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 0)
             {
                 Logger.Log("All players eliminated!");
-            }
-        }
-
-        /// <summary>
-        /// Assign fresh RuntimeIds to a newly spawned subtree.
-        /// Uses the same ID generation scheme as the base tile.
-        /// </summary>
-        private void AssignRuntimeIdsForSpawn(GameCoreObj obj)
-        {
-            if (obj == null)
-                return;
-
-            obj.RuntimeId = GenerateRuntimeId();
-
-            if (obj.Children != null)
-            {
-                foreach (var child in obj.Children)
-                {
-                    AssignRuntimeIdsForSpawn(child);
-                }
             }
         }
 

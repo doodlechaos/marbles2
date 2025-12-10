@@ -42,6 +42,9 @@ namespace LockSim
         public FP Inertia;
         public FP InverseInertia;
 
+        // Gravity scale (1 = normal gravity, 0 = no gravity, -1 = inverted gravity)
+        public FP GravityScale;
+
         public static RigidBodyLS CreateStatic(int id, FPVector2 position, FP rotation)
         {
             return new RigidBodyLS
@@ -58,12 +61,23 @@ namespace LockSim
                 InverseMass = FP.Zero,
                 Inertia = FP.Zero,
                 InverseInertia = FP.Zero,
+                GravityScale = FP.One,
             };
         }
 
-        public static RigidBodyLS CreateDynamic(int id, FPVector2 position, FP rotation, FP mass)
+        public static RigidBodyLS CreateDynamic(
+            int id,
+            FPVector2 position,
+            FP rotation,
+            FP mass,
+            FP gravityScale = default
+        )
         {
             FP invMass = mass > FP.Zero ? FP.One / mass : FP.Zero;
+
+            // Default to FP.One if not specified (default(FP) is zero)
+            if (gravityScale == default)
+                gravityScale = FP.One;
 
             return new RigidBodyLS
             {
@@ -79,6 +93,7 @@ namespace LockSim
                 InverseMass = invMass,
                 Inertia = FP.One, // Should be set after attaching colliders
                 InverseInertia = FP.One,
+                GravityScale = gravityScale,
             };
         }
 

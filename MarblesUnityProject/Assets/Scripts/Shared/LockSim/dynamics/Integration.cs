@@ -16,12 +16,14 @@ namespace LockSim
                 if (body.BodyType != BodyType.Dynamic)
                     continue;
 
-                // Apply gravity
-                body.Force = body.Force + world.Gravity * body.Mass;
+                // Apply gravity (scaled per-body)
+                body.Force = body.Force + world.Gravity * body.Mass * body.GravityScale;
 
                 // Integrate velocity: v = v + (F/m) * dt
-                body.LinearVelocity = body.LinearVelocity + body.Force * body.InverseMass * deltaTime;
-                body.AngularVelocity = body.AngularVelocity + body.Torque * body.InverseInertia * deltaTime;
+                body.LinearVelocity =
+                    body.LinearVelocity + body.Force * body.InverseMass * deltaTime;
+                body.AngularVelocity =
+                    body.AngularVelocity + body.Torque * body.InverseInertia * deltaTime;
 
                 // Apply damping
                 FP linearDamping = FP.FromFloat(0.99f);
@@ -62,4 +64,3 @@ namespace LockSim
         }
     }
 }
-

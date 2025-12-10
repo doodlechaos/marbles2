@@ -36,17 +36,17 @@ public class TileRenderer : MonoBehaviour
     private HashSet<ulong> seenIds = new HashSet<ulong>();
 
     // Track the currently rendered tile to detect when it changes
-    private GameTileBase currentGameTile;
+    private TileBase currentTile;
 
     /// <summary>
     /// Update rendering for the assigned GameTile.
     /// This method automatically syncs the visual representation with the RuntimeObj tree,
     /// even after deserialization. Adds a GameTileBinding component to the root for debugging.
     /// </summary>
-    public void Render(GameTileBase gameTile)
+    public void Render(TileBase gameTile)
     {
         // Detect if we're rendering a completely different tile
-        bool tileChanged = currentGameTile != gameTile;
+        bool tileChanged = currentTile != gameTile;
 
         if (gameTile == null || gameTile.TileRoot == null)
         {
@@ -57,7 +57,7 @@ public class TileRenderer : MonoBehaviour
                 renderRoot = null;
                 idToGameObject.Clear();
             }
-            currentGameTile = null;
+            currentTile = null;
             return;
         }
 
@@ -70,7 +70,7 @@ public class TileRenderer : MonoBehaviour
                 renderRoot = null;
                 idToGameObject.Clear();
             }
-            currentGameTile = gameTile;
+            currentTile = gameTile;
         }
 
         GameCoreObj tileRoot = gameTile.TileRoot;
@@ -87,8 +87,8 @@ public class TileRenderer : MonoBehaviour
             renderRoot.transform.localRotation = Quaternion.identity;
             renderRoot.transform.localScale = Vector3.one;
 
-            var gameTileBinding = renderRoot.AddComponent<GameTileBinding>();
-            gameTileBinding.GameTile = gameTile;
+            // Create the appropriate binding based on tile type
+            EnsureTileBinding(renderRoot, gameTile);
         }
         else
         {
@@ -99,11 +99,7 @@ public class TileRenderer : MonoBehaviour
             }
 
             // Always keep the binding up to date
-            var gameTileBinding = renderRoot.GetComponent<GameTileBinding>();
-            if (gameTileBinding != null)
-            {
-                gameTileBinding.GameTile = gameTile;
-            }
+            EnsureTileBinding(renderRoot, gameTile);
         }
 
         // Clear the "seen" set from previous frame
@@ -310,6 +306,23 @@ public class TileRenderer : MonoBehaviour
         }
     }
 
+    private void EnsureTileBinding(GameObject root, TileBase tile)
+    {
+        if (root == null || tile == null)
+            return;
+
+        if (tile is GameTileBase gameTile)
+        {
+            GameTileBinding binding = root.GetOrAddComponent<GameTileBinding>();
+            binding.GameTile = gameTile;
+        }
+        else if (tile is ThroneTile throneTile)
+        {
+            ThroneTileBinding binding = root.GetOrAddComponent<ThroneTileBinding>();
+            binding.ThroneTile = throneTile;
+        }
+    }
+
     /// <summary>
     /// Get prefab by RenderPrefabID from the registry.
     /// </summary>
@@ -380,7 +393,7 @@ public class TileRenderer : MonoBehaviour
 
         idToGameObject.Clear();
         seenIds.Clear();
-        currentGameTile = null;
+        currentTile = null;
     }
 
     /// <summary>

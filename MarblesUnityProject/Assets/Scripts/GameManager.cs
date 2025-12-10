@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     public string Game1JSON_PATH;
 
     [Header("Rendering")]
+    public TileRenderer ThroneTileRenderer;
+
     [Tooltip("Renderer for GameTile1 (player 1's tile)")]
     public TileRenderer GameTile1Renderer;
 
@@ -114,6 +116,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void UpdateRenderers()
     {
+        if (ThroneTileRenderer != null)
+        {
+            ThroneTileRenderer.Render(GameCore?.ThroneTile);
+            ThroneTileRenderer.PhysicsSim = GameCore?.ThroneTile?.Sim;
+        }
         if (GameTile1Renderer != null)
         {
             GameTile1Renderer.Render(GameCore?.GameTile1);

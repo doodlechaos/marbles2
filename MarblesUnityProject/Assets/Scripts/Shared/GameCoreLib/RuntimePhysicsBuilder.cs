@@ -8,7 +8,7 @@ namespace GameCoreLib
     /// Builds LockSim physics bodies and colliders from GameCore RuntimeObj hierarchies.
     /// Translates authored GameComponents (colliders, rigidbodies, etc.) into physics entities
     /// and maintains the RuntimeId → PhysicsBinding mapping.
-    /// 
+    ///
     /// IMPORTANT: SetupTransformHierarchy() must be called on the hierarchy root before
     /// BuildPhysics() so that Transform.Position and Transform.LossyScale return correct
     /// world-space values.
@@ -129,11 +129,12 @@ namespace GameCoreLib
 
             bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
             FP mass = rigidbody?.Mass ?? FP.One;
+            FP gravityScale = rigidbody?.GravityScale ?? FP.One;
 
             // Create body
             RigidBodyLS body = isStatic
                 ? RigidBodyLS.CreateStatic(0, position, rotationRad)
-                : RigidBodyLS.CreateDynamic(0, position, rotationRad, mass);
+                : RigidBodyLS.CreateDynamic(0, position, rotationRad, mass, gravityScale);
 
             int bodyId = sim.AddBody(body);
 
@@ -198,11 +199,12 @@ namespace GameCoreLib
 
             bool isStatic = rigidbody == null || rigidbody.BodyType == Rigidbody2DType.Static;
             FP mass = rigidbody?.Mass ?? FP.One;
+            FP gravityScale = rigidbody?.GravityScale ?? FP.One;
 
             // Create body
             RigidBodyLS body = isStatic
                 ? RigidBodyLS.CreateStatic(0, position, rotationRad)
-                : RigidBodyLS.CreateDynamic(0, position, rotationRad, mass);
+                : RigidBodyLS.CreateDynamic(0, position, rotationRad, mass, gravityScale);
 
             int bodyId = sim.AddBody(body);
 
