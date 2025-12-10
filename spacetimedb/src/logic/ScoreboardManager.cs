@@ -2,12 +2,9 @@ using SpacetimeDB;
 
 public static partial class Module
 {
-
-    
-/*     public static void GenerateScoreboardEntries(ReducerContext ctx, GameResults gameResults){ TODO: Get the GameResults from the gametile when it finishes (create method for finishing a gametile)
-        
-    } */
-
+    /*     public static void GenerateScoreboardEntries(ReducerContext ctx, GameResults gameResults){ TODO: Get the GameResults from the gametile when it finishes (create method for finishing a gametile)
+            
+        } */
 
     public static void ApplyScoreboardToAccounts(ReducerContext ctx)
     {
@@ -21,6 +18,4 @@ public static partial class Module
             }
         }
     }
-
-
 }

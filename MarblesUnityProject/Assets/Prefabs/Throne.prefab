@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4756265987720367910}
   - component: {fileID: 543733185785888649}
+  - component: {fileID: -7771506447563148648}
   m_Layer: 0
   m_Name: Throne
   m_TagString: Untagged
@@ -48,6 +49,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThroneAuth
   KingBodyCollider: {fileID: 7750299031005250545}
+--- !u!114 &-7771506447563148648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4477485383600304053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
+  renderPrefabID: 7
 --- !u!1 &8088647486235153832
 GameObject:
   m_ObjectHideFlags: 0
