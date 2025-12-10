@@ -7,4 +7,6 @@ using UnityEngine;
 public class ThroneTileAuthBase : TileAuthBase
 {
     // Throne-specific authoring properties can be added here
+
+    //public List<DefenseBrick> DefenseBricks;
 }
