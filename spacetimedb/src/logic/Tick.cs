@@ -124,8 +124,6 @@ public static partial class Module
             gameCore.GameTile2 = GetRandomGameTile(ctx);
             gameCore.GameTile2.Initialize(2);
 
-            //gameCore.BiddingWorldId = 1;
-
             snapshot = new GameCoreSnap
             {
                 Id = 0,
@@ -212,6 +210,16 @@ public static partial class Module
                 throne.KingAccountId = newKing.AccountId;
                 ctx.Db.Throne.Id.Update(throne);
                 Log.Info($"New king crowned: {newKing.AccountId}");
+            }
+            else if (outputToServerEvent is OutputToServerEvent.DeterminismHash determinismHash)
+            {
+                DeterminismSnapS determinismSnap = DeterminismSnapS.Inst(ctx);
+                determinismSnap.HashString = determinismHash.HashString;
+                determinismSnap.Seq = determinismHash.Seq;
+                ctx.Db.DeterminismSnapS.Id.Update(determinismSnap);
+                Log.Info(
+                    $"DeterminismHash: [{determinismHash.HashString}] at seq [{determinismHash.Seq}]"
+                );
             }
         }
     }

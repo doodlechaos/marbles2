@@ -92,9 +92,27 @@ namespace GameCoreLib
                 {
                     ThroneTile?.SetKingServerId(setKing.AccountId);
                 }
-                else if(inputEvent is InputEvent.Attack attack)
+                else if (inputEvent is InputEvent.Attack attack)
                 {
                     ThroneTile?.SpawnAttackMarble(attack.AccountId);
+                }
+                else if (inputEvent is InputEvent.Dhash dhash)
+                {
+                    string hashString = GetDeterministicHashHex();
+                    OutputEvents.Server.Add(
+                        new OutputToServerEvent.DeterminismHash
+                        {
+                            Seq = Seq,
+                            HashString = hashString,
+                        }
+                    );
+                    OutputEvents.Client.Add(
+                        new OutputToClientEvent.DeterminismHash
+                        {
+                            Seq = Seq,
+                            HashString = hashString,
+                        }
+                    );
                 }
             }
         }

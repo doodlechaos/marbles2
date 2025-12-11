@@ -127,9 +127,20 @@ public class Synchronizer : MonoBehaviour
             );
 
             OutputEventBuffer outputEvents = GameManager.Inst.GameCore.Step(inputEvents);
-            foreach (OutputToClientEvent outputToClientEvent in outputEvents.Client)
+            HandleGCClientOutputEvents(outputEvents);
+        }
+    }
+
+    private void HandleGCClientOutputEvents(OutputEventBuffer outputEvents)
+    {
+        foreach (OutputToClientEvent outputToClientEvent in outputEvents.Client)
+        {
+            Debug.Log("OutputToClientEvent: " + outputToClientEvent.GetType().Name);
+            if (outputToClientEvent is OutputToClientEvent.DeterminismHash determinismHash)
             {
-                Debug.Log("OutputToClientEvent: " + outputToClientEvent.GetType().Name);
+                Debug.Log(
+                    $"DeterminismHash: [{determinismHash.HashString}] at seq [{determinismHash.Seq}]"
+                );
             }
         }
     }

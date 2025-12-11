@@ -11,7 +11,7 @@ namespace SpacetimeDB.Types
 {
     [SpacetimeDB.Type]
     [DataContract]
-    public sealed partial class DeterminismCheck
+    public sealed partial class DeterminismSnapS
     {
         [DataMember(Name = "Id")]
         public byte Id;
@@ -20,7 +20,7 @@ namespace SpacetimeDB.Types
         [DataMember(Name = "HashString")]
         public string HashString;
 
-        public DeterminismCheck(
+        public DeterminismSnapS(
             byte Id,
             ushort Seq,
             string HashString
@@ -31,7 +31,7 @@ namespace SpacetimeDB.Types
             this.HashString = HashString;
         }
 
-        public DeterminismCheck()
+        public DeterminismSnapS()
         {
             this.HashString = "";
         }

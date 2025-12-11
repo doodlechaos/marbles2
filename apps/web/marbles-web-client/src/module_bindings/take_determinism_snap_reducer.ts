@@ -10,10 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("DeterminismCheck", {
-  id: __t.u8(),
-  seq: __t.u16(),
-  hashString: __t.string(),
-});
+import DeterminismSnapSchedule from "./determinism_snap_schedule_type";
 
-
+export default {
+  get schedule() {
+    return DeterminismSnapSchedule;
+  },
+};

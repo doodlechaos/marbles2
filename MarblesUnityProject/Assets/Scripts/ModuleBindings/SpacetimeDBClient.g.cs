@@ -40,7 +40,8 @@ namespace SpacetimeDB.Types
             AddTable(BiddingStateS = new(conn));
             AddTable(Clock = new(conn));
             AddTable(ClockSchedule = new(conn));
-            AddTable(DeterminismCheck = new(conn));
+            AddTable(DeterminismSnapS = new(conn));
+            AddTable(DeterminismSnapSchedule = new(conn));
             AddTable(GtScoreboardS = new(conn));
             AddTable(GameCoreSnap = new(conn));
             AddTable(GameTileData = new(conn));
@@ -626,6 +627,7 @@ namespace SpacetimeDB.Types
                 "IncrementPfpVersion" => BSATNHelpers.Decode<Reducer.IncrementPfpVersion>(encodedArgs),
                 "PlaceBid" => BSATNHelpers.Decode<Reducer.PlaceBid>(encodedArgs),
                 "SetUsername" => BSATNHelpers.Decode<Reducer.SetUsername>(encodedArgs),
+                "TakeDeterminismSnap" => BSATNHelpers.Decode<Reducer.TakeDeterminismSnap>(encodedArgs),
                 "UpsertAccount" => BSATNHelpers.Decode<Reducer.UpsertAccount>(encodedArgs),
                 "UpsertAccountSeq" => BSATNHelpers.Decode<Reducer.UpsertAccountSeq>(encodedArgs),
                 "UpsertAuthFrame" => BSATNHelpers.Decode<Reducer.UpsertAuthFrame>(encodedArgs),
@@ -669,6 +671,7 @@ namespace SpacetimeDB.Types
                 Reducer.IncrementPfpVersion args => Reducers.InvokeIncrementPfpVersion(eventContext, args),
                 Reducer.PlaceBid args => Reducers.InvokePlaceBid(eventContext, args),
                 Reducer.SetUsername args => Reducers.InvokeSetUsername(eventContext, args),
+                Reducer.TakeDeterminismSnap args => Reducers.InvokeTakeDeterminismSnap(eventContext, args),
                 Reducer.UpsertAccount args => Reducers.InvokeUpsertAccount(eventContext, args),
                 Reducer.UpsertAccountSeq args => Reducers.InvokeUpsertAccountSeq(eventContext, args),
                 Reducer.UpsertAuthFrame args => Reducers.InvokeUpsertAuthFrame(eventContext, args),

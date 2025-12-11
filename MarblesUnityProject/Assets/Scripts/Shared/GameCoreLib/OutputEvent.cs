@@ -25,6 +25,12 @@ namespace GameCoreLib
         {
             public byte WorldId;
         }
+
+        public class DeterminismHash : OutputToClientEvent
+        {
+            public ushort Seq;
+            public string HashString;
+        }
     }
 
     public abstract class OutputToServerEvent

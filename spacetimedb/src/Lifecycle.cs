@@ -25,6 +25,15 @@ public static partial class Module
                 ),
             }
         );
+
+        //TODO: I think we can update these so that if I change the cfg interval time value at runtime it can live update the schedule without having to restart the server
+        ctx.Db.DeterminismSnapSchedule.Insert(
+            new DeterminismSnapSchedule
+            {
+                Id = 0,
+                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(60)),
+            }
+        );
     }
 
     [Reducer(ReducerKind.ClientConnected)]

@@ -9,4 +9,12 @@ public static partial class Module
         public ulong Id;
         public ScheduleAt ScheduledAt;
     }
+
+    [Table(Scheduled = nameof(TakeDeterminismSnap), ScheduledAt = nameof(ScheduledAt))]
+    public partial struct DeterminismSnapSchedule
+    {
+        [PrimaryKey]
+        public ulong Id;
+        public ScheduleAt ScheduledAt;
+    }
 }

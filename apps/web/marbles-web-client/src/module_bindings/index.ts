@@ -51,6 +51,8 @@ import PlaceBid from "./place_bid_reducer";
 export { PlaceBid };
 import SetUsername from "./set_username_reducer";
 export { SetUsername };
+import TakeDeterminismSnap from "./take_determinism_snap_reducer";
+export { TakeDeterminismSnap };
 import UpsertAccount from "./upsert_account_reducer";
 export { UpsertAccount };
 import UpsertAccountSeq from "./upsert_account_seq_reducer";
@@ -95,8 +97,10 @@ import ClockRow from "./clock_table";
 export { ClockRow };
 import ClockScheduleRow from "./clock_schedule_table";
 export { ClockScheduleRow };
-import DeterminismCheckRow from "./determinism_check_table";
-export { DeterminismCheckRow };
+import DeterminismSnapSRow from "./determinism_snap_s_table";
+export { DeterminismSnapSRow };
+import DeterminismSnapScheduleRow from "./determinism_snap_schedule_table";
+export { DeterminismSnapScheduleRow };
 import GtScoreboardSRow from "./gt_scoreboard_s_table";
 export { GtScoreboardSRow };
 import GameCoreSnapRow from "./game_core_snap_table";
@@ -153,8 +157,10 @@ import Clock from "./clock_type";
 export { Clock };
 import ClockSchedule from "./clock_schedule_type";
 export { ClockSchedule };
-import DeterminismCheck from "./determinism_check_type";
-export { DeterminismCheck };
+import DeterminismSnapS from "./determinism_snap_s_type";
+export { DeterminismSnapS };
+import DeterminismSnapSchedule from "./determinism_snap_schedule_type";
+export { DeterminismSnapSchedule };
 import GtScoreboardS from "./gt_scoreboard_s_type";
 export { GtScoreboardS };
 import GameCoreSnap from "./game_core_snap_type";
@@ -325,16 +331,27 @@ const tablesSchema = __schema(
     ],
   }, ClockScheduleRow),
   __table({
-    name: 'DeterminismCheck',
+    name: 'DeterminismSnapS',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
     ],
     constraints: [
-      { name: 'DeterminismCheck_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'DeterminismSnapS_Id_key', constraint: 'unique', columns: ['id'] },
     ],
-  }, DeterminismCheckRow),
+  }, DeterminismSnapSRow),
+  __table({
+    name: 'DeterminismSnapSchedule',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'DeterminismSnapSchedule_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, DeterminismSnapScheduleRow),
   __table({
     name: 'GTScoreboardS',
     indexes: [
@@ -500,6 +517,7 @@ const reducersSchema = __reducers(
   __reducerSchema("IncrementPfpVersion", IncrementPfpVersion),
   __reducerSchema("PlaceBid", PlaceBid),
   __reducerSchema("SetUsername", SetUsername),
+  __reducerSchema("TakeDeterminismSnap", TakeDeterminismSnap),
   __reducerSchema("UpsertAccount", UpsertAccount),
   __reducerSchema("UpsertAccountSeq", UpsertAccountSeq),
   __reducerSchema("UpsertAuthFrame", UpsertAuthFrame),

@@ -13,27 +13,27 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteTables
     {
-        public sealed class DeterminismCheckHandle : RemoteTableHandle<EventContext, DeterminismCheck>
+        public sealed class DeterminismSnapSHandle : RemoteTableHandle<EventContext, DeterminismSnapS>
         {
-            protected override string RemoteTableName => "DeterminismCheck";
+            protected override string RemoteTableName => "DeterminismSnapS";
 
             public sealed class IdUniqueIndex : UniqueIndexBase<byte>
             {
-                protected override byte GetKey(DeterminismCheck row) => row.Id;
+                protected override byte GetKey(DeterminismSnapS row) => row.Id;
 
-                public IdUniqueIndex(DeterminismCheckHandle table) : base(table) { }
+                public IdUniqueIndex(DeterminismSnapSHandle table) : base(table) { }
             }
 
             public readonly IdUniqueIndex Id;
 
-            internal DeterminismCheckHandle(DbConnection conn) : base(conn)
+            internal DeterminismSnapSHandle(DbConnection conn) : base(conn)
             {
                 Id = new(this);
             }
 
-            protected override object GetPrimaryKey(DeterminismCheck row) => row.Id;
+            protected override object GetPrimaryKey(DeterminismSnapS row) => row.Id;
         }
 
-        public readonly DeterminismCheckHandle DeterminismCheck;
+        public readonly DeterminismSnapSHandle DeterminismSnapS;
     }
 }
