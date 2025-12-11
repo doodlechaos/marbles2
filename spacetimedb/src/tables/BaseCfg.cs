@@ -9,6 +9,7 @@ public static partial class Module
         public byte Id;
 
         public double ClockIntervalSec; // Seconds between clock ticks
+        public double DeterminismSnapIntervalSec; // Seconds between determinism snaps
 
         // Physics
         public ushort targetStepsPerSecond;
@@ -39,6 +40,7 @@ public static partial class Module
                 {
                     Id = 0,
                     ClockIntervalSec = 1f / 60f,
+                    DeterminismSnapIntervalSec = 10,
                     targetStepsPerSecond = 60,
                     physicsStepsPerBatch = 60,
                     stepsPerAuthFrame = 3,

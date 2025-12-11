@@ -31,7 +31,9 @@ public static partial class Module
             new DeterminismSnapSchedule
             {
                 Id = 0,
-                ScheduledAt = new ScheduleAt.Interval(TimeDuration.FromSeconds(60)),
+                ScheduledAt = new ScheduleAt.Interval(
+                    TimeDuration.FromSeconds(cfg.DeterminismSnapIntervalSec)
+                ),
             }
         );
     }
