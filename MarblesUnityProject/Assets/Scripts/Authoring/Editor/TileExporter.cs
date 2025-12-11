@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GameCoreLib;
 using MemoryPack;
 using SpacetimeDB.Types;
@@ -88,12 +89,35 @@ public class TileExporter : EditorWindow
             adminConn = await STDB.GetTempAdminConnection();
             Debug.Log("Admin connection established!");
 
-            int gameTileCount = ExportGameTiles(adminConn);
-            int throneTileCount = ExportThroneTiles(adminConn);
+            bool pumping = true;
+            EditorApplication.CallbackFunction pumpAction = () =>
+            {
+                if (pumping && adminConn != null)
+                {
+                    adminConn.FrameTick();
+                }
+            };
+            EditorApplication.update += pumpAction;
 
-            Debug.Log(
-                $"Upload complete! {gameTileCount} game tile(s) and {throneTileCount} throne tile(s) uploaded successfully"
-            );
+            try
+            {
+                Task<int> gameTask = ExportGameTilesAsync(adminConn);
+                Task<int> throneTask = ExportThroneTilesAsync(adminConn);
+
+                await Task.WhenAll(gameTask, throneTask);
+
+                int gameTileCount = await gameTask;
+                int throneTileCount = await throneTask;
+
+                Debug.Log(
+                    $"Upload complete! {gameTileCount} game tile(s) and {throneTileCount} throne tile(s) uploaded successfully"
+                );
+            }
+            finally
+            {
+                pumping = false;
+                EditorApplication.update -= pumpAction;
+            }
         }
         catch (Exception ex)
         {
@@ -127,9 +151,27 @@ public class TileExporter : EditorWindow
             adminConn = await STDB.GetTempAdminConnection();
             Debug.Log("Admin connection established!");
 
-            int gameTileCount = ExportGameTiles(adminConn);
+            bool pumping = true;
+            EditorApplication.CallbackFunction pumpAction = () =>
+            {
+                if (pumping && adminConn != null)
+                {
+                    adminConn.FrameTick();
+                }
+            };
+            EditorApplication.update += pumpAction;
 
-            Debug.Log($"Upload complete! {gameTileCount} game tile(s) uploaded successfully");
+            try
+            {
+                int gameTileCount = await ExportGameTilesAsync(adminConn);
+
+                Debug.Log($"Upload complete! {gameTileCount} game tile(s) uploaded successfully");
+            }
+            finally
+            {
+                pumping = false;
+                EditorApplication.update -= pumpAction;
+            }
         }
         catch (Exception ex)
         {
@@ -163,9 +205,29 @@ public class TileExporter : EditorWindow
             adminConn = await STDB.GetTempAdminConnection();
             Debug.Log("Admin connection established!");
 
-            int throneTileCount = ExportThroneTiles(adminConn);
+            bool pumping = true;
+            EditorApplication.CallbackFunction pumpAction = () =>
+            {
+                if (pumping && adminConn != null)
+                {
+                    adminConn.FrameTick();
+                }
+            };
+            EditorApplication.update += pumpAction;
 
-            Debug.Log($"Upload complete! {throneTileCount} throne tile(s) uploaded successfully");
+            try
+            {
+                int throneTileCount = await ExportThroneTilesAsync(adminConn);
+
+                Debug.Log(
+                    $"Upload complete! {throneTileCount} throne tile(s) uploaded successfully"
+                );
+            }
+            finally
+            {
+                pumping = false;
+                EditorApplication.update -= pumpAction;
+            }
         }
         catch (Exception ex)
         {
@@ -181,9 +243,10 @@ public class TileExporter : EditorWindow
         }
     }
 
-    private int ExportGameTiles(DbConnection adminConn)
+    private async Task<int> ExportGameTilesAsync(DbConnection adminConn)
     {
         string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs" });
+        List<Task> uploadTasks = new List<Task>();
         int uploadedCount = 0;
 
         foreach (string guid in prefabGuids)
@@ -218,27 +281,27 @@ public class TileExporter : EditorWindow
                 string tileName = System.IO.Path.GetFileNameWithoutExtension(assetPath);
 
                 // Upload to SpacetimeDB
-                UploadGameTileToSpacetimeDB(
+                Task uploadTask = UploadGameTileToSpacetimeDBAsync(
                     adminConn,
                     guid,
                     tileName,
                     gameTileAuth,
                     gameTileBinary
                 );
+                uploadTasks.Add(uploadTask);
 
-                Debug.Log(
-                    $"✓ Uploaded GameTile: {tileName} (GUID: {guid}, Size: {gameTileBinary.Length} bytes)"
-                );
                 uploadedCount++;
             }
         }
 
+        await Task.WhenAll(uploadTasks);
         return uploadedCount;
     }
 
-    private int ExportThroneTiles(DbConnection adminConn)
+    private async Task<int> ExportThroneTilesAsync(DbConnection adminConn)
     {
         string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs" });
+        List<Task> uploadTasks = new List<Task>();
         int uploadedCount = 0;
 
         foreach (string guid in prefabGuids)
@@ -273,15 +336,19 @@ public class TileExporter : EditorWindow
                 string tileName = System.IO.Path.GetFileNameWithoutExtension(assetPath);
 
                 // Upload to SpacetimeDB
-                UploadThroneTileToSpacetimeDB(adminConn, guid, tileName, throneTileBinary);
-
-                Debug.Log(
-                    $"✓ Uploaded ThroneTile: {tileName} (GUID: {guid}, Size: {throneTileBinary.Length} bytes)"
+                Task uploadTask = UploadThroneTileToSpacetimeDBAsync(
+                    adminConn,
+                    guid,
+                    tileName,
+                    throneTileBinary
                 );
+                uploadTasks.Add(uploadTask);
+
                 uploadedCount++;
             }
         }
 
+        await Task.WhenAll(uploadTasks);
         return uploadedCount;
     }
 
@@ -306,7 +373,7 @@ public class TileExporter : EditorWindow
         return cachedPrefabRegistry != null;
     }
 
-    private void UploadGameTileToSpacetimeDB(
+    private async Task UploadGameTileToSpacetimeDBAsync(
         DbConnection conn,
         string unityPrefabGUID,
         string tileName,
@@ -325,10 +392,43 @@ public class TileExporter : EditorWindow
             GameTileBinary = new List<byte>(gameTileBinary),
         };
 
+        var tcs = new TaskCompletionSource<bool>();
+
+        RemoteReducers.UpsertGameTileHandler handler = null;
+        handler = (ctx, gameTileData) =>
+        {
+            if (gameTileData.UnityPrefabGuid == unityPrefabGUID)
+            {
+                if (ctx.Event.Status is SpacetimeDB.Status.Committed)
+                {
+                    Debug.Log(
+                        $"✓ Uploaded GameTile: {tileName} (GUID: {unityPrefabGUID}, Size: {gameTileBinary.Length} bytes)"
+                    );
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    string errorMsg = ctx.Event.Status is SpacetimeDB.Status.Failed failed
+                        ? failed.ToString()
+                        : "Out of energy";
+                    Debug.LogError($"Failed to upload GameTile {tileName}: {errorMsg}");
+                    tcs.SetException(new Exception(errorMsg));
+                }
+                conn.Reducers.OnUpsertGameTile -= handler;
+            }
+        };
+
+        conn.Reducers.OnUpsertGameTile += handler;
+
         conn.Reducers.UpsertGameTile(gameTileData);
+
+        var timeoutTask = Task.Delay(10000)
+            .ContinueWith(_ => tcs.TrySetException(new TimeoutException("Upload timed out")));
+
+        await tcs.Task;
     }
 
-    private void UploadThroneTileToSpacetimeDB(
+    private async Task UploadThroneTileToSpacetimeDBAsync(
         DbConnection conn,
         string unityPrefabGUID,
         string tileName,
@@ -342,6 +442,39 @@ public class TileExporter : EditorWindow
             ThroneTileBinary = new List<byte>(throneTileBinary),
         };
 
+        var tcs = new TaskCompletionSource<bool>();
+
+        RemoteReducers.UpsertThroneTileHandler handler = null;
+        handler = (ctx, throneTileData) =>
+        {
+            if (throneTileData.UnityPrefabGuid == unityPrefabGUID)
+            {
+                if (ctx.Event.Status is SpacetimeDB.Status.Committed)
+                {
+                    Debug.Log(
+                        $"✓ Uploaded ThroneTile: {tileName} (GUID: {unityPrefabGUID}, Size: {throneTileBinary.Length} bytes)"
+                    );
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    string errorMsg = ctx.Event.Status is SpacetimeDB.Status.Failed failed
+                        ? failed.ToString()
+                        : "Out of energy";
+                    Debug.LogError($"Failed to upload ThroneTile {tileName}: {errorMsg}");
+                    tcs.SetException(new Exception(errorMsg));
+                }
+                conn.Reducers.OnUpsertThroneTile -= handler;
+            }
+        };
+
+        conn.Reducers.OnUpsertThroneTile += handler;
+
         conn.Reducers.UpsertThroneTile(throneTileData);
+
+        var timeoutTask = Task.Delay(10000)
+            .ContinueWith(_ => tcs.TrySetException(new TimeoutException("Upload timed out")));
+
+        await tcs.Task;
     }
 }
