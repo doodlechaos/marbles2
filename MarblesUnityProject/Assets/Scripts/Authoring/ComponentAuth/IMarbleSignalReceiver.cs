@@ -1,4 +1,5 @@
-public interface IMarbleSignalReceiver
+/* public interface IMarbleSignalReceiver
 {
     void OnMarbleSignalReceived(MarbleAuth marble);
 }
+ */

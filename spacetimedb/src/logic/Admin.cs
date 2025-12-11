@@ -65,4 +65,14 @@ public static partial class Module
             return;
         }
     }
+
+    [Reducer]
+    public static void A_AttackThrone(ReducerContext ctx, ulong accountId)
+    {
+        InputEvent.Attack inputEvent = new InputEvent.Attack(accountId, 1);
+        ctx.Db.InputCollector.Insert(
+            new InputCollector { delaySeqs = 0, inputEventData = inputEvent.ToBinary() }
+        );
+        Log.Info($"Inserted input event to attack throne with account {accountId}");
+    }
 }

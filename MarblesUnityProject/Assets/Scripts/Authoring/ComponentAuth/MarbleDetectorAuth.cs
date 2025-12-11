@@ -65,7 +65,7 @@ public class MarbleDetectorAuth
                 Debug.LogWarning($"MarbleSignalReceiver {i} is null");
                 continue;
             }
-            if (receiver is not IMarbleSignalReceiver)
+            if (receiver.ToGameComponent() is not IGCMarbleSignalReceiver)
             {
                 Debug.LogError(
                     $"MarbleSignalReceiver {receiver.name} does not implement the IMarbleSignalReceiver interface"

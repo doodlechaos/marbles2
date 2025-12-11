@@ -89,6 +89,10 @@ namespace GameCoreLib
                     new OutputToServerEvent.NewKing { AccountId = accountId }
                 );
             }
+            else
+            {
+                Logger.Error("currentOutputEvents is null, cannot send NewKing event");
+            }
         }
 
         /// <summary>

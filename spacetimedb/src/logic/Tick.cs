@@ -59,7 +59,7 @@ public static partial class Module
 
         if (errorSec >= cfg.authFrameTimeErrorThresholdSec)
         {
-            Log.Error(
+            Log.Warn(
                 $"Auth frame interval deviated by {errorSec:F6}s (actual {actualIntervalSec:F6}s, expected {expectedIntervalSec:F6}s, threshold {cfg.authFrameTimeErrorThresholdSec:F6}s). last_timestamp: {lastTimestamp}, ctx.timestamp: {ctx.Timestamp}"
             );
         }

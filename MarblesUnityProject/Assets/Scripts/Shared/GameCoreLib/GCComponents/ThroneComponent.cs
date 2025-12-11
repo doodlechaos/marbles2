@@ -22,6 +22,7 @@ namespace GameCoreLib
 
         public void OnMarbleSignal(MarbleComponent marble, TileBase tile)
         {
+            Logger.Log($"OnMarbleSignal: {marble.AccountId}, {tile.GetType().Name}");
             if (!Enabled || marble == null || !marble.IsAlive)
                 return;
 
