@@ -14,6 +14,7 @@ namespace GameCoreLib
         {
             TileRoot?.RebuildComponentReferences();
             RefreshComponentIdCounter();
+            RebuildBodyIdLookup();
             OnAfterDeserialize();
         }
 
