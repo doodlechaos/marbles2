@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FPMathLib;
 using MemoryPack;
+using UnityEditor.Build;
 
 namespace GameCoreLib
 {
@@ -56,7 +57,7 @@ namespace GameCoreLib
         /// MemoryPack callback - required because union types don't call base class callbacks.
         /// </summary>
         [MemoryPackOnDeserialized]
-        private void OnMemoryPackDeserialized()
+        protected override void OnMemoryPackDeserialized()
         {
             HandleDeserialization();
         }

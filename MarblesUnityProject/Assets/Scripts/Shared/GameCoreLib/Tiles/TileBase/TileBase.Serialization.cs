@@ -17,6 +17,12 @@ namespace GameCoreLib
             OnAfterDeserialize();
         }
 
+        /// <summary>
+        /// Forces the derived class to implement a method for the callback.
+        /// IMPORTANT: You MUST add [MemoryPackOnDeserialized] to your override!
+        /// </summary>
+        protected abstract void OnMemoryPackDeserialized();
+
         private void RefreshComponentIdCounter()
         {
             ulong maxComponentId = GetMaxComponentId(TileRoot);
