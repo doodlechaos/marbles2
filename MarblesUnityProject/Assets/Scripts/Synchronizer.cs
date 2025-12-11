@@ -15,7 +15,7 @@ public class Synchronizer : MonoBehaviour
     private ushort latestServerSeq;
 
     [SerializeField]
-    private ushort oldestSeq;
+    private bool latestServerSeqInitialized = false;
 
     [SerializeField]
     private ushort clientTargetSeq;
@@ -31,7 +31,7 @@ public class Synchronizer : MonoBehaviour
         // Reset state for fresh sync
         safeSeqEdge = 0;
         latestServerSeq = 0;
-        oldestSeq = 0;
+        latestServerSeqInitialized = false;
         clientTargetSeq = 0;
         targetToSafeEdgeDist = 0;
         restoreRequestedFlag = false;
@@ -65,8 +65,17 @@ public class Synchronizer : MonoBehaviour
     {
         foreach (InputFrame inputFrame in row.Frames)
         {
-            if (inputFrame.Seq.IsAhead(latestServerSeq))
+            if (!latestServerSeqInitialized)
+            {
+                // First frame establishes our baseline. We have to do this, otherwise the "IsAhead" won't bootstrap correctly.
                 latestServerSeq = inputFrame.Seq;
+                latestServerSeqInitialized = true;
+            }
+            else if (inputFrame.Seq.IsAhead(latestServerSeq))
+            {
+                // Normal wrap-aware “max” update.
+                latestServerSeq = inputFrame.Seq;
+            }
         }
     }
 
@@ -173,6 +182,20 @@ public class Synchronizer : MonoBehaviour
 
     private bool EnsureClientHasntFallenTooFarBehind()
     {
+        // If we don't know the server's seq yet, we can't sensibly compare;
+        // either:
+        //   - just allow stepping, or
+        //   - trigger an initial restore exactly once.
+        if (!latestServerSeqInitialized)
+        {
+            if (!restoreRequestedFlag)
+            {
+                Debug.Log("[Synchronizer] No latestServerSeq yet, requesting initial restore");
+                RequestRestore();
+            }
+            return false; // wait for snapshot before stepping
+        }
+
         ushort? oldestSeq = GetOldestSeq();
 
         if (oldestSeq == null)
@@ -181,8 +204,10 @@ public class Synchronizer : MonoBehaviour
             return true;
         }
 
+        var diff = Math.Abs(GameManager.Inst.GameCore.Seq.ClosestDiffTo(latestServerSeq));
+
         if (
-            GameManager.Inst.GameCore.Seq.ClosestDiffTo(latestServerSeq) > 120
+            diff > 120
             || GameManager.Inst.GameCore.Seq.IsBehind(oldestSeq.Value)
             || GameManager.Inst.GameCore.Seq.IsAhead(latestServerSeq)
         )
