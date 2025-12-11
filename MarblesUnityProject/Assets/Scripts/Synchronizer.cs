@@ -84,7 +84,18 @@ public class Synchronizer : MonoBehaviour
         GameManager.Inst.GameCore = MemoryPackSerializer.Deserialize<GameCore>(gameCoreData);
         safeSeqEdge = GameManager.Inst.GameCore.Seq;
         restoreRequestedFlag = false;
-        Debug.Log("RESTORED FROM SNAPSHOT TO SEQ: " + GameManager.Inst.GameCore.Seq);
+
+        // Debug logging for deserialized state
+        var gc = GameManager.Inst.GameCore;
+        Debug.Log(
+            $"RESTORED FROM SNAPSHOT TO SEQ: {gc.Seq}\n"
+                + $"  ThroneTile: {(gc.ThroneTile != null ? "present" : "null")}, "
+                + $"TileRoot.ChildCount={gc.ThroneTile?.TileRoot?.Children?.Count ?? 0}\n"
+                + $"  GameTile1: {(gc.GameTile1 != null ? gc.GameTile1.GetType().Name : "null")}, "
+                + $"TileRoot.ChildCount={gc.GameTile1?.TileRoot?.Children?.Count ?? 0}\n"
+                + $"  GameTile2: {(gc.GameTile2 != null ? gc.GameTile2.GetType().Name : "null")}, "
+                + $"TileRoot.ChildCount={gc.GameTile2?.TileRoot?.Children?.Count ?? 0}"
+        );
     }
 
     private void FixedUpdate()
@@ -171,7 +182,6 @@ public class Synchronizer : MonoBehaviour
                 return false;
             }
         }
-
 
         return true;
     }

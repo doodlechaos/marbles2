@@ -31,6 +31,15 @@ namespace GameCoreLib
         public ThroneTile()
             : base() { }
 
+        /// <summary>
+        /// MemoryPack callback - required because union types don't call base class callbacks.
+        /// </summary>
+        [MemoryPackOnDeserialized]
+        private void OnMemoryPackDeserialized()
+        {
+            HandleDeserialization();
+        }
+
         protected override void OnLevelLoaded()
         {
             RebuildReferences();
@@ -102,18 +111,31 @@ namespace GameCoreLib
             // Set gravity scale to -1 so the marble falls upward toward the king
             SetMarbleGravityScale(marbleComp, FP.FromInt(-1));
 
+            Logger.Log("Marble root localPosition 1: " + marbleComp.GCObj?.Transform.LocalPosition);
+            Logger.Log(
+                "Marble body localPosition 1: "
+                    + marbleComp.RigidbodyRuntimeObj?.Transform.LocalPosition
+            );
+
             // Position the marble at the spawn pipe
             marbleComp.GCObj?.SetHierarchyWorldPos(
                 SpawnPipe.Transform.Position,
                 Sim,
                 resetVelocity: false
             );
+            Logger.Log("Marble root localPosition 2: " + marbleComp.GCObj?.Transform.LocalPosition);
+            Logger.Log(
+                "Marble body localPosition 2: "
+                    + marbleComp.RigidbodyRuntimeObj?.Transform.LocalPosition
+            );
             //PositionMarbleAt(marbleComp, SpawnPipe.Transform.Position);
 
             // Track this attack marble
             AttackMarbles.Add(marbleComp);
 
-            Logger.Log($"Attack marble spawned for account {accountId} at spawn pipe");
+            Logger.Log(
+                $"Attack marble spawned for account {accountId} at spawn pipe world position {SpawnPipe.Transform.Position}"
+            );
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ public sealed class GameCoreObjBindingEditor : Editor
         DrawDefaultInspector();
 
         var binding = (GCObjBinding)target;
-        var runtimeObj = binding.GameCoreObj;
+        var gameCoreObj = binding.GameCoreObj;
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("GameCore Debug View", EditorStyles.boldLabel);
@@ -32,36 +32,36 @@ public sealed class GameCoreObjBindingEditor : Editor
         if (!Application.isPlaying)
         {
             EditorGUILayout.HelpBox(
-                "Enter Play mode to inspect the live RuntimeObj and its components.",
+                "Enter Play mode to inspect the live GameCoreObj and its components.",
                 MessageType.Info
             );
             return;
         }
 
-        if (runtimeObj == null)
+        if (gameCoreObj == null)
         {
             EditorGUILayout.HelpBox(
-                "RuntimeObj is null on this binding at runtime.\n"
-                    + "Ensure your renderer / game code assigns a RuntimeObj to RuntimeBinding.RuntimeObj.",
+                "GameCoreObj is null on this binding at runtime.\n"
+                    + "Ensure your renderer / game code assigns a GameCoreObj to RuntimeBinding.GameCoreObj.",
                 MessageType.Warning
             );
             return;
         }
 
-        DrawRuntimeObjHeader(runtimeObj);
+        DrawGameCoreObjHeader(gameCoreObj);
 
-        _showComponents = EditorGUILayout.Foldout(_showComponents, "RuntimeObjComponents");
+        _showComponents = EditorGUILayout.Foldout(_showComponents, "GameCoreObjComponents");
         if (_showComponents)
         {
-            DrawRuntimeObjComponents(runtimeObj);
+            DrawGameCoreObjComponents(gameCoreObj);
         }
     }
 
-    private static void DrawRuntimeObjHeader(GameCoreObj obj)
+    private static void DrawGameCoreObjHeader(GameCoreObj obj)
     {
         using (new EditorGUILayout.VerticalScope("box"))
         {
-            EditorGUILayout.LabelField("RuntimeObj", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("GameCoreObj", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Name", obj.Name ?? "<null>");
             EditorGUILayout.LabelField("RuntimeId", obj.RuntimeId.ToString());
             EditorGUILayout.LabelField("Prefab ID", obj.RenderPrefabID.ToString());
@@ -69,27 +69,27 @@ public sealed class GameCoreObjBindingEditor : Editor
             // Simple transform debug info
             var t = obj.Transform;
             EditorGUILayout.LabelField(
-                "Position",
-                $"({t.Position.X}, {t.Position.Y}, {t.Position.Z})"
+                "LocalPosition",
+                $"({t.LocalPosition.X}, {t.LocalPosition.Y}, {t.LocalPosition.Z})"
             );
             EditorGUILayout.LabelField(
-                "Rotation (Euler XYZ)",
-                $"({t.EulerAngles.X}, {t.EulerAngles.Y}, {t.EulerAngles.Z})"
+                "LocalRotation (Euler XYZ)",
+                $"({t.LocalRotation.EulerAngles.X}, {t.LocalRotation.EulerAngles.Y}, {t.LocalRotation.EulerAngles.Z})"
             );
             EditorGUILayout.LabelField(
-                "Scale",
-                $"({t.LossyScale.X}, {t.LossyScale.Y}, {t.LossyScale.Z})"
+                "LocalScale",
+                $"({t.LocalScale.X}, {t.LocalScale.Y}, {t.LocalScale.Z})"
             );
         }
     }
 
-    private static void DrawRuntimeObjComponents(GameCoreObj obj)
+    private static void DrawGameCoreObjComponents(GameCoreObj obj)
     {
         var components = obj.GameComponents;
 
         if (components == null || components.Count == 0)
         {
-            EditorGUILayout.LabelField("No RuntimeObjComponents on this RuntimeObj.");
+            EditorGUILayout.LabelField("No GameCoreObjComponents on this GameCoreObj.");
             return;
         }
 
@@ -117,11 +117,11 @@ public sealed class GameCoreObjBindingEditor : Editor
     private static void DrawComponentFields(GCComponent component, Type type)
     {
         // We only care about the concrete type's own public fields (and base data fields),
-        // not the RuntimeObj back‑reference etc.
+        // not the GameCoreObj back‑reference etc.
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
 
-        // Walk up the inheritance chain until RuntimeObjComponent
+        // Walk up the inheritance chain until GCComponent
         var types = new List<Type>();
         var current = type;
         while (current != null && current != typeof(GCComponent) && current != typeof(object))
@@ -130,7 +130,7 @@ public sealed class GameCoreObjBindingEditor : Editor
             current = current.BaseType;
         }
 
-        // Include fields declared directly on RuntimeObjComponent, but skip RuntimeObj reference itself
+        // Include fields declared directly on GCComponent, but skip GameCoreObj reference itself
         types.Add(typeof(GCComponent));
 
         foreach (var t in types)

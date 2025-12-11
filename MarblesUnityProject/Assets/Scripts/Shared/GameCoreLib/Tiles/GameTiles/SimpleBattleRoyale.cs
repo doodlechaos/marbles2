@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FPMathLib;
 using MemoryPack;
@@ -8,6 +9,7 @@ namespace GameCoreLib
     /// A simple battle royale game mode where players spawn through a pipe
     /// and fall/roll down a course. Last marble standing wins.
     /// </summary>
+    [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
     public partial class SimpleBattleRoyale : GameTileBase
     {
@@ -49,6 +51,15 @@ namespace GameCoreLib
         public uint TotalMarblesBid;
 
         public SimpleBattleRoyale() { }
+
+        /// <summary>
+        /// MemoryPack callback - required because union types don't call base class callbacks.
+        /// </summary>
+        [MemoryPackOnDeserialized]
+        private void OnMemoryPackDeserialized()
+        {
+            HandleDeserialization();
+        }
 
         protected override void OnLevelLoaded()
         {

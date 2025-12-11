@@ -33,45 +33,4 @@ public sealed class ThroneTileBinding : TileBinding
     /// Implementation of TileBinding.IsValid
     /// </summary>
     public override bool IsValid => throneTile != null;
-
-    [SerializeField]
-    private Vector2 screenOffset = new Vector2(0, 50);
-    private GUIStyle labelStyle;
-    private GUIStyle boxStyle;
-
-    void OnGUI()
-    {
-        if (throneTile == null)
-            return;
-
-        // Lazy init styles
-        if (labelStyle == null)
-        {
-            labelStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 24,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter,
-            };
-            boxStyle = new GUIStyle(GUI.skin.box)
-            {
-                fontSize = 24,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter,
-            };
-        }
-
-        // Convert world position to screen position
-        Camera cam = Camera.main;
-        if (cam == null)
-            return;
-
-        Vector3 screenPos = cam.WorldToScreenPoint(transform.position);
-
-        // Skip if behind camera
-        if (screenPos.z < 0)
-            return;
-
-        GUI.backgroundColor = Color.white;
-    }
 }

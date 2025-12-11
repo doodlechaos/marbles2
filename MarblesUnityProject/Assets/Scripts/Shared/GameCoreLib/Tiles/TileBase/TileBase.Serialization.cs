@@ -5,8 +5,12 @@ namespace GameCoreLib
 {
     public abstract partial class TileBase
     {
-        [MemoryPackOnDeserialized]
-        private void OnMemoryPackDeserialized()
+        /// <summary>
+        /// Called by derived classes from their [MemoryPackOnDeserialized] callback.
+        /// MemoryPack union types don't automatically call base class callbacks,
+        /// so each concrete type must have its own callback that calls this method.
+        /// </summary>
+        protected void HandleDeserialization()
         {
             TileRoot?.RebuildComponentReferences();
             RefreshComponentIdCounter();
