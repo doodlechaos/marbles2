@@ -36,6 +36,7 @@ Transform:
   - {fileID: 2815969984993088157}
   - {fileID: 7269291341333194324}
   - {fileID: 2592388772378994012}
+  - {fileID: 7594267496944872257}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5736448888719897907
@@ -195,7 +196,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6.08
+      value: -6.23
       objectReference: {fileID: 0}
     - target: {fileID: 8005487896993434013, guid: 51f19cc9474dacf4d96dd1b5a9f01243, type: 3}
       propertyPath: m_LocalPosition.z
@@ -613,3 +614,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dacafe4dc7cc728448359ea4de767655, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThroneAuth
+--- !u!1001 &8991489863732868340
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5429429361202737560}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.99
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &7594267496944872257 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 8991489863732868340}
+  m_PrefabAsset: {fileID: 0}

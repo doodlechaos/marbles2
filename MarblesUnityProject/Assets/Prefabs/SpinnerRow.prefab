@@ -1,0 +1,600 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3845683045591058064
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8412487932128577164}
+  m_Layer: 0
+  m_Name: SpinnerRow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8412487932128577164
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3845683045591058064}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3149845320621694038}
+  - {fileID: 419252087106658644}
+  - {fileID: 4524376877020721901}
+  - {fileID: 1118648266140907827}
+  - {fileID: 8352261095504062720}
+  - {fileID: 2819252208507860375}
+  - {fileID: 3016324137358656450}
+  - {fileID: 7924062378526312473}
+  - {fileID: 1772352523046869321}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &951626573983434492
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.935
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (8)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &1772352523046869321 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 951626573983434492}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1188116752873455329
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3.70125
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &419252087106658644 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 1188116752873455329}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1885405992729732742
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.23375
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (3)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &1118648266140907827 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 1885405992729732742}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3127084347663625560
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.4675
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (2)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &4524376877020721901 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 3127084347663625560}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3653418321446677026
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.23375
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (5)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &2819252208507860375 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 3653418321446677026}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4355069605288352887
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.4675
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (6)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &3016324137358656450 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 4355069605288352887}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4474904334218691555
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.935
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &3149845320621694038 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 4474904334218691555}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7369370444072662709
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (4)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &8352261095504062720 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 7369370444072662709}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8672700153552574380
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8412487932128577164}
+    m_Modifications:
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.70125
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: m_Name
+      value: SpinnerSquarePeg (7)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+--- !u!4 &7924062378526312473 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+  m_PrefabInstance: {fileID: 8672700153552574380}
+  m_PrefabAsset: {fileID: 0}
