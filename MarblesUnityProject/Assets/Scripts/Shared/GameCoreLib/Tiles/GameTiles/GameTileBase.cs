@@ -13,7 +13,10 @@ namespace GameCoreLib
         Bidding,
         Gameplay,
         ScoreScreen,
-        Finished,
+        ClosingDoor,
+
+        ReadyToSpin,
+        //    Finished,
     }
 
     [Serializable]
@@ -48,10 +51,11 @@ namespace GameCoreLib
             throw new NotImplementedException();
         }
 
-        const float SPINNING_DURATION_SEC = 5.0f;
-        const float OPENING_DOOR_DURATION_SEC = 2.0f;
-        const float SCORE_SCREEN_DURATION_SEC = 5.0f;
-        const float GAMEPLAY_MAX_DURATION_SEC = 60.0f;
+        public const float SPINNING_DURATION_SEC = 5.0f;
+        public const float CLOSING_DOOR_DURATION_SEC = 2.0f;
+        public const float OPENING_DOOR_DURATION_SEC = 2.0f;
+        public const float SCORE_SCREEN_DURATION_SEC = 5.0f;
+        public const float GAMEPLAY_MAX_DURATION_SEC = 60.0f;
 
         public override void Step()
         {
@@ -80,7 +84,12 @@ namespace GameCoreLib
             else if (State == GameTileState.ScoreScreen)
             {
                 if (stateDurationSec >= SCORE_SCREEN_DURATION_SEC)
-                    SetState(GameTileState.Finished);
+                    SetState(GameTileState.ClosingDoor);
+            }
+            else if (State == GameTileState.ClosingDoor)
+            {
+                if (stateDurationSec >= CLOSING_DOOR_DURATION_SEC)
+                    SetState(GameTileState.ReadyToSpin);
             }
 
             // Call base Step which handles physics, collision events, and marble detection

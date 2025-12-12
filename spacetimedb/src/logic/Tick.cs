@@ -232,7 +232,7 @@ public static partial class Module
         byte worldId = stateUpdatedTo.WorldId;
         GameTileState state = stateUpdatedTo.State;
 
-        if (state == GameTileState.Finished)
+        if (state == GameTileState.ReadyToSpin)
         {
             Log.Info($"Detected Tile {worldId} finished - spinning to a new level");
             // Tile finished - spin to a new level

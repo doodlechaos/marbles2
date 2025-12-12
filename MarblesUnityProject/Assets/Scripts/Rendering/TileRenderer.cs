@@ -11,7 +11,7 @@ using UnityEngine;
 /// Multiple instances can be used to render multiple tiles.
 /// All instances share the same RenderPrefabRegistry for prefab configuration.
 /// </summary>
-public class TileRenderer : MonoBehaviour
+public abstract class TileRenderer : MonoBehaviour
 {
     [Header("Prefab Configuration")]
     [Tooltip("Reference to the shared RenderPrefabRegistry asset")]
@@ -43,7 +43,7 @@ public class TileRenderer : MonoBehaviour
     /// This method automatically syncs the visual representation with the RuntimeObj tree,
     /// even after deserialization. Adds a GameTileBinding component to the root for debugging.
     /// </summary>
-    public void Render(TileBase gameTile)
+    public virtual void Render(TileBase gameTile)
     {
         // Detect if we're rendering a completely different tile
         bool tileChanged = currentTile != gameTile;

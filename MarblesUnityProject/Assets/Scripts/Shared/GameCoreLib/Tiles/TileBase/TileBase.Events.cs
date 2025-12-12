@@ -183,9 +183,7 @@ namespace GameCoreLib
 
             target.SetWorldPos(newWorldPosition, Sim, resetVelocity: false);
 
-            Logger.Log(
-                $"TeleportWrap: Teleported '{target.Name}' from ({currentPhysicsPos.X}, {currentPhysicsPos.Y}) by offset ({teleportComponent.Offset.X}, {teleportComponent.Offset.Y})"
-            );
+
         }
     }
 }

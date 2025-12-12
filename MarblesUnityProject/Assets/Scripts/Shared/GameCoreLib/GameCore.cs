@@ -84,9 +84,9 @@ namespace GameCoreLib
                 {
                     byte worldId = finishGameplay.WorldId;
                     if (worldId == 1)
-                        GameTile2?.SetState(GameTileState.Finished);
+                        GameTile2?.SetState(GameTileState.ScoreScreen);
                     else
-                        GameTile1?.SetState(GameTileState.Finished);
+                        GameTile1?.SetState(GameTileState.ScoreScreen);
                 }
                 else if (inputEvent is InputEvent.SetKing setKing) //This wouldn't happen from regular gameplay, it would be an admin action to force setting a king manually
                 {

@@ -118,7 +118,6 @@ public sealed class GameTileBinding : TileBinding
             GameTileState.Bidding => Color.green,
             GameTileState.Gameplay => Color.white,
             GameTileState.ScoreScreen => Color.magenta,
-            GameTileState.Finished => Color.gray,
             _ => Color.white,
         };
 
