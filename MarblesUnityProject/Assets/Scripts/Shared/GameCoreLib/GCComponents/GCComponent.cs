@@ -52,6 +52,11 @@ namespace GameCoreLib
         /// </summary>
         [MemoryPackIgnore]
         public FPTransform3D Transform => GCObj?.Transform;
+
+        /// <summary>
+        /// Called every simulation step. Override in derived components to implement per-step logic.
+        /// </summary>
+        public virtual void Step() { }
     }
 
     public interface IGCComponentReferenceResolver

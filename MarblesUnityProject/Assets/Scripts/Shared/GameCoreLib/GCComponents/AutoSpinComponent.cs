@@ -11,7 +11,10 @@ namespace GameCoreLib
         [MemoryPackOrder(2)]
         public FPVector3 SpinDegreesPerSecond;
 
-        //TODO: Each step, rotate the GCObj this component is attached to by SpinDegreesPerSecond degrees around the Z axis.
-        //We need to be careful to also apply the rotation to the 
+        public override void Step()
+        {
+            //TODO: Each step, rotate the GCObj this component is attached to by SpinDegreesPerSecond degrees in the x, y, z axes respectively.
+            //TODO: Be careful to make sure the rotation correctly synchronizes with the physics simulation if it has a physics body for this GCObj.
+        }
     }
 }

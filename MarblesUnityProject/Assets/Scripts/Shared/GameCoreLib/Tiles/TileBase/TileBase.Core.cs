@@ -98,12 +98,35 @@ namespace GameCoreLib
         {
             simContext.Clear();
 
+            StepComponents(TileRoot);
+
             PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), simContext);
 
             ProcessTriggerEvents();
             ProcessCollisionEvents();
             ProcessPendingMarbleDestructions();
             SyncPhysicsToRuntimeObjs();
+        }
+
+        private void StepComponents(GameCoreObj? obj)
+        {
+            if (obj == null)
+                return;
+
+            if (obj.GameComponents != null)
+            {
+                foreach (var component in obj.GameComponents)
+                {
+                    if (component.Enabled)
+                        component.Step();
+                }
+            }
+
+            if (obj.Children != null)
+            {
+                foreach (var child in obj.Children)
+                    StepComponents(child);
+            }
         }
 
         protected virtual void OnLevelLoaded() { }
