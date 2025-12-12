@@ -100,11 +100,17 @@ namespace GameCoreLib
 
             StepComponents(TileRoot);
 
+            // Sync transform changes to physics bodies for static/kinematic objects
+            // This must happen BEFORE physics step so colliders reflect game logic changes
+            SyncRuntimeObjsToPhysics();
+
             PhysicsPipeline.Step(Sim, FP.FromFloat(1 / 60f), simContext);
 
             ProcessTriggerEvents();
             ProcessCollisionEvents();
             ProcessPendingMarbleDestructions();
+
+            // Sync physics results back to transforms for dynamic objects
             SyncPhysicsToRuntimeObjs();
         }
 

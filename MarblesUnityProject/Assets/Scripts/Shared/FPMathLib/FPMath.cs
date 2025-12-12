@@ -83,27 +83,60 @@ namespace FPMathLib
             while (angle >= twoPi)
                 angle = angle - twoPi;
 
-            // Convert to lookup table index (0-255 for full circle)
+            // Convert to lookup table position (0-256 for full circle)
+            // Keep fractional part for interpolation
             FP normalized = angle * FP.FromInt(256) / twoPi;
             int index = normalized.ToInt();
+            FP fraction = normalized - FP.FromInt(index);
 
-            // Determine quadrant and adjust
+            // Determine quadrant and get interpolated value
             if (index < 64)
             {
-                return FP.FromRaw(SinLookup[index]);
+                return InterpolateSin(index, fraction, false);
             }
             else if (index < 128)
             {
-                return FP.FromRaw(SinLookup[127 - index]);
+                // Mirror around 64: indices 64-127 map to lookup indices 64-0
+                int mirroredIndex = 127 - index;
+                // Fraction is inverted when mirroring
+                return InterpolateSin(mirroredIndex, FP.One - fraction, false);
             }
             else if (index < 192)
             {
-                return FP.FromRaw(-SinLookup[index - 128]);
+                // Third quadrant: negative of first quadrant
+                int offsetIndex = index - 128;
+                return InterpolateSin(offsetIndex, fraction, true);
             }
             else
             {
-                return FP.FromRaw(-SinLookup[255 - index]);
+                // Fourth quadrant: negative, mirrored
+                int mirroredIndex = 255 - index;
+                return InterpolateSin(mirroredIndex, FP.One - fraction, true);
             }
+        }
+
+        /// <summary>
+        /// Interpolates between lookup table entries for better precision with small angles.
+        /// </summary>
+        private static FP InterpolateSin(int index, FP fraction, bool negate)
+        {
+            // Clamp index to valid range
+            if (index < 0) index = 0;
+            if (index >= SinLookup.Length - 1)
+            {
+                long result = SinLookup[SinLookup.Length - 1];
+                return FP.FromRaw(negate ? -result : result);
+            }
+
+            // Linear interpolation between lookup[index] and lookup[index+1]
+            long v0 = SinLookup[index];
+            long v1 = SinLookup[index + 1];
+
+            // Interpolate: result = v0 + (v1 - v0) * fraction
+            long diff = v1 - v0;
+            long interpolated = v0 + ((diff * fraction.RawValue) >> FP.SHIFT);
+
+            return FP.FromRaw(negate ? -interpolated : interpolated);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

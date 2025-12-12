@@ -1,6 +1,6 @@
+using System;
 using FPMathLib;
 using LockSim;
-using System;
 
 namespace GameCoreLib
 {
@@ -47,6 +47,69 @@ namespace GameCoreLib
             }
         }
 
+        /// <summary>
+        /// Syncs transform changes from RuntimeObjs TO physics bodies.
+        /// Called BEFORE physics step to apply game logic changes (like spinning platforms).
+        /// Only updates static/kinematic bodies - dynamic bodies are controlled by physics.
+        /// </summary>
+        protected void SyncRuntimeObjsToPhysics()
+        {
+            if (TileRoot == null)
+                return;
+
+            SyncToPhysicsRecursive(TileRoot, FPVector3.Zero);
+        }
+
+        private void SyncToPhysicsRecursive(GameCoreObj runtimeObj, FPVector3 parentWorldPos)
+        {
+            FPVector3 currentWorldPos = parentWorldPos + runtimeObj.Transform.LocalPosition;
+
+            if (physicsBindings.TryGetValue(runtimeObj.RuntimeId, out PhysicsBinding binding))
+            {
+                try
+                {
+                    var body = Sim.GetBody(binding.BodyId);
+
+                    // Only sync TO physics for static bodies (game logic controls them)
+                    // Dynamic bodies are controlled by physics simulation
+                    if (body.BodyType == BodyType.Static)
+                    {
+                        // Update position from transform
+                        body.Position = new FPVector2(currentWorldPos.X, currentWorldPos.Y);
+
+                        // Extract Z rotation from quaternion for 2D physics
+                        FPQuaternion twist = FPQuaternion.ExtractTwist(
+                            runtimeObj.Transform.LocalRotation,
+                            FPVector3.Forward
+                        );
+                        FP rotationRad = FP.Two * FPMath.Atan2(twist.Z, twist.W);
+                        body.Rotation = rotationRad;
+
+                        Sim.SetBody(binding.BodyId, body);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(
+                        $"Failed to sync to physics for RuntimeId {runtimeObj.RuntimeId}: {e.Message}"
+                    );
+                }
+            }
+
+            if (runtimeObj.Children != null)
+            {
+                foreach (var child in runtimeObj.Children)
+                {
+                    SyncToPhysicsRecursive(child, currentWorldPos);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Syncs physics simulation results FROM physics bodies TO RuntimeObjs.
+        /// Called AFTER physics step to apply physics results to transforms.
+        /// Only updates dynamic bodies - static bodies are controlled by game logic.
+        /// </summary>
         protected void SyncPhysicsToRuntimeObjs()
         {
             if (TileRoot == null)
@@ -80,8 +143,10 @@ namespace GameCoreLib
                     if (body.BodyType == BodyType.Dynamic)
                     {
                         FP physicsZDegrees = body.Rotation * FP.Rad2Deg;
-                        FPQuaternion physicsTwist =
-                            FPQuaternion.AngleAxis(physicsZDegrees, FPVector3.Forward);
+                        FPQuaternion physicsTwist = FPQuaternion.AngleAxis(
+                            physicsZDegrees,
+                            FPVector3.Forward
+                        );
 
                         runtimeObj.Transform.LocalRotation = physicsTwist * binding.BaseSwing;
                     }
