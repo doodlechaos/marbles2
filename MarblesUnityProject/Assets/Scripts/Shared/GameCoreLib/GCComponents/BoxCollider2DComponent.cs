@@ -4,29 +4,18 @@ using MemoryPack;
 
 namespace GameCoreLib
 {
+    /// <summary>
+    /// Box-shaped 2D collider component.
+    /// Inherits common properties from Collider2DComponent.
+    /// </summary>
     [Serializable]
     [MemoryPackable(SerializeLayout.Explicit)]
-    public partial class BoxCollider2DComponent : GCComponent
+    public partial class BoxCollider2DComponent : Collider2DComponent
     {
-        [MemoryPackOrder(2)]
+        /// <summary>
+        /// Size of the box collider.
+        /// </summary>
+        [MemoryPackOrder(7)]
         public FPVector2 Size = FPVector2.One;
-
-        [MemoryPackOrder(3)]
-        public FPVector2 Offset = FPVector2.Zero;
-
-        [MemoryPackOrder(4)]
-        public bool IsTrigger = false;
-
-        /// <summary>
-        /// Physics material friction. Authored from Unity PhysicsMaterial2D.friction.
-        /// </summary>
-        [MemoryPackOrder(5)]
-        public FP Friction = FP.FromFloat(0.5f);
-
-        /// <summary>
-        /// Physics material restitution (bounciness). Authored from Unity PhysicsMaterial2D.bounciness.
-        /// </summary>
-        [MemoryPackOrder(6)]
-        public FP Restitution = FP.Zero;
     }
 }

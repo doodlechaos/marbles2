@@ -27,6 +27,8 @@ namespace GameCoreLib
     [MemoryPackUnion(8, typeof(MarbleEffectComponent))]
     [MemoryPackUnion(9, typeof(ThroneComponent))]
     [MemoryPackUnion(10, typeof(AutoSpinComponent))]
+    [MemoryPackUnion(11, typeof(DefenseBrickComponent))]
+    [MemoryPackUnion(12, typeof(DefenseWallComponent))]
     public abstract partial class GCComponent
     {
         [MemoryPackOrder(0)]

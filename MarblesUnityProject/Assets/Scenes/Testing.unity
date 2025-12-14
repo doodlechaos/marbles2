@@ -383,6 +383,69 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1110457912
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1110457913}
+  - component: {fileID: 1110457915}
+  - component: {fileID: 1110457914}
+  m_Layer: 0
+  m_Name: ThroneTilePlayground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1110457913
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110457912}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1110457914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110457912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ea7a130f315f154caa363fdc567eee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThroneTileRenderer
+  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  ShowDebugInfo: 0
+--- !u!114 &1110457915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110457912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8c1222e706b7054ba31b05e00c387ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThroneTilePlayground
+  inputThroneTileAuthPrefab: {fileID: 5736448888719897907, guid: 43f34af96dc6e954884d73e02cb7f6ab, type: 3}
+  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  tileRenderer: {fileID: 1110457914}
+  _isRunning: 1
 --- !u!1 &1161191522
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,14 +456,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1161191524}
   - component: {fileID: 1161191526}
-  - component: {fileID: 1161191525}
+  - component: {fileID: 1161191527}
   m_Layer: 0
   m_Name: GameTilePlayground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1161191524
 Transform:
   m_ObjectHideFlags: 0
@@ -416,20 +479,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1161191525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1161191522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd04b4df16848df44a4036f38443a6a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TileRenderer
-  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
-  ShowDebugInfo: 0
 --- !u!114 &1161191526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -456,8 +505,23 @@ MonoBehaviour:
     TotalMarblesBid: 7
     WorldId: 0
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
-  tileRenderer: {fileID: 1161191525}
+  tileRenderer: {fileID: 1161191527}
   _isRunning: 0
+--- !u!114 &1161191527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161191522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9fc5ab280baae64d90be6c08bf20cf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameTileRenderer
+  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  ShowDebugInfo: 1
+  _cfg: {fileID: 11400000, guid: 36c63e70b9a942f499f2ffb86075c44d, type: 2}
 --- !u!1 &1755339977
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,3 +609,4 @@ SceneRoots:
   - {fileID: 839428363}
   - {fileID: 1755339980}
   - {fileID: 1161191524}
+  - {fileID: 1110457913}

@@ -41,6 +41,12 @@ namespace LockSim
         /// </summary>
         public bool IsTrigger;
 
+        /// <summary>
+        /// If false, this collider is disabled and will not participate in collision detection.
+        /// Similar to Unity's Collider.enabled property.
+        /// </summary>
+        public bool IsEnabled;
+
         public static ColliderLS CreateBox(
             int id,
             FP width,
@@ -61,6 +67,7 @@ namespace LockSim
                 Friction = FP.FromFloat(0.5f),
                 Restitution = FP.FromFloat(0.2f),
                 IsTrigger = isTrigger,
+                IsEnabled = true,
             };
         }
 
@@ -83,6 +90,7 @@ namespace LockSim
                 Friction = FP.FromFloat(0.5f),
                 Restitution = FP.FromFloat(0.2f),
                 IsTrigger = isTrigger,
+                IsEnabled = true,
             };
         }
 

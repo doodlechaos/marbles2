@@ -35,7 +35,19 @@ namespace GameCoreLib
                 Sim.RemoveBody(binding.BodyId);
                 physicsBindings.Remove(obj.RuntimeId);
                 bodyIdToRuntimeId.Remove(binding.BodyId);
-                obj.PhysicsBodyId = -1;
+
+                // Clear physics IDs on components
+                var rigidbody = obj.Rigidbody;
+                if (rigidbody != null)
+                {
+                    rigidbody.PhysicsBodyId = -1;
+                }
+
+                var collider = obj.Collider;
+                if (collider != null)
+                {
+                    collider.PhysicsColliderId = -1;
+                }
             }
 
             if (obj.Children != null)

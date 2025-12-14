@@ -160,7 +160,13 @@ namespace GameCoreLib
             body.SetInertiaFromCollider(collider);
             sim.SetBody(bodyId, body);
 
-            obj.PhysicsBodyId = bodyId;
+            // Set physics IDs on the components (more Unity-like)
+            if (rigidbody != null)
+            {
+                rigidbody.PhysicsBodyId = bodyId;
+            }
+            colliderComponent.PhysicsColliderId = colliderId;
+
             physicsBindings[obj.RuntimeId] = new PhysicsBinding
             {
                 BodyId = bodyId,
@@ -225,7 +231,13 @@ namespace GameCoreLib
             body.SetInertiaFromCollider(collider);
             sim.SetBody(bodyId, body);
 
-            obj.PhysicsBodyId = bodyId;
+            // Set physics IDs on the components (more Unity-like)
+            if (rigidbody != null)
+            {
+                rigidbody.PhysicsBodyId = bodyId;
+            }
+            colliderComponent.PhysicsColliderId = colliderId;
+
             physicsBindings[obj.RuntimeId] = new PhysicsBinding
             {
                 BodyId = bodyId,

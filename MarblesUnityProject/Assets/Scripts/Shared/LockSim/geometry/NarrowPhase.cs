@@ -22,6 +22,10 @@ namespace LockSim
                     ColliderLS colliderA = colliders[i];
                     ColliderLS colliderB = colliders[j];
 
+                    // Skip disabled colliders
+                    if (!colliderA.IsEnabled || !colliderB.IsEnabled)
+                        continue;
+
                     // Get parent bodies (may be invalid for orphan colliders)
                     bool hasBodyA = world.TryGetBody(colliderA.ParentBodyId, out RigidBodyLS bodyA);
                     bool hasBodyB = world.TryGetBody(colliderB.ParentBodyId, out RigidBodyLS bodyB);

@@ -1,5 +1,5 @@
-using LockSim;
 using FPMathLib;
+using LockSim;
 
 namespace GameCoreLib
 {
@@ -11,11 +11,6 @@ namespace GameCoreLib
             {
                 bool isEnter = evt.EventType == CollisionEventType.Enter;
                 bool isStay = evt.EventType == CollisionEventType.Stay;
-
-                if (isEnter)
-                {
-                    ProcessTeleportWrapEvent(evt);
-                }
 
                 if (isEnter || isStay)
                 {
@@ -52,14 +47,20 @@ namespace GameCoreLib
             var marbleA = FindMarbleComponent(objA);
             var marbleB = FindMarbleComponent(objB);
 
-            if (detectorA != null && marbleB != null && 
-                ShouldProcessDetection(detectorA, isTrigger, isEnter))
+            if (
+                detectorA != null
+                && marbleB != null
+                && ShouldProcessDetection(detectorA, isTrigger, isEnter)
+            )
             {
                 detectorA.SendSignal(marbleB, this);
             }
 
-            if (detectorB != null && marbleA != null && 
-                ShouldProcessDetection(detectorB, isTrigger, isEnter))
+            if (
+                detectorB != null
+                && marbleA != null
+                && ShouldProcessDetection(detectorB, isTrigger, isEnter)
+            )
             {
                 detectorB.SendSignal(marbleA, this);
             }
@@ -130,60 +131,6 @@ namespace GameCoreLib
             RemovePhysicsHierarchy(marbleRoot);
 
             TileRoot?.Children?.Remove(marbleRoot);
-        }
-
-        private void ProcessTeleportWrapEvent(CollisionEvent evt)
-        {
-            var objA = FindRuntimeObjByBodyId(evt.BodyIdA);
-            var objB = FindRuntimeObjByBodyId(evt.BodyIdB);
-
-            if (objA == null || objB == null)
-                return;
-
-            var teleportA = objA.GetComponent<TeleportWrapComponent>();
-            var teleportB = objB.GetComponent<TeleportWrapComponent>();
-
-            GameCoreObj? teleporter = null;
-            GameCoreObj? target = null;
-            TeleportWrapComponent? teleportComponent = null;
-
-            if (teleportA != null && teleportB == null)
-            {
-                teleporter = objA;
-                target = objB;
-                teleportComponent = teleportA;
-            }
-            else if (teleportB != null && teleportA == null)
-            {
-                teleporter = objB;
-                target = objA;
-                teleportComponent = teleportB;
-            }
-            else
-            {
-                return;
-            }
-
-            if (!target!.HasPhysicsBody)
-                return;
-
-            if (!Sim.TryGetBody(target.PhysicsBodyId, out RigidBodyLS targetBody))
-                return;
-
-            if (targetBody.BodyType != BodyType.Dynamic)
-                return;
-
-            FPVector2 currentPhysicsPos = targetBody.Position;
-
-            FPVector3 newWorldPosition = new FPVector3(
-                currentPhysicsPos.X + teleportComponent!.Offset.X,
-                currentPhysicsPos.Y + teleportComponent.Offset.Y,
-                target.Transform.LocalPosition.Z
-            );
-
-            target.SetWorldPos(newWorldPosition, Sim, resetVelocity: false);
-
-
         }
     }
 }

@@ -217,6 +217,25 @@ namespace LockSim
             throw new ArgumentException($"Collider with ID {colliderId} not found");
         }
 
+        /// <summary>
+        /// Sets the enabled state of a collider.
+        /// Disabled colliders do not participate in collision detection.
+        /// </summary>
+        public bool SetColliderEnabled(int colliderId, bool enabled)
+        {
+            for (int i = 0; i < colliders.Count; i++)
+            {
+                if (colliders[i].Id == colliderId)
+                {
+                    var collider = colliders[i];
+                    collider.IsEnabled = enabled;
+                    colliders[i] = collider;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         #endregion
 
         public void Clear()

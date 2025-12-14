@@ -45,18 +45,43 @@ namespace GameCoreLib
         public int RenderPrefabID = -1;
 
         /// <summary>
-        /// Physics body ID in the LockSim world. -1 means no physics body.
-        /// Set by RuntimePhysicsBuilder when a physics body is created for this object.
-        /// Use SetWorldPos() to move objects with physics bodies to ensure synchronization.
+        /// Whether this GameCoreObj is active. Inactive objects have their colliders disabled
+        /// and are not rendered. Similar to Unity's GameObject.activeSelf.
         /// </summary>
         [MemoryPackOrder(6)]
-        public int PhysicsBodyId = -1;
+        public bool Active = true;
+
+        #region Physics Component Accessors
 
         /// <summary>
-        /// True if this RuntimeObj has an associated physics body.
+        /// Gets the Rigidbody2DComponent on this object, if any.
         /// </summary>
         [MemoryPackIgnore]
-        public bool HasPhysicsBody => PhysicsBodyId >= 0;
+        public Rigidbody2DComponent Rigidbody => GetComponent<Rigidbody2DComponent>();
+
+        /// <summary>
+        /// Gets the Collider2DComponent on this object, if any.
+        /// </summary>
+        [MemoryPackIgnore]
+        public Collider2DComponent Collider => GetComponent<Collider2DComponent>();
+
+        /// <summary>
+        /// True if this RuntimeObj has a Rigidbody2DComponent with a registered physics body.
+        /// </summary>
+        [MemoryPackIgnore]
+        public bool HasPhysicsBody => Rigidbody?.HasPhysicsBody ?? false;
+
+        /// <summary>
+        /// True if this RuntimeObj has a Collider2DComponent with a registered physics collider.
+        /// </summary>
+        [MemoryPackIgnore]
+        public bool HasPhysicsCollider => Collider?.HasPhysicsCollider ?? false;
+
+        /// <summary>
+        /// Gets the physics body ID from the Rigidbody2DComponent. Returns -1 if no rigidbody.
+        /// </summary>
+        [MemoryPackIgnore]
+        public int PhysicsBodyId => Rigidbody?.PhysicsBodyId ?? -1;
 
         /// <summary>
         /// True if this RuntimeObj is the root of a prefab and should be instantiated.
@@ -65,6 +90,8 @@ namespace GameCoreLib
         /// </summary>
         [MemoryPackIgnore]
         public bool IsPrefabRoot => RenderPrefabID >= 0;
+
+        #endregion
 
         #region Component Query Helpers
 
@@ -341,8 +368,9 @@ namespace GameCoreLib
             // Update transform position
             Transform.Position = newPosition;
 
-            // Sync physics body if present
-            if (HasPhysicsBody)
+            // Sync physics body if present via component
+            var rigidbody = Rigidbody;
+            if (rigidbody != null && rigidbody.HasPhysicsBody)
             {
                 if (sim == null)
                 {
@@ -355,7 +383,7 @@ namespace GameCoreLib
 
                 try
                 {
-                    var body = sim.GetBody(PhysicsBodyId);
+                    var body = sim.GetBody(rigidbody.PhysicsBodyId);
                     body.Position = new FPVector2(newPosition.X, newPosition.Y);
 
                     if (resetVelocity)
@@ -364,7 +392,7 @@ namespace GameCoreLib
                         body.AngularVelocity = FP.Zero;
                     }
 
-                    sim.SetBody(PhysicsBodyId, body);
+                    sim.SetBody(rigidbody.PhysicsBodyId, body);
                 }
                 catch (Exception e)
                 {
@@ -402,12 +430,13 @@ namespace GameCoreLib
             bool resetVelocity
         )
         {
-            // Sync physics body if present
-            if (HasPhysicsBody && sim != null)
+            // Sync physics body if present via component
+            var rigidbody = Rigidbody;
+            if (rigidbody != null && rigidbody.HasPhysicsBody && sim != null)
             {
                 try
                 {
-                    var body = sim.GetBody(PhysicsBodyId);
+                    var body = sim.GetBody(rigidbody.PhysicsBodyId);
                     body.Position = new FPVector2(worldPosition.X, worldPosition.Y);
 
                     if (resetVelocity)
@@ -416,7 +445,7 @@ namespace GameCoreLib
                         body.AngularVelocity = FP.Zero;
                     }
 
-                    sim.SetBody(PhysicsBodyId, body);
+                    sim.SetBody(rigidbody.PhysicsBodyId, body);
                 }
                 catch (Exception e)
                 {
@@ -435,6 +464,52 @@ namespace GameCoreLib
                 {
                     FPVector3 childWorldPos = worldPosition + child.Transform.LocalPosition;
                     child.SyncPhysicsPositionsRecursive(childWorldPos, sim, resetVelocity);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Active State Management
+
+        /// <summary>
+        /// Sets the active state of this GameCoreObj and syncs collider enabled state with physics.
+        /// When inactive, colliders are disabled and the object is not rendered.
+        /// Similar to Unity's GameObject.SetActive().
+        /// </summary>
+        /// <param name="active">Whether the object should be active</param>
+        /// <param name="sim">The physics world (required to sync collider state)</param>
+        public void SetActive(bool active, World sim)
+        {
+            Active = active;
+            SyncColliderEnabledState(sim);
+        }
+
+        /// <summary>
+        /// Syncs this object's collider enabled state based on its Active property.
+        /// Call after changing Active to update physics.
+        /// </summary>
+        public void SyncColliderEnabledState(World sim)
+        {
+            var collider = Collider;
+            if (sim == null || collider == null || !collider.HasPhysicsCollider)
+                return;
+
+            collider.SetColliderEnabled(sim, Active);
+        }
+
+        /// <summary>
+        /// Recursively sets the active state for this object and all children.
+        /// </summary>
+        public void SetActiveRecursive(bool active, World sim)
+        {
+            SetActive(active, sim);
+
+            if (Children != null)
+            {
+                foreach (var child in Children)
+                {
+                    child.SetActiveRecursive(active, sim);
                 }
             }
         }
