@@ -146,6 +146,7 @@ namespace GameCoreLib
             // Use shared instantiation logic from TileBase
             MarbleComponent? playerComp = InstantiatePlayerMarble(
                 entrant.AccountId,
+                0,
                 entrant.TotalBid
             );
             if (playerComp == null)

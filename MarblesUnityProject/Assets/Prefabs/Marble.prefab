@@ -569,6 +569,7 @@ GameObject:
   m_Component:
   - component: {fileID: 836525471852717791}
   - component: {fileID: 5299851290725159317}
+  - component: {fileID: 8695241142120521382}
   - component: {fileID: 7982006795619838304}
   m_Layer: 0
   m_Name: Marble
@@ -610,6 +611,19 @@ MonoBehaviour:
   RB2D: {fileID: 1644062234708253594}
   testAccountId: 0
   testBidAmount: 0
+--- !u!114 &8695241142120521382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8627050739790726732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e21cffdcab6924882e4d4f294df677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MarbleBinding
+  pointsText: {fileID: 3100578607766464434}
 --- !u!114 &7982006795619838304
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -99,7 +99,7 @@ namespace GameCoreLib
         /// Spawn an attack marble for the given account that falls upward toward the king.
         /// Called from GameCore input events when a player attacks the throne.
         /// </summary>
-        public void SpawnAttackMarble(ulong accountId)
+        public void SpawnAttackMarble(ulong accountId, int points)
         {
             if (SpawnPipe == null)
             {
@@ -108,7 +108,7 @@ namespace GameCoreLib
             }
 
             // Use shared instantiation logic from TileBase
-            var marbleComp = InstantiatePlayerMarble(accountId);
+            MarbleComponent? marbleComp = InstantiatePlayerMarble(accountId, points, 0);
             if (marbleComp == null)
                 return;
 

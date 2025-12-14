@@ -16,7 +16,11 @@ namespace GameCoreLib
         /// <param name="accountId">The account ID for this marble</param>
         /// <param name="bidAmount">The bid amount (optional, defaults to 0)</param>
         /// <returns>The MarbleComponent, or null if instantiation failed</returns>
-        protected MarbleComponent? InstantiatePlayerMarble(ulong accountId, uint bidAmount = 0)
+        protected MarbleComponent? InstantiatePlayerMarble(
+            ulong accountId,
+            int points,
+            uint bidAmount
+        )
         {
             if (PlayerMarbleTemplate == null)
             {
@@ -73,6 +77,7 @@ namespace GameCoreLib
             // Apply per-player data
             marbleComp.AccountId = accountId;
             marbleComp.BidAmount = bidAmount;
+            marbleComp.Points = points;
             marbleComp.IsAlive = true;
             marbleComp.EliminationOrder = 0;
 

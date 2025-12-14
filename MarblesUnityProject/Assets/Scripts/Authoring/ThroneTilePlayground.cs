@@ -26,6 +26,9 @@ public class ThroneTilePlayground : MonoBehaviour
     [SerializeField]
     private bool _isRunning;
 
+    [SerializeField]
+    private int _testAttackPoints = 100;
+
     /// <summary>
     /// The GameTile currently being tested.
     /// </summary>
@@ -70,6 +73,9 @@ public class ThroneTilePlayground : MonoBehaviour
 
         if (keyboard.rightArrowKey.wasPressedThisFrame)
             StepOnce();
+
+        if (keyboard.aKey.wasPressedThisFrame)
+            SpawnAttackMarble(_testAttackPoints);
     }
 
     private void FixedUpdate()
@@ -120,5 +126,17 @@ public class ThroneTilePlayground : MonoBehaviour
         LastOutputEvents.Clear();
         ThroneTile.SetOutputEventsBufferReference(LastOutputEvents);
         ThroneTile.Step();
+    }
+
+    [ProButton]
+    public void SpawnAttackMarble(int points)
+    {
+        if (ThroneTile == null)
+        {
+            Debug.LogWarning("[ThroneTilePlayground] No ThroneTile loaded");
+            return;
+        }
+        ThroneTile.SpawnAttackMarble(1, (int)points);
+        Debug.Log("[ThroneTilePlayground] Spawned attack marble");
     }
 }

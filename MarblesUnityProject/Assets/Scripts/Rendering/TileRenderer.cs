@@ -5,7 +5,7 @@ using LockSim;
 using UnityEngine;
 
 /// <summary>
-/// Renders a single tile's RuntimeObj hierarchy. Completely generic - works with any tile type
+/// Renders a single tile's GameCoreObj hierarchy. Completely generic - works with any tile type
 /// (GameTiles, ThroneTile, etc.) as long as you provide a TileRoot.
 ///
 /// Multiple instances can be used to render multiple tiles.
@@ -40,7 +40,7 @@ public abstract class TileRenderer : MonoBehaviour
 
     /// <summary>
     /// Update rendering for the assigned GameTile.
-    /// This method automatically syncs the visual representation with the RuntimeObj tree,
+    /// This method automatically syncs the visual representation with the GameCoreObj tree,
     /// even after deserialization. Adds a GameTileBinding component to the root for debugging.
     /// </summary>
     public virtual void Render(TileBase gameTile)
@@ -105,9 +105,9 @@ public abstract class TileRenderer : MonoBehaviour
         // Clear the "seen" set from previous frame
         seenIds.Clear();
 
-        // Traverse the RuntimeObj tree and create/update GameObjects as needed
+        // Traverse the GameCoreObj tree and create/update GameObjects as needed
         // isInsidePrefabHierarchy = false at root level
-        UpdateRuntimeObjRecursive(tileRoot, renderRoot.transform, false);
+        UpdateGCObjRecursive(tileRoot, renderRoot.transform, false);
 
         // Destroy any GameObjects whose RuntimeIds were not seen (they've been removed from the tree)
         List<ulong> idsToRemove = new List<ulong>();
@@ -133,72 +133,68 @@ public abstract class TileRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// Recursively update or create GameObjects for RuntimeObjs in the hierarchy.
+    /// Recursively update or create GameObjects for GameCoreObjs in the hierarchy.
     /// </summary>
-    private void UpdateRuntimeObjRecursive(
-        GameCoreObj runtimeObj,
+    private void UpdateGCObjRecursive(
+        GameCoreObj gameCoreObj,
         Transform parentTransform,
         bool isInsidePrefabHierarchy
     )
     {
         // Skip level roots (they're just containers)
-        if (IsLevelRoot(runtimeObj))
+        if (IsLevelRoot(gameCoreObj))
         {
             // Still process children, but don't render this object
-            if (runtimeObj.Children != null)
+            if (gameCoreObj.Children != null)
             {
-                foreach (var child in runtimeObj.Children)
+                foreach (var child in gameCoreObj.Children)
                 {
-                    UpdateRuntimeObjRecursive(child, parentTransform, false);
+                    UpdateGCObjRecursive(child, parentTransform, false);
                 }
             }
             return;
         }
 
         // Mark this ID as seen
-        seenIds.Add(runtimeObj.RuntimeId);
+        seenIds.Add(gameCoreObj.RuntimeId);
 
         GameObject visualObj;
 
         // Check if we already have a GameObject for this RuntimeId
-        if (idToGameObject.TryGetValue(runtimeObj.RuntimeId, out visualObj))
+        if (idToGameObject.TryGetValue(gameCoreObj.RuntimeId, out visualObj))
         {
             // GameObject exists - just update its transform
             if (visualObj != null)
             {
-                UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
+                UpdateGameObjectTransform(visualObj, gameCoreObj.Transform);
 
                 // Process children with this GameObject as parent
-                if (runtimeObj.Children != null)
+                if (gameCoreObj.Children != null)
                 {
-                    foreach (var child in runtimeObj.Children)
+                    foreach (var child in gameCoreObj.Children)
                     {
-                        UpdateRuntimeObjRecursive(
-                            child,
-                            visualObj.transform,
-                            isInsidePrefabHierarchy
-                        );
+                        UpdateGCObjRecursive(child, visualObj.transform, isInsidePrefabHierarchy);
                     }
                 }
             }
             else
             {
                 // GameObject was destroyed externally - recreate it
-                CreateGameObjectForRuntimeObj(runtimeObj, parentTransform, isInsidePrefabHierarchy);
+                CreateGameObjectForGCObj(gameCoreObj, parentTransform, isInsidePrefabHierarchy);
             }
         }
         else
         {
             // GameObject doesn't exist yet - create or find it
-            CreateGameObjectForRuntimeObj(runtimeObj, parentTransform, isInsidePrefabHierarchy);
+            CreateGameObjectForGCObj(gameCoreObj, parentTransform, isInsidePrefabHierarchy);
         }
     }
 
     /// <summary>
-    /// Create or find a GameObject for a RuntimeObj that doesn't have one yet.
+    /// Create or find a GameObject for a GameCoreObj that doesn't have one yet.
     /// </summary>
-    private void CreateGameObjectForRuntimeObj(
-        GameCoreObj runtimeObj,
+    private void CreateGameObjectForGCObj(
+        GameCoreObj gameCoreObj,
         Transform parentTransform,
         bool isInsidePrefabHierarchy
     )
@@ -207,13 +203,13 @@ public abstract class TileRenderer : MonoBehaviour
         bool didInstantiatePrefab = false;
 
         // Check if this is a prefab root that should be instantiated
-        if (runtimeObj.IsPrefabRoot)
+        if (gameCoreObj.IsPrefabRoot)
         {
             // This is a prefab root - either instantiate or find it
             if (isInsidePrefabHierarchy)
             {
                 // We're inside a parent prefab - the nested prefab instance should already exist
-                Transform existingChild = parentTransform.Find(runtimeObj.Name);
+                Transform existingChild = parentTransform.Find(gameCoreObj.Name);
                 if (existingChild != null)
                 {
                     visualObj = existingChild.gameObject;
@@ -221,7 +217,7 @@ public abstract class TileRenderer : MonoBehaviour
                     if (ShowDebugInfo)
                     {
                         Debug.Log(
-                            $"Found existing nested prefab '{runtimeObj.Name}' in parent prefab hierarchy"
+                            $"Found existing nested prefab '{gameCoreObj.Name}' in parent prefab hierarchy"
                         );
                     }
                 }
@@ -230,24 +226,24 @@ public abstract class TileRenderer : MonoBehaviour
             // If not found (or not inside a prefab), instantiate it
             if (visualObj == null)
             {
-                GameObject prefabToInstantiate = GetPrefabByID(runtimeObj.RenderPrefabID);
+                GameObject prefabToInstantiate = GetPrefabByID(gameCoreObj.RenderPrefabID);
                 if (prefabToInstantiate != null)
                 {
                     visualObj = Instantiate(prefabToInstantiate, parentTransform);
-                    visualObj.name = runtimeObj.Name;
+                    visualObj.name = gameCoreObj.Name;
                     StripAuthoringComponents(visualObj);
                     didInstantiatePrefab = true;
                     if (ShowDebugInfo)
                     {
                         Debug.Log(
-                            $"Instantiated prefab [{runtimeObj.RenderPrefabID}] for '{runtimeObj.Name}'"
+                            $"Instantiated prefab [{gameCoreObj.RenderPrefabID}] for '{gameCoreObj.Name}'"
                         );
                     }
                 }
                 else if (ShowDebugInfo)
                 {
                     Debug.LogWarning(
-                        $"RenderPrefabID {runtimeObj.RenderPrefabID} is invalid for '{runtimeObj.Name}'. Creating empty GameObject."
+                        $"RenderPrefabID {gameCoreObj.RenderPrefabID} is invalid for '{gameCoreObj.Name}'. Creating empty GameObject."
                     );
                 }
             }
@@ -255,13 +251,13 @@ public abstract class TileRenderer : MonoBehaviour
         else if (isInsidePrefabHierarchy)
         {
             // Not a prefab root, but we're inside a prefab - find the existing child
-            Transform existingChild = parentTransform.Find(runtimeObj.Name);
+            Transform existingChild = parentTransform.Find(gameCoreObj.Name);
             if (existingChild != null)
             {
                 visualObj = existingChild.gameObject;
                 if (ShowDebugInfo)
                 {
-                    Debug.Log($"Found existing child '{runtimeObj.Name}' in prefab hierarchy");
+                    Debug.Log($"Found existing child '{gameCoreObj.Name}' in prefab hierarchy");
                 }
             }
         }
@@ -269,39 +265,45 @@ public abstract class TileRenderer : MonoBehaviour
         // Fallback: create empty GameObject if we couldn't find or instantiate
         if (visualObj == null)
         {
-            visualObj = new GameObject(runtimeObj.Name);
+            visualObj = new GameObject(gameCoreObj.Name);
             visualObj.transform.SetParent(parentTransform);
             if (ShowDebugInfo)
             {
-                Debug.Log($"Created empty GameObject for '{runtimeObj.Name}'");
+                Debug.Log($"Created empty GameObject for '{gameCoreObj.Name}'");
             }
         }
 
         // Set transform
-        UpdateGameObjectTransform(visualObj, runtimeObj.Transform);
+        UpdateGameObjectTransform(visualObj, gameCoreObj.Transform);
 
-        // Add RuntimeBinding component if not already present
+        // Add GCObjBinding component if not already present
         var existingBinding = visualObj.GetComponent<GCObjBinding>();
         if (existingBinding == null)
         {
             var binding = visualObj.AddComponent<GCObjBinding>();
-            binding.GameCoreObj = runtimeObj;
+            binding.GameCoreObj = gameCoreObj;
         }
         else
         {
-            existingBinding.GameCoreObj = runtimeObj;
+            existingBinding.GameCoreObj = gameCoreObj;
+        }
+
+        // Auto-bind any GCBinding components on this GameObject to their corresponding GCComponents
+        if (didInstantiatePrefab)
+        {
+            BindGCBindingComponents(visualObj, gameCoreObj);
         }
 
         // Store in mapping
-        idToGameObject[runtimeObj.RuntimeId] = visualObj;
+        idToGameObject[gameCoreObj.RuntimeId] = visualObj;
 
         // Recursively process children
-        if (runtimeObj.Children != null)
+        if (gameCoreObj.Children != null)
         {
             bool childrenInsidePrefab = didInstantiatePrefab || isInsidePrefabHierarchy;
-            foreach (var child in runtimeObj.Children)
+            foreach (var child in gameCoreObj.Children)
             {
-                UpdateRuntimeObjRecursive(child, visualObj.transform, childrenInsidePrefab);
+                UpdateGCObjRecursive(child, visualObj.transform, childrenInsidePrefab);
             }
         }
     }
@@ -341,11 +343,11 @@ public abstract class TileRenderer : MonoBehaviour
     }
 
     /// <summary>
-    /// Check if a RuntimeObj is a level root (should not be rendered directly)
+    /// Check if a GameCoreObj is a level root (should not be rendered directly)
     /// </summary>
-    private bool IsLevelRoot(GameCoreObj runtimeObj)
+    private bool IsLevelRoot(GameCoreObj gameCoreObj)
     {
-        return runtimeObj.HasComponent<TileRootComponent>();
+        return gameCoreObj.HasComponent<TileRootComponent>();
     }
 
     /// <summary>
@@ -469,6 +471,29 @@ public abstract class TileRenderer : MonoBehaviour
             else if (collider.ShapeType == ShapeType.Circle)
             {
                 Gizmos.DrawWireSphere(worldPos, collider.CircleShape.Radius.ToFloat());
+            }
+        }
+    }
+
+    /// <summary>
+    /// Automatically binds any IGCBinding components on the GameObject to their
+    /// corresponding GCComponents from the GameCoreObj.
+    /// </summary>
+    /// <param name="visualObj">The instantiated prefab GameObject.</param>
+    /// <param name="gameCoreObj">The GameCoreObj to bind components from.</param>
+    private void BindGCBindingComponents(GameObject visualObj, GameCoreObj gameCoreObj)
+    {
+        if (visualObj == null || gameCoreObj == null)
+            return;
+
+        // Find all IGCBinding components on this GameObject (not children - they get bound separately)
+        var bindings = visualObj.GetComponents<IGCBinding>();
+        foreach (var binding in bindings)
+        {
+            bool success = binding.TryBindToObject(gameCoreObj);
+            if (ShowDebugInfo && success)
+            {
+                Debug.Log($"Bound {binding.GetType().Name} to {gameCoreObj.Name}");
             }
         }
     }

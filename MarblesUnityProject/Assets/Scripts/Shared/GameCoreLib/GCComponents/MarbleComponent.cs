@@ -22,7 +22,7 @@ namespace GameCoreLib
         public uint BidAmount;
 
         [MemoryPackOrder(4)]
-        public uint Points;
+        public int Points;
 
         /// <summary>
         /// Whether this player is still alive in the game

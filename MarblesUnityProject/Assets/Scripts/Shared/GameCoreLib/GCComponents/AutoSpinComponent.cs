@@ -19,9 +19,7 @@ namespace GameCoreLib
             FPVector3 stepDegrees = SpinDegreesPerSecond * stepSeconds;
             // Rotate around local axes so physics and children stay in sync with the transform hierarchy
             Transform?.Rotate(stepDegrees, worldSpace: false);
-            //Transform.LocalRotation =
-            //    Transform.LocalRotation
-            //    * FPQuaternion.Euler(FP.FromInt(4), FP.FromInt(4), FP.FromInt(4));
+
         }
     }
 }

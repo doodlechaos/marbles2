@@ -94,7 +94,7 @@ namespace GameCoreLib
                 }
                 else if (inputEvent is InputEvent.Attack attack)
                 {
-                    ThroneTile?.SpawnAttackMarble(attack.AccountId);
+                    ThroneTile?.SpawnAttackMarble(attack.AccountId, (int)attack.Points);
                 }
                 else if (inputEvent is InputEvent.Dhash dhash)
                 {
