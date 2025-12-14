@@ -22,13 +22,14 @@ public class GameManager : MonoBehaviour
     public string Game1JSON_PATH;
 
     [Header("Rendering")]
-    public TileRenderer ThroneTileRenderer;
+    [Tooltip("Binding for the ThroneTile")]
+    public ThroneTileBinding ThroneTileBinding;
 
-    [Tooltip("Renderer for GameTile1 (player 1's tile)")]
-    public TileRenderer GameTile1Renderer;
+    [Tooltip("Binding for GameTile1 (player 1's tile)")]
+    public GameTileBinding GameTile1Binding;
 
-    [Tooltip("Renderer for GameTile2 (player 2's tile)")]
-    public TileRenderer GameTile2Renderer;
+    [Tooltip("Binding for GameTile2 (player 2's tile)")]
+    public GameTileBinding GameTile2Binding;
 
     [SerializeField]
     private AuthManager _authManager;
@@ -99,37 +100,35 @@ public class GameManager : MonoBehaviour
         // (If CheckForOAuthCallback triggered auth success, this is redundant but safe)
         _stdb.InitStdbConnection();
 
-        // Wire up renderers to their respective GameTiles
-        UpdateRenderers();
+        // Wire up bindings to their respective GameTiles
+        UpdateBindings();
     }
 
     private void Update()
     {
-        // Keep renderers synchronized with the GameCore tiles
-        // (tiles may change due to network updates, game state changes, etc.)
-        UpdateRenderers();
+        // Keep bindings synchronized with the GameCore tiles
+        UpdateBindings();
     }
 
     /// <summary>
-    /// Update renderers with the current GameCore tiles.
-    /// This is called every frame to keep them in sync.
+    /// Update bindings with the current GameCore tiles and render.
     /// </summary>
-    private void UpdateRenderers()
+    private void UpdateBindings()
     {
-        if (ThroneTileRenderer != null)
+        if (ThroneTileBinding != null)
         {
-            ThroneTileRenderer.Render(GameCore?.ThroneTile);
-            ThroneTileRenderer.PhysicsSim = GameCore?.ThroneTile?.Sim;
+            ThroneTileBinding.ThroneTile = GameCore?.ThroneTile;
+            ThroneTileBinding.Render();
         }
-        if (GameTile1Renderer != null)
+        if (GameTile1Binding != null)
         {
-            GameTile1Renderer.Render(GameCore?.GameTile1);
-            GameTile1Renderer.PhysicsSim = GameCore?.GameTile1?.Sim;
+            GameTile1Binding.GameTile = GameCore?.GameTile1;
+            GameTile1Binding.Render();
         }
-        if (GameTile2Renderer != null)
+        if (GameTile2Binding != null)
         {
-            GameTile2Renderer.Render(GameCore?.GameTile2);
-            GameTile2Renderer.PhysicsSim = GameCore?.GameTile2?.Sim;
+            GameTile2Binding.GameTile = GameCore?.GameTile2;
+            GameTile2Binding.Render();
         }
     }
 

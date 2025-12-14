@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using GameCoreLib;
 using UnityEngine;
+using UnityEngine.Pool;
 
 /// <summary>
 /// Component that binds a Unity GameObject (the render root) to a GameTileBase.
 /// Provides easy access to tile state information from Unity's inspector and scripts.
+/// Also handles door animation logic for game tiles.
 /// </summary>
 [Serializable]
 public sealed class GameTileBinding : TileBinding
@@ -14,6 +17,22 @@ public sealed class GameTileBinding : TileBinding
     /// </summary>
     [SerializeField]
     private GameTileBase gameTile;
+
+    [Header("Door Animation")]
+    [SerializeField]
+    private DoorAnimationCfg doorConfig;
+
+    [Header("Debug Display")]
+    [SerializeField]
+    private Vector2 screenOffset = new Vector2(0, 50);
+
+    // Door animation state
+    private ObjectPool<AnimationDoor> doorPool;
+    private List<AnimationDoor> spinDoors = new List<AnimationDoor>();
+    private Transform spinningDoorsRoot;
+    private Transform openCloseDoor;
+    private GUIStyle labelStyle;
+    private GUIStyle boxStyle;
 
     /// <summary>
     /// The GameTile this binding is associated with.
@@ -44,11 +63,6 @@ public sealed class GameTileBinding : TileBinding
     /// </summary>
     public string GameTypeName => gameTile?.GetType().Name ?? "Unknown";
 
-    [SerializeField]
-    private Vector2 screenOffset = new Vector2(0, 50);
-    private GUIStyle labelStyle;
-    private GUIStyle boxStyle;
-
     /// <summary>
     /// Try to get the GameTile as a specific derived type.
     /// </summary>
@@ -60,6 +74,142 @@ public sealed class GameTileBinding : TileBinding
     {
         result = gameTile as T;
         return result != null;
+    }
+
+    private void Awake()
+    {
+        InitializeDoorAnimation();
+    }
+
+    private void InitializeDoorAnimation()
+    {
+        if (doorConfig == null || doorConfig.AnimationDoorPrefab == null)
+            return;
+
+        doorPool = new ObjectPool<AnimationDoor>(
+            () => Instantiate(doorConfig.AnimationDoorPrefab, transform),
+            door => door.gameObject.SetActive(true),
+            door => door.gameObject.SetActive(false),
+            door => DestroyImmediate(door.gameObject),
+            true,
+            10,
+            100
+        );
+
+        spinningDoorsRoot = new GameObject("SpinningDoorsRoot").transform;
+        spinningDoorsRoot.SetParent(transform);
+        spinningDoorsRoot.localPosition = new Vector3(0, 0, doorConfig.SpinRootPosZOffset);
+    }
+
+    private void Update()
+    {
+        if (gameTile != null && doorConfig != null)
+        {
+            UpdateDoors();
+        }
+    }
+
+    private void UpdateDoors()
+    {
+        // If we're in closing door state, interpolate between the start and end positions
+        if (gameTile.State == GameTileState.ClosingDoor)
+        {
+            float t = gameTile.StateSteps / (GameTileBase.CLOSING_DOOR_DURATION_SEC * 60.0f);
+            EnsureOpenCloseDoorSpawned();
+            openCloseDoor.transform.position = Vector3.LerpUnclamped(
+                transform.position - new Vector3(doorConfig.OpenDoorOffset, 0, 0),
+                transform.position,
+                t
+            );
+        }
+
+        // If we're in spinning door state, animate the spinning doors
+        if (gameTile.State == GameTileState.Spinning)
+        {
+            float t = gameTile.StateSteps / (GameTileBase.SPINNING_DURATION_SEC * 60.0f);
+            t = doorConfig.SpinAnimationCurve.Evaluate(t);
+
+            EnsureSpinningDoorsSpawned(doorConfig.AnimationDoorCount);
+
+            float rootStartRotationX = (spinDoors.Count - 1) * doorConfig.SpinDegreesPerDoor;
+            float rootEndRotationX = 0;
+
+            float x =
+                rootStartRotationX + Mathf.DeltaAngle(rootStartRotationX, rootEndRotationX) * t;
+            spinningDoorsRoot.localRotation = Quaternion.Euler(x, 0f, 0f);
+        }
+        else if (spinningDoorsRoot != null)
+        {
+            spinningDoorsRoot.gameObject.SetActive(false);
+        }
+
+        // If we're in opening door state, interpolate between the start and end positions
+        if (gameTile.State == GameTileState.OpeningDoor)
+        {
+            float t = gameTile.StateSteps / (GameTileBase.OPENING_DOOR_DURATION_SEC * 60.0f);
+            EnsureOpenCloseDoorSpawned();
+            openCloseDoor.transform.position = Vector3.LerpUnclamped(
+                transform.position,
+                transform.position - new Vector3(doorConfig.OpenDoorOffset, 0, 0),
+                t
+            );
+        }
+    }
+
+    private void EnsureOpenCloseDoorSpawned()
+    {
+        if (openCloseDoor != null || doorPool == null)
+            return;
+
+        openCloseDoor = doorPool.Get().transform;
+        openCloseDoor.gameObject.SetActive(true);
+    }
+
+    private void EnsureSpinningDoorsSpawned(int count)
+    {
+        if (spinningDoorsRoot == null || doorPool == null)
+            return;
+
+        if (spinningDoorsRoot.gameObject.activeSelf)
+            return;
+
+        spinningDoorsRoot.gameObject.SetActive(true);
+        spinningDoorsRoot.eulerAngles = Vector3.zero;
+
+        // Release existing doors back to pool
+        for (int i = spinDoors.Count - 1; i >= 0; i--)
+        {
+            doorPool.Release(spinDoors[i]);
+            spinDoors.RemoveAt(i);
+        }
+
+        // Spawn new doors
+        for (int i = 0; i < count; i++)
+        {
+            AnimationDoor door = doorPool.Get();
+            spinDoors.Add(door);
+
+            door.transform.position = transform.position;
+            door.transform.localRotation = Quaternion.identity;
+            door.transform.SetParent(spinningDoorsRoot);
+
+            spinningDoorsRoot.Rotate(new Vector3(doorConfig.SpinDegreesPerDoor, 0, 0), Space.World);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up pooled objects
+        if (doorPool != null)
+        {
+            foreach (var door in spinDoors)
+            {
+                if (door != null)
+                    doorPool.Release(door);
+            }
+            spinDoors.Clear();
+            doorPool.Dispose();
+        }
     }
 
     void OnGUI()

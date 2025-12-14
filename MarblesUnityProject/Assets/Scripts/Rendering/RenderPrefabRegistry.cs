@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// ScriptableObject that holds the centralized list of render prefabs.
 /// Create one instance via Assets > Create > Marbles > Render Prefab Registry.
-/// Reference this from all TileRenderer instances to share the same prefab configuration.
+/// Reference this from all TileBinding instances to share the same prefab configuration.
 /// </summary>
 [CreateAssetMenu(fileName = "RenderPrefabRegistry", menuName = "Marbles/Render Prefab Registry")]
 public class RenderPrefabRegistry : ScriptableObject

@@ -13,6 +13,7 @@ import {
 export default __t.object("BaseCfg", {
   id: __t.u8(),
   clockIntervalSec: __t.f64(),
+  determinismSnapIntervalSec: __t.f64(),
   targetStepsPerSecond: __t.u16(),
   physicsStepsPerBatch: __t.u16(),
   stepsPerAuthFrame: __t.u16(),

@@ -18,9 +18,9 @@ public class ThroneTilePlayground : MonoBehaviour
     private RenderPrefabRegistry prefabRegistry;
 
     [Header("Rendering")]
-    [Tooltip("The TileRenderer to use for displaying the tile")]
+    [Tooltip("The TileBinding to use for displaying the tile")]
     [SerializeField]
-    private TileRenderer tileRenderer;
+    private ThroneTileBinding tileBinding;
 
     [Header("Debug Info")]
     [SerializeField]
@@ -55,10 +55,10 @@ public class ThroneTilePlayground : MonoBehaviour
 
     private void Update()
     {
-        if (tileRenderer != null)
+        if (tileBinding != null)
         {
-            tileRenderer.Render(ThroneTile);
-            tileRenderer.PhysicsSim = ThroneTile?.Sim;
+            tileBinding.ThroneTile = ThroneTile;
+            tileBinding.Render();
         }
 
         var keyboard = Keyboard.current;

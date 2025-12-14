@@ -21,9 +21,9 @@ public class GameTilePlayground : MonoBehaviour
     private RenderPrefabRegistry prefabRegistry;
 
     [Header("Rendering")]
-    [Tooltip("The TileRenderer to use for displaying the tile")]
+    [Tooltip("The TileBinding to use for displaying the tile")]
     [SerializeField]
-    private TileRenderer tileRenderer;
+    private GameTileBinding tileBinding;
 
     [Header("Debug Info")]
     [SerializeField]
@@ -56,10 +56,10 @@ public class GameTilePlayground : MonoBehaviour
 
     private void Update()
     {
-        if (tileRenderer != null)
+        if (tileBinding != null)
         {
-            tileRenderer.Render(GameTile);
-            tileRenderer.PhysicsSim = GameTile?.Sim;
+            tileBinding.GameTile = GameTile;
+            tileBinding.Render();
         }
 
         var keyboard = Keyboard.current;

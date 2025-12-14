@@ -617,6 +617,7 @@ namespace SpacetimeDB.Types
             var encodedArgs = update.ReducerCall.Args;
             return update.ReducerCall.ReducerName switch
             {
+                "A_AttackThrone" => BSATNHelpers.Decode<Reducer.AAttackThrone>(encodedArgs),
                 "A_GiveMarbles" => BSATNHelpers.Decode<Reducer.AGiveMarbles>(encodedArgs),
                 "A_InsertBid" => BSATNHelpers.Decode<Reducer.AInsertBid>(encodedArgs),
                 "A_SpinLoadGameplayTile" => BSATNHelpers.Decode<Reducer.ASpinLoadGameplayTile>(encodedArgs),
@@ -661,6 +662,7 @@ namespace SpacetimeDB.Types
             var eventContext = (ReducerEventContext)context;
             return reducer switch
             {
+                Reducer.AAttackThrone args => Reducers.InvokeAAttackThrone(eventContext, args),
                 Reducer.AGiveMarbles args => Reducers.InvokeAGiveMarbles(eventContext, args),
                 Reducer.AInsertBid args => Reducers.InvokeAInsertBid(eventContext, args),
                 Reducer.ASpinLoadGameplayTile args => Reducers.InvokeASpinLoadGameplayTile(eventContext, args),

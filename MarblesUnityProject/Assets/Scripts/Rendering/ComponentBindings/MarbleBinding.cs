@@ -4,9 +4,9 @@ using UnityEngine;
 
 /// <summary>
 /// Unity component that binds to a MarbleComponent and displays marble-related visuals.
-/// Automatically bound by TileRenderer when a marble prefab is instantiated.
+/// Automatically bound by TileBinding when a marble prefab is instantiated.
 /// </summary>
-public class MarbleBinding : GCBindingAuto<MarbleComponent>
+public class MarbleBinding : GCBinding<MarbleComponent>
 {
     [Header("UI References")]
     [Tooltip("TextMeshPro component to display the marble's current points.")]

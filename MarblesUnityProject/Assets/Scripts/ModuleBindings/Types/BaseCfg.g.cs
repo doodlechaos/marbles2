@@ -17,6 +17,8 @@ namespace SpacetimeDB.Types
         public byte Id;
         [DataMember(Name = "ClockIntervalSec")]
         public double ClockIntervalSec;
+        [DataMember(Name = "DeterminismSnapIntervalSec")]
+        public double DeterminismSnapIntervalSec;
         [DataMember(Name = "targetStepsPerSecond")]
         public ushort TargetStepsPerSecond;
         [DataMember(Name = "physicsStepsPerBatch")]
@@ -35,6 +37,7 @@ namespace SpacetimeDB.Types
         public BaseCfg(
             byte Id,
             double ClockIntervalSec,
+            double DeterminismSnapIntervalSec,
             ushort TargetStepsPerSecond,
             ushort PhysicsStepsPerBatch,
             ushort StepsPerAuthFrame,
@@ -46,6 +49,7 @@ namespace SpacetimeDB.Types
         {
             this.Id = Id;
             this.ClockIntervalSec = ClockIntervalSec;
+            this.DeterminismSnapIntervalSec = DeterminismSnapIntervalSec;
             this.TargetStepsPerSecond = TargetStepsPerSecond;
             this.PhysicsStepsPerBatch = PhysicsStepsPerBatch;
             this.StepsPerAuthFrame = StepsPerAuthFrame;

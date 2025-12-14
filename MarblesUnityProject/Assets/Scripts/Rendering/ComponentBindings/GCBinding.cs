@@ -2,16 +2,33 @@ using GameCoreLib;
 using UnityEngine;
 
 /// <summary>
+/// Non-generic interface for GCBinding to allow TileBinding to work with any binding type.
+/// </summary>
+public interface IGCBinding
+{
+    /// <summary>
+    /// Attempts to bind this Unity component to a GameCoreObj.
+    /// The implementation should find the appropriate GCComponent on the object.
+    /// </summary>
+    /// <param name="gcObj">The GameCoreObj to search for the component.</param>
+    /// <returns>True if binding was successful, false otherwise.</returns>
+    bool TryBindToObject(GameCoreObj gcObj);
+}
+
+/// <summary>
 /// Abstract base class for Unity components that bind to GameCore components.
 /// Derive from this to create visual bindings that automatically sync with
 /// GameCore component state.
+///
+/// Simply add this component to a prefab, and TileBinding will automatically
+/// bind it when the prefab is instantiated.
 /// </summary>
 /// <typeparam name="T">The GCComponent type this binding displays.</typeparam>
-public abstract class GCBinding<T> : MonoBehaviour
+public abstract class GCBinding<T> : MonoBehaviour, IGCBinding
     where T : GCComponent
 {
     /// <summary>
-    /// The bound GameCore component. Set automatically by TileRenderer when
+    /// The bound GameCore component. Set automatically by TileBinding when
     /// a prefab containing this binding is instantiated.
     /// </summary>
     public T BoundComponent { get; private set; }
@@ -27,8 +44,26 @@ public abstract class GCBinding<T> : MonoBehaviour
     public bool IsBound => BoundComponent != null;
 
     /// <summary>
+    /// Attempts to bind to a GameCoreObj by finding the first component of type T.
+    /// Called automatically by TileBinding.
+    /// </summary>
+    public virtual bool TryBindToObject(GameCoreObj gcObj)
+    {
+        if (gcObj == null)
+            return false;
+
+        T component = gcObj.GetComponent<T>();
+        if (component != null)
+        {
+            Bind(component);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Binds this Unity component to a GameCore component.
-    /// Called automatically by TileRenderer.
     /// </summary>
     /// <param name="component">The GameCore component to bind to.</param>
     public void Bind(T component)
@@ -63,8 +98,7 @@ public abstract class GCBinding<T> : MonoBehaviour
     protected virtual void OnBindingChanged(T previousComponent, T newComponent) { }
 
     /// <summary>
-    /// Called every frame. Override to update visuals based on component state.
-    /// Base implementation does nothing - derived classes should implement their update logic.
+    /// Called every frame when bound. Override to update visuals based on component state.
     /// </summary>
     protected virtual void UpdateVisuals() { }
 
@@ -74,45 +108,5 @@ public abstract class GCBinding<T> : MonoBehaviour
         {
             UpdateVisuals();
         }
-    }
-}
-
-/// <summary>
-/// Non-generic interface for GCBinding to allow TileRenderer to work with any binding type.
-/// </summary>
-public interface IGCBinding
-{
-    /// <summary>
-    /// Attempts to bind this Unity component to a GameCoreObj.
-    /// The implementation should find the appropriate GCComponent on the object.
-    /// </summary>
-    /// <param name="gcObj">The GameCoreObj to search for the component.</param>
-    /// <returns>True if binding was successful, false otherwise.</returns>
-    bool TryBindToObject(GameCoreObj gcObj);
-}
-
-/// <summary>
-/// Extended abstract base class that implements IGCBinding for automatic binding.
-/// </summary>
-/// <typeparam name="T">The GCComponent type this binding displays.</typeparam>
-public abstract class GCBindingAuto<T> : GCBinding<T>, IGCBinding
-    where T : GCComponent
-{
-    /// <summary>
-    /// Attempts to bind to a GameCoreObj by finding the first component of type T.
-    /// </summary>
-    public virtual bool TryBindToObject(GameCoreObj gcObj)
-    {
-        if (gcObj == null)
-            return false;
-
-        T component = gcObj.GetComponent<T>();
-        if (component != null)
-        {
-            Bind(component);
-            return true;
-        }
-
-        return false;
     }
 }

@@ -13,6 +13,7 @@ import {
 export default __t.row({
   id: __t.u8().primaryKey(),
   clockIntervalSec: __t.f64(),
+  determinismSnapIntervalSec: __t.f64(),
   targetStepsPerSecond: __t.u16(),
   physicsStepsPerBatch: __t.u16(),
   stepsPerAuthFrame: __t.u16(),
