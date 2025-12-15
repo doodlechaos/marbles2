@@ -5,6 +5,7 @@ namespace LockSim
 
     /// <summary>
     /// Performs collision detection between colliders.
+    /// Uses broad phase spatial hash to reduce candidate pairs, then narrow phase for precise detection.
     /// </summary>
     public static class NarrowPhase
     {
@@ -14,121 +15,160 @@ namespace LockSim
             List<ContactManifold> contacts = context.GetContactsMutable();
             contacts.Clear();
 
-            // O(n²) broad + narrow phase over colliders
-            for (int i = 0; i < colliders.Count; i++)
+            if (colliders.Count < 2)
+                return;
+
+            // Get scratch arrays from context to avoid allocations
+            FPVector2[] scratchCornersA = context.ScratchCornersA;
+            FPVector2[] scratchCornersB = context.ScratchCornersB;
+            FPVector2[] scratchAxes = context.ScratchAxes;
+
+            // Build broad phase spatial hash
+            BroadPhase broadPhase = context.GetBroadPhase();
+            broadPhase.Clear();
+
+            // Cache world transforms and AABBs for all colliders
+            int colliderCount = colliders.Count;
+
+            // Use stackalloc-style approach: parallel arrays for transform cache
+            // These are indexed by collider list index, not collider ID
+            FPVector2[] positions = new FPVector2[colliderCount];
+            FP[] rotations = new FP[colliderCount];
+            bool[] isStatic = new bool[colliderCount];
+            bool[] isValid = new bool[colliderCount];
+
+            for (int i = 0; i < colliderCount; i++)
             {
-                for (int j = i + 1; j < colliders.Count; j++)
+                ColliderLS collider = colliders[i];
+
+                if (!collider.IsEnabled)
                 {
-                    ColliderLS colliderA = colliders[i];
-                    ColliderLS colliderB = colliders[j];
+                    isValid[i] = false;
+                    continue;
+                }
 
-                    // Skip disabled colliders
-                    if (!colliderA.IsEnabled || !colliderB.IsEnabled)
-                        continue;
+                bool hasBody = world.TryGetBody(collider.ParentBodyId, out RigidBodyLS body);
+                isStatic[i] = !hasBody || body.BodyType == BodyType.Static;
 
-                    // Get parent bodies (may be invalid for orphan colliders)
-                    bool hasBodyA = world.TryGetBody(colliderA.ParentBodyId, out RigidBodyLS bodyA);
-                    bool hasBodyB = world.TryGetBody(colliderB.ParentBodyId, out RigidBodyLS bodyB);
+                if (hasBody)
+                {
+                    positions[i] = collider.GetWorldPosition(body);
+                    rotations[i] = collider.GetWorldRotation(body);
+                }
+                else
+                {
+                    positions[i] = collider.LocalPosition;
+                    rotations[i] = collider.LocalRotation;
+                }
 
-                    // Skip if both are static (no parent or static body)
-                    bool aIsStatic = !hasBodyA || bodyA.BodyType == BodyType.Static;
-                    bool bIsStatic = !hasBodyB || bodyB.BodyType == BodyType.Static;
-                    if (aIsStatic && bIsStatic)
-                        continue;
+                isValid[i] = true;
 
-                    // Compute world-space transforms
-                    FPVector2 posA = hasBodyA
-                        ? colliderA.GetWorldPosition(bodyA)
-                        : colliderA.LocalPosition;
-                    FP rotA = hasBodyA
-                        ? colliderA.GetWorldRotation(bodyA)
-                        : colliderA.LocalRotation;
-                    FPVector2 posB = hasBodyB
-                        ? colliderB.GetWorldPosition(bodyB)
-                        : colliderB.LocalPosition;
-                    FP rotB = hasBodyB
-                        ? colliderB.GetWorldRotation(bodyB)
-                        : colliderB.LocalRotation;
+                // Insert into broad phase
+                AABB aabb = collider.ComputeAABB(positions[i], rotations[i]);
+                broadPhase.Insert(i, aabb);
+            }
 
-                    // Broad phase: AABB test
-                    AABB aabbA = colliderA.ComputeAABB(posA, rotA);
-                    AABB aabbB = colliderB.ComputeAABB(posB, rotB);
+            // Generate candidate pairs from broad phase
+            List<BroadPhasePair> candidatePairs = broadPhase.GeneratePairs();
 
-                    if (!aabbA.Overlaps(aabbB))
-                        continue;
+            // Narrow phase: test each candidate pair
+            foreach (BroadPhasePair pair in candidatePairs)
+            {
+                int i = pair.ColliderIndexA;
+                int j = pair.ColliderIndexB;
 
-                    // Narrow phase: shape-specific collision
-                    ContactManifold manifold = new ContactManifold(
-                        colliderA.ParentBodyId,
-                        colliderB.ParentBodyId,
-                        colliderA.Id,
-                        colliderB.Id
-                    );
+                // Skip invalid colliders
+                if (!isValid[i] || !isValid[j])
+                    continue;
 
-                    bool colliding = false;
-                    if (
-                        colliderA.ShapeType == ShapeType.Box
-                        && colliderB.ShapeType == ShapeType.Box
-                    )
-                    {
-                        colliding = BoxVsBox(
-                            ref colliderA,
-                            posA,
-                            rotA,
-                            ref colliderB,
-                            posB,
-                            rotB,
-                            ref manifold
-                        );
-                    }
-                    else if (
-                        colliderA.ShapeType == ShapeType.Circle
-                        && colliderB.ShapeType == ShapeType.Circle
-                    )
-                    {
-                        colliding = CircleVsCircle(
-                            ref colliderA,
-                            posA,
-                            ref colliderB,
-                            posB,
-                            ref manifold
-                        );
-                    }
-                    else if (
-                        colliderA.ShapeType == ShapeType.Box
-                        && colliderB.ShapeType == ShapeType.Circle
-                    )
-                    {
-                        colliding = BoxVsCircle(
-                            ref colliderA,
-                            posA,
-                            rotA,
-                            ref colliderB,
-                            posB,
-                            ref manifold
-                        );
-                    }
-                    else if (
-                        colliderA.ShapeType == ShapeType.Circle
-                        && colliderB.ShapeType == ShapeType.Box
-                    )
-                    {
-                        colliding = CircleVsBox(
-                            ref colliderA,
-                            posA,
-                            ref colliderB,
-                            posB,
-                            rotB,
-                            ref manifold
-                        );
-                    }
+                // Skip static-static pairs
+                if (isStatic[i] && isStatic[j])
+                    continue;
 
-                    if (colliding)
-                    {
-                        contacts.Add(manifold);
-                    }
+                ColliderLS colliderA = colliders[i];
+                ColliderLS colliderB = colliders[j];
+
+                FPVector2 posA = positions[i];
+                FP rotA = rotations[i];
+                FPVector2 posB = positions[j];
+                FP rotB = rotations[j];
+
+                // Narrow phase: shape-specific collision
+                ContactManifold manifold = new ContactManifold(
+                    colliderA.ParentBodyId,
+                    colliderB.ParentBodyId,
+                    colliderA.Id,
+                    colliderB.Id
+                );
+
+                bool colliding = TestShapePair(
+                    ref colliderA,
+                    posA,
+                    rotA,
+                    ref colliderB,
+                    posB,
+                    rotB,
+                    ref manifold,
+                    scratchCornersA,
+                    scratchCornersB,
+                    scratchAxes
+                );
+
+                if (colliding)
+                {
+                    contacts.Add(manifold);
                 }
             }
+        }
+
+        /// <summary>
+        /// Tests collision between two shapes, dispatching to the appropriate handler.
+        /// </summary>
+        private static bool TestShapePair(
+            ref ColliderLS colliderA,
+            FPVector2 posA,
+            FP rotA,
+            ref ColliderLS colliderB,
+            FPVector2 posB,
+            FP rotB,
+            ref ContactManifold manifold,
+            FPVector2[] scratchCornersA,
+            FPVector2[] scratchCornersB,
+            FPVector2[] scratchAxes
+        )
+        {
+            if (colliderA.ShapeType == ShapeType.Circle && colliderB.ShapeType == ShapeType.Circle)
+            {
+                return CircleVsCircle(ref colliderA, posA, ref colliderB, posB, ref manifold);
+            }
+
+            if (colliderA.ShapeType == ShapeType.Box && colliderB.ShapeType == ShapeType.Box)
+            {
+                return BoxVsBox(
+                    ref colliderA,
+                    posA,
+                    rotA,
+                    ref colliderB,
+                    posB,
+                    rotB,
+                    ref manifold,
+                    scratchCornersA,
+                    scratchCornersB,
+                    scratchAxes
+                );
+            }
+
+            if (colliderA.ShapeType == ShapeType.Box && colliderB.ShapeType == ShapeType.Circle)
+            {
+                return BoxVsCircle(ref colliderA, posA, rotA, ref colliderB, posB, ref manifold);
+            }
+
+            if (colliderA.ShapeType == ShapeType.Circle && colliderB.ShapeType == ShapeType.Box)
+            {
+                return CircleVsBox(ref colliderA, posA, ref colliderB, posB, rotB, ref manifold);
+            }
+
+            return false;
         }
 
         private static bool CircleVsCircle(
@@ -175,7 +215,10 @@ namespace LockSim
             ref ColliderLS colliderB,
             FPVector2 posB,
             FP rotB,
-            ref ContactManifold manifold
+            ref ContactManifold manifold,
+            FPVector2[] cornersA,
+            FPVector2[] cornersB,
+            FPVector2[] axes
         )
         {
             FP cosA = FPMath.Cos(rotA);
@@ -183,12 +226,15 @@ namespace LockSim
             FP cosB = FPMath.Cos(rotB);
             FP sinB = FPMath.Sin(rotB);
 
-            // Axes to test (box edge normals)
-            FPVector2[] axes = new FPVector2[4];
+            // Compute axes (box edge normals) - reuse scratch array
             axes[0] = new FPVector2(cosA, sinA);
             axes[1] = new FPVector2(-sinA, cosA);
             axes[2] = new FPVector2(cosB, sinB);
             axes[3] = new FPVector2(-sinB, cosB);
+
+            // Compute corners once - reuse scratch arrays
+            ComputeBoxCorners(ref colliderA, posA, cosA, sinA, cornersA);
+            ComputeBoxCorners(ref colliderB, posB, cosB, sinB, cornersB);
 
             FP minPenetration = FP.MaxValue;
             FPVector2 minAxis = FPVector2.Zero;
@@ -197,15 +243,7 @@ namespace LockSim
             for (int i = 0; i < 4; i++)
             {
                 FPVector2 axis = axes[i];
-                FP penetration = ProjectAndCheckOverlap(
-                    ref colliderA,
-                    posA,
-                    rotA,
-                    ref colliderB,
-                    posB,
-                    rotB,
-                    axis
-                );
+                FP penetration = ComputeOverlap(cornersA, cornersB, axis);
 
                 if (penetration <= FP.Zero)
                     return false;
@@ -229,26 +267,26 @@ namespace LockSim
             manifold.Penetration = minPenetration;
 
             // Generate contact point
-            bool referenceIsA = (minAxisIndex >= 0 && minAxisIndex < 2);
+            bool referenceIsA = minAxisIndex < 2;
             FPVector2 refPos = referenceIsA ? posA : posB;
-            FP refRot = referenceIsA ? rotA : rotB;
+            FP refCos = referenceIsA ? cosA : cosB;
+            FP refSin = referenceIsA ? sinA : sinB;
             ref ColliderLS refCollider = ref (referenceIsA ? ref colliderA : ref colliderB);
-            FPVector2 incPos = referenceIsA ? posB : posA;
-            FP incRot = referenceIsA ? rotB : rotA;
-            ref ColliderLS incCollider = ref (referenceIsA ? ref colliderB : ref colliderA);
+            FPVector2[] incidentCorners = referenceIsA ? cornersB : cornersA;
 
             FPVector2 refToIncNormal = referenceIsA ? manifold.Normal : -manifold.Normal;
 
             GetReferenceEdge(
                 ref refCollider,
                 refPos,
-                refRot,
+                refCos,
+                refSin,
                 refToIncNormal,
                 out FPVector2 refP1,
                 out FPVector2 refP2
             );
 
-            FPVector2[] incidentCorners = GetBoxCorners(ref incCollider, incPos, incRot);
+            // Find incident point closest to reference face
             FP bestDot = FP.MaxValue;
             FPVector2 incidentPoint = incidentCorners[0];
             for (int k = 0; k < 4; k++)
@@ -261,6 +299,7 @@ namespace LockSim
                 }
             }
 
+            // Project incident point onto reference edge
             FPVector2 edge = refP2 - refP1;
             FP edgeLenSqr = FPVector2.Dot(edge, edge);
             FPVector2 contactPoint;
@@ -279,19 +318,43 @@ namespace LockSim
             return true;
         }
 
-        private static FP ProjectAndCheckOverlap(
-            ref ColliderLS boxA,
-            FPVector2 posA,
-            FP rotA,
-            ref ColliderLS boxB,
-            FPVector2 posB,
-            FP rotB,
-            FPVector2 axis
+        /// <summary>
+        /// Computes box corners into a pre-allocated array.
+        /// </summary>
+        private static void ComputeBoxCorners(
+            ref ColliderLS collider,
+            FPVector2 pos,
+            FP cos,
+            FP sin,
+            FPVector2[] corners
         )
         {
-            FPVector2[] cornersA = GetBoxCorners(ref boxA, posA, rotA);
-            FPVector2[] cornersB = GetBoxCorners(ref boxB, posB, rotB);
+            FP hw = collider.BoxShape.HalfWidth;
+            FP hh = collider.BoxShape.HalfHeight;
 
+            // Local corners
+            FP lx0 = -hw,
+                ly0 = -hh;
+            FP lx1 = hw,
+                ly1 = -hh;
+            FP lx2 = hw,
+                ly2 = hh;
+            FP lx3 = -hw,
+                ly3 = hh;
+
+            // Transform to world space
+            corners[0] = pos + new FPVector2(lx0 * cos - ly0 * sin, lx0 * sin + ly0 * cos);
+            corners[1] = pos + new FPVector2(lx1 * cos - ly1 * sin, lx1 * sin + ly1 * cos);
+            corners[2] = pos + new FPVector2(lx2 * cos - ly2 * sin, lx2 * sin + ly2 * cos);
+            corners[3] = pos + new FPVector2(lx3 * cos - ly3 * sin, lx3 * sin + ly3 * cos);
+        }
+
+        /// <summary>
+        /// Computes overlap (penetration) between two sets of corners along an axis.
+        /// Returns zero or negative if no overlap.
+        /// </summary>
+        private static FP ComputeOverlap(FPVector2[] cornersA, FPVector2[] cornersB, FPVector2 axis)
+        {
             FP minA = FP.MaxValue,
                 maxA = FP.MinValue;
             FP minB = FP.MaxValue,
@@ -314,39 +377,16 @@ namespace LockSim
             return FPMath.Min(maxA - minB, maxB - minA);
         }
 
-        private static FPVector2[] GetBoxCorners(ref ColliderLS collider, FPVector2 pos, FP rot)
-        {
-            FP cos = FPMath.Cos(rot);
-            FP sin = FPMath.Sin(rot);
-
-            FP hw = collider.BoxShape.HalfWidth;
-            FP hh = collider.BoxShape.HalfHeight;
-
-            FPVector2[] corners = new FPVector2[4];
-            FPVector2 c0 = new FPVector2(-hw, -hh);
-            FPVector2 c1 = new FPVector2(hw, -hh);
-            FPVector2 c2 = new FPVector2(hw, hh);
-            FPVector2 c3 = new FPVector2(-hw, hh);
-
-            corners[0] = pos + new FPVector2(c0.X * cos - c0.Y * sin, c0.X * sin + c0.Y * cos);
-            corners[1] = pos + new FPVector2(c1.X * cos - c1.Y * sin, c1.X * sin + c1.Y * cos);
-            corners[2] = pos + new FPVector2(c2.X * cos - c2.Y * sin, c2.X * sin + c2.Y * cos);
-            corners[3] = pos + new FPVector2(c3.X * cos - c3.Y * sin, c3.X * sin + c3.Y * cos);
-
-            return corners;
-        }
-
         private static void GetReferenceEdge(
             ref ColliderLS collider,
             FPVector2 pos,
-            FP rot,
+            FP cos,
+            FP sin,
             FPVector2 normal,
             out FPVector2 p1,
             out FPVector2 p2
         )
         {
-            FP cos = FPMath.Cos(rot);
-            FP sin = FPMath.Sin(rot);
             FPVector2 axisX = new FPVector2(cos, sin);
             FPVector2 axisY = new FPVector2(-sin, cos);
 
@@ -359,18 +399,22 @@ namespace LockSim
             if (FPMath.Abs(dotX) > FPMath.Abs(dotY))
             {
                 FP x = dotX > FP.Zero ? hw : -hw;
-                FPVector2 l1 = new FPVector2(x, -hh);
-                FPVector2 l2 = new FPVector2(x, hh);
-                p1 = pos + new FPVector2(l1.X * cos - l1.Y * sin, l1.X * sin + l1.Y * cos);
-                p2 = pos + new FPVector2(l2.X * cos - l2.Y * sin, l2.X * sin + l2.Y * cos);
+                FP lx1 = x,
+                    ly1 = -hh;
+                FP lx2 = x,
+                    ly2 = hh;
+                p1 = pos + new FPVector2(lx1 * cos - ly1 * sin, lx1 * sin + ly1 * cos);
+                p2 = pos + new FPVector2(lx2 * cos - ly2 * sin, lx2 * sin + ly2 * cos);
             }
             else
             {
                 FP y = dotY > FP.Zero ? hh : -hh;
-                FPVector2 l1 = new FPVector2(-hw, y);
-                FPVector2 l2 = new FPVector2(hw, y);
-                p1 = pos + new FPVector2(l1.X * cos - l1.Y * sin, l1.X * sin + l1.Y * cos);
-                p2 = pos + new FPVector2(l2.X * cos - l2.Y * sin, l2.X * sin + l2.Y * cos);
+                FP lx1 = -hw,
+                    ly1 = y;
+                FP lx2 = hw,
+                    ly2 = y;
+                p1 = pos + new FPVector2(lx1 * cos - ly1 * sin, lx1 * sin + ly1 * cos);
+                p2 = pos + new FPVector2(lx2 * cos - ly2 * sin, lx2 * sin + ly2 * cos);
             }
         }
 
