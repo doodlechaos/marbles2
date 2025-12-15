@@ -8,6 +8,7 @@ public static partial class Module
         [PrimaryKey]
         public ulong AccountId;
         public string Username;
+        //TODO: Username string color
         public byte PfpVersion;
 
         public static AccountCustomization GetOrCreate(ReducerContext ctx, ulong accountId)

@@ -51,6 +51,11 @@ namespace GameCoreLib
             throw new NotImplementedException();
         }
 
+        public virtual void FinishGameplay()
+        {
+            //TODO, we need to create an output event which contains the gameplay output data necessary to display the podium animation on the client. 
+        }
+
         public const float SPINNING_DURATION_SEC = 5.0f;
         public const float CLOSING_DOOR_DURATION_SEC = 2.0f;
         public const float OPENING_DOOR_DURATION_SEC = 2.0f;
