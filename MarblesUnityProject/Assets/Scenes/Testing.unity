@@ -598,7 +598,7 @@ MonoBehaviour:
     TotalMarblesBid: 7
     WorldId: 0
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
-  tileBinding: {fileID: 0}
+  tileBinding: {fileID: 101046554}
   _isRunning: 0
 --- !u!1 &1755339977
 GameObject:
