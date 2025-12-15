@@ -104,8 +104,8 @@ namespace GameCoreLib
 
         public void SetState(GameTileState state)
         {
-            currentOutputEvents?.Server.Add(
-                new OutputToServerEvent.StateUpdatedTo { State = state, WorldId = TileWorldId }
+            currentOutputEvents?.Events.Add(
+                new OutputEvent.StateUpdatedTo { State = state, WorldId = TileWorldId }
             );
             stateSteps = 0;
             State = state;

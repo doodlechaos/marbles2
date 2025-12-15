@@ -142,10 +142,10 @@ public class Synchronizer : MonoBehaviour
 
     private void HandleGCClientOutputEvents(OutputEventBuffer outputEvents)
     {
-        foreach (OutputToClientEvent outputToClientEvent in outputEvents.Client)
+        foreach (OutputEvent outputEvent in outputEvents.Client)
         {
-            Debug.Log("OutputToClientEvent: " + outputToClientEvent.GetType().Name);
-            if (outputToClientEvent is OutputToClientEvent.DeterminismHash determinismHash)
+            Debug.Log("OutputToClientEvent: " + outputEvent.GetType().Name);
+            if (outputEvent is OutputEvent.DeterminismHash determinismHash)
             {
                 Debug.Log(
                     $"DeterminismHash: [{determinismHash.HashString}] at seq [{determinismHash.Seq}]"

@@ -85,9 +85,7 @@ namespace GameCoreLib
             // Send the NewKing event to the server
             if (currentOutputEvents != null)
             {
-                currentOutputEvents.Server.Add(
-                    new OutputToServerEvent.NewKing { AccountId = accountId }
-                );
+                currentOutputEvents.Events.Add(new OutputEvent.NewKing { AccountId = accountId });
             }
             else
             {

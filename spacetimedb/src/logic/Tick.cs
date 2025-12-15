@@ -197,21 +197,21 @@ public static partial class Module
 
     private static void ProcessOutputEvents(ReducerContext ctx, OutputEventBuffer outputEvents)
     {
-        foreach (OutputToServerEvent outputToServerEvent in outputEvents.Server)
+        foreach (OutputEvent outputEvent in outputEvents.Server)
         {
-            Log.Info($"Processing output event in server: {outputToServerEvent.GetType().Name}");
-            if (outputToServerEvent is OutputToServerEvent.StateUpdatedTo stateUpdatedTo)
+            Log.Info($"Processing output event in server: {outputEvent.GetType().Name}");
+            if (outputEvent is OutputEvent.StateUpdatedTo stateUpdatedTo)
             {
                 ProcessStateUpdate(ctx, stateUpdatedTo);
             }
-            else if (outputToServerEvent is OutputToServerEvent.NewKing newKing)
+            else if (outputEvent is OutputEvent.NewKing newKing)
             {
                 Throne throne = Throne.Inst(ctx);
                 throne.KingAccountId = newKing.AccountId;
                 ctx.Db.Throne.Id.Update(throne);
                 Log.Info($"New king crowned: {newKing.AccountId}");
             }
-            else if (outputToServerEvent is OutputToServerEvent.DeterminismHash determinismHash)
+            else if (outputEvent is OutputEvent.DeterminismHash determinismHash)
             {
                 DeterminismSnapS determinismSnap = DeterminismSnapS.Inst(ctx);
                 determinismSnap.HashString = determinismHash.HashString;
@@ -224,10 +224,7 @@ public static partial class Module
         }
     }
 
-    private static void ProcessStateUpdate(
-        ReducerContext ctx,
-        OutputToServerEvent.StateUpdatedTo stateUpdatedTo
-    )
+    private static void ProcessStateUpdate(ReducerContext ctx, OutputEvent.StateUpdatedTo stateUpdatedTo)
     {
         byte worldId = stateUpdatedTo.WorldId;
         GameTileState state = stateUpdatedTo.State;

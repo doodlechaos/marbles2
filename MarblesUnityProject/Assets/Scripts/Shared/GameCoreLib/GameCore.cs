@@ -60,9 +60,7 @@ namespace GameCoreLib
                 if (inputEvent is InputEvent.SpinToNewGameTile spinLoadGameTile)
                 {
                     byte worldId = spinLoadGameTile.WorldId;
-                    OutputEvents.Client.Add(
-                        new OutputToClientEvent.StartSpinAnimation { WorldId = worldId }
-                    );
+                    OutputEvents.Events.Add(new OutputEvent.StartSpinAnimation { WorldId = worldId });
                     // Load the pre-deserialized GameTile into the appropriate slot
                     LoadGameTileIntoSlot(worldId, spinLoadGameTile.NewGameTile);
                 }
@@ -99,15 +97,8 @@ namespace GameCoreLib
                 else if (inputEvent is InputEvent.Dhash dhash)
                 {
                     string hashString = GetDeterministicHashHex();
-                    OutputEvents.Server.Add(
-                        new OutputToServerEvent.DeterminismHash
-                        {
-                            Seq = Seq,
-                            HashString = hashString,
-                        }
-                    );
-                    OutputEvents.Client.Add(
-                        new OutputToClientEvent.DeterminismHash
+                    OutputEvents.Events.Add(
+                        new OutputEvent.DeterminismHash
                         {
                             Seq = Seq,
                             HashString = hashString,

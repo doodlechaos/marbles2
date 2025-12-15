@@ -196,8 +196,8 @@ namespace GameCoreLib
             if (aliveCount == 1 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 1)
             {
                 Logger.Log($"Player {lastAlive.AccountId} wins!");
-                currentOutputEvents?.Server.Add(
-                    new OutputToServerEvent.NewKing { AccountId = lastAlive.AccountId }
+                currentOutputEvents?.Events.Add(
+                    new OutputEvent.NewKing { AccountId = lastAlive.AccountId }
                 );
             }
             else if (aliveCount == 0 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 0)
