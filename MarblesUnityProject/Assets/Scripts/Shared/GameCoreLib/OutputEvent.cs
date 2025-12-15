@@ -36,12 +36,12 @@ namespace GameCoreLib
 
     public abstract class OutputEvent
     {
+        public OutputEventDestination Destination { get; }
+
         protected OutputEvent(OutputEventDestination destination)
         {
             Destination = destination;
         }
-
-        public OutputEventDestination Destination { get; }
 
         public class NewKing : OutputEvent
         {
