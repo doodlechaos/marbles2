@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using FPMathLib;
 using MemoryPack;
 
@@ -25,10 +27,27 @@ namespace GameCoreLib
     public abstract partial class GameTileBase : TileBase
     {
         [MemoryPackOrder(7)]
+        public Rarity TileRarity;
+
+        [MemoryPackOrder(8)]
+        public byte TileRarityMultiplier;
+
+        [MemoryPackOrder(9)]
         public GameTileState State = GameTileState.Spinning;
 
-        [MemoryPackOrder(8), MemoryPackInclude]
+        [MemoryPackOrder(10), MemoryPackInclude]
         protected int stateSteps = 0;
+
+        //Alive players
+        [MemoryPackOrder(11), MemoryPackInclude]
+        public List<ulong> ActiveContestants = new List<ulong>();
+
+        //Eliminated players (The reverse order here is the order they are ranked in the podium)
+        [MemoryPackOrder(12), MemoryPackInclude]
+        public List<ulong> EliminatedContestants = new List<ulong>();
+
+        [MemoryPackOrder(13)]
+        public uint TotalMarblesBid;
 
         /// <summary>
         /// Number of simulation steps spent in the current state.
@@ -39,21 +58,60 @@ namespace GameCoreLib
         public GameTileBase()
             : base() { }
 
-        public override void Initialize(byte tileWorldId)
+        public override void InitTile(byte tileWorldId)
         {
             // Set the state before calling base to ensure the event has the correct WorldId
             SetState(GameTileState.Spinning);
-            base.Initialize(tileWorldId);
+            base.InitTile(tileWorldId);
+        }
+
+        public void InitRarity(Rarity tileRarity, byte tileRarityMultiplier)
+        {
+            TileRarity = tileRarity;
+            TileRarityMultiplier = tileRarityMultiplier;
         }
 
         public virtual void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
         {
-            throw new NotImplementedException();
+            TotalMarblesBid = gameplayStartInput.TotalMarblesBid;
+
+            //Enter all contestants into the game, regardless of if they're spawned or not yet
+            foreach (var entrant in gameplayStartInput.Entrants)
+                EnterContestant(entrant.AccountId);
+
+            SetState(GameTileState.Gameplay);
+        }
+
+        public void EnterContestant(ulong accountId)
+        {
+            ActiveContestants.Add(accountId);
+        }
+
+        public void EliminateContestant(ulong accountId)
+        {
+            ActiveContestants.Remove(accountId);
+            EliminatedContestants.Add(accountId);
         }
 
         public virtual void FinishGameplay()
         {
-            //TODO, we need to create an output event which contains the gameplay output data necessary to display the podium animation on the client. 
+            currentOutputEvents?.Events.Add(
+                new OutputEvent.GameplayFinished
+                {
+                    Prize = CalculateTotalPrize(),
+                    AccountIdsInRankOrder = EliminatedContestants
+                        .AsEnumerable()
+                        .Reverse()
+                        .ToArray(),
+                    WorldId = TileWorldId,
+                }
+            );
+        }
+
+        public uint CalculateTotalPrize()
+        {
+            //Prize is total marbles bid * tile rarity multiplier
+            return TotalMarblesBid * TileRarityMultiplier;
         }
 
         public const float SPINNING_DURATION_SEC = 5.0f;

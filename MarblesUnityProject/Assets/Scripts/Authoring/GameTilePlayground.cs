@@ -103,7 +103,7 @@ public class GameTilePlayground : MonoBehaviour
 
         if (GameTile != null)
         {
-            GameTile.Initialize(1);
+            GameTile.InitTile(1);
 
             Debug.Log($"[GameTilePlayground] Loaded: {GameTile.TileRoot?.Name ?? "Unknown"}");
         }

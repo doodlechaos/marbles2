@@ -60,7 +60,9 @@ namespace GameCoreLib
                 if (inputEvent is InputEvent.SpinToNewGameTile spinLoadGameTile)
                 {
                     byte worldId = spinLoadGameTile.WorldId;
-                    OutputEvents.Events.Add(new OutputEvent.StartSpinAnimation { WorldId = worldId });
+                    OutputEvents.Events.Add(
+                        new OutputEvent.StartSpinAnimation { WorldId = worldId }
+                    );
                     // Load the pre-deserialized GameTile into the appropriate slot
                     LoadGameTileIntoSlot(worldId, spinLoadGameTile.NewGameTile);
                 }
@@ -98,11 +100,7 @@ namespace GameCoreLib
                 {
                     string hashString = GetDeterministicHashHex();
                     OutputEvents.Events.Add(
-                        new OutputEvent.DeterminismHash
-                        {
-                            Seq = Seq,
-                            HashString = hashString,
-                        }
+                        new OutputEvent.DeterminismHash { Seq = Seq, HashString = hashString }
                     );
                 }
             }
@@ -122,12 +120,12 @@ namespace GameCoreLib
             if (worldId == 1)
             {
                 GameTile1 = gameTile;
-                GameTile1.Initialize(1);
+                GameTile1.InitTile(1);
             }
             else if (worldId == 2)
             {
                 GameTile2 = gameTile;
-                GameTile2.Initialize(2);
+                GameTile2.InitTile(2);
             }
             else
             {
@@ -147,7 +145,7 @@ namespace GameCoreLib
             }
 
             ThroneTile = throneTile;
-            ThroneTile.Initialize(0); // ThroneTile uses world ID 0
+            ThroneTile.InitTile(0); // ThroneTile uses world ID 0
         }
 
         public string GetDeterministicHashHex()

@@ -105,7 +105,7 @@ public class ThroneTilePlayground : MonoBehaviour
 
         if (ThroneTile != null)
         {
-            ThroneTile.Initialize(1);
+            ThroneTile.InitTile(1);
 
             Debug.Log($"[ThroneTilePlayground] Loaded: {ThroneTile.TileRoot?.Name ?? "Unknown"}");
         }

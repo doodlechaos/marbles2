@@ -57,7 +57,7 @@ namespace GameCoreLib
             return ((ulong)TileWorldId << 48) | (NextLocalId++ & 0xFFFFFFFFFFFF);
         }
 
-        public virtual void Initialize(byte tileWorldId)
+        public virtual void InitTile(byte tileWorldId)
         {
             Logger.Log($"Initializing {GetType().Name} with TileId={tileWorldId}...");
 

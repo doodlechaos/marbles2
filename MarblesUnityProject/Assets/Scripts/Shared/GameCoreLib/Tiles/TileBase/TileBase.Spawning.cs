@@ -79,7 +79,6 @@ namespace GameCoreLib
             marbleComp.BidAmount = bidAmount;
             marbleComp.Points = points;
             marbleComp.IsAlive = true;
-            marbleComp.EliminationOrder = 0;
 
             // Create physics bodies from authored collider/rigidbody components.
             // This sets PhysicsBodyId on each RuntimeObj that gets a physics body.

@@ -26,6 +26,9 @@ public class Synchronizer : MonoBehaviour
     [SerializeField]
     private bool restoreRequestedFlag = false;
 
+    [SerializeField]
+    private PodiumManager _podiumManager;
+
     public void SetCallbacks(DbConnection conn)
     {
         // Reset state for fresh sync
@@ -149,6 +152,15 @@ public class Synchronizer : MonoBehaviour
             {
                 Debug.Log(
                     $"DeterminismHash: [{determinismHash.HashString}] at seq [{determinismHash.Seq}]"
+                );
+            }
+            else if (outputEvent is OutputEvent.GameplayFinished gameplayFinished)
+            {
+                Debug.Log("GameplayFinished: " + gameplayFinished.GetType().Name);
+                _podiumManager.RunPodiumAnimation(
+                    gameplayFinished.Prize,
+                    gameplayFinished.AccountIdsInRankOrder,
+                    gameplayFinished.WorldId
                 );
             }
         }

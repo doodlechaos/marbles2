@@ -119,10 +119,10 @@ public static partial class Module
 
             // Get random GameTile templates and initialize them with their slot IDs
             gameCore.GameTile1 = GetRandomGameTile(ctx);
-            gameCore.GameTile1.Initialize(1);
+            gameCore.GameTile1.InitTile(1);
 
             gameCore.GameTile2 = GetRandomGameTile(ctx);
-            gameCore.GameTile2.Initialize(2);
+            gameCore.GameTile2.InitTile(2);
 
             snapshot = new GameCoreSnap
             {
@@ -224,7 +224,10 @@ public static partial class Module
         }
     }
 
-    private static void ProcessStateUpdate(ReducerContext ctx, OutputEvent.StateUpdatedTo stateUpdatedTo)
+    private static void ProcessStateUpdate(
+        ReducerContext ctx,
+        OutputEvent.StateUpdatedTo stateUpdatedTo
+    )
     {
         byte worldId = stateUpdatedTo.WorldId;
         GameTileState state = stateUpdatedTo.State;

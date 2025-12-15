@@ -28,26 +28,16 @@ namespace GameCoreLib
         public List<MarbleComponent> PlayerMarbles = new List<MarbleComponent>();
 
         /// <summary>
-        /// Counter for assigning elimination order.
-        /// Serialized so it continues correctly after deserialize.
-        /// </summary>
-        [MemoryPackOrder(9)] // TileBase uses 0-6, GameTileBase uses 7-8, derived starts at 9
-        public int NextEliminationOrder = 1;
-
-        /// <summary>
         /// Queue of players waiting to spawn.
         /// </summary>
-        [MemoryPackOrder(10)]
+        [MemoryPackOrder(14)]
         public List<InputEvent.Entrant> SpawnQueue = new List<InputEvent.Entrant>();
 
-        [MemoryPackOrder(11)]
+        [MemoryPackOrder(15)]
         public int SpawnTickCounter = 0;
 
-        [MemoryPackOrder(12)]
+        [MemoryPackOrder(16)]
         public int TicksBetweenSpawns = 30;
-
-        [MemoryPackOrder(13)]
-        public uint TotalMarblesBid;
 
         public SimpleBattleRoyale() { }
 
@@ -91,32 +81,25 @@ namespace GameCoreLib
         /// </summary>
         protected override void OnMarbleEliminated(MarbleComponent marble)
         {
-            marble.EliminationOrder = NextEliminationOrder++;
-            Logger.Log($"Player {marble.AccountId} eliminated (order: {marble.EliminationOrder})");
-
             // Remove from active player list
             PlayerMarbles.Remove(marble);
         }
 
         public override void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
         {
-            TotalMarblesBid = gameplayStartInput.TotalMarblesBid;
             PlayerMarbles.Clear();
             SpawnQueue.Clear();
             SpawnTickCounter = 0;
-            NextEliminationOrder = 1;
 
             foreach (var entrant in gameplayStartInput.Entrants)
                 SpawnQueue.Add(entrant);
 
-            // Transition to Gameplay state (controlled by server bidding logic)
-            SetState(GameTileState.Gameplay);
+            base.StartGameplay(gameplayStartInput);
         }
 
         public override void Step()
         {
             ProcessSpawnQueue();
-            CheckEliminations();
             base.Step();
         }
 
@@ -164,94 +147,6 @@ namespace GameCoreLib
             Logger.Log($"Player {entrant.AccountId} spawned via template");
         }
 
-        private void CheckEliminations()
-        {
-            /*             FP eliminationY = FP.FromFloat(-20f);
-            
-                        foreach (var player in PlayerMarbles)
-                        {
-                            if (player.IsAlive && player.Transform.Position.Y < eliminationY)
-                            {
-                                player.IsAlive = false;
-                                player.EliminationOrder = NextEliminationOrder++;
-                                Logger.Log(
-                                    $"Player {player.AccountId} eliminated (order: {player.EliminationOrder})"
-                                );
-                            }
-                        } */
 
-            // Count survivors
-            int aliveCount = 0;
-            MarbleComponent lastAlive = null;
-            foreach (var player in PlayerMarbles)
-            {
-                if (player.IsAlive)
-                {
-                    aliveCount++;
-                    lastAlive = player;
-                }
-            }
-
-            // Check for winner
-            if (aliveCount == 1 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 1)
-            {
-                Logger.Log($"Player {lastAlive.AccountId} wins!");
-                currentOutputEvents?.Events.Add(
-                    new OutputEvent.NewKing { AccountId = lastAlive.AccountId }
-                );
-            }
-            else if (aliveCount == 0 && SpawnQueue.Count == 0 && PlayerMarbles.Count > 0)
-            {
-                Logger.Log("All players eliminated!");
-            }
-        }
-
-        #region Query Helpers
-
-        /// <summary>
-        /// Get all surviving players.
-        /// </summary>
-        public IEnumerable<MarbleComponent> GetSurvivors()
-        {
-            foreach (var p in PlayerMarbles)
-                if (p.IsAlive)
-                    yield return p;
-        }
-
-        /// <summary>
-        /// Get eliminated players sorted by elimination order.
-        /// </summary>
-        public IEnumerable<MarbleComponent> GetEliminatedInOrder()
-        {
-            // Simple insertion sort since list is small
-            var eliminated = new List<MarbleComponent>();
-            foreach (var p in PlayerMarbles)
-            {
-                if (!p.IsAlive)
-                    eliminated.Add(p);
-            }
-            eliminated.Sort((a, b) => a.EliminationOrder.CompareTo(b.EliminationOrder));
-            return eliminated;
-        }
-
-        /// <summary>
-        /// Get final rank for a player (1 = winner, higher = worse).
-        /// </summary>
-        public int GetFinalRank(ulong accountId)
-        {
-            foreach (var p in PlayerMarbles)
-            {
-                if (p.AccountId == accountId)
-                {
-                    if (p.IsAlive)
-                        return 1; // Survivor
-                    // Eliminated: invert order (last eliminated = rank 2, first = worst)
-                    return PlayerMarbles.Count - p.EliminationOrder + 1;
-                }
-            }
-            return -1;
-        }
-
-        #endregion
     }
 }

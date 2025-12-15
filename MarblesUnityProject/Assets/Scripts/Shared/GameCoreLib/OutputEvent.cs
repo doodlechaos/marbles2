@@ -68,6 +68,16 @@ namespace GameCoreLib
             public string HashString;
         }
 
+        public class GameplayFinished : OutputEvent
+        {
+            public GameplayFinished()
+                : base(OutputEventDestination.Both) { }
+
+            public uint Prize;
+            public ulong[] AccountIdsInRankOrder;
+            public byte WorldId;
+        }
+
         public class AddPointsToAccount : OutputEvent
         {
             public AddPointsToAccount()
