@@ -10,7 +10,7 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("BaseCfg", {
+export default __t.object("BaseCfgS", {
   id: __t.u8(),
   clockIntervalSec: __t.f64(),
   determinismSnapIntervalSec: __t.f64(),
@@ -21,6 +21,13 @@ export default __t.object("BaseCfg", {
   logInputFrameTimes: __t.bool(),
   logAuthFrameTimeDiffs: __t.bool(),
   gcCacheAccountTimeoutMinutes: __t.f64(),
+  dayRewardStreak1Marbles: __t.u16(),
+  dayRewardStreak2Marbles: __t.u16(),
+  dayRewardStreak3Marbles: __t.u16(),
+  dayRewardStreak4Marbles: __t.u16(),
+  dayRewardStreak5Marbles: __t.u16(),
+  dayRewardStreak6Marbles: __t.u16(),
+  dayRewardStreak7Marbles: __t.u16(),
 });
 
 

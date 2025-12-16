@@ -41,6 +41,8 @@ import ASpinLoadGameplayTile from "./a_spin_load_gameplay_tile_reducer";
 export { ASpinLoadGameplayTile };
 import AttackThrone from "./attack_throne_reducer";
 export { AttackThrone };
+import ClaimDailyReward from "./claim_daily_reward_reducer";
+export { ClaimDailyReward };
 import ClockUpdate from "./clock_update_reducer";
 export { ClockUpdate };
 import Connect from "./connect_reducer";
@@ -87,8 +89,8 @@ import AdminRow from "./admin_table";
 export { AdminRow };
 import AuthFrameRow from "./auth_frame_table";
 export { AuthFrameRow };
-import BaseCfgRow from "./base_cfg_table";
-export { BaseCfgRow };
+import BaseCfgSRow from "./base_cfg_s_table";
+export { BaseCfgSRow };
 import BidConfigSRow from "./bid_config_s_table";
 export { BidConfigSRow };
 import BidTimeSRow from "./bid_time_s_table";
@@ -147,8 +149,8 @@ import Admin from "./admin_type";
 export { Admin };
 import AuthFrame from "./auth_frame_type";
 export { AuthFrame };
-import BaseCfg from "./base_cfg_type";
-export { BaseCfg };
+import BaseCfgS from "./base_cfg_s_type";
+export { BaseCfgS };
 import BidConfigS from "./bid_config_s_type";
 export { BidConfigS };
 import BidTimeS from "./bid_time_s_type";
@@ -267,16 +269,16 @@ const tablesSchema = __schema(
     ],
   }, AuthFrameRow),
   __table({
-    name: 'BaseCfg',
+    name: 'BaseCfgS',
     indexes: [
       { name: 'Id', algorithm: 'btree', columns: [
         'id',
       ] },
     ],
     constraints: [
-      { name: 'BaseCfg_Id_key', constraint: 'unique', columns: ['id'] },
+      { name: 'BaseCfgS_Id_key', constraint: 'unique', columns: ['id'] },
     ],
-  }, BaseCfgRow),
+  }, BaseCfgSRow),
   __table({
     name: 'BidConfigS',
     indexes: [
@@ -516,6 +518,7 @@ const reducersSchema = __reducers(
   __reducerSchema("A_InsertBid", AInsertBid),
   __reducerSchema("A_SpinLoadGameplayTile", ASpinLoadGameplayTile),
   __reducerSchema("AttackThrone", AttackThrone),
+  __reducerSchema("ClaimDailyReward", ClaimDailyReward),
   __reducerSchema("ClockUpdate", ClockUpdate),
   __reducerSchema("IncrementPfpVersion", IncrementPfpVersion),
   __reducerSchema("PlaceBid", PlaceBid),

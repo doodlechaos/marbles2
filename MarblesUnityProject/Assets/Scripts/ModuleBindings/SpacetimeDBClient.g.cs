@@ -34,7 +34,7 @@ namespace SpacetimeDB.Types
             AddTable(AccountSeq = new(conn));
             AddTable(Admin = new(conn));
             AddTable(AuthFrame = new(conn));
-            AddTable(BaseCfg = new(conn));
+            AddTable(BaseCfgS = new(conn));
             AddTable(BidConfigS = new(conn));
             AddTable(BidTimeS = new(conn));
             AddTable(BiddingStateS = new(conn));
@@ -622,6 +622,7 @@ namespace SpacetimeDB.Types
                 "A_InsertBid" => BSATNHelpers.Decode<Reducer.AInsertBid>(encodedArgs),
                 "A_SpinLoadGameplayTile" => BSATNHelpers.Decode<Reducer.ASpinLoadGameplayTile>(encodedArgs),
                 "AttackThrone" => BSATNHelpers.Decode<Reducer.AttackThrone>(encodedArgs),
+                "ClaimDailyReward" => BSATNHelpers.Decode<Reducer.ClaimDailyReward>(encodedArgs),
                 "ClockUpdate" => BSATNHelpers.Decode<Reducer.ClockUpdate>(encodedArgs),
                 "Connect" => BSATNHelpers.Decode<Reducer.Connect>(encodedArgs),
                 "Disconnect" => BSATNHelpers.Decode<Reducer.Disconnect>(encodedArgs),
@@ -667,6 +668,7 @@ namespace SpacetimeDB.Types
                 Reducer.AInsertBid args => Reducers.InvokeAInsertBid(eventContext, args),
                 Reducer.ASpinLoadGameplayTile args => Reducers.InvokeASpinLoadGameplayTile(eventContext, args),
                 Reducer.AttackThrone args => Reducers.InvokeAttackThrone(eventContext, args),
+                Reducer.ClaimDailyReward args => Reducers.InvokeClaimDailyReward(eventContext, args),
                 Reducer.ClockUpdate args => Reducers.InvokeClockUpdate(eventContext, args),
                 Reducer.Connect args => Reducers.InvokeConnect(eventContext, args),
                 Reducer.Disconnect args => Reducers.InvokeDisconnect(eventContext, args),

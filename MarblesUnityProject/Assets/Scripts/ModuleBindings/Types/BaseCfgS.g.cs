@@ -11,7 +11,7 @@ namespace SpacetimeDB.Types
 {
     [SpacetimeDB.Type]
     [DataContract]
-    public sealed partial class BaseCfg
+    public sealed partial class BaseCfgS
     {
         [DataMember(Name = "Id")]
         public byte Id;
@@ -33,8 +33,22 @@ namespace SpacetimeDB.Types
         public bool LogAuthFrameTimeDiffs;
         [DataMember(Name = "gcCacheAccountTimeoutMinutes")]
         public double GcCacheAccountTimeoutMinutes;
+        [DataMember(Name = "dayRewardStreak1Marbles")]
+        public ushort DayRewardStreak1Marbles;
+        [DataMember(Name = "dayRewardStreak2Marbles")]
+        public ushort DayRewardStreak2Marbles;
+        [DataMember(Name = "dayRewardStreak3Marbles")]
+        public ushort DayRewardStreak3Marbles;
+        [DataMember(Name = "dayRewardStreak4Marbles")]
+        public ushort DayRewardStreak4Marbles;
+        [DataMember(Name = "dayRewardStreak5Marbles")]
+        public ushort DayRewardStreak5Marbles;
+        [DataMember(Name = "dayRewardStreak6Marbles")]
+        public ushort DayRewardStreak6Marbles;
+        [DataMember(Name = "dayRewardStreak7Marbles")]
+        public ushort DayRewardStreak7Marbles;
 
-        public BaseCfg(
+        public BaseCfgS(
             byte Id,
             double ClockIntervalSec,
             double DeterminismSnapIntervalSec,
@@ -44,7 +58,14 @@ namespace SpacetimeDB.Types
             double AuthFrameTimeErrorThresholdSec,
             bool LogInputFrameTimes,
             bool LogAuthFrameTimeDiffs,
-            double GcCacheAccountTimeoutMinutes
+            double GcCacheAccountTimeoutMinutes,
+            ushort DayRewardStreak1Marbles,
+            ushort DayRewardStreak2Marbles,
+            ushort DayRewardStreak3Marbles,
+            ushort DayRewardStreak4Marbles,
+            ushort DayRewardStreak5Marbles,
+            ushort DayRewardStreak6Marbles,
+            ushort DayRewardStreak7Marbles
         )
         {
             this.Id = Id;
@@ -57,9 +78,16 @@ namespace SpacetimeDB.Types
             this.LogInputFrameTimes = LogInputFrameTimes;
             this.LogAuthFrameTimeDiffs = LogAuthFrameTimeDiffs;
             this.GcCacheAccountTimeoutMinutes = GcCacheAccountTimeoutMinutes;
+            this.DayRewardStreak1Marbles = DayRewardStreak1Marbles;
+            this.DayRewardStreak2Marbles = DayRewardStreak2Marbles;
+            this.DayRewardStreak3Marbles = DayRewardStreak3Marbles;
+            this.DayRewardStreak4Marbles = DayRewardStreak4Marbles;
+            this.DayRewardStreak5Marbles = DayRewardStreak5Marbles;
+            this.DayRewardStreak6Marbles = DayRewardStreak6Marbles;
+            this.DayRewardStreak7Marbles = DayRewardStreak7Marbles;
         }
 
-        public BaseCfg()
+        public BaseCfgS()
         {
         }
     }

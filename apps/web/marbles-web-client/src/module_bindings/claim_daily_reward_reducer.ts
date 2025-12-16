@@ -10,17 +10,4 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("Account", {
-  identity: __t.identity(),
-  id: __t.u64(),
-  isConnected: __t.bool(),
-  marbles: __t.u32(),
-  points: __t.u32(),
-  gold: __t.u32(),
-  firstLoginBonusClaimed: __t.bool(),
-  isMember: __t.bool(),
-  dailyRewardClaimStreak: __t.u16(),
-  lastDailyRewardClaimDay: __t.i64(),
-});
-
-
+export default {};

@@ -10,10 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-import BaseCfg from "./base_cfg_type";
+import BaseCfgS from "./base_cfg_s_type";
 
 export default {
   get row() {
-    return BaseCfg;
+    return BaseCfgS;
   },
 };

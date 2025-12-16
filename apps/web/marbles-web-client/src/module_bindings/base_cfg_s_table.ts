@@ -21,4 +21,11 @@ export default __t.row({
   logInputFrameTimes: __t.bool(),
   logAuthFrameTimeDiffs: __t.bool(),
   gcCacheAccountTimeoutMinutes: __t.f64(),
+  dayRewardStreak1Marbles: __t.u16(),
+  dayRewardStreak2Marbles: __t.u16(),
+  dayRewardStreak3Marbles: __t.u16(),
+  dayRewardStreak4Marbles: __t.u16(),
+  dayRewardStreak5Marbles: __t.u16(),
+  dayRewardStreak6Marbles: __t.u16(),
+  dayRewardStreak7Marbles: __t.u16(),
 });

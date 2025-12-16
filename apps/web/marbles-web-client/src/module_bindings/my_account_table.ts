@@ -19,6 +19,6 @@ export default __t.row({
   gold: __t.u32(),
   firstLoginBonusClaimed: __t.bool(),
   isMember: __t.bool(),
-  dailyRewardClaimStreak: __t.i64(),
+  dailyRewardClaimStreak: __t.u16(),
   lastDailyRewardClaimDay: __t.i64(),
 });

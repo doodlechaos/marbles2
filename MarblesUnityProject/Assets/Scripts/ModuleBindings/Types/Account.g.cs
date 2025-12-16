@@ -30,7 +30,7 @@ namespace SpacetimeDB.Types
         [DataMember(Name = "IsMember")]
         public bool IsMember;
         [DataMember(Name = "DailyRewardClaimStreak")]
-        public long DailyRewardClaimStreak;
+        public ushort DailyRewardClaimStreak;
         [DataMember(Name = "LastDailyRewardClaimDay")]
         public long LastDailyRewardClaimDay;
 
@@ -43,7 +43,7 @@ namespace SpacetimeDB.Types
             uint Gold,
             bool FirstLoginBonusClaimed,
             bool IsMember,
-            long DailyRewardClaimStreak,
+            ushort DailyRewardClaimStreak,
             long LastDailyRewardClaimDay
         )
         {

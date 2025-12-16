@@ -12,17 +12,17 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteReducers : RemoteBase
     {
-        public delegate void UpsertBaseCfgHandler(ReducerEventContext ctx, SpacetimeDB.Types.BaseCfgS row);
-        public event UpsertBaseCfgHandler? OnUpsertBaseCfg;
+        public delegate void ClaimDailyRewardHandler(ReducerEventContext ctx);
+        public event ClaimDailyRewardHandler? OnClaimDailyReward;
 
-        public void UpsertBaseCfg(SpacetimeDB.Types.BaseCfgS row)
+        public void ClaimDailyReward()
         {
-            conn.InternalCallReducer(new Reducer.UpsertBaseCfg(row), this.SetCallReducerFlags.UpsertBaseCfgFlags);
+            conn.InternalCallReducer(new Reducer.ClaimDailyReward(), this.SetCallReducerFlags.ClaimDailyRewardFlags);
         }
 
-        public bool InvokeUpsertBaseCfg(ReducerEventContext ctx, Reducer.UpsertBaseCfg args)
+        public bool InvokeClaimDailyReward(ReducerEventContext ctx, Reducer.ClaimDailyReward args)
         {
-            if (OnUpsertBaseCfg == null)
+            if (OnClaimDailyReward == null)
             {
                 if (InternalOnUnhandledReducerError != null)
                 {
@@ -34,9 +34,8 @@ namespace SpacetimeDB.Types
                 }
                 return false;
             }
-            OnUpsertBaseCfg(
-                ctx,
-                args.Row
+            OnClaimDailyReward(
+                ctx
             );
             return true;
         }
@@ -46,28 +45,15 @@ namespace SpacetimeDB.Types
     {
         [SpacetimeDB.Type]
         [DataContract]
-        public sealed partial class UpsertBaseCfg : Reducer, IReducerArgs
+        public sealed partial class ClaimDailyReward : Reducer, IReducerArgs
         {
-            [DataMember(Name = "row")]
-            public BaseCfgS Row;
-
-            public UpsertBaseCfg(BaseCfgS Row)
-            {
-                this.Row = Row;
-            }
-
-            public UpsertBaseCfg()
-            {
-                this.Row = new();
-            }
-
-            string IReducerArgs.ReducerName => "UpsertBaseCfg";
+            string IReducerArgs.ReducerName => "ClaimDailyReward";
         }
     }
 
     public sealed partial class SetReducerFlags
     {
-        internal CallReducerFlags UpsertBaseCfgFlags;
-        public void UpsertBaseCfg(CallReducerFlags flags) => UpsertBaseCfgFlags = flags;
+        internal CallReducerFlags ClaimDailyRewardFlags;
+        public void ClaimDailyReward(CallReducerFlags flags) => ClaimDailyRewardFlags = flags;
     }
 }
