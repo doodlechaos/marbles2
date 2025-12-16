@@ -386,9 +386,6 @@ public class TileExporter : EditorWindow
             UnityPrefabGuid = unityPrefabGUID,
             TileName = tileName,
             Rarity = (int)gameTileAuth.AppearanceFrequency,
-            MinAuctionSpots = gameTileAuth.MinAuctionSpots,
-            MaxAuctionSpots = gameTileAuth.MaxAuctionSpots,
-            MaxRaffleDraws = gameTileAuth.MaxRaffleDraws,
             GameTileBinary = new List<byte>(gameTileBinary),
         };
 

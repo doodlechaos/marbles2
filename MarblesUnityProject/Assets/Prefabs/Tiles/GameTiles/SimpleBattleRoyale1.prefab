@@ -149,9 +149,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SimpleBattleRoyaleAuth
   MarblePrefab: {fileID: 5299851290725159317, guid: 27407d322ea4b9948a9ed629475944e8, type: 3}
   AppearanceFrequency: 0
-  MinAuctionSpots: 0
-  MaxAuctionSpots: 10
-  MaxRaffleDraws: 10
+  GameBidCfg:
+    MinAuctionSpots: 1
+    MaxAcutionSpots: 10
+    MaxRaffleDraws: 20
   spawnPipe: {fileID: 6796792499236225991}
 --- !u!114 &5953226982995148125 stripped
 MonoBehaviour:

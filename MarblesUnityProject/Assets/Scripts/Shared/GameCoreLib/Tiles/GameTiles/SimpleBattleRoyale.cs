@@ -30,13 +30,13 @@ namespace GameCoreLib
         /// <summary>
         /// Queue of players waiting to spawn.
         /// </summary>
-        [MemoryPackOrder(14)]
+        [MemoryPackOrder(15)]
         public List<InputEvent.Entrant> SpawnQueue = new List<InputEvent.Entrant>();
 
-        [MemoryPackOrder(15)]
+        [MemoryPackOrder(16)]
         public int SpawnTickCounter = 0;
 
-        [MemoryPackOrder(16)]
+        [MemoryPackOrder(17)]
         public int TicksBetweenSpawns = 30;
 
         public SimpleBattleRoyale() { }

@@ -10,11 +10,10 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.object("BidConfigS", {
-  id: __t.u8(),
-  minAuctionSpots: __t.i32(),
-  maxAcutionSpots: __t.i32(),
-  maxRaffleDraws: __t.i32(),
+export default __t.object("GameBidCfg", {
+  minAuctionSpots: __t.u16(),
+  maxAcutionSpots: __t.u16(),
+  maxRaffleDraws: __t.u16(),
 });
 
 

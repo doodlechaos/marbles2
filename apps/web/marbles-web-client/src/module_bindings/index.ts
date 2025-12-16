@@ -93,8 +93,6 @@ import AuthFrameRow from "./auth_frame_table";
 export { AuthFrameRow };
 import BaseCfgSRow from "./base_cfg_s_table";
 export { BaseCfgSRow };
-import BidConfigSRow from "./bid_config_s_table";
-export { BidConfigSRow };
 import BidTimeSRow from "./bid_time_s_table";
 export { BidTimeSRow };
 import BiddingStateSRow from "./bidding_state_s_table";
@@ -123,6 +121,8 @@ import MyAccountRow from "./my_account_table";
 export { MyAccountRow };
 import MySessionKindRow from "./my_session_kind_table";
 export { MySessionKindRow };
+import NextGameBidCfgSRow from "./next_game_bid_cfg_s_table";
+export { NextGameBidCfgSRow };
 import ScoreboardEntryRow from "./scoreboard_entry_table";
 export { ScoreboardEntryRow };
 import SeqRow from "./seq_table";
@@ -153,8 +153,6 @@ import AuthFrame from "./auth_frame_type";
 export { AuthFrame };
 import BaseCfgS from "./base_cfg_s_type";
 export { BaseCfgS };
-import BidConfigS from "./bid_config_s_type";
-export { BidConfigS };
 import BidTimeS from "./bid_time_s_type";
 export { BidTimeS };
 import BiddingStateS from "./bidding_state_s_type";
@@ -169,6 +167,8 @@ import DeterminismSnapSchedule from "./determinism_snap_schedule_type";
 export { DeterminismSnapSchedule };
 import GtScoreboardS from "./gt_scoreboard_s_type";
 export { GtScoreboardS };
+import GameBidCfg from "./game_bid_cfg_type";
+export { GameBidCfg };
 import GameCoreSnap from "./game_core_snap_type";
 export { GameCoreSnap };
 import GameTileData from "./game_tile_data_type";
@@ -181,6 +181,8 @@ import LastAuthFrameTimestamp from "./last_auth_frame_timestamp_type";
 export { LastAuthFrameTimestamp };
 import MySessionKindContainer from "./my_session_kind_container_type";
 export { MySessionKindContainer };
+import NextGameBidCfgS from "./next_game_bid_cfg_s_type";
+export { NextGameBidCfgS };
 import ScoreboardEntry from "./scoreboard_entry_type";
 export { ScoreboardEntry };
 import Seq from "./seq_type";
@@ -281,17 +283,6 @@ const tablesSchema = __schema(
       { name: 'BaseCfgS_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, BaseCfgSRow),
-  __table({
-    name: 'BidConfigS',
-    indexes: [
-      { name: 'Id', algorithm: 'btree', columns: [
-        'id',
-      ] },
-    ],
-    constraints: [
-      { name: 'BidConfigS_Id_key', constraint: 'unique', columns: ['id'] },
-    ],
-  }, BidConfigSRow),
   __table({
     name: 'BidTimeS',
     indexes: [
@@ -420,6 +411,17 @@ const tablesSchema = __schema(
       { name: 'LastAuthFrameTimestamp_Id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, LastAuthFrameTimestampRow),
+  __table({
+    name: 'NextGameBidCfgS',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'NextGameBidCfgS_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, NextGameBidCfgSRow),
   __table({
     name: 'ScoreboardEntry',
     indexes: [

@@ -24,9 +24,6 @@ public static partial class Module
         /// </summary>
         public int Rarity;
 
-        public int MinAuctionSpots;
-        public int MaxAuctionSpots;
-        public int MaxRaffleDraws;
 
         /// <summary>
         /// Serialized GameTileBase (e.g., SimpleBattleRoyale).

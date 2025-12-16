@@ -11,31 +11,27 @@ namespace SpacetimeDB.Types
 {
     [SpacetimeDB.Type]
     [DataContract]
-    public sealed partial class BidConfigS
+    public sealed partial class GameBidCfg
     {
-        [DataMember(Name = "Id")]
-        public byte Id;
         [DataMember(Name = "MinAuctionSpots")]
-        public int MinAuctionSpots;
+        public ushort MinAuctionSpots;
         [DataMember(Name = "MaxAcutionSpots")]
-        public int MaxAcutionSpots;
+        public ushort MaxAcutionSpots;
         [DataMember(Name = "MaxRaffleDraws")]
-        public int MaxRaffleDraws;
+        public ushort MaxRaffleDraws;
 
-        public BidConfigS(
-            byte Id,
-            int MinAuctionSpots,
-            int MaxAcutionSpots,
-            int MaxRaffleDraws
+        public GameBidCfg(
+            ushort MinAuctionSpots,
+            ushort MaxAcutionSpots,
+            ushort MaxRaffleDraws
         )
         {
-            this.Id = Id;
             this.MinAuctionSpots = MinAuctionSpots;
             this.MaxAcutionSpots = MaxAcutionSpots;
             this.MaxRaffleDraws = MaxRaffleDraws;
         }
 
-        public BidConfigS()
+        public GameBidCfg()
         {
         }
     }

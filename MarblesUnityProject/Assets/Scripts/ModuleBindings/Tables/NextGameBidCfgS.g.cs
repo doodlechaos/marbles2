@@ -13,27 +13,27 @@ namespace SpacetimeDB.Types
 {
     public sealed partial class RemoteTables
     {
-        public sealed class BidConfigSHandle : RemoteTableHandle<EventContext, BidConfigS>
+        public sealed class NextGameBidCfgSHandle : RemoteTableHandle<EventContext, NextGameBidCfgS>
         {
-            protected override string RemoteTableName => "BidConfigS";
+            protected override string RemoteTableName => "NextGameBidCfgS";
 
             public sealed class IdUniqueIndex : UniqueIndexBase<byte>
             {
-                protected override byte GetKey(BidConfigS row) => row.Id;
+                protected override byte GetKey(NextGameBidCfgS row) => row.Id;
 
-                public IdUniqueIndex(BidConfigSHandle table) : base(table) { }
+                public IdUniqueIndex(NextGameBidCfgSHandle table) : base(table) { }
             }
 
             public readonly IdUniqueIndex Id;
 
-            internal BidConfigSHandle(DbConnection conn) : base(conn)
+            internal NextGameBidCfgSHandle(DbConnection conn) : base(conn)
             {
                 Id = new(this);
             }
 
-            protected override object GetPrimaryKey(BidConfigS row) => row.Id;
+            protected override object GetPrimaryKey(NextGameBidCfgS row) => row.Id;
         }
 
-        public readonly BidConfigSHandle BidConfigS;
+        public readonly NextGameBidCfgSHandle NextGameBidCfgS;
     }
 }

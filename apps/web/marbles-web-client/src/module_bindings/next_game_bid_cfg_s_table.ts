@@ -9,12 +9,12 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import GameBidCfg from "./game_bid_cfg_type";
 
-export default __t.object("GameTileData", {
-  unityPrefabGuid: __t.string(),
-  tileName: __t.string(),
-  rarity: __t.i32(),
-  gameTileBinary: __t.byteArray(),
+
+export default __t.row({
+  id: __t.u8().primaryKey(),
+  get gameBidCfg() {
+    return GameBidCfg;
+  },
 });
-
-

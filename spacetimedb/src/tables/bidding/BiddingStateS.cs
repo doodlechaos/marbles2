@@ -1,4 +1,5 @@
 using SpacetimeDB;
+using GameCoreLib;
 
 public static partial class Module
 {
@@ -21,9 +22,7 @@ public static partial class Module
         /// </summary>
         public byte CurrBidWorldId;
 
-        public int MinAuctionSpots;
-        public int MaxAcutionSpots;
-        public int MaxRaffleDraws;
+        public GameBidCfg GameBidCfg;
 
         public static BiddingStateS Inst(ReducerContext ctx)
         {

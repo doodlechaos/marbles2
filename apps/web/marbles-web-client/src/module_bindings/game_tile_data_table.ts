@@ -14,8 +14,5 @@ export default __t.row({
   unityPrefabGuid: __t.string().primaryKey(),
   tileName: __t.string(),
   rarity: __t.i32(),
-  minAuctionSpots: __t.i32(),
-  maxAuctionSpots: __t.i32(),
-  maxRaffleDraws: __t.i32(),
   gameTileBinary: __t.byteArray(),
 });

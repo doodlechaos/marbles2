@@ -35,7 +35,6 @@ namespace SpacetimeDB.Types
             AddTable(Admin = new(conn));
             AddTable(AuthFrame = new(conn));
             AddTable(BaseCfgS = new(conn));
-            AddTable(BidConfigS = new(conn));
             AddTable(BidTimeS = new(conn));
             AddTable(BiddingStateS = new(conn));
             AddTable(Clock = new(conn));
@@ -50,6 +49,7 @@ namespace SpacetimeDB.Types
             AddTable(LastAuthFrameTimestamp = new(conn));
             AddTable(MyAccount = new(conn));
             AddTable(MySessionKind = new(conn));
+            AddTable(NextGameBidCfgS = new(conn));
             AddTable(ScoreboardEntry = new(conn));
             AddTable(Seq = new(conn));
             AddTable(Session = new(conn));

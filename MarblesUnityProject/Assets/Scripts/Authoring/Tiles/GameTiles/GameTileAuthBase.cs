@@ -1,3 +1,4 @@
+using GameCoreLib;
 using UnityEngine;
 
 /// <summary>
@@ -6,8 +7,6 @@ using UnityEngine;
 /// </summary>
 public abstract class GameTileAuthBase : TileAuthBase
 {
-    public GameCoreLib.Rarity AppearanceFrequency;
-    public int MinAuctionSpots = 0;
-    public int MaxAuctionSpots = 10;
-    public int MaxRaffleDraws = 10;
+    public Rarity AppearanceFrequency;
+    public GameBidCfg GameBidCfg = new GameBidCfg();
 }

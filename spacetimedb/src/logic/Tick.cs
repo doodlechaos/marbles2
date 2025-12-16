@@ -236,16 +236,24 @@ public static partial class Module
         {
             Log.Info($"Detected Tile {worldId} finished - spinning to a new level");
             // Tile finished - spin to a new level
+            GameTileBase freshGameTile = GetRandomGameTile(ctx);
             ctx.Db.InputCollector.Insert(
                 new InputCollector
                 {
                     delaySeqs = 0,
                     inputEventData = new InputEvent.SpinToNewGameTile(
-                        GetRandomGameTile(ctx),
+                        freshGameTile,
                         worldId
                     ).ToBinary(),
                 }
             );
+            NextGameBidCfgS nextGameCfg = NextGameBidCfgS.Inst(ctx);
+            nextGameCfg.GameBidCfg = freshGameTile.GameBidCfg;
+            Logger.Log(
+                $"Next game bid cfg: {nextGameCfg.GameBidCfg} set from game tile {freshGameTile.GetType().Name}"
+            );
+
+            ctx.Db.NextGameBidCfgS.Id.Update(nextGameCfg);
         }
         else if (state == GameTileState.Bidding)
         {

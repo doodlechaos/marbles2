@@ -68,7 +68,9 @@ public static partial class Module
         if (!biddingState.OtherTileReadyForBidding)
             return;
 
-        if ((int)ctx.Db.AccountBid.Count < biddingState.MinAuctionSpots)
+        GameBidCfg gameBidCfg = biddingState.GameBidCfg;
+
+        if ((int)ctx.Db.AccountBid.Count < gameBidCfg.MinAuctionSpots)
             return;
 
         BidTimeS bidTime = BidTimeS.Inst(ctx);
@@ -83,8 +85,20 @@ public static partial class Module
 
     private static void FinishBiddingForTile(ReducerContext ctx)
     {
+        InputEvent.GameplayStartInput startGameTileEvent = GetBiddingResult(ctx);
+        byte[] eventData = startGameTileEvent.ToBinary();
+        ctx.Db.InputCollector.Insert(
+            new InputCollector { delaySeqs = 0, inputEventData = eventData }
+        );
+
+        CycleBidStateToNextGameTile(ctx);
+    }
+
+    private static InputEvent.GameplayStartInput GetBiddingResult(ReducerContext ctx)
+    {
         Log.Info("[BidManager.FinishBiddingForTile] Finishing bidding for tile");
         BiddingStateS biddingState = BiddingStateS.Inst(ctx);
+        GameBidCfg gameBidCfg = biddingState.GameBidCfg;
 
         // Get all bids (already one row per account with TotalBid pre-calculated)
         List<AccountBid> allBids = ctx.Db.AccountBid.Iter().ToList();
@@ -101,7 +115,7 @@ public static partial class Module
         List<InputEvent.Entrant> entrants = new List<InputEvent.Entrant>();
 
         // Take the top (# of guaranteed spots) highest total bid accounts
-        int guaranteedSpots = Math.Min(biddingState.MaxAcutionSpots, sortedBidders.Count);
+        int guaranteedSpots = Math.Min(gameBidCfg.MaxAcutionSpots, sortedBidders.Count);
         for (int i = 0; i < guaranteedSpots; i++)
         {
             entrants.Add(
@@ -117,7 +131,7 @@ public static partial class Module
         List<AccountBid> remainingBidders = sortedBidders.Skip(guaranteedSpots).ToList();
 
         // Randomly select more players (# of raffle draws) from remaining accounts
-        int raffleDraws = Math.Min(biddingState.MaxRaffleDraws, remainingBidders.Count);
+        int raffleDraws = Math.Min(gameBidCfg.MaxRaffleDraws, remainingBidders.Count);
         for (int i = 0; i < raffleDraws; i++)
         {
             int randomIndex = ctx.Rng.Next(0, remainingBidders.Count);
@@ -134,10 +148,12 @@ public static partial class Module
             totalMarblesBidByAll,
             biddingState.CurrBidWorldId
         );
-        byte[] eventData = startGameTileEvent.ToBinary();
-        ctx.Db.InputCollector.Insert(
-            new InputCollector { delaySeqs = 0, inputEventData = eventData }
-        );
+        return startGameTileEvent;
+    }
+
+    private static void CycleBidStateToNextGameTile(ReducerContext ctx)
+    {
+        BiddingStateS biddingState = BiddingStateS.Inst(ctx);
 
         // Clear all account bids for the next round
         foreach (AccountBid bid in ctx.Db.AccountBid.Iter().ToList())
@@ -151,15 +167,13 @@ public static partial class Module
         biddingState.OtherTileReadyForBidding = false;
         biddingState.CurrBidWorldId = (byte)(biddingState.CurrBidWorldId == 1 ? 2 : 1);
         //TODO: Here we need to get the new min/max auction spots from the next game tile and set them here.
-        biddingState.MinAuctionSpots = 2;
-        biddingState.MaxAcutionSpots = 20;
-        biddingState.MaxRaffleDraws = 10;
+        NextGameBidCfgS nextGameCfg = NextGameBidCfgS.Inst(ctx);
+        biddingState.GameBidCfg = nextGameCfg.GameBidCfg;
 
         ctx.Db.BiddingStateS.Id.Update(biddingState);
 
         Log.Info(
             $"Bidding finished. Gameplay starting on tile {(biddingState.CurrBidWorldId == 1 ? 2 : 1)}, now accepting bids on tile {biddingState.CurrBidWorldId}"
         );
-        Log.Info($"Total Entrants: {entrants.Count}");
     }
 }

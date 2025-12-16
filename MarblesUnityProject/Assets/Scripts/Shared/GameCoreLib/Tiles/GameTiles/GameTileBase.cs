@@ -27,26 +27,29 @@ namespace GameCoreLib
     public abstract partial class GameTileBase : TileBase
     {
         [MemoryPackOrder(7)]
-        public Rarity TileRarity;
+        public GameBidCfg GameBidCfg;
 
         [MemoryPackOrder(8)]
-        public byte TileRarityMultiplier;
+        public Rarity TileRarity;
 
         [MemoryPackOrder(9)]
+        public byte TileRarityMultiplier;
+
+        [MemoryPackOrder(10)]
         public GameTileState State = GameTileState.Spinning;
 
-        [MemoryPackOrder(10), MemoryPackInclude]
+        [MemoryPackOrder(11), MemoryPackInclude]
         protected int stateSteps = 0;
 
         //Alive players
-        [MemoryPackOrder(11), MemoryPackInclude]
+        [MemoryPackOrder(12), MemoryPackInclude]
         public List<ulong> ActiveContestants = new List<ulong>();
 
         //Eliminated players (The reverse order here is the order they are ranked in the podium)
-        [MemoryPackOrder(12), MemoryPackInclude]
+        [MemoryPackOrder(13), MemoryPackInclude]
         public List<ulong> EliminatedContestants = new List<ulong>();
 
-        [MemoryPackOrder(13)]
+        [MemoryPackOrder(14)]
         public uint TotalMarblesBid;
 
         /// <summary>

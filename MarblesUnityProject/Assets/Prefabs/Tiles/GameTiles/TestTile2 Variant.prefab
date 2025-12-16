@@ -20,6 +20,18 @@ PrefabInstance:
       propertyPath: spawnPipe
       value: 
       objectReference: {fileID: 6858762381649242148}
+    - target: {fileID: 1568423892521891110, guid: a00bb9e38b6a7394993dcf05ec295045, type: 3}
+      propertyPath: MaxAuctionSpots
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1568423892521891110, guid: a00bb9e38b6a7394993dcf05ec295045, type: 3}
+      propertyPath: MinAuctionSpots
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1568423892521891110, guid: a00bb9e38b6a7394993dcf05ec295045, type: 3}
+      propertyPath: GameBidCfg.MinAuctionSpots
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3076757502892871093, guid: a00bb9e38b6a7394993dcf05ec295045, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

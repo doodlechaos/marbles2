@@ -9,10 +9,14 @@ import {
   type AlgebraicTypeType as __AlgebraicTypeType,
   type Infer as __Infer,
 } from "spacetimedb";
+import GameBidCfg from "./game_bid_cfg_type";
 
-export default __t.row({
-  id: __t.u8().primaryKey(),
-  minAuctionSpots: __t.i32(),
-  maxAcutionSpots: __t.i32(),
-  maxRaffleDraws: __t.i32(),
+
+export default __t.object("NextGameBidCfgS", {
+  id: __t.u8(),
+  get gameBidCfg() {
+    return GameBidCfg;
+  },
 });
+
+

@@ -19,12 +19,6 @@ namespace SpacetimeDB.Types
         public string TileName;
         [DataMember(Name = "Rarity")]
         public int Rarity;
-        [DataMember(Name = "MinAuctionSpots")]
-        public int MinAuctionSpots;
-        [DataMember(Name = "MaxAuctionSpots")]
-        public int MaxAuctionSpots;
-        [DataMember(Name = "MaxRaffleDraws")]
-        public int MaxRaffleDraws;
         [DataMember(Name = "GameTileBinary")]
         public System.Collections.Generic.List<byte> GameTileBinary;
 
@@ -32,18 +26,12 @@ namespace SpacetimeDB.Types
             string UnityPrefabGuid,
             string TileName,
             int Rarity,
-            int MinAuctionSpots,
-            int MaxAuctionSpots,
-            int MaxRaffleDraws,
             System.Collections.Generic.List<byte> GameTileBinary
         )
         {
             this.UnityPrefabGuid = UnityPrefabGuid;
             this.TileName = TileName;
             this.Rarity = Rarity;
-            this.MinAuctionSpots = MinAuctionSpots;
-            this.MaxAuctionSpots = MaxAuctionSpots;
-            this.MaxRaffleDraws = MaxRaffleDraws;
             this.GameTileBinary = GameTileBinary;
         }
 

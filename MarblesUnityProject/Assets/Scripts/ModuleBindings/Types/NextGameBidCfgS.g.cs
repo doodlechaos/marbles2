@@ -11,31 +11,23 @@ namespace SpacetimeDB.Types
 {
     [SpacetimeDB.Type]
     [DataContract]
-    public sealed partial class BiddingStateS
+    public sealed partial class NextGameBidCfgS
     {
         [DataMember(Name = "Id")]
         public byte Id;
-        [DataMember(Name = "OtherTileReadyForBidding")]
-        public bool OtherTileReadyForBidding;
-        [DataMember(Name = "CurrBidWorldId")]
-        public byte CurrBidWorldId;
         [DataMember(Name = "GameBidCfg")]
         public GameBidCfg GameBidCfg;
 
-        public BiddingStateS(
+        public NextGameBidCfgS(
             byte Id,
-            bool OtherTileReadyForBidding,
-            byte CurrBidWorldId,
             GameBidCfg GameBidCfg
         )
         {
             this.Id = Id;
-            this.OtherTileReadyForBidding = OtherTileReadyForBidding;
-            this.CurrBidWorldId = CurrBidWorldId;
             this.GameBidCfg = GameBidCfg;
         }
 
-        public BiddingStateS()
+        public NextGameBidCfgS()
         {
             this.GameBidCfg = new();
         }
