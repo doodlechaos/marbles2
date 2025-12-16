@@ -49,10 +49,6 @@
                 <ui:Label name="rewards-modal-title" text="Daily Rewards" class="rewards-modal-title" style="-unity-text-align: upper-center;"/>
                 <ui:Label name="rewards-streak" text="Current streak: 3" class="rewards-modal-subtitle"/>
             </ui:VisualElement>
-            <ui:VisualElement class="rewards-timer-row">
-                <ui:Label name="rewards-timer-label" text="Next reward in:" class="rewards-timer-label"/>
-                <ui:Label name="rewards-timer" text="23:59:59" class="rewards-timer-value"/>
-            </ui:VisualElement>
             <ui:VisualElement name="rewards-track" class="rewards-track">
                 <ui:VisualElement class="reward-day">
                     <ui:Label text="Day 1" class="reward-day-label"/>

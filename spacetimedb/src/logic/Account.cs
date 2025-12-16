@@ -42,6 +42,7 @@ public static partial class Module
             rewardMarbles = cfg.dayRewardStreak7Marbles;
 
         account.Marbles = account.Marbles.SaturatingAdd(rewardMarbles);
+        account.LastDailyRewardClaimDay = currentDay;
         ctx.Db.Account.Id.Update(account);
     }
 

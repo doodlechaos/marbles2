@@ -44,31 +44,6 @@
     color: rgb(75, 85, 99);
 }
 
-/* Timer row */
-.rewards-timer-row {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 10px 12px;
-    border-radius: 12px;
-    background-color: rgba(15, 23, 42, 0.04);
-
-    margin-bottom: 12px;
-}
-
-.rewards-timer-label {
-    font-size: 14px;
-    color: rgb(55, 65, 81);
-    -unity-font-style: bold;
-}
-
-.rewards-timer-value {
-    font-size: 14px;
-    color: rgb(15, 23, 42);
-    -unity-font-style: bold;
-}
-
 /* Track list */
 .rewards-track {
     flex-direction: column;

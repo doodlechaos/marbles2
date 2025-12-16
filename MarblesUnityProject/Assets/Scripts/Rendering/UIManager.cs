@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using SpacetimeDB.Types;
 using UnityEngine;
@@ -25,6 +26,19 @@ public class UIManager : MonoBehaviour
     // Profile modal elements
     private VisualElement _profileModal;
     private Button _logoutButton;
+
+    // Rewards modal elements
+    private VisualElement _rewardsModal;
+    private VisualElement _rewardsModalContent;
+    private Button _rewardsButton;
+    private Button _claimRewardButton;
+    private Label _claimRewardLabel;
+    private Label _rewardsStreakLabel;
+
+    private Coroutine _rewardCountdownCoroutine;
+
+    private const long DAY_US = 86_400_000_000L;
+    private const string ClaimRewardDisabledClass = "claim-reward-button--disabled";
 
     private string _loadedProfilePictureUrl = null;
 
@@ -82,6 +96,35 @@ public class UIManager : MonoBehaviour
             }
         }
 
+        // Setup Rewards modal
+        _rewardsModal = _root.Q<VisualElement>("rewards-modal");
+        _rewardsModalContent = _rewardsModal?.Q<VisualElement>(className: "rewards-modal-content");
+        _rewardsButton = _root.Q<Button>("btn-rewards");
+        _claimRewardButton = _root.Q<Button>("btn-claim-reward");
+        _rewardsStreakLabel = _root.Q<Label>("rewards-streak");
+        _claimRewardLabel = _claimRewardButton?.Q<Label>();
+
+        if (_rewardsModal != null)
+        {
+            _rewardsModal.style.display = DisplayStyle.None;
+            _rewardsModal.RegisterCallback<ClickEvent>(OnRewardsModalBackgroundClicked);
+        }
+
+        if (_rewardsModalContent != null)
+        {
+            _rewardsModalContent.RegisterCallback<ClickEvent>(evt => evt.StopPropagation());
+        }
+
+        if (_rewardsButton != null)
+        {
+            _rewardsButton.clicked += OnRewardsClicked;
+        }
+
+        if (_claimRewardButton != null)
+        {
+            _claimRewardButton.clicked += OnClaimRewardClicked;
+        }
+
         HideProfileModal();
     }
 
@@ -134,12 +177,13 @@ public class UIManager : MonoBehaviour
     private void OnMyAccountInsert(EventContext ctx, Account account)
     {
         UpdateCurrencyDisplay(account);
-        //TODO: Update the daily reward modal display. If the user can claim a reward, show the claim button, if they can't, grey out the button, and show a countdown timer until the next reward in its place
+        UpdateRewardsUI(account);
     }
 
     private void OnMyAccountUpdate(EventContext ctx, Account oldAccount, Account newAccount)
     {
         UpdateCurrencyDisplay(newAccount);
+        UpdateRewardsUI(newAccount);
     }
 
     private void UpdateCurrencyDisplay(Account account)
@@ -183,6 +227,15 @@ public class UIManager : MonoBehaviour
 
         if (_logoutButton != null)
             _logoutButton.clicked -= OnLogoutButtonClicked;
+
+        if (_rewardsButton != null)
+            _rewardsButton.clicked -= OnRewardsClicked;
+
+        if (_claimRewardButton != null)
+            _claimRewardButton.clicked -= OnClaimRewardClicked;
+
+        if (_rewardCountdownCoroutine != null)
+            StopCoroutine(_rewardCountdownCoroutine);
     }
 
     private void OnLoginClicked()
@@ -224,6 +277,24 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("[UIManager] Marbles button clicked - TODO: Open purchase modal");
         // TODO: Open modal for purchasing marbles
+    }
+
+    private void OnRewardsClicked()
+    {
+        Debug.Log("[UIManager] Rewards button clicked - opening rewards modal");
+        ShowRewardsModal();
+    }
+
+    private void OnClaimRewardClicked()
+    {
+        if (STDB.Conn == null)
+        {
+            Debug.LogError("[UIManager] Cannot claim reward - not connected to SpacetimeDB");
+            return;
+        }
+
+        Debug.Log("[UIManager] Claim reward button clicked - calling ClaimDailyReward reducer");
+        STDB.Conn.Db.Reducer.ClaimDailyReward();
     }
 
     private void OnLogout()
@@ -311,5 +382,108 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("[UIManager] Clicked outside profile modal, closing it");
         HideProfileModal();
+    }
+
+    private void ShowRewardsModal()
+    {
+        if (_rewardsModal != null)
+        {
+            _rewardsModal.style.display = DisplayStyle.Flex;
+            _rewardsModal.BringToFront();
+        }
+    }
+
+    private void HideRewardsModal()
+    {
+        if (_rewardsModal != null)
+        {
+            _rewardsModal.style.display = DisplayStyle.None;
+        }
+    }
+
+    private void OnRewardsModalBackgroundClicked(ClickEvent evt)
+    {
+        Debug.Log("[UIManager] Clicked outside rewards modal, closing it");
+        HideRewardsModal();
+    }
+
+    private void UpdateRewardsUI(Account account)
+    {
+        if (_rewardsStreakLabel != null)
+        {
+            _rewardsStreakLabel.text = $"Current streak: {account.DailyRewardClaimStreak}";
+        }
+
+        if (_claimRewardButton == null || _claimRewardLabel == null)
+        {
+            return;
+        }
+
+        bool hasClaimedToday = account.LastDailyRewardClaimDay == GetCurrentDayIndex();
+        _claimRewardButton.SetEnabled(!hasClaimedToday);
+        _claimRewardButton.EnableInClassList(ClaimRewardDisabledClass, hasClaimedToday);
+
+        if (hasClaimedToday)
+        {
+            StartRewardCountdown();
+        }
+        else
+        {
+            StopRewardCountdown();
+            _claimRewardLabel.text = "CLAIM";
+        }
+    }
+
+    private void StartRewardCountdown()
+    {
+        StopRewardCountdown();
+        _rewardCountdownCoroutine = StartCoroutine(UpdateRewardCountdown());
+    }
+
+    private void StopRewardCountdown()
+    {
+        if (_rewardCountdownCoroutine != null)
+        {
+            StopCoroutine(_rewardCountdownCoroutine);
+            _rewardCountdownCoroutine = null;
+        }
+    }
+
+    private IEnumerator UpdateRewardCountdown()
+    {
+        while (true)
+        {
+            TimeSpan remaining = GetTimeUntilNextDailyReset();
+            if (remaining <= TimeSpan.Zero)
+            {
+                _claimRewardLabel.text = "CLAIM";
+                _claimRewardButton.SetEnabled(true);
+                _claimRewardButton.EnableInClassList(ClaimRewardDisabledClass, false);
+                yield break;
+            }
+
+            _claimRewardLabel.text = $"Next reward in {FormatCountdown(remaining)}";
+
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    private TimeSpan GetTimeUntilNextDailyReset()
+    {
+        DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+        DateTimeOffset nextMidnightUtc = new DateTimeOffset(utcNow.UtcDateTime.Date.AddDays(1), TimeSpan.Zero);
+        return nextMidnightUtc - utcNow;
+    }
+
+    private string FormatCountdown(TimeSpan timeSpan)
+    {
+        int totalHours = (int)Math.Floor(timeSpan.TotalHours);
+        return $"{totalHours:00}:{timeSpan.Minutes:00}:{timeSpan.Seconds:00}";
+    }
+
+    private long GetCurrentDayIndex()
+    {
+        long microsUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
+        return microsUtc >= 0 ? microsUtc / DAY_US : (microsUtc - DAY_US + 1) / DAY_US;
     }
 }

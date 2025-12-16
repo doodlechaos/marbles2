@@ -202,3 +202,17 @@
     -unity-text-align: middle-center;
 }
 
+.claim-reward-button--disabled {
+    background-color: rgb(209, 213, 219);
+}
+
+.claim-reward-button--disabled:hover,
+.claim-reward-button--disabled:active {
+    background-color: rgb(209, 213, 219);
+    scale: 1;
+}
+
+.claim-reward-button--disabled .claim-reward-label {
+    color: rgb(107, 114, 128);
+}
+
