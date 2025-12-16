@@ -19,7 +19,7 @@ public class PodiumEntry : MonoBehaviour
     private TextMeshProUGUI _prizeEarnedText;
 
     [SerializeField]
-    private bool _isLocalPlayer = false;
+    private bool _isLocalPlayer = false; //Just for my own view for debugging reference
 
     [SerializeField]
     private Image _backgroundImage;
@@ -29,7 +29,6 @@ public class PodiumEntry : MonoBehaviour
         _rankText.SetText($"{rank}.");
         _prizeEarnedText.SetText($"+{prizeEarned}");
         _isLocalPlayer = isLocalPlayer;
-        _backgroundImage.enabled = isLocalPlayer;
 
         StartCoroutine(FetchAccountCustomizationDataCoroutine(accountId));
     }
@@ -38,5 +37,26 @@ public class PodiumEntry : MonoBehaviour
     {
         _usernameText.SetText("TODO...");
         yield return null;
+    }
+
+    //Have to do this instead of activating and deactivating the gameobject because that will stop the coroutine or not allow it to start
+    public void Hide()
+    {
+        _backgroundImage.enabled = false;
+        _rankText.enabled = false;
+        _playerPfp.enabled = false;
+        _usernameText.enabled = false;
+        _prizeEarnedText.enabled = false;
+        _backgroundImage.enabled = false;
+    }
+
+    public void Show()
+    {
+        _backgroundImage.enabled = true;
+        _rankText.enabled = true;
+        _playerPfp.enabled = true;
+        _usernameText.enabled = true;
+        _prizeEarnedText.enabled = true;
+        _backgroundImage.enabled = _isLocalPlayer;
     }
 }

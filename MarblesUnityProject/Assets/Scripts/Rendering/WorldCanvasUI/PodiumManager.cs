@@ -92,7 +92,7 @@ public class PodiumManager : MonoBehaviour
         for (int i = _entriesParent.childCount - 1; i >= 0; i--)
             Destroy(_entriesParent.GetChild(i).gameObject);
 
-        _bottomClampLocalPlayerEntry.gameObject.SetActive(false);
+        _bottomClampLocalPlayerEntry.Hide();
 
         float timer = 0.0f;
         Transform target = worldId == 1 ? _gameTile1Origin : _gameTile2Origin;
@@ -141,6 +141,7 @@ public class PodiumManager : MonoBehaviour
             }
 
             podiumEntry.Init(accountId, rank, prizeEarned, isLocalPlayer);
+            podiumEntry.Show();
         }
 
         //TODO:
@@ -166,8 +167,8 @@ public class PodiumManager : MonoBehaviour
                 <= _bottomClampLocalPlayerEntry.transform.position.y
             )
             {
-                localPlayerEntry.gameObject.SetActive(false);
-                _bottomClampLocalPlayerEntry.gameObject.SetActive(true);
+                localPlayerEntry.Hide();
+                _bottomClampLocalPlayerEntry.Show();
             }
             timer += Time.deltaTime;
             yield return null;
