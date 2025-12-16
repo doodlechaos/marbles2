@@ -15,7 +15,7 @@ public static partial class Module
     {
         StepServer(ctx);
 
-        BaseCfg baseCfg = BaseCfg.GetSingleton(ctx);
+        BaseCfgS baseCfg = BaseCfgS.Inst(ctx);
         ushort stepsSinceLastBatch = StepsSinceLastBatch.Get(ctx);
 
         if (stepsSinceLastBatch >= baseCfg.physicsStepsPerBatch)
@@ -35,7 +35,7 @@ public static partial class Module
     /// </summary>
     private static void BroadcastAuthFrame(ReducerContext ctx)
     {
-        BaseCfg cfg = BaseCfg.GetSingleton(ctx);
+        BaseCfgS cfg = BaseCfgS.Inst(ctx);
         Timestamp lastTimestamp = LastAuthFrameTimestamp.GetSingleton(ctx).LastAuthFrameTime;
 
         if (cfg.targetStepsPerSecond <= 0)
@@ -274,7 +274,7 @@ public static partial class Module
     {
         Seq.Step(ctx);
 
-        var cfg = BaseCfg.GetSingleton(ctx);
+        var cfg = BaseCfgS.Inst(ctx);
 
         // Move all the collected inputs into the public input chain table
         var rows = ctx.Db.InputCollector.Iter().ToList();

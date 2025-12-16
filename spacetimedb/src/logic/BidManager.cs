@@ -145,7 +145,7 @@ public static partial class Module
             ctx.Db.AccountBid.Delete(bid);
 
         // Reset bid timer for next round
-        BidTimeS.Set(ctx, new BidTimeS { MicrosecondsRemaining = SecondsToMicroseconds(10) });
+        BidTimeS.Set(ctx, new BidTimeS { MicrosecondsRemaining = 10d.SecondsToMicroseconds() });
 
         // Switch bidding to the other tile and reset the ready flag
         // (the flag will be set again when the next tile enters Bidding state)

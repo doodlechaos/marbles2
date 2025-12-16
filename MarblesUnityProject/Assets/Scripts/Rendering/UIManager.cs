@@ -134,6 +134,7 @@ public class UIManager : MonoBehaviour
     private void OnMyAccountInsert(EventContext ctx, Account account)
     {
         UpdateCurrencyDisplay(account);
+        //TODO: Update the daily reward modal display. If the user can claim a reward, show the claim button, if they can't, grey out the button, and show a countdown timer until the next reward in its place
     }
 
     private void OnMyAccountUpdate(EventContext ctx, Account oldAccount, Account newAccount)

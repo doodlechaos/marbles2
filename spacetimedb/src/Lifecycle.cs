@@ -14,7 +14,7 @@ public static partial class Module
 
     private static void InitSchedules(ReducerContext ctx)
     {
-        BaseCfg cfg = BaseCfg.GetSingleton(ctx);
+        BaseCfgS cfg = BaseCfgS.Inst(ctx);
 
         ctx.Db.ClockSchedule.Insert(
             new ClockSchedule

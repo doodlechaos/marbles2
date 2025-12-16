@@ -17,7 +17,7 @@ public static partial class Module
         public uint Gold;
         public bool FirstLoginBonusClaimed;
         public bool IsMember;
-        public long DailyRewardClaimStreak;
+        public ushort DailyRewardClaimStreak;
         public long LastDailyRewardClaimDay;
 
         public static Account GetOrCreate(ReducerContext ctx)
