@@ -57,6 +57,11 @@ public class PodiumManager : MonoBehaviour
     [SerializeField]
     private ulong _testLocalAccountId = 1;
 
+    void Awake()
+    {
+        gameObject.SetActive(false);
+    }
+
     void Update()
     {
         var keyboard = Keyboard.current;
@@ -78,6 +83,7 @@ public class PodiumManager : MonoBehaviour
         {
             StopCoroutine(_currPodiumCoroutine);
         }
+        gameObject.SetActive(true);
         _currPodiumCoroutine = StartCoroutine(
             RunPodiumAnimationCoroutine(prize, accountIdsInRankOrder, worldId)
         );
@@ -197,6 +203,7 @@ public class PodiumManager : MonoBehaviour
         }
 
         Debug.Log("Podium animation completed");
+        gameObject.SetActive(false);
         yield return null;
     }
 }

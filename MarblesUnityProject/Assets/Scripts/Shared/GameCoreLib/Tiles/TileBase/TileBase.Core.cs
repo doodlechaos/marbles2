@@ -108,7 +108,7 @@ namespace GameCoreLib
 
             ProcessTriggerEvents();
             ProcessCollisionEvents();
-            ProcessPendingMarbleDestructions();
+            ProcessPendingMarbleExplodes();
 
             // Sync physics results back to transforms for dynamic objects
             SyncPhysicsToRuntimeObjs();

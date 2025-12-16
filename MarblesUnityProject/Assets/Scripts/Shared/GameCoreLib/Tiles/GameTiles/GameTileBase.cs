@@ -16,9 +16,7 @@ namespace GameCoreLib
         Gameplay,
         ScoreScreen,
         ClosingDoor,
-
         ReadyToSpin,
-        //    Finished,
     }
 
     [Serializable]
@@ -91,10 +89,18 @@ namespace GameCoreLib
         {
             ActiveContestants.Remove(accountId);
             EliminatedContestants.Add(accountId);
+
+            if (ActiveContestants.Count <= 0)
+                FinishGameplay();
         }
 
         public virtual void FinishGameplay()
         {
+            //If there are straggling active contestants, force them to be eliminated.
+            foreach (var accountId in ActiveContestants)
+                EliminateContestant(accountId);
+
+            SetState(GameTileState.ScoreScreen);
             currentOutputEvents?.Events.Add(
                 new OutputEvent.GameplayFinished
                 {
@@ -169,21 +175,16 @@ namespace GameCoreLib
             State = state;
         }
 
-        /// <summary>
-        /// Override to assign elimination order when a marble is destroyed.
-        /// </summary>
-        protected override void DestroyMarble(MarbleComponent marble)
+        public override void FlagMarbleToExplode(MarbleComponent marble)
         {
-            if (marble == null || !marble.IsAlive)
+            if (marble == null)
+            {
+                Logger.Error($"MarbleComponent is null in DestroyMarble");
                 return;
+            }
+            EliminateContestant(marble.AccountId);
 
-            OnMarbleEliminated(marble);
-            base.DestroyMarble(marble);
+            base.FlagMarbleToExplode(marble);
         }
-
-        /// <summary>
-        /// Called when a marble is eliminated. Override in derived classes to assign elimination order.
-        /// </summary>
-        protected virtual void OnMarbleEliminated(MarbleComponent marble) { }
     }
 }

@@ -166,8 +166,15 @@ MonoBehaviour:
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
   showDebugInfo: 0
   showLockSimDebug: 0
+  gameTile:
+    rid: -2
   doorConfig: {fileID: 11400000, guid: 36c63e70b9a942f499f2ffb86075c44d, type: 2}
   screenOffset: {x: 0, y: 50}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &131413281 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6898555976300537773, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
@@ -478,7 +485,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &545174137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1122,7 +1129,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1161191524
 Transform:
   m_ObjectHideFlags: 0
@@ -1261,7 +1268,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2039740688
 Transform:
   m_ObjectHideFlags: 0

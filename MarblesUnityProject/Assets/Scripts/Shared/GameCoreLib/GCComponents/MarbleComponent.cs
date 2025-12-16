@@ -25,18 +25,14 @@ namespace GameCoreLib
         public int Points;
 
         /// <summary>
-        /// Whether this player is still alive in the game
-        /// </summary>
-        [MemoryPackOrder(5)]
-        public bool IsAlive = true;
-
-
-        /// <summary>
         /// Component ID of the Rigidbody2DComponent associated with this player marble.
         /// Assigned during authoring using the PlayerMarbleAuth reference.
         /// </summary>
-        [MemoryPackOrder(6)]
+        [MemoryPackOrder(5)]
         public ulong RigidbodyComponentId;
+
+        [MemoryPackOrder(6)]
+        public bool IsExploding = false;
 
         /// <summary>
         /// Reference to the RuntimeObj that contains the rigidbody/physics body.

@@ -18,7 +18,7 @@ namespace GameCoreLib
 
         public void OnMarbleSignal(MarbleComponent marble, TileBase tile)
         {
-            if (!Enabled || marble == null || !marble.IsAlive)
+            if (!Enabled || marble == null || marble.IsExploding)
                 return;
 
             var target = marble.RigidbodyRuntimeObj;

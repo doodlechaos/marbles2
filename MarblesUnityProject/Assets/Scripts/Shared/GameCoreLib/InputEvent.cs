@@ -45,13 +45,13 @@ namespace GameCoreLib
         }
 
         [MemoryPackable(SerializeLayout.Explicit)]
-        public partial class FinishGameplay : InputEvent
+        public partial class ForceFinishGameplay : InputEvent
         {
             [MemoryPackOrder(0)]
             public byte WorldId; // u8
 
             [MemoryPackConstructor]
-            public FinishGameplay() { }
+            public ForceFinishGameplay() { }
         }
 
         [MemoryPackable]

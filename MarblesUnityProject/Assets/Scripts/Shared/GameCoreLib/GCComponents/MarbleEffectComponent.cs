@@ -45,12 +45,12 @@ namespace GameCoreLib
 
         public void OnMarbleSignal(MarbleComponent marble, TileBase tile)
         {
-            if (!Enabled || marble == null || !marble.IsAlive)
+            if (!Enabled || marble == null || marble.IsExploding)
                 return;
 
             if ((Effect & MarbleEffect.Explode) != 0)
             {
-                tile.ExplodeMarble(marble);
+                tile.FlagMarbleToExplode(marble);
             }
 
             // Future effects can be added here:

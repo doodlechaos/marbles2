@@ -67,7 +67,7 @@ namespace GameCoreLib
         /// </summary>
         public void CrownNewKing(MarbleComponent marble)
         {
-            if (marble == null || !marble.IsAlive)
+            if (marble == null)
                 return;
 
             ulong accountId = marble.AccountId;
@@ -75,7 +75,7 @@ namespace GameCoreLib
             Logger.Log($"New king crowned: {accountId}");
 
             // Explode the capturing marble
-            ExplodeMarble(marble);
+            FlagMarbleToExplode(marble);
 
             SetKingServerId(accountId);
         }
@@ -159,14 +159,5 @@ namespace GameCoreLib
             }
         }
 
-        /// <summary>
-        /// Called when a marble is destroyed (e.g., by explosion).
-        /// Removes it from the attack marbles list.
-        /// </summary>
-        protected override void DestroyMarble(MarbleComponent marble)
-        {
-            AttackMarbles.Remove(marble);
-            base.DestroyMarble(marble);
-        }
     }
 }

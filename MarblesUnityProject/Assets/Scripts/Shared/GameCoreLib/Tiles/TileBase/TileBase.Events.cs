@@ -91,18 +91,27 @@ namespace GameCoreLib
             return isEnter ? detector.CollisionEnterDetection : detector.CollisionStayDetection;
         }
 
-        public void ExplodeMarble(MarbleComponent marble)
+        public virtual void FlagMarbleToExplode(MarbleComponent marble)
         {
-            if (marble == null || !marble.IsAlive)
+            if (marble == null)
+            {
+                Logger.Error($"MarbleComponent is null in ExplodeMarble");
                 return;
+            }
+            if (marble.IsExploding)
+            {
+                Logger.Error($"MarbleComponent is already exploding in ExplodeMarble");
+                return;
+            }
 
             if (!pendingMarbleDestructions.Contains(marble))
             {
                 pendingMarbleDestructions.Add(marble);
+                marble.IsExploding = true;
             }
         }
 
-        private void ProcessPendingMarbleDestructions()
+        private void ProcessPendingMarbleExplodes()
         {
             foreach (var marble in pendingMarbleDestructions)
             {
@@ -112,12 +121,13 @@ namespace GameCoreLib
             pendingMarbleDestructions.Clear();
         }
 
-        protected virtual void DestroyMarble(MarbleComponent marble)
+        private void DestroyMarble(MarbleComponent marble)
         {
-            if (marble == null || !marble.IsAlive)
+            if (marble == null)
+            {
+                Logger.Error($"MarbleComponent is null in DestroyMarble");
                 return;
-
-            marble.IsAlive = false;
+            }
 
             var marbleRoot = marble.GCObj;
             if (marbleRoot == null)

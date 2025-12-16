@@ -24,12 +24,7 @@ public class MarbleAuth : GameComponentAuth<MarbleComponent>, IComponentReferenc
 
     protected override MarbleComponent CreateComponent()
     {
-        return new MarbleComponent
-        {
-            AccountId = testAccountId,
-            BidAmount = testBidAmount,
-            IsAlive = true,
-        };
+        return new MarbleComponent { AccountId = testAccountId, BidAmount = testBidAmount };
     }
 
     public void ResolveReferences(GCComponent component, ComponentExportContext context)

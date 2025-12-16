@@ -37,6 +37,8 @@ import AGiveMarbles from "./a_give_marbles_reducer";
 export { AGiveMarbles };
 import AInsertBid from "./a_insert_bid_reducer";
 export { AInsertBid };
+import ASetAccountStreak from "./a_set_account_streak_reducer";
+export { ASetAccountStreak };
 import ASpinLoadGameplayTile from "./a_spin_load_gameplay_tile_reducer";
 export { ASpinLoadGameplayTile };
 import AttackThrone from "./attack_throne_reducer";
@@ -516,6 +518,7 @@ const reducersSchema = __reducers(
   __reducerSchema("A_AttackThrone", AAttackThrone),
   __reducerSchema("A_GiveMarbles", AGiveMarbles),
   __reducerSchema("A_InsertBid", AInsertBid),
+  __reducerSchema("A_SetAccountStreak", ASetAccountStreak),
   __reducerSchema("A_SpinLoadGameplayTile", ASpinLoadGameplayTile),
   __reducerSchema("AttackThrone", AttackThrone),
   __reducerSchema("ClaimDailyReward", ClaimDailyReward),

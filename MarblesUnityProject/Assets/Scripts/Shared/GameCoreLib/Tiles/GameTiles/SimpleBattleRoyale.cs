@@ -75,16 +75,6 @@ namespace GameCoreLib
             TileRoot?.FindAllComponentsInChildren(PlayerMarbles);
         }
 
-        /// <summary>
-        /// Called when a marble is destroyed (e.g., by Explode effect).
-        /// Assigns elimination order and removes from active player list.
-        /// </summary>
-        protected override void OnMarbleEliminated(MarbleComponent marble)
-        {
-            // Remove from active player list
-            PlayerMarbles.Remove(marble);
-        }
-
         public override void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
         {
             PlayerMarbles.Clear();

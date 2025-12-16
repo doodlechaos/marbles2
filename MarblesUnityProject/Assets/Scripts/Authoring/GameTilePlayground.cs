@@ -137,6 +137,11 @@ public class GameTilePlayground : MonoBehaviour
         LastOutputEvents.Clear();
         GameTile.SetOutputEventsBufferReference(LastOutputEvents);
         GameTile.Step();
+
+        foreach (var outputEvent in LastOutputEvents.Events)
+        {
+            Debug.Log($"[GameTilePlayground] Output event: {outputEvent.GetType().Name}");
+        }
     }
 
     /// <summary>

@@ -21,7 +21,7 @@ namespace GameCoreLib
 
         public void OnMarbleSignal(MarbleComponent marble, TileBase tile)
         {
-            if (!Enabled || marble == null || !marble.IsAlive || Health <= 0)
+            if (!Enabled || marble == null || marble.IsExploding || Health <= 0)
                 return;
 
             // Subtract 1 point from the marble
@@ -33,7 +33,7 @@ namespace GameCoreLib
             // If marble's points reached 0, explode it
             if (marble.Points == 0)
             {
-                tile.ExplodeMarble(marble);
+                tile.FlagMarbleToExplode(marble);
             }
 
             // Subtract 1 health from the brick

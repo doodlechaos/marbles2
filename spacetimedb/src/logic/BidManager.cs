@@ -156,5 +156,6 @@ public static partial class Module
         Log.Info(
             $"Bidding finished. Gameplay starting on tile {(biddingState.CurrBidWorldId == 1 ? 2 : 1)}, now accepting bids on tile {biddingState.CurrBidWorldId}"
         );
+        Log.Info($"Entrants: {string.Join(", ", entrants.Select(e => e.AccountId))}");
     }
 }
