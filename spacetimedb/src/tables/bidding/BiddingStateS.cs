@@ -20,7 +20,10 @@ public static partial class Module
         /// The other tile should be in Gameplay, ScoreScreen, or transitioning.
         /// </summary>
         public byte CurrBidWorldId;
-        
+
+        public int MinAuctionSpots;
+        public int MaxAcutionSpots;
+        public int MaxRaffleDraws;
 
         public static BiddingStateS Inst(ReducerContext ctx)
         {
