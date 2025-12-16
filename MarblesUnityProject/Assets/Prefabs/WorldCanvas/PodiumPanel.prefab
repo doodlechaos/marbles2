@@ -197,11 +197,14 @@ MonoBehaviour:
   _gameTile1Origin: {fileID: 0}
   _gameTile2Origin: {fileID: 0}
   _podiumEntryPrefab: {fileID: 6981426269687671505, guid: 95f701c6738e8d54d8a3b3c34d0f4eff, type: 3}
-  _spacingBetweenEntries: 66
+  _viewPort: {fileID: 9164007523258329222}
+  _maxRows: 14
   _entriesParent: {fileID: 1661084000094252940}
+  _bottomClampLocalPlayerEntry: {fileID: 8345647901929740174}
   _testTotalPrize: 1000
   _testAccountIdsInRankOrder: 01000000000000000200000000000000030000000000000004000000000000000500000000000000
   _testWorldId: 1
+  _testLocalAccountId: 1
 --- !u!222 &2766379468763249401
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -469,6 +472,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1888035416043135220, guid: 95f701c6738e8d54d8a3b3c34d0f4eff, type: 3}
   m_PrefabInstance: {fileID: 1383362371171515743}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8345647901929740174 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6981426269687671505, guid: 95f701c6738e8d54d8a3b3c34d0f4eff, type: 3}
+  m_PrefabInstance: {fileID: 1383362371171515743}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98149551a3455d343bbca34ff3612e6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PodiumEntry
 --- !u!1001 &3439618847865866423
 PrefabInstance:
   m_ObjectHideFlags: 0

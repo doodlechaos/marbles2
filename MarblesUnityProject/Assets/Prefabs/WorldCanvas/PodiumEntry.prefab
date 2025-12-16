@@ -496,6 +496,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1888035416043135220}
   - component: {fileID: 6981426269687671505}
+  - component: {fileID: 1508435107840305985}
+  - component: {fileID: 6144268209577865820}
   m_Layer: 5
   m_Name: PodiumEntry
   m_TagString: Untagged
@@ -542,3 +544,43 @@ MonoBehaviour:
   _playerPfp: {fileID: 5037297672517006616}
   _usernameText: {fileID: 4033036195569631434}
   _prizeEarnedText: {fileID: 4087259304718178854}
+  _isLocalPlayer: 0
+  _backgroundImage: {fileID: 6144268209577865820}
+--- !u!222 &1508435107840305985
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5516391276131080946}
+  m_CullTransparentMesh: 1
+--- !u!114 &6144268209577865820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5516391276131080946}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0.745283, b: 0.216529, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,12 +18,18 @@ public class PodiumEntry : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI _prizeEarnedText;
 
-    public void Init(ulong accountId, int rank, int prizeEarned)
+    [SerializeField]
+    private bool _isLocalPlayer = false;
+
+    [SerializeField]
+    private Image _backgroundImage;
+
+    public void Init(ulong accountId, int rank, int prizeEarned, bool isLocalPlayer)
     {
         _rankText.SetText($"{rank}.");
         _prizeEarnedText.SetText($"+{prizeEarned}");
-
-        //TODO: If the accountId is the local player's accountId, highlight the entry with an orange background
+        _isLocalPlayer = isLocalPlayer;
+        _backgroundImage.enabled = isLocalPlayer;
 
         StartCoroutine(FetchAccountCustomizationDataCoroutine(accountId));
     }

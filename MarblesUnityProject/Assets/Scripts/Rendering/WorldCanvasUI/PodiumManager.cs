@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Linq;
 using com.cyborgAssets.inspectorButtonPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PodiumManager : MonoBehaviour
 {
@@ -29,10 +31,16 @@ public class PodiumManager : MonoBehaviour
     private PodiumEntry _podiumEntryPrefab;
 
     [SerializeField]
-    private float _spacingBetweenEntries = 100.0f;
+    private RectTransform _viewPort;
+
+    [SerializeField]
+    private int _maxRows = 14;
 
     [SerializeField]
     private Transform _entriesParent;
+
+    [SerializeField]
+    private PodiumEntry _bottomClampLocalPlayerEntry;
 
     private Coroutine _currPodiumCoroutine = null;
 
@@ -45,6 +53,18 @@ public class PodiumManager : MonoBehaviour
 
     [SerializeField]
     private byte _testWorldId = 1;
+
+    [SerializeField]
+    private ulong _testLocalAccountId = 1;
+
+    void Update()
+    {
+        var keyboard = Keyboard.current;
+        if (keyboard.spaceKey.wasPressedThisFrame && Application.isEditor)
+        {
+            TestRunPodiumAnimation();
+        }
+    }
 
     [ProButton]
     public void TestRunPodiumAnimation()
@@ -72,6 +92,8 @@ public class PodiumManager : MonoBehaviour
         for (int i = _entriesParent.childCount - 1; i >= 0; i--)
             Destroy(_entriesParent.GetChild(i).gameObject);
 
+        _bottomClampLocalPlayerEntry.gameObject.SetActive(false);
+
         float timer = 0.0f;
         Transform target = worldId == 1 ? _gameTile1Origin : _gameTile2Origin;
         float xOffsetFromTarget = worldId == 1 ? -10.0f : 10.0f;
@@ -89,6 +111,8 @@ public class PodiumManager : MonoBehaviour
         }
         timer = 0;
 
+        float podiumEntrySpacing = _viewPort.sizeDelta.y / _maxRows; //_podiumEntryPrefab.GetComponent<RectTransform>().sizeDelta.y;
+        PodiumEntry localPlayerEntry = null;
         //Spawn a podium entry for each account id
         for (int i = 0; i < accountIdsInRankOrder.Length; i++)
         {
@@ -96,8 +120,27 @@ public class PodiumManager : MonoBehaviour
             int rank = i + 1;
             int prizeEarned = (int)totalPrize / rank;
             PodiumEntry podiumEntry = Instantiate(_podiumEntryPrefab, _entriesParent);
-            podiumEntry.Init(accountId, rank, prizeEarned);
-            podiumEntry.transform.localPosition = new Vector3(0, -i * _spacingBetweenEntries, 0);
+
+            var rt = podiumEntry.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.anchoredPosition = new Vector2(0f, -i * podiumEntrySpacing);
+
+            bool isLocalPlayer = false;
+            if (
+                STDB.Conn?.Db.MyAccount.Iter().FirstOrDefault().Id == accountId
+                || _testLocalAccountId == accountId
+            )
+            {
+                localPlayerEntry = podiumEntry;
+                //Init the clamp entry to match just in case
+                _bottomClampLocalPlayerEntry.Init(accountId, rank, prizeEarned, true);
+                _bottomClampLocalPlayerEntry.GetComponent<RectTransform>().anchoredPosition =
+                    new Vector2(0f, -(_maxRows - 1) * podiumEntrySpacing);
+                isLocalPlayer = true;
+            }
+
+            podiumEntry.Init(accountId, rank, prizeEarned, isLocalPlayer);
         }
 
         //TODO:
@@ -105,20 +148,27 @@ public class PodiumManager : MonoBehaviour
         //Then they all scroll down at a constant speed until the rank 1 player reaches the top edge (just like mario kart at the end of a race)
         //I want it to travel at a constant speed regardless of how many players there are, but if there are too many players such that
         //It will take longer than the maxDuration, then we need to increase the speed so that it finishes sliding in the max duration amount of time.
-        Vector3 entriesRootEndLocalPos = new Vector3(0, 350, 0);
-        Vector3 entriesRootStartLocalPos =
-            entriesRootEndLocalPos
-            + new Vector3(0, _entriesParent.childCount * _spacingBetweenEntries, 0);
+        Vector2 rootStartPos = new Vector2(0, _entriesParent.childCount * podiumEntrySpacing);
+        Vector2 rootEndPos = new Vector2(0, 0);
+
         timer = 0;
         while (timer < _entriesScrollDownMaxDuration)
         {
             //If the local player entry scrolls down below the BottomLockEntry, enable the BottomLockEntry to prevent the local player from being unable to see their entry
             float t = timer / _entriesScrollDownMaxDuration;
-            _entriesParent.localPosition = Vector3.Lerp(
-                entriesRootStartLocalPos,
-                entriesRootEndLocalPos,
+            _entriesParent.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(
+                rootStartPos,
+                rootEndPos,
                 t
             );
+            if (
+                localPlayerEntry.transform.position.y
+                <= _bottomClampLocalPlayerEntry.transform.position.y
+            )
+            {
+                localPlayerEntry.gameObject.SetActive(false);
+                _bottomClampLocalPlayerEntry.gameObject.SetActive(true);
+            }
             timer += Time.deltaTime;
             yield return null;
         }
