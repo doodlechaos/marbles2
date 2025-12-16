@@ -19,7 +19,7 @@
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="top-right-toolbar" class="toolbar toolbar-right">
-                <ui:Button name="btn-rewards" class="rewards-button">
+                <ui:Button name="btn-rewards" class="rewards-button" style="-unity-text-align: middle-center; align-content: center; justify-content: center;">
                     <ui:Label text="Rewards" class="rewards-button-label"/>
                 </ui:Button>
                 <ui:Button name="btn-discord" class="icon-button icon-button-circle icon-button-discord" style="padding-left: 0; padding-right: 0; padding-bottom: 0; padding-top: 0;">
@@ -47,7 +47,7 @@
         <ui:VisualElement class="rewards-modal-content" style="opacity: 1;">
             <ui:VisualElement class="rewards-modal-header">
                 <ui:Label name="rewards-modal-title" text="Daily Rewards" class="rewards-modal-title" style="-unity-text-align: upper-center;"/>
-                <ui:Label name="rewards-streak" text="Current streak: 3" class="rewards-modal-subtitle"/>
+                <ui:Label name="rewards-streak" text="Current streak: 3" class="rewards-modal-subtitle" style="-unity-text-align: upper-center;"/>
             </ui:VisualElement>
             <ui:VisualElement name="rewards-track" class="rewards-track">
                 <ui:VisualElement name="reward-day-1" class="reward-day">

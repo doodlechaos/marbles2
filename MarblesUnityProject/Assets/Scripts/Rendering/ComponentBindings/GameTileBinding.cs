@@ -15,7 +15,7 @@ public sealed class GameTileBinding : TileBinding
     /// <summary>
     /// Reference to the GameTileBase this render root represents.
     /// </summary>
-    [SerializeField]
+    [SerializeReference]
     private GameTileBase gameTile;
 
     [Header("Door Animation")]

@@ -303,7 +303,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: DefenseWall 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4899270954396199834, guid: 14e386656746bbe4bafbf5faa2f2469c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

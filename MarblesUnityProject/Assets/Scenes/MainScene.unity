@@ -166,8 +166,15 @@ MonoBehaviour:
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
   showDebugInfo: 0
   showLockSimDebug: 0
+  gameTile:
+    rid: -2
   doorConfig: {fileID: 11400000, guid: 36c63e70b9a942f499f2ffb86075c44d, type: 2}
   screenOffset: {x: 0, y: 50}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &184935433
 GameObject:
   m_ObjectHideFlags: 0
@@ -677,7 +684,7 @@ MonoBehaviour:
   clientTargetSeq: 0
   targetToSafeEdgeDist: 0
   restoreRequestedFlag: 0
-  _podiumManager: {fileID: 0}
+  _podiumManager: {fileID: 2077777374}
 --- !u!4 &460967034
 Transform:
   m_ObjectHideFlags: 0
@@ -1157,8 +1164,15 @@ MonoBehaviour:
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
   showDebugInfo: 0
   showLockSimDebug: 0
+  gameTile:
+    rid: -2
   doorConfig: {fileID: 11400000, guid: 36c63e70b9a942f499f2ffb86075c44d, type: 2}
   screenOffset: {x: 0, y: 50}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &1503107462
 GameObject:
   m_ObjectHideFlags: 0
@@ -1415,6 +1429,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1348302042633918410, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
   m_PrefabInstance: {fileID: 1558253939995280769}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2077777374 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8336160380627533046, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
+  m_PrefabInstance: {fileID: 1558253939995280769}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a7b87daa05e417449f0c14bcb165b14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PodiumManager
 --- !u!1001 &1558253939995280769
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1538,7 +1563,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4422986821221044026, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.504759
+      value: -27.50487
       objectReference: {fileID: 0}
     - target: {fileID: 4539591184749852580, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_Name

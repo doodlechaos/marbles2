@@ -108,7 +108,10 @@ public class UIManager : MonoBehaviour
         _rewardsStreakLabel = _root.Q<Label>("rewards-streak");
         _claimRewardLabel = _claimRewardButton?.Q<Label>();
         _rewardsTrack = _root.Q<VisualElement>("rewards-track");
-        _rewardDayElements = _rewardsTrack != null ? new List<VisualElement>(_rewardsTrack.Children()) : new List<VisualElement>();
+        _rewardDayElements =
+            _rewardsTrack != null
+                ? new List<VisualElement>(_rewardsTrack.Children())
+                : new List<VisualElement>();
 
         if (_rewardsModal != null)
         {
@@ -480,7 +483,10 @@ public class UIManager : MonoBehaviour
     private TimeSpan GetTimeUntilNextDailyReset()
     {
         DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-        DateTimeOffset nextMidnightUtc = new DateTimeOffset(utcNow.UtcDateTime.Date.AddDays(1), TimeSpan.Zero);
+        DateTimeOffset nextMidnightUtc = new DateTimeOffset(
+            utcNow.UtcDateTime.Date.AddDays(1),
+            TimeSpan.Zero
+        );
         return nextMidnightUtc - utcNow;
     }
 
@@ -496,26 +502,31 @@ public class UIManager : MonoBehaviour
         return microsUtc >= 0 ? microsUtc / DAY_US : (microsUtc - DAY_US + 1) / DAY_US;
     }
 
-    private void UpdateRewardDayHighlight(Account account, bool hasClaimedToday, long currentDayIndex)
+    private void UpdateRewardDayHighlight(
+        Account account,
+        bool hasClaimedToday,
+        long currentDayIndex
+    )
     {
-        if (_rewardDayElements == null || _rewardDayElements.Count == 0)
-        {
-            return;
-        }
-
-        int targetRewardDay;
-        if (hasClaimedToday)
-        {
-            targetRewardDay = (int)account.DailyRewardClaimStreak + 1;
-        }
-        else
-        {
-            bool continuingStreak = account.LastDailyRewardClaimDay + 1 == currentDayIndex;
-            int projectedStreak = continuingStreak ? (int)account.DailyRewardClaimStreak + 1 : 1;
-            targetRewardDay = projectedStreak;
-        }
-
-        targetRewardDay = Math.Min(targetRewardDay, _rewardDayElements.Count);
+        /*         if (_rewardDayElements == null || _rewardDayElements.Count == 0)
+                {
+                    return;
+                }
+        
+                int targetRewardDay;
+                if (hasClaimedToday)
+                {
+                    targetRewardDay = (int)account.DailyRewardClaimStreak + 1;
+                }
+                else
+                {
+                    bool continuingStreak = account.LastDailyRewardClaimDay + 1 == currentDayIndex;
+                    int projectedStreak = continuingStreak ? (int)account.DailyRewardClaimStreak + 1 : 1;
+                    targetRewardDay = projectedStreak;
+                }
+        
+                targetRewardDay = Math.Min(targetRewardDay, _rewardDayElements.Count); */
+        int targetRewardDay = account.DailyRewardClaimStreak + 1;
 
         for (int i = 0; i < _rewardDayElements.Count; i++)
         {

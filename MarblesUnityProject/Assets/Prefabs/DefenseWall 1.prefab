@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 823996252518010579}
   - component: {fileID: 21797120910277322}
-  - component: {fileID: 4899270954396199834}
   m_Layer: 0
   m_Name: DefenseWall 1
   m_TagString: Untagged
@@ -96,24 +95,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DefenseWallAuth
   brickStartingHealth: 1
---- !u!114 &4899270954396199834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9019567417630267142}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4dff520218b39c4ea2672841a50bc95, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjGridTool
-  Rows: 5
-  Columns: 10
-  ObjectPrefab: {fileID: 5180455677609447263, guid: 4b1ded33153b3984cb3773885b5574b6, type: 3}
-  ObjectScale: {x: 0.9, y: 0.9, z: 1}
-  VerticalSpacing: 0.92
-  HorizontalSpacing: 0.97
 --- !u!1001 &165416096247622405
 PrefabInstance:
   m_ObjectHideFlags: 0

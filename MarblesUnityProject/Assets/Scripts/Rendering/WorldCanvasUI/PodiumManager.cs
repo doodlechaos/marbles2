@@ -163,7 +163,7 @@ public class PodiumManager : MonoBehaviour
                 t
             );
             if (
-                localPlayerEntry.transform.position.y
+                localPlayerEntry?.transform.position.y
                 <= _bottomClampLocalPlayerEntry.transform.position.y
             )
             {

@@ -75,4 +75,25 @@ public static partial class Module
         );
         Log.Info($"Inserted input event to attack throne with account {accountId}");
     }
+
+    [Reducer]
+    public static void A_SetAccountStreak(
+        ReducerContext ctx,
+        ulong accountId,
+        ushort streak,
+        long lastClaimDay
+    )
+    {
+        if (ctx.Db.Account.Id.Find(accountId) is Account account)
+        {
+            account.DailyRewardClaimStreak = streak;
+            account.LastDailyRewardClaimDay = lastClaimDay;
+            ctx.Db.Account.Id.Update(account);
+        }
+        else
+        {
+            Log.Error($"[Admin.SetAccountStreak] Account {accountId} not found");
+            return;
+        }
+    }
 }
