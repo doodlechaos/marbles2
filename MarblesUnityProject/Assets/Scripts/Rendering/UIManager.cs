@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using SpacetimeDB.Types;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -34,11 +35,14 @@ public class UIManager : MonoBehaviour
     private Button _claimRewardButton;
     private Label _claimRewardLabel;
     private Label _rewardsStreakLabel;
+    private VisualElement _rewardsTrack;
+    private List<VisualElement> _rewardDayElements;
 
     private Coroutine _rewardCountdownCoroutine;
 
     private const long DAY_US = 86_400_000_000L;
     private const string ClaimRewardDisabledClass = "claim-reward-button--disabled";
+    private const string RewardDayActiveClass = "reward-day--active";
 
     private string _loadedProfilePictureUrl = null;
 
@@ -103,6 +107,8 @@ public class UIManager : MonoBehaviour
         _claimRewardButton = _root.Q<Button>("btn-claim-reward");
         _rewardsStreakLabel = _root.Q<Label>("rewards-streak");
         _claimRewardLabel = _claimRewardButton?.Q<Label>();
+        _rewardsTrack = _root.Q<VisualElement>("rewards-track");
+        _rewardDayElements = _rewardsTrack != null ? new List<VisualElement>(_rewardsTrack.Children()) : new List<VisualElement>();
 
         if (_rewardsModal != null)
         {
@@ -419,9 +425,12 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        bool hasClaimedToday = account.LastDailyRewardClaimDay == GetCurrentDayIndex();
+        long currentDayIndex = GetCurrentDayIndex();
+        bool hasClaimedToday = account.LastDailyRewardClaimDay == currentDayIndex;
         _claimRewardButton.SetEnabled(!hasClaimedToday);
         _claimRewardButton.EnableInClassList(ClaimRewardDisabledClass, hasClaimedToday);
+
+        UpdateRewardDayHighlight(account, hasClaimedToday, currentDayIndex);
 
         if (hasClaimedToday)
         {
@@ -485,5 +494,33 @@ public class UIManager : MonoBehaviour
     {
         long microsUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
         return microsUtc >= 0 ? microsUtc / DAY_US : (microsUtc - DAY_US + 1) / DAY_US;
+    }
+
+    private void UpdateRewardDayHighlight(Account account, bool hasClaimedToday, long currentDayIndex)
+    {
+        if (_rewardDayElements == null || _rewardDayElements.Count == 0)
+        {
+            return;
+        }
+
+        int targetRewardDay;
+        if (hasClaimedToday)
+        {
+            targetRewardDay = (int)account.DailyRewardClaimStreak + 1;
+        }
+        else
+        {
+            bool continuingStreak = account.LastDailyRewardClaimDay + 1 == currentDayIndex;
+            int projectedStreak = continuingStreak ? (int)account.DailyRewardClaimStreak + 1 : 1;
+            targetRewardDay = projectedStreak;
+        }
+
+        targetRewardDay = Math.Min(targetRewardDay, _rewardDayElements.Count);
+
+        for (int i = 0; i < _rewardDayElements.Count; i++)
+        {
+            bool isActive = i == targetRewardDay - 1;
+            _rewardDayElements[i].EnableInClassList(RewardDayActiveClass, isActive);
+        }
     }
 }

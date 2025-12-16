@@ -50,7 +50,7 @@
                 <ui:Label name="rewards-streak" text="Current streak: 3" class="rewards-modal-subtitle"/>
             </ui:VisualElement>
             <ui:VisualElement name="rewards-track" class="rewards-track">
-                <ui:VisualElement class="reward-day">
+                <ui:VisualElement name="reward-day-1" class="reward-day">
                     <ui:Label text="Day 1" class="reward-day-label"/>
                     <ui:VisualElement class="reward-amount-group">
                         <ui:Label text="40" class="reward-amount"/>
@@ -58,7 +58,7 @@
                         <ui:Label text="marbles" class="reward-currency"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="reward-day">
+                <ui:VisualElement name="reward-day-2" class="reward-day">
                     <ui:Label text="Day 2" class="reward-day-label"/>
                     <ui:VisualElement class="reward-amount-group">
                         <ui:Label text="50" class="reward-amount"/>
@@ -66,7 +66,7 @@
                         <ui:Label text="marbles" class="reward-currency"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="reward-day reward-day--active">
+                <ui:VisualElement name="reward-day-3" class="reward-day">
                     <ui:Label text="Day 3" class="reward-day-label"/>
                     <ui:VisualElement class="reward-amount-group">
                         <ui:Label text="60" class="reward-amount"/>
@@ -74,7 +74,7 @@
                         <ui:Label text="marbles" class="reward-currency"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="reward-day">
+                <ui:VisualElement name="reward-day-4" class="reward-day">
                     <ui:Label text="Day 4" class="reward-day-label"/>
                     <ui:VisualElement class="reward-amount-group">
                         <ui:Label text="70" class="reward-amount"/>
@@ -82,7 +82,7 @@
                         <ui:Label text="marbles" class="reward-currency"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="reward-day">
+                <ui:VisualElement name="reward-day-5" class="reward-day">
                     <ui:Label text="Day 5" class="reward-day-label"/>
                     <ui:VisualElement class="reward-amount-group">
                         <ui:Label text="80" class="reward-amount"/>
@@ -90,7 +90,7 @@
                         <ui:Label text="marbles" class="reward-currency"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="reward-day">
+                <ui:VisualElement name="reward-day-6" class="reward-day">
                     <ui:Label text="Day 6" class="reward-day-label"/>
                     <ui:VisualElement class="reward-amount-group">
                         <ui:Label text="90" class="reward-amount"/>
@@ -98,7 +98,7 @@
                         <ui:Label text="marbles" class="reward-currency"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement class="reward-day">
+                <ui:VisualElement name="reward-day-7" class="reward-day">
                     <ui:Label text="Day 7+" class="reward-day-label"/>
                     <ui:VisualElement class="reward-amount-group">
                         <ui:Label text="100" class="reward-amount"/>
