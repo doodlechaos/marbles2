@@ -294,7 +294,7 @@ public class UIManager : MonoBehaviour
         }
 
         Debug.Log("[UIManager] Claim reward button clicked - calling ClaimDailyReward reducer");
-        STDB.Conn.Db.Reducer.ClaimDailyReward();
+        STDB.Conn.Reducers.ClaimDailyReward();
     }
 
     private void OnLogout()

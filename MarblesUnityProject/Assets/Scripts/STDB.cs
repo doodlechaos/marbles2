@@ -63,8 +63,6 @@ public class STDB : MonoBehaviour
     [SerializeField]
     private BidDisplayPanel _bidDisplayPanel;
 
-
-
     public string ConnectedIdentity = "";
 
     /// <summary>
@@ -309,7 +307,7 @@ public class STDB : MonoBehaviour
                     "SELECT * FROM MyAccount",
                     "SELECT * FROM MySessionKind",
                     "SELECT * FROM AccountCustomization",
-                    "SELECT * FROM BaseCfg",
+                    "SELECT * FROM BaseCfgS",
                     "SELECT * FROM AccountBid",
                     "SELECT * FROM BiddingStateS",
                     "SELECT * FROM BidTimeS",
