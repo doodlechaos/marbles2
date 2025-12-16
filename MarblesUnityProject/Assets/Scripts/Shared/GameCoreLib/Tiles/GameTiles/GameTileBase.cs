@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using FPMathLib;
 using MemoryPack;
+using SpacetimeDB;
 
 #nullable enable
 
@@ -72,6 +74,8 @@ namespace GameCoreLib
         public virtual void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
         {
             TotalMarblesBid = gameplayStartInput.TotalMarblesBid;
+
+            Logger.Log($"Starting gameplay with {gameplayStartInput.Entrants.Length} entrants");
 
             //Enter all contestants into the game, regardless of if they're spawned or not yet
             foreach (var entrant in gameplayStartInput.Entrants)
@@ -168,6 +172,8 @@ namespace GameCoreLib
 
         public void SetState(GameTileState state)
         {
+            Logger.Log($"SetState: {State} --> {state}");
+
             currentOutputEvents?.Events.Add(
                 new OutputEvent.StateUpdatedTo { State = state, WorldId = TileWorldId }
             );

@@ -43,6 +43,7 @@ public class BidDisplayPanel : MonoBehaviour
         conn.Db.AccountBid.OnInsert += OnAccountBidInsert;
         conn.Db.AccountBid.OnUpdate += OnAccountBidUpdate;
         conn.Db.AccountBid.OnDelete += OnAccountBidDelete;
+        conn.Db.BiddingStateS.OnInsert += OnBiddingStateSInsert;
         conn.Db.BiddingStateS.OnUpdate += OnBiddingStateSUpdate;
         conn.Db.BidTimeS.OnUpdate += OnBidTimeSUpdate;
         Debug.Log("[BidDisplayPanel] Callbacks registered");
@@ -53,6 +54,7 @@ public class BidDisplayPanel : MonoBehaviour
         conn.Db.AccountBid.OnInsert -= OnAccountBidInsert;
         conn.Db.AccountBid.OnUpdate -= OnAccountBidUpdate;
         conn.Db.AccountBid.OnDelete -= OnAccountBidDelete;
+        conn.Db.BiddingStateS.OnInsert -= OnBiddingStateSInsert;
         conn.Db.BiddingStateS.OnUpdate -= OnBiddingStateSUpdate;
         conn.Db.BidTimeS.OnUpdate -= OnBidTimeSUpdate;
         Debug.Log("[BidDisplayPanel] Callbacks cleaned up");
@@ -84,15 +86,25 @@ public class BidDisplayPanel : MonoBehaviour
         RefreshBidDisplay(ctx.Db);
     }
 
+    private void OnBiddingStateSInsert(EventContext ctx, BiddingStateS biddingState)
+    {
+        OnBiddingStateSChange(ctx, biddingState);
+    }
+
     private void OnBiddingStateSUpdate(
         EventContext ctx,
         BiddingStateS oldBiddingState,
         BiddingStateS newBiddingState
     )
     {
-        _currentBidWorldId = newBiddingState.CurrBidWorldId;
+        OnBiddingStateSChange(ctx, newBiddingState);
+    }
+
+    private void OnBiddingStateSChange(EventContext ctx, BiddingStateS biddingState)
+    {
+        _currentBidWorldId = biddingState.CurrBidWorldId;
         _bidStateText.SetText(
-            $"OtherTileReadyForBidding: {newBiddingState.OtherTileReadyForBidding}, CurrBidWorldId: {newBiddingState.CurrBidWorldId}"
+            $"OtherTileReadyForBidding: {biddingState.OtherTileReadyForBidding}, CurrBidWorldId: {biddingState.CurrBidWorldId}"
         );
     }
 

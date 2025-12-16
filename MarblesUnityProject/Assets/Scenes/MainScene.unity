@@ -1528,9 +1528,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1439852076095672461, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3271424135057515339, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
       propertyPath: m_Name
       value: PodiumPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 3271424135057515339, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8152999078468478032, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8336160380627533046, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
       propertyPath: _gameTile1Origin
@@ -1563,7 +1575,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4422986821221044026, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.505032
+      value: -27.50434
       objectReference: {fileID: 0}
     - target: {fileID: 4539591184749852580, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_Name

@@ -151,11 +151,12 @@ public static partial class Module
         // (the flag will be set again when the next tile enters Bidding state)
         biddingState.OtherTileReadyForBidding = false;
         biddingState.CurrBidWorldId = (byte)(biddingState.CurrBidWorldId == 1 ? 2 : 1);
+        //TODO: Here we need to get the 
         ctx.Db.BiddingStateS.Id.Update(biddingState);
 
         Log.Info(
             $"Bidding finished. Gameplay starting on tile {(biddingState.CurrBidWorldId == 1 ? 2 : 1)}, now accepting bids on tile {biddingState.CurrBidWorldId}"
         );
-        Log.Info($"Entrants: {string.Join(", ", entrants.Select(e => e.AccountId))}");
+        Log.Info($"Total Entrants: {entrants.Count}");
     }
 }

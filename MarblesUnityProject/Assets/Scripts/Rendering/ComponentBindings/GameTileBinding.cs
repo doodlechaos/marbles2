@@ -111,13 +111,15 @@ public sealed class GameTileBinding : TileBinding
 
     private void UpdateDoors()
     {
+        float direction = (gameTile.TileWorldId == 1) ? -1 : 1;
+
         // If we're in closing door state, interpolate between the start and end positions
         if (gameTile.State == GameTileState.ClosingDoor)
         {
             float t = gameTile.StateSteps / (GameTileBase.CLOSING_DOOR_DURATION_SEC * 60.0f);
             EnsureOpenCloseDoorSpawned();
             openCloseDoor.transform.position = Vector3.LerpUnclamped(
-                transform.position - new Vector3(doorConfig.OpenDoorOffset, 0, 0),
+                transform.position + new Vector3(doorConfig.OpenDoorOffset * direction, 0, 0),
                 transform.position,
                 t
             );
@@ -150,7 +152,7 @@ public sealed class GameTileBinding : TileBinding
             EnsureOpenCloseDoorSpawned();
             openCloseDoor.transform.position = Vector3.LerpUnclamped(
                 transform.position,
-                transform.position - new Vector3(doorConfig.OpenDoorOffset, 0, 0),
+                transform.position + new Vector3(doorConfig.OpenDoorOffset * direction, 0, 0),
                 t
             );
         }
