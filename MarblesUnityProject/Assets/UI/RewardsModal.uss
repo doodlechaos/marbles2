@@ -1,0 +1,126 @@
+/* Rewards Modal Overlay */
+.rewards-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.55);
+    padding: 16px;
+}
+
+.rewards-modal-content {
+    min-width: 360px;
+    max-width: 520px;
+
+    padding: 20px 24px;
+    border-radius: 16px;
+    background-color: rgb(255, 255, 255);
+
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* Header */
+.rewards-modal-header {
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+
+.rewards-modal-title {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(15, 23, 42);
+    margin-bottom: 2px;
+}
+
+.rewards-modal-subtitle {
+    font-size: 14px;
+    color: rgb(75, 85, 99);
+}
+
+/* Timer row */
+.rewards-timer-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 12px;
+    border-radius: 12px;
+    background-color: rgba(15, 23, 42, 0.04);
+
+    margin-bottom: 12px;
+}
+
+.rewards-timer-label {
+    font-size: 14px;
+    color: rgb(55, 65, 81);
+    -unity-font-style: bold;
+}
+
+.rewards-timer-value {
+    font-size: 14px;
+    color: rgb(15, 23, 42);
+    -unity-font-style: bold;
+}
+
+/* Track list */
+.rewards-track {
+    flex-direction: column;
+    margin-bottom: 14px;
+}
+
+.reward-day {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 12px;
+    border-radius: 12px;
+
+    background-color: rgba(15, 23, 42, 0.04);
+    margin-bottom: 8px;
+}
+
+.reward-day--active {
+    background-color: rgba(59, 130, 246, 0.16);
+    border-width: 2px;
+    border-color: rgb(59, 130, 246);
+}
+
+.reward-day-label {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(15, 23, 42);
+}
+
+.reward-amount-group {
+    flex-direction: row;
+    align-items: center;
+}
+
+.reward-amount {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(15, 23, 42);
+    margin-right: 6px;
+}
+
+.reward-marble-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    background-image: resource("Icons/marbleicon256x256");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.reward-currency {
+    font-size: 14px;
+    color: rgb(55, 65, 81);
+}
+

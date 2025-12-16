@@ -1,5 +1,9 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Toolbar.uss?fileID=7433441132597879392&amp;guid=190eb1910434b77478871f6a34b280f1&amp;type=3#Toolbar"/>
+    <Style src="project://database/Assets/UI/Buttons.uss?fileID=7433441132597879392&amp;guid=cfebf72c13e9d684c87e5d1ecb4480ef&amp;type=3#Buttons"/>
+    <Style src="project://database/Assets/UI/Currency.uss?fileID=7433441132597879392&amp;guid=6bbc1f2b50af50248a0cac2cd374334b&amp;type=3#Currency"/>
+    <Style src="project://database/Assets/UI/ProfileModal.uss?fileID=7433441132597879392&amp;guid=913cecb0d94b7b04baac3f52c4503f0e&amp;type=3#ProfileModal"/>
+    <Style src="project://database/Assets/UI/RewardsModal.uss?fileID=7433441132597879392&amp;guid=f13b45e17910dc2478415216f9763ad6&amp;type=3#RewardsModal"/>
     <ui:VisualElement name="overlay-root" class="overlay-root">
         <ui:VisualElement name="top-bar" class="top-bar">
             <ui:VisualElement name="top-left-toolbar" class="toolbar toolbar-left">
@@ -15,6 +19,9 @@
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="top-right-toolbar" class="toolbar toolbar-right">
+                <ui:Button name="btn-rewards" class="rewards-button">
+                    <ui:Label text="Rewards" class="rewards-button-label"/>
+                </ui:Button>
                 <ui:Button name="btn-discord" class="icon-button icon-button-circle icon-button-discord" style="padding-left: 0; padding-right: 0; padding-bottom: 0; padding-top: 0;">
                     <ui:Image name="icon-discord" class="icon icon-discord"/>
                 </ui:Button>
@@ -33,6 +40,79 @@
             <ui:Label name="profile-modal-body" text="Profile details and settings will go here." class="profile-modal-body"/>
             <ui:Button name="btn-logout" class="logout-button">
                 <ui:Label text="Log Out" class="logout-label"/>
+            </ui:Button>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="rewards-modal" class="rewards-modal">
+        <ui:VisualElement class="rewards-modal-content" style="opacity: 1;">
+            <ui:VisualElement class="rewards-modal-header">
+                <ui:Label name="rewards-modal-title" text="Daily Rewards" class="rewards-modal-title" style="-unity-text-align: upper-center;"/>
+                <ui:Label name="rewards-streak" text="Current streak: 3" class="rewards-modal-subtitle"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="rewards-timer-row">
+                <ui:Label name="rewards-timer-label" text="Next reward in:" class="rewards-timer-label"/>
+                <ui:Label name="rewards-timer" text="23:59:59" class="rewards-timer-value"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="rewards-track" class="rewards-track">
+                <ui:VisualElement class="reward-day">
+                    <ui:Label text="Day 1" class="reward-day-label"/>
+                    <ui:VisualElement class="reward-amount-group">
+                        <ui:Label text="40" class="reward-amount"/>
+                        <ui:Image class="reward-marble-icon"/>
+                        <ui:Label text="marbles" class="reward-currency"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="reward-day">
+                    <ui:Label text="Day 2" class="reward-day-label"/>
+                    <ui:VisualElement class="reward-amount-group">
+                        <ui:Label text="50" class="reward-amount"/>
+                        <ui:Image class="reward-marble-icon"/>
+                        <ui:Label text="marbles" class="reward-currency"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="reward-day reward-day--active">
+                    <ui:Label text="Day 3" class="reward-day-label"/>
+                    <ui:VisualElement class="reward-amount-group">
+                        <ui:Label text="60" class="reward-amount"/>
+                        <ui:Image class="reward-marble-icon"/>
+                        <ui:Label text="marbles" class="reward-currency"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="reward-day">
+                    <ui:Label text="Day 4" class="reward-day-label"/>
+                    <ui:VisualElement class="reward-amount-group">
+                        <ui:Label text="70" class="reward-amount"/>
+                        <ui:Image class="reward-marble-icon"/>
+                        <ui:Label text="marbles" class="reward-currency"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="reward-day">
+                    <ui:Label text="Day 5" class="reward-day-label"/>
+                    <ui:VisualElement class="reward-amount-group">
+                        <ui:Label text="80" class="reward-amount"/>
+                        <ui:Image class="reward-marble-icon"/>
+                        <ui:Label text="marbles" class="reward-currency"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="reward-day">
+                    <ui:Label text="Day 6" class="reward-day-label"/>
+                    <ui:VisualElement class="reward-amount-group">
+                        <ui:Label text="90" class="reward-amount"/>
+                        <ui:Image class="reward-marble-icon"/>
+                        <ui:Label text="marbles" class="reward-currency"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="reward-day">
+                    <ui:Label text="Day 7+" class="reward-day-label"/>
+                    <ui:VisualElement class="reward-amount-group">
+                        <ui:Label text="100" class="reward-amount"/>
+                        <ui:Image class="reward-marble-icon"/>
+                        <ui:Label text="marbles" class="reward-currency"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Button name="btn-claim-reward" class="claim-reward-button">
+                <ui:Label text="CLAIM" class="claim-reward-label"/>
             </ui:Button>
         </ui:VisualElement>
     </ui:VisualElement>
