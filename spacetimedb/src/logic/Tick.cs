@@ -105,8 +105,7 @@ public static partial class Module
             $"Running batch sim from [{batchStartSeq}-{batchStartSeq.WrappingAdd(stepsSinceLastBatch)}]"
         );
 
-        // Get or create the most recent snapshot
-        var snapshotOpt = ctx.Db.GameCoreSnap.Id.Find(0);
+         var snapshotOpt = ctx.Db.GameCoreSnap.Id.Find(0);
         GameCoreSnap snapshot;
 
         if (snapshotOpt.HasValue)
@@ -130,7 +129,7 @@ public static partial class Module
                 Seq = batchStartSeq,
                 BinaryData = MemoryPackSerializer.Serialize(gameCore),
             };
-        }
+        } 
 
         if (snapshot.Seq != batchStartSeq)
         {
@@ -255,9 +254,9 @@ public static partial class Module
 
             ctx.Db.NextGameBidCfgS.Id.Update(nextGameCfg);
         }
-        else if (state == GameTileState.Bidding)
+        else if (state == GameTileState.ReadyForBidding)
         {
-            Log.Info($"Detected Tile {worldId} entered Bidding state");
+            Log.Info($"Detected Tile {worldId} entered ReadyForBidding state");
             // A tile just entered Bidding state.
             // Signal that the OTHER tile (currently in bidding) can now start gameplay.
             BiddingStateS biddingState = BiddingStateS.Inst(ctx);
@@ -269,7 +268,7 @@ public static partial class Module
                 biddingState.OtherTileReadyForBidding = true;
                 ctx.Db.BiddingStateS.Id.Update(biddingState);
                 Log.Info(
-                    $"Tile {worldId} entered Bidding - other tile ready flag set. Current bidding tile: {biddingState.CurrBidWorldId}"
+                    $"Tile {worldId} entered ReadyForBidding - other tile ready flag set. Current bidding tile: {biddingState.CurrBidWorldId}"
                 );
             }
         }

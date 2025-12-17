@@ -72,13 +72,27 @@ namespace GameCoreLib
                 }
                 else if (inputEvent is InputEvent.GameplayStartInput gameplayStartInput)
                 {
+                    Logger.Log("Received GameplayStartInput event in GameCore");
                     byte worldId = gameplayStartInput.WorldId;
                     var gameTile = worldId == 1 ? GameTile1 : GameTile2;
+                    var otherGameTile = worldId == 1 ? GameTile2 : GameTile1;
 
                     if (gameTile != null)
-                    {
                         gameTile.StartGameplay(gameplayStartInput);
+                    else
+                        Logger.Error($"GameTile {worldId} not found");
+
+                    if (
+                        otherGameTile != null
+                        && otherGameTile.State == GameTileState.ReadyForBidding
+                    )
+                    {
+                        otherGameTile.SetState(GameTileState.Bidding);
                     }
+                    else
+                        Logger.Error(
+                            $"Other GameTile {worldId} not found or not in ReadyForBidding state"
+                        );
                 }
                 else if (inputEvent is InputEvent.ForceFinishGameplay finishGameplay)
                 {

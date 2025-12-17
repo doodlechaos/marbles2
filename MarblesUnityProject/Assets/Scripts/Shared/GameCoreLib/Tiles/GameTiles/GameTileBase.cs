@@ -14,7 +14,8 @@ namespace GameCoreLib
     {
         Spinning,
         OpeningDoor,
-        Bidding,
+        ReadyForBidding,
+        Bidding, //Only one game tile can be in bidding state at a time
         Gameplay,
         ScoreScreen,
         ClosingDoor,
@@ -27,7 +28,7 @@ namespace GameCoreLib
     public abstract partial class GameTileBase : TileBase
     {
         [MemoryPackOrder(7)]
-        public GameBidCfg GameBidCfg;
+        public GameBidCfg GameBidCfg = new GameBidCfg(1, 10, 10); //Default
 
         [MemoryPackOrder(8)]
         public Rarity TileRarity;
@@ -144,7 +145,11 @@ namespace GameCoreLib
             else if (State == GameTileState.OpeningDoor)
             {
                 if (stateDurationSec >= OPENING_DOOR_DURATION_SEC)
-                    SetState(GameTileState.Bidding);
+                    SetState(GameTileState.ReadyForBidding);
+            }
+            else if (State == GameTileState.ReadyForBidding)
+            {
+                //Here we must wait and instantly switch to bidding once the other game tile changes from bidding -> gameplay
             }
             else if (State == GameTileState.Bidding)
             {
@@ -167,6 +172,10 @@ namespace GameCoreLib
                 if (stateDurationSec >= CLOSING_DOOR_DURATION_SEC)
                     SetState(GameTileState.ReadyToSpin);
             }
+            else if (State == GameTileState.ReadyToSpin)
+            {
+                //Managed by server. Need to wait for input event containing the loaded new game tile data
+            }
 
             // Call base Step which handles physics, collision events, and marble detection
             base.Step();
@@ -175,7 +184,7 @@ namespace GameCoreLib
 
         public void SetState(GameTileState state)
         {
-            Logger.Log($"SetState: {State} --> {state}");
+            Logger.Log($"SetState: Tile {TileWorldId} from {State} --> {state}");
 
             currentOutputEvents?.Events.Add(
                 new OutputEvent.StateUpdatedTo { State = state, WorldId = TileWorldId }

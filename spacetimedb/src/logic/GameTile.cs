@@ -45,6 +45,7 @@ public static partial class Module
     {
         var gameTile = new SimpleBattleRoyale();
         // Create a minimal TileRoot
+        gameTile.GameBidCfg = new GameBidCfg(1, 10, 10);
         gameTile.TileRoot = new GameCoreObj
         {
             Name = "DefaultLevel",

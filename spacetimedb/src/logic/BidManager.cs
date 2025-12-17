@@ -55,13 +55,16 @@ public static partial class Module
 
         //If the bid timer reaches 0, send the player bid data to the gametile, reset the bidder, and start the bidder on the next gametile.
         if (BidTimeS.Inst(ctx).MicrosecondsRemaining <= 0)
+        {
             FinishBiddingForTile(ctx);
+            CycleServerBidState(ctx);
+        }
     }
 
     private static void TryCountdownBidTimer(ReducerContext ctx, float deltaTimeSec)
     {
         // Only countdown when:
-        // 1. The other tile is in Bidding state (so users have something to bid on next)
+        // 1. The other tile is in ReadyForBidding state (so users have something to bid on next)
         // 2. We have enough bidders for a game
         BiddingStateS biddingState = BiddingStateS.Inst(ctx);
 
@@ -88,10 +91,8 @@ public static partial class Module
         InputEvent.GameplayStartInput startGameTileEvent = GetBiddingResult(ctx);
         byte[] eventData = startGameTileEvent.ToBinary();
         ctx.Db.InputCollector.Insert(
-            new InputCollector { delaySeqs = 0, inputEventData = eventData }
+            new InputCollector { delaySeqs = 0, inputEventData = eventData } //This should trigger the other game tile in gamecore to switch the other game tile to bidding state
         );
-
-        CycleBidStateToNextGameTile(ctx);
     }
 
     private static InputEvent.GameplayStartInput GetBiddingResult(ReducerContext ctx)
@@ -151,7 +152,7 @@ public static partial class Module
         return startGameTileEvent;
     }
 
-    private static void CycleBidStateToNextGameTile(ReducerContext ctx)
+    private static void CycleServerBidState(ReducerContext ctx)
     {
         BiddingStateS biddingState = BiddingStateS.Inst(ctx);
 

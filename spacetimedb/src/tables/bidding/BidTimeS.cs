@@ -19,7 +19,10 @@ public static partial class Module
             }
             else
             {
-                return ctx.Db.BidTimeS.Insert(new BidTimeS { Id = 0, MicrosecondsRemaining = 0 });
+                //Todo make the time duration a config value
+                return ctx.Db.BidTimeS.Insert(
+                    new BidTimeS { Id = 0, MicrosecondsRemaining = 10d.SecondsToMicroseconds() }
+                );
             }
         }
 

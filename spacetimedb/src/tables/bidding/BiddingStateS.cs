@@ -18,7 +18,6 @@ public static partial class Module
 
         /// <summary>
         /// Which tile is currently accepting bids (1 or 2).
-        /// The other tile should be in Gameplay, ScoreScreen, or transitioning.
         /// </summary>
         public byte CurrBidWorldId;
 
