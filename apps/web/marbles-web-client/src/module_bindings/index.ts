@@ -39,6 +39,8 @@ import AInsertBid from "./a_insert_bid_reducer";
 export { AInsertBid };
 import ASetAccountStreak from "./a_set_account_streak_reducer";
 export { ASetAccountStreak };
+import ASetUsername from "./a_set_username_reducer";
+export { ASetUsername };
 import ASpinLoadGameplayTile from "./a_spin_load_gameplay_tile_reducer";
 export { ASpinLoadGameplayTile };
 import AttackThrone from "./attack_throne_reducer";
@@ -87,6 +89,8 @@ import AccountCustomizationRow from "./account_customization_table";
 export { AccountCustomizationRow };
 import AccountSeqRow from "./account_seq_table";
 export { AccountSeqRow };
+import ActiveAccountCustomsViewRow from "./active_account_customs_view_table";
+export { ActiveAccountCustomsViewRow };
 import AdminRow from "./admin_table";
 export { AdminRow };
 import AuthFrameRow from "./auth_frame_table";
@@ -127,6 +131,8 @@ import ScoreboardEntryRow from "./scoreboard_entry_table";
 export { ScoreboardEntryRow };
 import SeqRow from "./seq_table";
 export { SeqRow };
+import ServerCfgSRow from "./server_cfg_s_table";
+export { ServerCfgSRow };
 import SessionRow from "./session_table";
 export { SessionRow };
 import StepsSinceLastAuthFrameRow from "./steps_since_last_auth_frame_table";
@@ -187,6 +193,8 @@ import ScoreboardEntry from "./scoreboard_entry_type";
 export { ScoreboardEntry };
 import Seq from "./seq_type";
 export { Seq };
+import ServerCfgS from "./server_cfg_s_type";
+export { ServerCfgS };
 import Session from "./session_type";
 export { Session };
 import SessionKind from "./session_kind_type";
@@ -233,6 +241,9 @@ const tablesSchema = __schema(
     indexes: [
       { name: 'AccountId', algorithm: 'btree', columns: [
         'accountId',
+      ] },
+      { name: 'LastActiveTime', algorithm: 'btree', columns: [
+        'lastActiveTime',
       ] },
     ],
     constraints: [
@@ -445,6 +456,17 @@ const tablesSchema = __schema(
     ],
   }, SeqRow),
   __table({
+    name: 'ServerCfgS',
+    indexes: [
+      { name: 'Id', algorithm: 'btree', columns: [
+        'id',
+      ] },
+    ],
+    constraints: [
+      { name: 'ServerCfgS_Id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, ServerCfgSRow),
+  __table({
     name: 'Session',
     indexes: [
       { name: 'Identity', algorithm: 'btree', columns: [
@@ -500,6 +522,13 @@ const tablesSchema = __schema(
     ],
   }, ThroneTileDataRow),
   __table({
+    name: 'ActiveAccountCustomsView',
+    indexes: [
+    ],
+    constraints: [
+    ],
+  }, ActiveAccountCustomsViewRow),
+  __table({
     name: 'MyAccount',
     indexes: [
     ],
@@ -521,6 +550,7 @@ const reducersSchema = __reducers(
   __reducerSchema("A_GiveMarbles", AGiveMarbles),
   __reducerSchema("A_InsertBid", AInsertBid),
   __reducerSchema("A_SetAccountStreak", ASetAccountStreak),
+  __reducerSchema("A_SetUsername", ASetUsername),
   __reducerSchema("A_SpinLoadGameplayTile", ASpinLoadGameplayTile),
   __reducerSchema("AttackThrone", AttackThrone),
   __reducerSchema("ClaimDailyReward", ClaimDailyReward),

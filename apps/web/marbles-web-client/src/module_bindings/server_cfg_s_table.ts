@@ -11,8 +11,6 @@ import {
 } from "spacetimedb";
 
 export default __t.row({
-  accountId: __t.u64().primaryKey(),
-  username: __t.string(),
-  pfpVersion: __t.u8(),
-  lastActiveTime: __t.timestamp(),
+  id: __t.u8().primaryKey(),
+  activeAccountEvectionScanIntervalSec: __t.u16(),
 });

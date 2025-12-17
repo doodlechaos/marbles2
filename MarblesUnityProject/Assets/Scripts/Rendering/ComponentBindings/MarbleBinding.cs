@@ -6,10 +6,12 @@ using UnityEngine;
 /// Unity component that binds to a MarbleComponent and displays marble-related visuals.
 /// Automatically bound by TileBinding when a marble prefab is instantiated.
 /// </summary>
-public class MarbleBinding : GCBinding<MarbleComponent>
+public class MarbleBinding : GCBinding<MarbleComponent>, IAccountCustomizationConsumer
 {
-    [Header("UI References")]
-    [Tooltip("TextMeshPro component to display the marble's current points.")]
+
+    [SerializeField]
+    private TextMeshPro _usernameText;
+
     [SerializeField]
     private TextMeshPro pointsText;
 
@@ -38,6 +40,11 @@ public class MarbleBinding : GCBinding<MarbleComponent>
         {
             ClearPointsDisplay();
         }
+    }
+
+    public void ApplyAccountCustomization(AccountVisual visual)
+    {
+        _usernameText.SetText(visual.Username);
     }
 
     protected override void UpdateVisuals()

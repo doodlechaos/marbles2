@@ -14,6 +14,7 @@ export default __t.object("AccountCustomization", {
   accountId: __t.u64(),
   username: __t.string(),
   pfpVersion: __t.u8(),
+  lastActiveTime: __t.timestamp(),
 });
 
 

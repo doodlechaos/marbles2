@@ -17,4 +17,12 @@ public static partial class Module
         public ulong Id;
         public ScheduleAt ScheduledAt;
     }
+
+/*     [Table(Scheduled = nameof(ActiveAccountCache.EvictStale), ScheduledAt = nameof(ScheduledAt))]
+    public partial struct AccountCacheEvictionSchedule
+    {
+        [PrimaryKey]
+        public ulong Id;
+        public ScheduleAt ScheduledAt;
+    } */
 }

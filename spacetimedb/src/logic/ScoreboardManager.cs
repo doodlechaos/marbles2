@@ -11,7 +11,7 @@ public static partial class Module
         GTScoreboardS scoreboard = GTScoreboardS.Inst(ctx);
         foreach (ScoreboardEntry entry in scoreboard.Entries)
         {
-            if (ctx.Db.Account.Id.Find(entry.AccountId) is Account account)
+            if (Account.TryGetById(ctx, entry.AccountId) is Account account)
             {
                 account.Points = account.Points.SaturatingAdd(entry.PointsEarned);
                 ctx.Db.Account.Identity.Update(account);

@@ -96,11 +96,17 @@ public static partial class Module
             ctx.Db.Session.Identity.Delete(ctx.Sender);
         }
 
-        if (ctx.Db.Account.Identity.Find(ctx.Sender) is Account account)
+        if (Account.TryGetBySender(ctx) is Account account)
         {
             account.IsConnected = false;
             ctx.Db.Account.Identity.Update(account);
             Log.Info($"[Disconnect] Successfully updated account IsConnected=false");
+        }
+        else
+        {
+            Log.Error(
+                $"[Disconnect] Account not found for sender when disconnecting: {ctx.Sender}"
+            );
         }
     }
 }

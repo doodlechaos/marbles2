@@ -32,6 +32,7 @@ namespace SpacetimeDB.Types
             AddTable(AccountBid = new(conn));
             AddTable(AccountCustomization = new(conn));
             AddTable(AccountSeq = new(conn));
+            AddTable(ActiveAccountCustomsView = new(conn));
             AddTable(Admin = new(conn));
             AddTable(AuthFrame = new(conn));
             AddTable(BaseCfgS = new(conn));
@@ -52,6 +53,7 @@ namespace SpacetimeDB.Types
             AddTable(NextGameBidCfgS = new(conn));
             AddTable(ScoreboardEntry = new(conn));
             AddTable(Seq = new(conn));
+            AddTable(ServerCfgS = new(conn));
             AddTable(Session = new(conn));
             AddTable(StepsSinceLastAuthFrame = new(conn));
             AddTable(StepsSinceLastBatch = new(conn));
@@ -621,6 +623,7 @@ namespace SpacetimeDB.Types
                 "A_GiveMarbles" => BSATNHelpers.Decode<Reducer.AGiveMarbles>(encodedArgs),
                 "A_InsertBid" => BSATNHelpers.Decode<Reducer.AInsertBid>(encodedArgs),
                 "A_SetAccountStreak" => BSATNHelpers.Decode<Reducer.ASetAccountStreak>(encodedArgs),
+                "A_SetUsername" => BSATNHelpers.Decode<Reducer.ASetUsername>(encodedArgs),
                 "A_SpinLoadGameplayTile" => BSATNHelpers.Decode<Reducer.ASpinLoadGameplayTile>(encodedArgs),
                 "AttackThrone" => BSATNHelpers.Decode<Reducer.AttackThrone>(encodedArgs),
                 "ClaimDailyReward" => BSATNHelpers.Decode<Reducer.ClaimDailyReward>(encodedArgs),
@@ -668,6 +671,7 @@ namespace SpacetimeDB.Types
                 Reducer.AGiveMarbles args => Reducers.InvokeAGiveMarbles(eventContext, args),
                 Reducer.AInsertBid args => Reducers.InvokeAInsertBid(eventContext, args),
                 Reducer.ASetAccountStreak args => Reducers.InvokeASetAccountStreak(eventContext, args),
+                Reducer.ASetUsername args => Reducers.InvokeASetUsername(eventContext, args),
                 Reducer.ASpinLoadGameplayTile args => Reducers.InvokeASpinLoadGameplayTile(eventContext, args),
                 Reducer.AttackThrone args => Reducers.InvokeAttackThrone(eventContext, args),
                 Reducer.ClaimDailyReward args => Reducers.InvokeClaimDailyReward(eventContext, args),

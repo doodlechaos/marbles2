@@ -26,9 +26,19 @@ namespace SpacetimeDB.Types
 
             public readonly AccountIdUniqueIndex AccountId;
 
+            public sealed class LastActiveTimeIndex : BTreeIndexBase<SpacetimeDB.Timestamp>
+            {
+                protected override SpacetimeDB.Timestamp GetKey(AccountCustomization row) => row.LastActiveTime;
+
+                public LastActiveTimeIndex(AccountCustomizationHandle table) : base(table) { }
+            }
+
+            public readonly LastActiveTimeIndex LastActiveTime;
+
             internal AccountCustomizationHandle(DbConnection conn) : base(conn)
             {
                 AccountId = new(this);
+                LastActiveTime = new(this);
             }
 
             protected override object GetPrimaryKey(AccountCustomization row) => row.AccountId;

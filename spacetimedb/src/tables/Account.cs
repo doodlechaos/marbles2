@@ -22,9 +22,10 @@ public static partial class Module
 
         public static Account GetOrCreate(ReducerContext ctx)
         {
-            var accountOpt = ctx.Db.Account.Identity.Find(ctx.Sender);
+            var accountOpt = ctx.Db.Account.Identity.Find(ctx.Sender); //IMPORTANT: USE SENDER, NOT IDENTITY
             if (accountOpt.HasValue)
             {
+                AccountCustomization.Touch(ctx, accountOpt.Value.Id);
                 Log.Info($"[Account.GetOrCreate] Found existing account ID: {accountOpt.Value.Id}");
                 return accountOpt.Value;
             }
@@ -59,7 +60,24 @@ public static partial class Module
                 $"[Account.GetOrCreate] Successfully inserted account ID: {insertedAccount.Id}"
             );
 
+            AccountCustomization.Touch(ctx, insertedAccount.Id);
             return insertedAccount;
+        }
+
+        public static Account? TryGetBySender(ReducerContext ctx)
+        {
+            if (ctx.Db.Account.Identity.Find(ctx.Sender) is Account account)
+            {
+                AccountCustomization.Touch(ctx, account.Id);
+                return account;
+            }
+            return null;
+        }
+
+        public static Account? TryGetById(ReducerContext ctx, ulong accountId)
+        {
+            AccountCustomization.Touch(ctx, accountId);
+            return ctx.Db.Account.Id.Find(accountId);
         }
     }
 

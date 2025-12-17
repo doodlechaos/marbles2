@@ -1097,6 +1097,7 @@ Transform:
   - {fileID: 1503107464}
   - {fileID: 460967034}
   - {fileID: 931444008}
+  - {fileID: 2071265892}
   m_Father: {fileID: 211776908}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1423701285
@@ -1114,6 +1115,7 @@ MonoBehaviour:
   _synchronizer: {fileID: 460967033}
   _authManager: {fileID: 931444009}
   _uiManager: {fileID: 1651479462}
+  _accountCustomizationCache: {fileID: 2071265891}
   _tokenConnectedWith: 
   _bidDisplayPanel: {fileID: 664686446}
   ConnectedIdentity: 
@@ -1424,6 +1426,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2008325970}
   m_CullTransparentMesh: 1
+--- !u!1 &2071265890
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2071265892}
+  - component: {fileID: 2071265891}
+  m_Layer: 0
+  m_Name: AccountCustomizationCache
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2071265891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2071265890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1adff9b67cf39f94e97a7b1c7cc73b4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AccountCustomizationCache
+  _defaultPfpSprite: {fileID: 0}
+--- !u!4 &2071265892
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2071265890}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1423701284}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &2077777371 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1348302042633918410, guid: 9c1987f5a15836840aafaed93a4e7a5c, type: 3}
@@ -1575,7 +1622,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4422986821221044026, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.505043
+      value: -27.504276
       objectReference: {fileID: 0}
     - target: {fileID: 4539591184749852580, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_Name

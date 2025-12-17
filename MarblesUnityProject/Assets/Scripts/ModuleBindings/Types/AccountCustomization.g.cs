@@ -19,16 +19,20 @@ namespace SpacetimeDB.Types
         public string Username;
         [DataMember(Name = "PfpVersion")]
         public byte PfpVersion;
+        [DataMember(Name = "LastActiveTime")]
+        public SpacetimeDB.Timestamp LastActiveTime;
 
         public AccountCustomization(
             ulong AccountId,
             string Username,
-            byte PfpVersion
+            byte PfpVersion,
+            SpacetimeDB.Timestamp LastActiveTime
         )
         {
             this.AccountId = AccountId;
             this.Username = Username;
             this.PfpVersion = PfpVersion;
+            this.LastActiveTime = LastActiveTime;
         }
 
         public AccountCustomization()

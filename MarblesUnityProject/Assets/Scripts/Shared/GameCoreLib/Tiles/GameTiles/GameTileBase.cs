@@ -104,6 +104,13 @@ namespace GameCoreLib
 
         public virtual void FinishGameplay()
         {
+            if (State != GameTileState.Gameplay)
+            {
+                Logger.Error(
+                    $"FinishGameplay called while tile {TileWorldId} is in state {State}; ignoring."
+                );
+                return;
+            }
             //If there are straggling active contestants, force them to be eliminated.
             foreach (var accountId in ActiveContestants)
                 EliminateContestant(accountId);

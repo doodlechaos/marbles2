@@ -52,6 +52,9 @@ public class STDB : MonoBehaviour
     private UIManager _uiManager;
 
     [SerializeField]
+    private AccountCustomizationCache _accountCustomizationCache;
+
+    [SerializeField]
     private string _tokenConnectedWith;
 
     /// <summary>
@@ -168,6 +171,7 @@ public class STDB : MonoBehaviour
         _bidDisplayPanel.SetCallbacks(conn);
         _uiManager.SetCallbacks(conn);
         _synchronizer.SetCallbacks(conn);
+        _accountCustomizationCache.SetCallbacks(conn);
 
         // Register STDB's own callbacks using method references
         conn.Db.MyAccount.OnInsert += OnMyAccountInsert;
@@ -306,7 +310,7 @@ public class STDB : MonoBehaviour
                     "SELECT * FROM AuthFrame",
                     "SELECT * FROM MyAccount",
                     "SELECT * FROM MySessionKind",
-                    "SELECT * FROM AccountCustomization",
+                    "SELECT * FROM ActiveAccountCustomsView",
                     "SELECT * FROM BaseCfgS",
                     "SELECT * FROM AccountBid",
                     "SELECT * FROM BiddingStateS",

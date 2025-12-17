@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PodiumEntry : MonoBehaviour
+public class PodiumEntry : MonoBehaviour, IAccountCustomizationConsumer
 {
     [SerializeField]
     private TextMeshProUGUI _rankText;
@@ -30,6 +30,8 @@ public class PodiumEntry : MonoBehaviour
         _prizeEarnedText.SetText($"+{prizeEarned}");
         _isLocalPlayer = isLocalPlayer;
 
+        AccountCustomizationCache.Inst.RegisterConsumer(accountId, this);
+
         StartCoroutine(FetchAccountCustomizationDataCoroutine(accountId));
     }
 
@@ -37,6 +39,11 @@ public class PodiumEntry : MonoBehaviour
     {
         _usernameText.SetText("TODO...");
         yield return null;
+    }
+
+    public void ApplyAccountCustomization(AccountVisual visual)
+    {
+        _usernameText.SetText(visual.Username);
     }
 
     //Have to do this instead of activating and deactivating the gameobject because that will stop the coroutine or not allow it to start

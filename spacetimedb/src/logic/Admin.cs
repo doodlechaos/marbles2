@@ -30,7 +30,7 @@ public static partial class Module
     [Reducer]
     public static void A_GiveMarbles(ReducerContext ctx, ulong accountId, uint marbles)
     {
-        Account? accountOpt = ctx.Db.Account.Id.Find(accountId);
+        Account? accountOpt = Account.TryGetById(ctx, accountId);
         if (!accountOpt.HasValue)
         {
             Log.Error($"[Admin.GiveMarbles] Account {accountId} not found");
@@ -84,7 +84,7 @@ public static partial class Module
         long lastClaimDay
     )
     {
-        if (ctx.Db.Account.Id.Find(accountId) is Account account)
+        if (Account.TryGetById(ctx, accountId) is Account account)
         {
             account.DailyRewardClaimStreak = streak;
             account.LastDailyRewardClaimDay = lastClaimDay;
@@ -94,6 +94,16 @@ public static partial class Module
         {
             Log.Error($"[Admin.SetAccountStreak] Account {accountId} not found");
             return;
+        }
+    }
+
+    [Reducer]
+    public static void A_SetUsername(ReducerContext ctx, ulong accountId, string username)
+    {
+        if (AccountCustomization.GetOrCreate(ctx, accountId) is AccountCustomization row)
+        {
+            row.Username = username;
+            ctx.Db.AccountCustomization.AccountId.Update(row);
         }
     }
 }

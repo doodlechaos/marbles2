@@ -10,9 +10,9 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
-export default __t.row({
-  accountId: __t.u64().primaryKey(),
-  username: __t.string(),
-  pfpVersion: __t.u8(),
-  lastActiveTime: __t.timestamp(),
+export default __t.object("ServerCfgS", {
+  id: __t.u8(),
+  activeAccountEvectionScanIntervalSec: __t.u16(),
 });
+
+

@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class AuctionPlayerEntry : MonoBehaviour
+public class AuctionPlayerEntry : MonoBehaviour, IAccountCustomizationConsumer
 {
     [SerializeField]
     private TextMeshProUGUI _rankText;
@@ -26,12 +26,24 @@ public class AuctionPlayerEntry : MonoBehaviour
         _rankText.SetText($"{rank})");
         _playerNameText.SetText(playerName);
         _bidAmountText.SetText($"{bidAmount}x");
+
+        AccountCustomizationCache.Inst.RegisterConsumer(accountId, this);
+    }
+
+    void OnDisable()
+    {
+        AccountCustomizationCache.Inst.UnregisterConsumer(AccountId, this);
     }
 
     public void UpdateDisplay(ushort rank, uint bidAmount)
     {
         _rankText.SetText($"{rank})");
         _bidAmountText.SetText($"{bidAmount}x");
+    }
+
+    public void ApplyAccountCustomization(AccountVisual visual)
+    {
+        _playerNameText.SetText(visual.Username);
     }
 
     public void SetTargetLocalPos(Vector3 targetPosition)

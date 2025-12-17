@@ -98,9 +98,9 @@ namespace GameCoreLib
                 {
                     byte worldId = finishGameplay.WorldId;
                     if (worldId == 1)
-                        GameTile2?.FinishGameplay();
-                    else
                         GameTile1?.FinishGameplay();
+                    else
+                        GameTile2?.FinishGameplay();
                 }
                 else if (inputEvent is InputEvent.SetKing setKing) //This wouldn't happen from regular gameplay, it would be an admin action to force setting a king manually
                 {
