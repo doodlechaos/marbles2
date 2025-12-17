@@ -12,6 +12,5 @@ public sealed class GCObjBinding : MonoBehaviour
     /// The stable ID of the RuntimeObj this GameObject represents.
     /// This ID persists through save/load cycles.
     /// </summary>
-    //public ulong RuntimeId;
     public GameCoreObj GameCoreObj;
 }
