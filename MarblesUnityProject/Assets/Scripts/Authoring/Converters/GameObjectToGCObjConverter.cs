@@ -5,13 +5,18 @@ using UnityEngine;
 
 /// <summary>
 /// Generic Unity-side converter that turns a GameObject hierarchy into RuntimeObj data.
-/// Used by authoring tools (e.g. GameTileConverter) to serialize authored content
-/// into GameCore runtime structures.
+/// Uses a recursive pruning strategy to filter out purely visual objects from export.
+///
+/// Pruning Rules:
+/// - Leaf nodes without RenderPrefabRoot, auth components, or physics are NOT exported
+/// - Ancestor nodes are preserved if they have descendants that require export (for transform hierarchy)
+/// - TileAuthBase components always mark a node for export
 /// </summary>
 public static class GameObjectToGCObj
 {
     /// <summary>
     /// Entry point helper: convert a GameObject and its children into a RuntimeObj tree.
+    /// Only exports nodes that have GameCore-relevant content or are ancestors of such nodes.
     /// </summary>
     public static GameCoreObj Convert(GameObject go, RenderPrefabRegistry prefabRegistry)
     {
@@ -20,6 +25,7 @@ public static class GameObjectToGCObj
 
     /// <summary>
     /// Recursively serialize a GameObject and all its children into RuntimeObj.
+    /// Applies pruning to filter out purely visual objects.
     /// </summary>
     public static GameCoreObj SerializeGameObject(
         GameObject go,
@@ -27,12 +33,62 @@ public static class GameObjectToGCObj
     )
     {
         var context = new ComponentExportContext();
-        var result = SerializeGameObject(go, prefabRegistry, context);
+        var result = SerializeGameObjectWithPruning(go, prefabRegistry, context);
         context.ResolveDeferredReferences();
         return result;
     }
 
-    private static GameCoreObj SerializeGameObject(
+    /// <summary>
+    /// Determines if a GameObject should be exported to GameCore.
+    /// A node should be exported if it has exportable content OR has descendants that should be exported.
+    /// </summary>
+    private static bool ShouldExport(GameObject go, RenderPrefabRegistry prefabRegistry)
+    {
+        // Always export tile roots
+        if (go.GetComponent<TileAuthBase>() != null)
+            return true;
+
+        // Check if this node has exportable content
+        if (HasExportableContent(go, prefabRegistry))
+            return true;
+
+        // Check if any descendant has exportable content (ancestor preservation)
+        foreach (Transform child in go.transform)
+        {
+            if (ShouldExport(child.gameObject, prefabRegistry))
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if a GameObject has content that requires GameCore export.
+    /// This includes: RenderPrefabRoot, GameComponentAuth components, or auto-exportable Unity physics.
+    /// </summary>
+    private static bool HasExportableContent(GameObject go, RenderPrefabRegistry prefabRegistry)
+    {
+        // Has RenderPrefabRoot (prefab ID >= 0)
+        int prefabId = prefabRegistry != null ? prefabRegistry.GetPrefabID(go) : -1;
+        if (prefabId >= 0)
+            return true;
+
+        // Has GameComponentAuth components
+        if (go.GetComponents<GameComponentAuth>().Length > 0)
+            return true;
+
+        // Has auto-exportable Unity physics components
+        if (go.GetComponent<BoxCollider2D>() != null)
+            return true;
+        if (go.GetComponent<CircleCollider2D>() != null)
+            return true;
+        if (go.GetComponent<Rigidbody2D>() != null)
+            return true;
+
+        return false;
+    }
+
+    private static GameCoreObj SerializeGameObjectWithPruning(
         GameObject go,
         RenderPrefabRegistry prefabRegistry,
         ComponentExportContext context
@@ -40,7 +96,7 @@ public static class GameObjectToGCObj
     {
         if (prefabRegistry == null)
         {
-            Debug.LogError("[GameObjectToRuntimeObjConverter] Prefab registry is null");
+            Debug.LogError("[GameObjectToGCObjConverter] Prefab registry is null");
         }
 
         GameCoreObj runtimeObj = new GameCoreObj
@@ -49,10 +105,11 @@ public static class GameObjectToGCObj
             Children = new List<GameCoreObj>(),
             Transform = ConvertToFPTransform(go.transform),
             GameComponents = SerializeGameComponents(go, context),
-            RenderPrefabID = prefabRegistry != null ? prefabRegistry.GetPrefabID(go) : 0,
+            RenderPrefabID = prefabRegistry != null ? prefabRegistry.GetPrefabID(go) : (short)-1,
+            SiblingIndex = go.transform.GetSiblingIndex(),
         };
 
-        // Add LevelRootComponent for objects with TileAuthBase
+        // Add TileRootComponent for objects with TileAuthBase
         TileAuthBase tileAuth = go.GetComponent<TileAuthBase>();
         if (tileAuth != null)
         {
@@ -64,11 +121,18 @@ public static class GameObjectToGCObj
             runtimeObj.GameComponents.Add(levelRoot);
         }
 
-        // Recursively serialize all children
+        // Recursively serialize children that should be exported
         foreach (Transform child in go.transform)
         {
-            GameCoreObj childObj = SerializeGameObject(child.gameObject, prefabRegistry, context);
-            runtimeObj.Children.Add(childObj);
+            if (ShouldExport(child.gameObject, prefabRegistry))
+            {
+                GameCoreObj childObj = SerializeGameObjectWithPruning(
+                    child.gameObject,
+                    prefabRegistry,
+                    context
+                );
+                runtimeObj.Children.Add(childObj);
+            }
         }
 
         return runtimeObj;

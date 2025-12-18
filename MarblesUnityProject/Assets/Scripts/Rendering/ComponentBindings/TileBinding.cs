@@ -9,6 +9,11 @@ using UnityEngine;
 /// Base class for Unity components that bind to and render GameCore TileBase instances.
 /// Handles the rendering pipeline: spawning prefabs from pools, syncing transforms,
 /// and managing the visual hierarchy lifecycle.
+///
+/// Key features:
+/// - Every GameCoreObj gets a corresponding Unity GameObject with GCObjBinding
+/// - Each GameObject handles its own binding through IGCBinding components
+/// - Prefab children are matched by sibling index for robust binding
 /// </summary>
 [Serializable]
 public abstract class TileBinding : MonoBehaviour
@@ -42,7 +47,8 @@ public abstract class TileBinding : MonoBehaviour
     private struct VisualEntry
     {
         public GameObject GameObject;
-        public RenderPrefabRoot PrefabRoot; // Non-null if spawned from pool
+        public RenderPrefabRoot PrefabRoot; // Non-null if this is a pooled prefab root
+        public bool OwnedByPrefab; // True if managed by a parent prefab's lifecycle
     }
 
     /// <summary>
@@ -97,22 +103,26 @@ public abstract class TileBinding : MonoBehaviour
         _seenIds.Clear();
 
         // Traverse and update the visual hierarchy
-        UpdateVisualHierarchy(tileRoot, _renderRoot.transform);
+        UpdateVisualHierarchy(tileRoot, _renderRoot.transform, prefabCtx: null);
 
         // Cleanup visuals for objects no longer in the hierarchy
         CleanupUnseenVisuals();
     }
 
-    private void UpdateVisualHierarchy(GameCoreObj gcObj, Transform parentTransform)
+    private void UpdateVisualHierarchy(
+        GameCoreObj gcObj,
+        Transform parentTransform,
+        RenderPrefabRoot prefabCtx
+    )
     {
-        // Skip level roots (containers only)
+        // Skip TileRoot containers (they don't need visuals)
         if (gcObj.HasComponent<TileRootComponent>())
         {
             if (gcObj.Children != null)
             {
                 foreach (var child in gcObj.Children)
                 {
-                    UpdateVisualHierarchy(child, parentTransform);
+                    UpdateVisualHierarchy(child, parentTransform, prefabCtx);
                 }
             }
             return;
@@ -120,60 +130,117 @@ public abstract class TileBinding : MonoBehaviour
 
         _seenIds.Add(gcObj.RuntimeId);
 
-        if (_visuals.TryGetValue(gcObj.RuntimeId, out var entry) && entry.GameObject != null)
+        bool isNewVisual =
+            !_visuals.TryGetValue(gcObj.RuntimeId, out var entry) || entry.GameObject == null;
+
+        if (isNewVisual)
         {
-            // Update existing visual
-            UpdateTransform(entry.GameObject, gcObj.Transform);
+            entry = CreateOrFindVisual(gcObj, parentTransform, prefabCtx);
+            _visuals[gcObj.RuntimeId] = entry;
+            BindGameObject(entry.GameObject, gcObj);
         }
         else
         {
-            // Create new visual
-            entry = CreateVisual(gcObj, parentTransform);
-            _visuals[gcObj.RuntimeId] = entry;
+            UpdateTransform(entry.GameObject, gcObj.Transform);
         }
 
-        // Process children
+        // Propagate prefab context to children
+        var childPrefabCtx = entry.PrefabRoot ?? prefabCtx;
+
         if (gcObj.Children != null)
         {
             foreach (var child in gcObj.Children)
             {
-                UpdateVisualHierarchy(child, entry.GameObject.transform);
+                UpdateVisualHierarchy(child, entry.GameObject.transform, childPrefabCtx);
             }
         }
     }
 
-    private VisualEntry CreateVisual(GameCoreObj gcObj, Transform parent)
+    private VisualEntry CreateOrFindVisual(
+        GameCoreObj gcObj,
+        Transform parentTransform,
+        RenderPrefabRoot prefabCtx
+    )
     {
-        VisualEntry entry = new VisualEntry();
-
-        // Try to spawn from pool if this is a prefab root
-        if (gcObj.IsPrefabRoot && gcObj.RenderPrefabID >= 0 && _pools != null)
+        // Inside a prefab: find existing child by sibling index
+        if (prefabCtx != null)
         {
-            var prefabRoot = _pools.Spawn(gcObj.RenderPrefabID, parent, gcObj);
-            if (prefabRoot != null)
-            {
-                entry.GameObject = prefabRoot.gameObject;
-                entry.PrefabRoot = prefabRoot;
-                entry.GameObject.name = gcObj.Name;
-                UpdateTransform(entry.GameObject, gcObj.Transform);
-
-                if (showDebugInfo)
-                    Debug.Log($"Spawned prefab [{gcObj.RenderPrefabID}] for '{gcObj.Name}'");
-
-                return entry;
-            }
+            return FindPrefabChild(gcObj, parentTransform);
         }
 
-        // Fallback: create empty GameObject
-        entry.GameObject = new GameObject(gcObj.Name);
-        entry.GameObject.transform.SetParent(parent);
-        entry.PrefabRoot = null;
-        UpdateTransform(entry.GameObject, gcObj.Transform);
+        // This is a prefab root: spawn from pool
+        if (gcObj.RenderPrefabID >= 0 && _pools != null)
+        {
+            return SpawnPrefab(gcObj, parentTransform);
+        }
+
+        // No prefab: create empty GameObject
+        return CreateEmptyVisual(gcObj, parentTransform);
+    }
+
+    private VisualEntry FindPrefabChild(GameCoreObj gcObj, Transform parentTransform)
+    {
+        Transform childTransform =
+            gcObj.SiblingIndex >= 0 && gcObj.SiblingIndex < parentTransform.childCount
+                ? parentTransform.GetChild(gcObj.SiblingIndex)
+                : null;
+
+        if (childTransform == null)
+        {
+            Debug.LogWarning(
+                $"[TileBinding] Prefab child index {gcObj.SiblingIndex} out of range under '{parentTransform.name}'"
+            );
+            return CreateEmptyVisual(gcObj, parentTransform);
+        }
+
+        UpdateTransform(childTransform.gameObject, gcObj.Transform);
+
+        return new VisualEntry { GameObject = childTransform.gameObject, OwnedByPrefab = true };
+    }
+
+    private VisualEntry SpawnPrefab(GameCoreObj gcObj, Transform parent)
+    {
+        var prefabRoot = _pools.Spawn(gcObj.RenderPrefabID, parent);
+        prefabRoot.gameObject.name = gcObj.Name;
+        UpdateTransform(prefabRoot.gameObject, gcObj.Transform);
+
+        if (showDebugInfo)
+            Debug.Log($"Spawned prefab [{gcObj.RenderPrefabID}] for '{gcObj.Name}'");
+
+        return new VisualEntry { GameObject = prefabRoot.gameObject, PrefabRoot = prefabRoot };
+    }
+
+    private VisualEntry CreateEmptyVisual(GameCoreObj gcObj, Transform parent)
+    {
+        var go = new GameObject(gcObj.Name);
+        go.transform.SetParent(parent);
+        UpdateTransform(go, gcObj.Transform);
 
         if (showDebugInfo)
             Debug.Log($"Created empty GameObject for '{gcObj.Name}'");
 
-        return entry;
+        return new VisualEntry { GameObject = go };
+    }
+
+    /// <summary>
+    /// Binds all IGCBinding components on a GameObject to the specified GameCoreObj.
+    /// Ensures GCObjBinding exists for inspector visibility.
+    /// </summary>
+    private void BindGameObject(GameObject go, GameCoreObj gcObj)
+    {
+        // Ensure GCObjBinding exists
+        var gcObjBinding = go.GetComponent<GCObjBinding>();
+        if (gcObjBinding == null)
+        {
+            gcObjBinding = go.AddComponent<GCObjBinding>();
+        }
+
+        // Bind all IGCBinding components (including GCObjBinding)
+        var bindings = go.GetComponents<IGCBinding>();
+        foreach (var binding in bindings)
+        {
+            binding.Bind(gcObj);
+        }
     }
 
     private void CleanupUnseenVisuals()
@@ -197,6 +264,10 @@ public abstract class TileBinding : MonoBehaviour
 
     private void DestroyVisual(VisualEntry entry)
     {
+        // Don't destroy children owned by a prefab - they're managed by the prefab lifecycle
+        if (entry.OwnedByPrefab)
+            return;
+
         if (entry.PrefabRoot != null && _pools != null)
         {
             _pools.Despawn(entry.PrefabRoot);

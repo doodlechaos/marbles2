@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using GameCoreLib;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -15,9 +14,10 @@ public class RenderObjPools : MonoBehaviour
     private readonly Dictionary<int, ObjectPool<RenderPrefabRoot>> _pools = new();
 
     /// <summary>
-    /// Spawns a visual instance from the pool and binds it to the data.
+    /// Spawns a visual instance from the pool.
+    /// Note: Binding to GameCoreObj is handled by TileBinding after spawning.
     /// </summary>
-    public RenderPrefabRoot Spawn(int prefabId, Transform parent, GameCoreObj data)
+    public RenderPrefabRoot Spawn(int prefabId, Transform parent)
     {
         if (!_pools.TryGetValue(prefabId, out var pool))
         {
@@ -30,7 +30,7 @@ public class RenderObjPools : MonoBehaviour
 
         RenderPrefabRoot instance = pool.Get();
         instance.transform.SetParent(parent, false);
-        instance.OnAcquire(data);
+        instance.OnAcquire();
 
         return instance;
     }

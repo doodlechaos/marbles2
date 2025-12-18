@@ -6,10 +6,10 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Custom inspector for RuntimeBinding that shows the attached GameCoreObj
-/// and all of its GameCoreObjComponents in a readable, debug‑friendly way.
+/// Custom inspector for GCObjBinding that shows the attached GameCoreObj
+/// and all of its GCComponents in a readable, debug‑friendly way.
 ///
-/// This does NOT rely on Unity's built‑in serialization of GameCoreObj / GameCoreObjComponent,
+/// This does NOT rely on Unity's built‑in serialization of GameCoreObj / GCComponent,
 /// so it works even though those types are polymorphic MemoryPack unions that Unity
 /// doesn't understand. We just inspect the live C# objects at runtime.
 /// </summary>
@@ -17,17 +17,15 @@ using UnityEngine;
 public sealed class GameCoreObjBindingEditor : Editor
 {
     private bool _showComponents = true;
+    private bool _showTransformDetails = true;
 
     public override void OnInspectorGUI()
     {
-        // Draw the normal inspector first (so you still see the GameCoreObj field, etc.)
-        DrawDefaultInspector();
-
         var binding = (GCObjBinding)target;
         var gameCoreObj = binding.GameCoreObj;
 
+        EditorGUILayout.LabelField("GameCore Object Binding", EditorStyles.boldLabel);
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("GameCore Debug View", EditorStyles.boldLabel);
 
         if (!Application.isPlaying)
         {
@@ -41,8 +39,7 @@ public sealed class GameCoreObjBindingEditor : Editor
         if (gameCoreObj == null)
         {
             EditorGUILayout.HelpBox(
-                "GameCoreObj is null on this binding at runtime.\n"
-                    + "Ensure your renderer / game code assigns a GameCoreObj to RuntimeBinding.GameCoreObj.",
+                "GameCoreObj is null. This GameObject is not currently bound to a GameCore object.",
                 MessageType.Warning
             );
             return;
@@ -50,36 +47,71 @@ public sealed class GameCoreObjBindingEditor : Editor
 
         DrawGameCoreObjHeader(gameCoreObj);
 
-        _showComponents = EditorGUILayout.Foldout(_showComponents, "GameCoreObjComponents");
+        EditorGUILayout.Space();
+        _showComponents = EditorGUILayout.Foldout(
+            _showComponents,
+            $"Components ({gameCoreObj.GameComponents?.Count ?? 0})"
+        );
         if (_showComponents)
         {
+            EditorGUI.indentLevel++;
             DrawGameCoreObjComponents(gameCoreObj);
+            EditorGUI.indentLevel--;
         }
     }
 
-    private static void DrawGameCoreObjHeader(GameCoreObj obj)
+    private void DrawGameCoreObjHeader(GameCoreObj obj)
     {
         using (new EditorGUILayout.VerticalScope("box"))
         {
-            EditorGUILayout.LabelField("GameCoreObj", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Identity", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Name", obj.Name ?? "<null>");
             EditorGUILayout.LabelField("RuntimeId", obj.RuntimeId.ToString());
-            EditorGUILayout.LabelField("Prefab ID", obj.RenderPrefabID.ToString());
 
-            // Simple transform debug info
-            var t = obj.Transform;
-            EditorGUILayout.LabelField(
-                "LocalPosition",
-                $"({t.LocalPosition.X}, {t.LocalPosition.Y}, {t.LocalPosition.Z})"
-            );
-            EditorGUILayout.LabelField(
-                "LocalRotation (Euler XYZ)",
-                $"({t.LocalRotation.EulerAngles.X}, {t.LocalRotation.EulerAngles.Y}, {t.LocalRotation.EulerAngles.Z})"
-            );
-            EditorGUILayout.LabelField(
-                "LocalScale",
-                $"({t.LocalScale.X}, {t.LocalScale.Y}, {t.LocalScale.Z})"
-            );
+            string prefabInfo =
+                obj.RenderPrefabID >= 0
+                    ? $"{obj.RenderPrefabID} (Prefab Root)"
+                    : "-1 (Not a prefab)";
+            EditorGUILayout.LabelField("Prefab ID", prefabInfo);
+            EditorGUILayout.LabelField("Sibling Index", obj.SiblingIndex.ToString());
+            EditorGUILayout.LabelField("Active", obj.Active.ToString());
+
+            // Physics info
+            if (obj.HasPhysicsBody)
+            {
+                EditorGUILayout.LabelField("Physics Body ID", obj.PhysicsBodyId.ToString());
+            }
+        }
+
+        EditorGUILayout.Space();
+        _showTransformDetails = EditorGUILayout.Foldout(_showTransformDetails, "Transform");
+        if (_showTransformDetails)
+        {
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                var t = obj.Transform;
+
+                // Local transform
+                EditorGUILayout.LabelField(
+                    "Local Position",
+                    $"({t.LocalPosition.X:F3}, {t.LocalPosition.Y:F3}, {t.LocalPosition.Z:F3})"
+                );
+                EditorGUILayout.LabelField(
+                    "Local Rotation (Euler)",
+                    $"({t.LocalRotation.EulerAngles.X:F1}°, {t.LocalRotation.EulerAngles.Y:F1}°, {t.LocalRotation.EulerAngles.Z:F1}°)"
+                );
+                EditorGUILayout.LabelField(
+                    "Local Scale",
+                    $"({t.LocalScale.X:F3}, {t.LocalScale.Y:F3}, {t.LocalScale.Z:F3})"
+                );
+
+                // World transform (if available)
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField(
+                    "World Position",
+                    $"({t.Position.X:F3}, {t.Position.Y:F3}, {t.Position.Z:F3})"
+                );
+            }
         }
     }
 

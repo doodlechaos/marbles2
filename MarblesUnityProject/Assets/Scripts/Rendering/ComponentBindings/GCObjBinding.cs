@@ -1,16 +1,35 @@
 using GameCoreLib;
 using UnityEngine;
 
-/// Component that binds a Unity GameObject to a GameCoreObj by its stable RuntimeId.
-/// This allows the renderer to survive serialization/deserialization and hot-reloads
-/// without losing track of which GameObject corresponds to which RuntimeObj.
+/// <summary>
+/// Component that binds a Unity GameObject to a GameCoreObj.
+/// Implements IGCBinding to integrate with the prefab binding lifecycle.
+///
+/// Every GameObject in the visual hierarchy should have this component
+/// so the GameCoreObj can be inspected at runtime via the custom inspector.
 /// </summary>
-public sealed class GCObjBinding : MonoBehaviour
+public sealed class GCObjBinding : MonoBehaviour, IGCBinding
 {
     /// <summary>
-    /// The stable ID of the RuntimeObj this GameObject represents.
-    /// This ID persists through save/load cycles.
+    /// The GameCoreObj this GameObject is bound to.
     /// </summary>
-    //public ulong RuntimeId;
-    public GameCoreObj GameCoreObj;
+    public GameCoreObj GameCoreObj { get; private set; }
+
+    /// <summary>
+    /// Binds this component to a GameCoreObj.
+    /// Called when the prefab is acquired from the pool or when a visual is created.
+    /// </summary>
+    public void Bind(GameCoreObj gcObj)
+    {
+        GameCoreObj = gcObj;
+    }
+
+    /// <summary>
+    /// Unbinds from the current GameCoreObj.
+    /// Called when the prefab is released back to the pool.
+    /// </summary>
+    public void Unbind()
+    {
+        GameCoreObj = null;
+    }
 }

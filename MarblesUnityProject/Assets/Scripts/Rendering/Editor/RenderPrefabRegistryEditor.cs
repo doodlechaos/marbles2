@@ -29,7 +29,7 @@ public class RenderPrefabRegistryEditor : Editor
     {
         int updatedCount = 0;
 
-        for (int i = 0; i < registry.Prefabs.Count; i++)
+        for (short i = 0; i < registry.Prefabs.Count; i++)
         {
             RenderPrefabRoot prefabRoot = registry.Prefabs[i];
             if (prefabRoot == null)

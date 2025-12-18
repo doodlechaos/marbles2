@@ -28,13 +28,13 @@ public class RenderPrefabRegistry : ScriptableObject
     /// Looks for a RenderPrefabRoot component and returns its PrefabId.
     /// Returns -1 if not found.
     /// </summary>
-    public int GetPrefabID(GameObject go)
+    public short GetPrefabID(GameObject go)
     {
         if (go == null)
             return -1;
 
         var root = go.GetComponent<RenderPrefabRoot>();
-        return root != null ? root.PrefabId : -1;
+        return root != null ? root.PrefabId : (short)-1;
     }
 
     /// <summary>

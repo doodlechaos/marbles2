@@ -42,7 +42,7 @@ namespace GameCoreLib
         /// 0+ = 0-based index into RenderPrefabRegistry.Prefabs list
         /// </summary>
         [MemoryPackOrder(5)]
-        public int RenderPrefabID = -1;
+        public short RenderPrefabID = -1;
 
         /// <summary>
         /// Whether this GameCoreObj is active. Inactive objects have their colliders disabled
@@ -50,6 +50,13 @@ namespace GameCoreLib
         /// </summary>
         [MemoryPackOrder(6)]
         public bool Active = true;
+
+        /// <summary>
+        /// The sibling index of this object in its parent's children list.
+        /// Used for robust prefab child binding (avoids fragile name-based lookup).
+        /// </summary>
+        [MemoryPackOrder(7)]
+        public int SiblingIndex = -1;
 
         #region Physics Component Accessors
 
