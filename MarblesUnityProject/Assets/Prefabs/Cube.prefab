@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4100475710299567461}
+  - component: {fileID: 4719409597218120214}
   - component: {fileID: 6724765359845290498}
   - component: {fileID: 2902526558195787246}
-  - component: {fileID: 6260989939549823964}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -34,6 +34,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -45}
+--- !u!114 &4719409597218120214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5728080844889452456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccaaf57ae3d42f4b9676484e6ae1a95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabRoot
+  _prefabId: 0
 --- !u!33 &6724765359845290498
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -89,17 +102,5 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6260989939549823964
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5728080844889452456}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
-  renderPrefabID: 0

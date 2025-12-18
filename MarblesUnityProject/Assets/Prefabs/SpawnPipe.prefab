@@ -89,6 +89,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &1418936473997526028
 BoxCollider:
@@ -120,8 +121,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8005487896993434013}
+  - component: {fileID: 847524952689076706}
   - component: {fileID: 3732224699687113263}
-  - component: {fileID: -3294013238877953464}
   m_Layer: 0
   m_Name: SpawnPipe
   m_TagString: Untagged
@@ -147,6 +148,19 @@ Transform:
   - {fileID: 1973243996020981297}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &847524952689076706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6668244075672124559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccaaf57ae3d42f4b9676484e6ae1a95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabRoot
+  _prefabId: 7
 --- !u!114 &3732224699687113263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,19 +174,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnPipeAuth
   spawnDelay: 0.5
---- !u!114 &-3294013238877953464
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6668244075672124559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
-  renderPrefabID: 3
 --- !u!1 &6889064967795593518
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,6 +263,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &8296492561297460502
 BoxCollider:
@@ -373,6 +375,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &573033609093113172
 BoxCollider:

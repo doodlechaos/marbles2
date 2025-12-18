@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8412487932128577164}
+  - component: {fileID: 8885165152667007051}
   m_Layer: 0
   m_Name: SpinnerRow
   m_TagString: Untagged
@@ -40,6 +41,19 @@ Transform:
   - {fileID: 1772352523046869321}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8885165152667007051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3845683045591058064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccaaf57ae3d42f4b9676484e6ae1a95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabRoot
+  _prefabId: 9
 --- !u!1001 &951626573983434492
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -87,6 +101,10 @@ PrefabInstance:
     - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
@@ -150,6 +168,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
       value: SpinnerSquarePeg (1)
@@ -211,6 +233,10 @@ PrefabInstance:
     - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
@@ -274,6 +300,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
       value: SpinnerSquarePeg (2)
@@ -335,6 +365,10 @@ PrefabInstance:
     - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
@@ -398,6 +432,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
       value: SpinnerSquarePeg (6)
@@ -459,6 +497,10 @@ PrefabInstance:
     - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
@@ -522,6 +564,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name
       value: SpinnerSquarePeg (4)
@@ -583,6 +629,10 @@ PrefabInstance:
     - target: {fileID: 1561748966186622901, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3878023661375890323, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
+      propertyPath: _prefabId
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 7502339491067910849, guid: caa56de109e2fb24eac6d6ee6a259c04, type: 3}
       propertyPath: m_Name

@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8468094541348368190}
+  - component: {fileID: 2179184853739580592}
   - component: {fileID: 3896320327183086788}
   - component: {fileID: 8686839506519481649}
   - component: {fileID: 4344077359094929294}
-  - component: {fileID: -3484151012766679981}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -35,6 +35,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!114 &2179184853739580592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6795843947873832426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccaaf57ae3d42f4b9676484e6ae1a95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabRoot
+  _prefabId: 1
 --- !u!33 &3896320327183086788
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -90,6 +103,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!58 &4344077359094929294
 CircleCollider2D:
@@ -127,16 +141,3 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.000000059604645, y: 0}
   m_Radius: 0.5
---- !u!114 &-3484151012766679981
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6795843947873832426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
-  renderPrefabID: 1

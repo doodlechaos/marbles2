@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Custom editor for RenderPrefabRegistry that adds a button to auto-assign IDs to prefabs.
+/// Custom editor for RenderPrefabRegistry that auto-assigns IDs to prefabs.
 /// </summary>
 [CustomEditor(typeof(RenderPrefabRegistry))]
 public class RenderPrefabRegistryEditor : Editor
@@ -15,7 +15,7 @@ public class RenderPrefabRegistryEditor : Editor
 
         EditorGUILayout.Space();
         EditorGUILayout.HelpBox(
-            "Click the button below to automatically add/update RenderPrefabIdentifier components on all prefabs in the registry.",
+            "Click below to automatically update PrefabId on all RenderPrefabRoot components.",
             MessageType.Info
         );
 
@@ -28,43 +28,30 @@ public class RenderPrefabRegistryEditor : Editor
     private void AutoAssignPrefabIDs(RenderPrefabRegistry registry)
     {
         int updatedCount = 0;
-        int addedCount = 0;
 
         for (int i = 0; i < registry.Prefabs.Count; i++)
         {
-            GameObject prefab = registry.Prefabs[i];
-            if (prefab == null)
+            RenderPrefabRoot prefabRoot = registry.Prefabs[i];
+            if (prefabRoot == null)
             {
                 Debug.LogWarning($"[RenderPrefabRegistry] Prefab at index {i} is null, skipping");
                 continue;
             }
 
-            // Get or add the identifier component
-            RenderPrefabIdentifier identifier = prefab.GetComponent<RenderPrefabIdentifier>();
-            if (identifier == null)
+            if (prefabRoot.PrefabId != i)
             {
-                identifier = prefab.AddComponent<RenderPrefabIdentifier>();
-                addedCount++;
-                Debug.Log($"[RenderPrefabRegistry] Added RenderPrefabIdentifier to {prefab.name}");
-            }
-
-            // Set the ID
-            if (identifier.RenderPrefabID != i)
-            {
-                identifier.SetRenderPrefabID(i);
-                EditorUtility.SetDirty(prefab);
+                prefabRoot.SetPrefabId(i);
+                EditorUtility.SetDirty(prefabRoot);
                 updatedCount++;
-                Debug.Log(
-                    $"[RenderPrefabRegistry] Updated {prefab.name} ID to {i} (was {identifier.RenderPrefabID})"
-                );
+                Debug.Log($"[RenderPrefabRegistry] Updated {prefabRoot.name} PrefabId to {i}");
             }
         }
 
-        if (addedCount > 0 || updatedCount > 0)
+        if (updatedCount > 0)
         {
             AssetDatabase.SaveAssets();
             Debug.Log(
-                $"[RenderPrefabRegistry] Auto-assign complete! Added {addedCount} components, updated {updatedCount} IDs"
+                $"[RenderPrefabRegistry] Auto-assign complete! Updated {updatedCount} prefabs"
             );
         }
         else

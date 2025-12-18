@@ -1175,7 +1175,7 @@ GameObject:
   m_Component:
   - component: {fileID: 352355907733435357}
   - component: {fileID: 5057222489663356416}
-  - component: {fileID: -2985437641548047370}
+  - component: {fileID: 5047983280893367620}
   m_Layer: 14
   m_Name: TriggerBucket
   m_TagString: Untagged
@@ -1217,7 +1217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35620d61c248cbd448a39d870ad5577e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TriggerBucketAuth
---- !u!114 &-2985437641548047370
+--- !u!114 &5047983280893367620
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1226,7 +1226,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9015514090198318576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
+  m_Script: {fileID: 11500000, guid: 1ccaaf57ae3d42f4b9676484e6ae1a95, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
-  renderPrefabID: 5
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabRoot
+  _prefabId: 13

@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f02574efae63f748b71a5e4db312d99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameTileBinding
-  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  _pools: {fileID: 227081789}
   showDebugInfo: 0
   showLockSimDebug: 0
   gameTile:
@@ -385,6 +385,51 @@ MonoBehaviour:
   GameTile2Binding: {fileID: 94175522}
   _authManager: {fileID: 931444009}
   _stdb: {fileID: 1423701285}
+--- !u!1 &227081787
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 227081788}
+  - component: {fileID: 227081789}
+  m_Layer: 0
+  m_Name: PrefabPools
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &227081788
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 227081787}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1098268960}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &227081789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 227081787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ded59f0af0fc50b40a9495ae04561127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderObjPools
+  _registry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -927,7 +972,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef5ede13c04aa854cbe5a010b812fce1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThroneTileBinding
-  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  _pools: {fileID: 227081789}
   showDebugInfo: 0
   showLockSimDebug: 0
   throneTile:
@@ -1043,6 +1088,7 @@ Transform:
   - {fileID: 633275203}
   - {fileID: 1496100694}
   - {fileID: 94175521}
+  - {fileID: 227081788}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1098268962
@@ -1163,7 +1209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f02574efae63f748b71a5e4db312d99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameTileBinding
-  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  _pools: {fileID: 227081789}
   showDebugInfo: 0
   showLockSimDebug: 0
   gameTile:
@@ -1622,7 +1668,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4422986821221044026, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.504276
+      value: -27.505028
       objectReference: {fileID: 0}
     - target: {fileID: 4539591184749852580, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_Name

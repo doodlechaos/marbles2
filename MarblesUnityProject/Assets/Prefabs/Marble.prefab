@@ -568,9 +568,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 836525471852717791}
+  - component: {fileID: 3970022260262718484}
   - component: {fileID: 5299851290725159317}
   - component: {fileID: 8695241142120521382}
-  - component: {fileID: 7982006795619838304}
   m_Layer: 0
   m_Name: Marble
   m_TagString: Untagged
@@ -596,6 +596,19 @@ Transform:
   - {fileID: 2440111270643125057}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3970022260262718484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8627050739790726732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccaaf57ae3d42f4b9676484e6ae1a95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabRoot
+  _prefabId: 6
 --- !u!114 &5299851290725159317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -623,17 +636,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5e21cffdcab6924882e4d4f294df677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MarbleBinding
-  pointsText: {fileID: 3100578607766464434}
---- !u!114 &7982006795619838304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8627050739790726732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
-  renderPrefabID: 2
+  _usernameText: {fileID: 3124327135357860031}
+  _pointsText: {fileID: 3100578607766464434}

@@ -534,7 +534,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5908946792536097213}
-  - component: {fileID: -2288408260540829735}
+  - component: {fileID: 2578461273611239710}
   m_Layer: 14
   m_Name: KillBucket
   m_TagString: Untagged
@@ -563,7 +563,7 @@ Transform:
   - {fileID: 4082800467925780837}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-2288408260540829735
+--- !u!114 &2578461273611239710
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -572,10 +572,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2393048805340069272}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a65140caf08a4034795295563d579480, type: 3}
+  m_Script: {fileID: 11500000, guid: 1ccaaf57ae3d42f4b9676484e6ae1a95, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabIdentifier
-  renderPrefabID: 6
+  m_EditorClassIdentifier: Assembly-CSharp::RenderPrefabRoot
+  _prefabId: 5
 --- !u!1 &5958346895163610298
 GameObject:
   m_ObjectHideFlags: 0

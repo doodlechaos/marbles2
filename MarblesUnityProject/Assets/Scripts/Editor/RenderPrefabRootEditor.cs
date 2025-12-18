@@ -6,25 +6,25 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Custom inspector for RuntimeBinding that shows the attached GameCoreObj
+/// Custom inspector for RenderPrefabRoot that shows the attached GameCoreObj
 /// and all of its GameCoreObjComponents in a readable, debug‑friendly way.
 ///
 /// This does NOT rely on Unity's built‑in serialization of GameCoreObj / GameCoreObjComponent,
 /// so it works even though those types are polymorphic MemoryPack unions that Unity
 /// doesn't understand. We just inspect the live C# objects at runtime.
 /// </summary>
-[CustomEditor(typeof(GCObjBinding))]
-public sealed class GameCoreObjBindingEditor : Editor
+[CustomEditor(typeof(RenderPrefabRoot))]
+public sealed class RenderPrefabRootEditor : Editor
 {
     private bool _showComponents = true;
 
     public override void OnInspectorGUI()
     {
-        // Draw the normal inspector first (so you still see the GameCoreObj field, etc.)
+        // Draw the normal inspector first (so you still see the PrefabId field, etc.)
         DrawDefaultInspector();
 
-        var binding = (GCObjBinding)target;
-        var gameCoreObj = binding.GameCoreObj;
+        var root = (RenderPrefabRoot)target;
+        var gameCoreObj = root.GameCoreObj;
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("GameCore Debug View", EditorStyles.boldLabel);
@@ -41,9 +41,10 @@ public sealed class GameCoreObjBindingEditor : Editor
         if (gameCoreObj == null)
         {
             EditorGUILayout.HelpBox(
-                "GameCoreObj is null on this binding at runtime.\n"
-                    + "Ensure your renderer / game code assigns a GameCoreObj to RuntimeBinding.GameCoreObj.",
-                MessageType.Warning
+                "GameCoreObj is null on this RenderPrefabRoot at runtime.\n"
+                    + "This is expected when the prefab is pooled/inactive. When acquired from the pool, "
+                    + "OnAcquire() will set the GameCoreObj.",
+                MessageType.Info
             );
             return;
         }

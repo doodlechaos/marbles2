@@ -2,34 +2,36 @@ using GameCoreLib;
 using UnityEngine;
 
 /// <summary>
-/// Non-generic interface for GCBinding to allow TileBinding to work with any binding type.
+/// Interface for Unity components that bind to GameCore objects.
+/// Implement this on any MonoBehaviour that needs lifecycle callbacks when
+/// the prefab is acquired from or released to the object pool.
 /// </summary>
 public interface IGCBinding
 {
     /// <summary>
-    /// Attempts to bind this Unity component to a GameCoreObj.
-    /// The implementation should find the appropriate GCComponent on the object.
+    /// Binds this component to a GameCoreObj.
+    /// Called when the prefab is acquired from the pool.
     /// </summary>
-    /// <param name="gcObj">The GameCoreObj to search for the component.</param>
-    /// <returns>True if binding was successful, false otherwise.</returns>
-    bool TryBindToObject(GameCoreObj gcObj);
+    void Bind(GameCoreObj gcObj);
+
+    /// <summary>
+    /// Unbinds from the current GameCoreObj.
+    /// Called when the prefab is released back to the pool.
+    /// </summary>
+    void Unbind();
 }
 
 /// <summary>
 /// Abstract base class for Unity components that bind to GameCore components.
 /// Derive from this to create visual bindings that automatically sync with
 /// GameCore component state.
-///
-/// Simply add this component to a prefab, and TileBinding will automatically
-/// bind it when the prefab is instantiated.
 /// </summary>
 /// <typeparam name="T">The GCComponent type this binding displays.</typeparam>
 public abstract class GCBinding<T> : MonoBehaviour, IGCBinding
     where T : GCComponent
 {
     /// <summary>
-    /// The bound GameCore component. Set automatically by TileBinding when
-    /// a prefab containing this binding is instantiated.
+    /// The bound GameCore component.
     /// </summary>
     public T BoundComponent { get; private set; }
 
@@ -44,29 +46,28 @@ public abstract class GCBinding<T> : MonoBehaviour, IGCBinding
     public bool IsBound => BoundComponent != null;
 
     /// <summary>
-    /// Attempts to bind to a GameCoreObj by finding the first component of type T.
-    /// Called automatically by TileBinding.
+    /// Binds to a GameCoreObj by finding the first component of type T.
+    /// Called by RenderPrefabRoot when acquired from the pool.
     /// </summary>
-    public virtual bool TryBindToObject(GameCoreObj gcObj)
+    public void Bind(GameCoreObj gcObj)
     {
         if (gcObj == null)
-            return false;
+        {
+            Unbind();
+            return;
+        }
 
         T component = gcObj.GetComponent<T>();
         if (component != null)
         {
-            Bind(component);
-            return true;
+            BindComponent(component);
         }
-
-        return false;
     }
 
     /// <summary>
-    /// Binds this Unity component to a GameCore component.
+    /// Binds directly to a specific component.
     /// </summary>
-    /// <param name="component">The GameCore component to bind to.</param>
-    public void Bind(T component)
+    public void BindComponent(T component)
     {
         T previousComponent = BoundComponent;
         BoundComponent = component;
@@ -79,6 +80,7 @@ public abstract class GCBinding<T> : MonoBehaviour, IGCBinding
 
     /// <summary>
     /// Unbinds the current component reference.
+    /// Called by RenderPrefabRoot when released to the pool.
     /// </summary>
     public void Unbind()
     {
@@ -92,9 +94,8 @@ public abstract class GCBinding<T> : MonoBehaviour, IGCBinding
 
     /// <summary>
     /// Called when the binding changes. Override to respond to binding updates.
+    /// Use this for registration/unregistration with external systems.
     /// </summary>
-    /// <param name="previousComponent">The previously bound component (may be null).</param>
-    /// <param name="newComponent">The newly bound component (may be null).</param>
     protected virtual void OnBindingChanged(T previousComponent, T newComponent) { }
 
     /// <summary>

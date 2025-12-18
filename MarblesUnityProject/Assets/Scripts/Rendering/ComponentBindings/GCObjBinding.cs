@@ -1,4 +1,4 @@
-using GameCoreLib;
+/* using GameCoreLib;
 using UnityEngine;
 
 /// <summary>
@@ -14,3 +14,4 @@ public sealed class GCObjBinding : MonoBehaviour
     /// </summary>
     public GameCoreObj GameCoreObj;
 }
+ */

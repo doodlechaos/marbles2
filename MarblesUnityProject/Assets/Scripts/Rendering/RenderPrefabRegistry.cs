@@ -3,56 +3,38 @@ using UnityEngine;
 
 /// <summary>
 /// ScriptableObject that holds the centralized list of render prefabs.
-/// Create one instance via Assets > Create > Marbles > Render Prefab Registry.
-/// Reference this from all TileBinding instances to share the same prefab configuration.
+/// Create via Assets > Create > Marbles > Render Prefab Registry.
 /// </summary>
 [CreateAssetMenu(fileName = "RenderPrefabRegistry", menuName = "Marbles/Render Prefab Registry")]
 public class RenderPrefabRegistry : ScriptableObject
 {
-    [Tooltip(
-        "List of prefabs for rendering. RenderPrefabID uses 0-based indexing (0 = first prefab, 1 = second, etc). ID -1 = no prefab."
-    )]
+    [Tooltip("List of prefabs for rendering. Index = RenderPrefabID (0-based). ID -1 = no prefab.")]
     [SerializeField]
-    private List<GameObject> renderPrefabs = new List<GameObject>();
+    private List<RenderPrefabRoot> renderPrefabs = new List<RenderPrefabRoot>();
 
     /// <summary>
-    /// Get prefab by RenderPrefabID. Uses 0-based indexing.
-    /// ID -1 = no prefab, ID 0 = first prefab in list, etc.
+    /// Get prefab by RenderPrefabID. Returns null if ID is invalid.
     /// </summary>
-    public GameObject GetPrefabByID(int prefabID)
+    public RenderPrefabRoot GetPrefabByID(int prefabID)
     {
-        if (prefabID < 0)
+        if (prefabID < 0 || prefabID >= renderPrefabs.Count)
             return null;
 
-        if (prefabID < renderPrefabs.Count)
-        {
-            return renderPrefabs[prefabID];
-        }
-
-        return null;
+        return renderPrefabs[prefabID];
     }
 
     /// <summary>
     /// Get the render prefab ID from a GameObject.
-    /// Looks for a RenderPrefabIdentifier component on the GameObject.
-    /// Returns -1 if not found or if the GameObject has no identifier.
+    /// Looks for a RenderPrefabRoot component and returns its PrefabId.
+    /// Returns -1 if not found.
     /// </summary>
     public int GetPrefabID(GameObject go)
     {
         if (go == null)
-        {
             return -1;
-        }
 
-        // Look for the identifier component
-        RenderPrefabIdentifier identifier = go.GetComponent<RenderPrefabIdentifier>();
-        if (identifier != null)
-        {
-            return identifier.RenderPrefabID;
-        }
-
-        // No identifier found - this GameObject doesn't specify a render prefab
-        return -1;
+        var root = go.GetComponent<RenderPrefabRoot>();
+        return root != null ? root.PrefabId : -1;
     }
 
     /// <summary>
@@ -61,7 +43,7 @@ public class RenderPrefabRegistry : ScriptableObject
     public int Count => renderPrefabs.Count;
 
     /// <summary>
-    /// Access the prefab list (for editor tools like GameTileExporter).
+    /// Access the prefab list (for editor tools).
     /// </summary>
-    public IReadOnlyList<GameObject> Prefabs => renderPrefabs;
+    public IReadOnlyList<RenderPrefabRoot> Prefabs => renderPrefabs;
 }
