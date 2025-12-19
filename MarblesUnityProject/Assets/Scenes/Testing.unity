@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f02574efae63f748b71a5e4db312d99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameTileBinding
-  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  _pools: {fileID: 291829625}
   showDebugInfo: 0
   showLockSimDebug: 0
   gameTile:
@@ -330,6 +330,51 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6129053056400091640, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
   m_PrefabInstance: {fileID: 222217704}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &291829624
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 291829626}
+  - component: {fileID: 291829625}
+  m_Layer: 0
+  m_Name: ObjPools
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &291829625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 291829624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ded59f0af0fc50b40a9495ae04561127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RenderObjPools
+  _registry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+--- !u!4 &291829626
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 291829624}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.82906, y: -0, z: 45.3999}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &397689274
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,7 +771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef5ede13c04aa854cbe5a010b812fce1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThroneTileBinding
-  prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
+  _pools: {fileID: 0}
   showDebugInfo: 0
   showLockSimDebug: 0
   throneTile:
@@ -1174,6 +1219,9 @@ MonoBehaviour:
   prefabRegistry: {fileID: 11400000, guid: ef647dc027c44a94f8507a62aa8bb96b, type: 2}
   tileBinding: {fileID: 101046554}
   _isRunning: 0
+  _stepSpeedMultiplier: 1
+  _simTicksPerSecond: 60
+  _maxStepsPerFixedUpdate: 50
 --- !u!1 &1755339977
 GameObject:
   m_ObjectHideFlags: 0
@@ -1291,6 +1339,7 @@ SceneRoots:
   - {fileID: 397689278}
   - {fileID: 839428363}
   - {fileID: 1755339980}
+  - {fileID: 291829626}
   - {fileID: 1161191524}
   - {fileID: 1110457913}
   - {fileID: 545174140}

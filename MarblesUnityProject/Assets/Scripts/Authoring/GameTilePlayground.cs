@@ -29,6 +29,19 @@ public class GameTilePlayground : MonoBehaviour
     [SerializeField]
     private bool _isRunning;
 
+    [SerializeField, Min(0f)]
+    private float _stepSpeedMultiplier = 1f;
+
+    // Your sim tick rate (GameTile.Step() == 1 tick)
+    [SerializeField, Min(1)]
+    private int _simTicksPerSecond = 60;
+
+    // Safety so huge multipliers don’t hang the editor
+    [SerializeField, Min(1)]
+    private int _maxStepsPerFixedUpdate = 50;
+
+    private double _tickAccumulator;
+
     /// <summary>
     /// The GameTile currently being tested.
     /// </summary>
@@ -81,7 +94,23 @@ public class GameTilePlayground : MonoBehaviour
         if (!_isRunning || GameTile == null)
             return;
 
-        StepOnce();
+        // Use unscaled so Unity timescale doesn’t affect your test speed (optional).
+        double dt = Time.fixedUnscaledDeltaTime;
+
+        // Convert real time into “how many sim ticks should run”
+        _tickAccumulator += dt * _simTicksPerSecond * _stepSpeedMultiplier;
+
+        int steps = 0;
+        while (_tickAccumulator >= 1.0 && steps < _maxStepsPerFixedUpdate)
+        {
+            _tickAccumulator -= 1.0;
+            StepOnce();
+            steps++;
+        }
+
+        // If we hit the cap, drop accumulated debt to avoid spiraling forever.
+        if (steps == _maxStepsPerFixedUpdate)
+            _tickAccumulator = 0;
     }
 
     /// <summary>
@@ -107,6 +136,7 @@ public class GameTilePlayground : MonoBehaviour
 
             Debug.Log($"[GameTilePlayground] Loaded: {GameTile.TileRoot?.Name ?? "Unknown"}");
         }
+        _tickAccumulator = 0;
     }
 
     private void StartGameplay(InputEvent.GameplayStartInput gameplayStartInput)
@@ -150,6 +180,7 @@ public class GameTilePlayground : MonoBehaviour
     [ProButton]
     public void RestartSimulation()
     {
+        _tickAccumulator = 0;
         LoadFromPrefab();
         StartGameplay(_gameplayStartInput);
         Debug.Log("[GameTilePlayground] Simulation restarted");

@@ -74,7 +74,7 @@ namespace FPMathLib
             get => _localRotation;
             set
             {
-                _localRotation = value;
+                _localRotation = value.Normalized;
                 MarkWorldDirty();
             }
         }
