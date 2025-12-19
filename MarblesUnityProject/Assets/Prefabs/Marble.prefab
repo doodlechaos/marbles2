@@ -638,3 +638,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MarbleBinding
   _usernameText: {fileID: 3124327135357860031}
   _pointsText: {fileID: 3100578607766464434}
+  _marbleRenderer: {fileID: 6087696474033058679}
+  _shaderTextureProperty: _BaseMap
