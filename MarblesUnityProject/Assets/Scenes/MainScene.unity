@@ -1502,6 +1502,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AccountCustomizationCache
   _defaultPfpSprite: {fileID: 0}
+  _pfpBaseUrl: https://cdn-dev.marbles.live/pfp
+  _maxConcurrentPfpLoads: 8
+  _pfpTimeoutSeconds: 10
+  _pfpRetries: 2
+  testSprite: {fileID: 0}
 --- !u!4 &2071265892
 Transform:
   m_ObjectHideFlags: 0
@@ -1668,7 +1673,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4422986821221044026, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.505028
+      value: -27.504831
       objectReference: {fileID: 0}
     - target: {fileID: 4539591184749852580, guid: bd051d6553138db45ba8bd340d3822d4, type: 3}
       propertyPath: m_Name

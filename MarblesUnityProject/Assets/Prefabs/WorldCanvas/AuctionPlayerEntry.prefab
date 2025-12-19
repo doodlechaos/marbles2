@@ -178,6 +178,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -314,6 +315,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -450,6 +452,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -513,9 +516,9 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2056395196258776727}
+  - {fileID: 769509924369973265}
   - {fileID: 4058828455387112560}
   - {fileID: 1797566642631639980}
-  - {fileID: 769509924369973265}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -536,7 +539,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AuctionPlayerEntry
   _rankText: {fileID: 1923792032441406758}
+  _playerPfp: {fileID: 8685932495544042461}
   _playerNameText: {fileID: 5149976420301792255}
   _bidAmountText: {fileID: 1365335126469738241}
-  _targetPosition: {x: 0, y: 0, z: 0}
+  _targetLocalPosition: {x: 0, y: 0, z: 0}
   _movementSpeedScalar: 7

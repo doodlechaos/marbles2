@@ -1,10 +1,14 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AuctionPlayerEntry : MonoBehaviour, IAccountCustomizationConsumer
 {
     [SerializeField]
     private TextMeshProUGUI _rankText;
+
+    [SerializeField]
+    private Image _playerPfp;
 
     [SerializeField]
     private TextMeshProUGUI _playerNameText;
@@ -44,6 +48,7 @@ public class AuctionPlayerEntry : MonoBehaviour, IAccountCustomizationConsumer
     public void ApplyAccountCustomization(AccountVisual visual)
     {
         _playerNameText.SetText(visual.Username);
+        _playerPfp.sprite = visual.PfpSprite;
     }
 
     public void SetTargetLocalPos(Vector3 targetPosition)

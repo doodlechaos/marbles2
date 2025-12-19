@@ -44,6 +44,7 @@ public class PodiumEntry : MonoBehaviour, IAccountCustomizationConsumer
     public void ApplyAccountCustomization(AccountVisual visual)
     {
         _usernameText.SetText(visual.Username);
+        _playerPfp.sprite = visual.PfpSprite;
     }
 
     //Have to do this instead of activating and deactivating the gameobject because that will stop the coroutine or not allow it to start

@@ -11,6 +11,7 @@ public class MarbleBinding : GCBinding<MarbleComponent>, IAccountCustomizationCo
     [SerializeField]
     private TextMeshPro _usernameText;
 
+    
     [SerializeField]
     private TextMeshPro _pointsText;
 
